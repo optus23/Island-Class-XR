@@ -1,6 +1,6 @@
 import * as THREE from 'three'
 import { worlds, worldAtX } from '../config/worlds.js'
-import { world as themeWorld, biomes } from '../config/theme.js'
+import { world as themeWorld, biomes, backdrop, flowers } from '../config/theme.js'
 import { buildWorldCurves, buildConnectors } from './paths.js'
 
 /**
@@ -241,13 +241,88 @@ export function createIsland() {
   group.add(water)
 
   group.add(createProps(cells))
+  group.add(createBackdrop(minX, maxX, minZ))
 
   return { group, terrain: caps, cells }
 }
 
 /**
+ * Rows of soft pastel mounds standing behind the island.
+ *
+ * Without them the map reads as a diorama floating in empty sky; the reference
+ * art always has a wall of hills behind the play area. Each mound is a small
+ * ziggurat of stacked boxes, which keeps the voxel language while still
+ * reading as a rounded hill from the map's fixed angles.
+ *
+ * Two rows: a near one at full colour and a far one pushed back, where the
+ * scene fog thins it out into aerial perspective for free.
+ */
+function createBackdrop(minX, maxX, minZ) {
+  const group = new THREE.Group()
+  const sky = new THREE.Color(themeWorld.sky)
+  const mounds = []
+
+  /**
+   * @param zBase how far behind the island this row sits
+   * @param scale overall size multiplier
+   * @param step  spacing between mounds
+   * @param haze  0..1 blend toward the sky colour — cheap aerial perspective,
+   *              so the far row reads as distance rather than as more island
+   */
+  const row = (zBase, scale, step, haze) => {
+    for (let x = minX - 30; x <= maxX + 30; x += step) {
+      const r = hash2(x * 0.31, zBase * 0.17)
+      const r2 = hash2(zBase * 0.53, x * 0.11)
+      const pool = backdrop[worldAtX(x).biome] ?? backdrop.meadow
+      mounds.push({
+        x: x + (r - 0.5) * step * 0.6,
+        z: zBase - r2 * 18,
+        w: (26 + r * 18) * scale,
+        h: (11 + r2 * 9) * scale,
+        hex: pool[Math.floor(r2 * pool.length) % pool.length],
+        haze,
+      })
+    }
+  }
+
+  row(minZ - 34, 1.0, 26, 0.16)
+  row(minZ - 68, 1.6, 40, 0.4)
+
+  // A squashed low-poly sphere, not a stack of boxes. Stacked boxes terrace
+  // far too visibly at this size and read as glaciers; a coarse sphere still
+  // shows facets, so it sits happily next to the voxel island while actually
+  // looking like a rounded hill.
+  const mesh = new THREE.InstancedMesh(
+    new THREE.SphereGeometry(0.5, 12, 7),
+    new THREE.MeshLambertMaterial({ flatShading: true }),
+    mounds.length
+  )
+  const m = new THREE.Matrix4()
+  const q = new THREE.Quaternion()
+  const p = new THREE.Vector3()
+  const sv = new THREE.Vector3()
+  const col = new THREE.Color()
+  mounds.forEach((b, i) => {
+    sv.set(b.w, b.h * 2, b.w * 0.8)
+    // Sunk so only the crown shows: hills rising out of the sea, not spheres
+    // resting on it.
+    p.set(b.x, -b.h * 0.55, b.z)
+    m.compose(p, q, sv)
+    mesh.setMatrixAt(i, m)
+    col.setHex(b.hex).lerp(sky, b.haze)
+    mesh.setColorAt(i, col)
+  })
+  mesh.instanceMatrix.needsUpdate = true
+  if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true
+  mesh.frustumCulled = false
+  group.add(mesh)
+  return group
+}
+
+/**
  * Biome props: leafy trees in the meadow, cacti in the desert, pines on the
- * summit. All kept well clear of the path so they never hide a node.
+ * summit, plus flowers close to the route. All trees are kept well clear of
+ * the path so they never hide a node.
  */
 function createProps(cells) {
   const props = new THREE.Group()
@@ -255,14 +330,23 @@ function createProps(cells) {
 
   const trunks = []
   const crowns = []
+  const tops = [] // second, narrower canopy tier so trees read as round
   const boulders = []
   for (const c of candidates) {
     const r = hash2(c.x * 3.3, c.z * 7.7)
     if (r > 0.945) {
       trunks.push(c)
       crowns.push(c)
+      if (c.biome.props !== 'cactus') tops.push(c)
     } else if (r < 0.025) boulders.push(c)
   }
+
+  // Flowers hug the route rather than the wilderness — they are what makes the
+  // roadside feel planted instead of empty.
+  const blooms = cells.filter((c) => {
+    if (c.pathDist < 2.6 || c.pathDist > 9 || c.shore < 0.85) return false
+    return hash2(c.x * 5.1, c.z * 2.7) > 0.82
+  })
 
   const box = new THREE.BoxGeometry(1, 1, 1)
   const push = (list, sizeFor, yFor, colorFor) => {
@@ -307,6 +391,17 @@ function createProps(cells) {
     (c, k) => (c.biome.props === 'cactus' ? 2.1 : 1.9 + k.y / 2 - 0.3),
     (c) => (hash2(c.x, c.z * 2) > 0.5 ? c.biome.foliage : c.biome.foliageAlt)
   )
+  // Narrower cap on top of the canopy — two tiers read as a dome, one reads
+  // as a cube on a stick.
+  push(
+    tops,
+    (c) => {
+      const w = 1.5 + hash2(c.z * 1.9, c.x * 2.3) * 0.7
+      return { x: w, y: w * 0.7, z: w }
+    },
+    (c, k) => (c.biome.props === 'pine' ? 4.2 : 3.5) + k.y / 2,
+    (c) => c.biome.foliageAlt
+  )
   push(
     boulders,
     (c) => {
@@ -315,6 +410,12 @@ function createProps(cells) {
     },
     (_, k) => k.y / 2,
     (c) => c.biome.boulder
+  )
+  push(
+    blooms,
+    () => ({ x: 0.36, y: 0.36, z: 0.36 }),
+    (_, k) => k.y / 2 + 0.05,
+    (c) => flowers[Math.floor(hash2(c.z * 3.7, c.x * 4.3) * flowers.length) % flowers.length]
   )
 
   return props
