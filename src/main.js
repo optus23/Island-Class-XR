@@ -26,6 +26,7 @@ app.worldGroup.add(map.group)
 app.worldGroup.add(player.group)
 
 app.onUpdate((dt) => {
+  island.update(dt)
   map.update(dt)
   player.update(dt)
   // The camera simply follows the avatar. Crossing between worlds blends the
