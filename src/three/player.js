@@ -1,5 +1,6 @@
 import * as THREE from 'three'
 import { world as themeWorld } from '../config/theme.js'
+import { prefersReducedMotion } from '../lib/motion.js'
 
 /**
  * The student avatar: a little voxel figure that hops from node to node along
@@ -67,6 +68,17 @@ export function createPlayer() {
       done?.()
       return
     }
+    // Reduced motion: land on the destination without hopping the whole route.
+    if (prefersReducedMotion()) {
+      group.position.copy(route[route.length - 1])
+      body.position.y = 0
+      body.scale.set(1, 1, 1)
+      waypoints = []
+      moving = false
+      currentLevelId = levelId
+      done?.()
+      return
+    }
     waypoints = route.map((p) => p.clone())
     segment = 0
     segmentT = 0
@@ -79,6 +91,11 @@ export function createPlayer() {
 
   function update(dt) {
     if (!moving) {
+      if (prefersReducedMotion()) {
+        body.position.y = 0
+        body.scale.set(1, 1, 1)
+        return
+      }
       // Idle breathing so the avatar never looks frozen.
       idleT += dt
       body.position.y = Math.sin(idleT * 2.4) * 0.06

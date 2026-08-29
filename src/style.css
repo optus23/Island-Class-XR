@@ -115,3 +115,16 @@ body.map-view {
   text-align: left;
 }
 .prose-xri img { max-width: 100%; height: auto; border-radius: 6px; }
+
+/* Visible only to screen readers — used for the map's live position announcements. */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
