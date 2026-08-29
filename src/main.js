@@ -127,22 +127,31 @@ container.addEventListener('pointerup', (e) => {
   if (level) selectLevel(level)
 })
 
-/** Every node is clickable — bosses included. */
-export function selectLevel(level) {
-  if (player.isMoving) return
+let nav = null
+let markerId = null
+
+/** Every node is clickable — bosses included. Accepts a level or a level id. */
+function selectLevel(levelOrId) {
+  const level = typeof levelOrId === 'string' ? levelById(levelOrId) : levelOrId
+  if (!level || player.isMoving) return
+
+  const arrive = () => {
+    nav?.setPlayerLevel(level.id)
+    openPortal(level, { markerId })
+  }
+
   if (player.levelId === level.id) {
-    openPortal(level)
+    arrive()
     return
   }
-  const route = buildRoute(player.levelId, level.id)
-  player.travel(route, level.id, () => openPortal(level))
+  player.travel(buildRoute(player.levelId, level.id), level.id, arrive)
 }
 
 // --- boot ------------------------------------------------------------------
 
 async function boot() {
   const progress = await loadProgress()
-  const markerId = progress.currentLevelId
+  markerId = progress.currentLevelId
   map.refresh(markerId)
 
   const start = map.positionById.get(markerId)
@@ -150,13 +159,15 @@ async function boot() {
   const startWorld = levelById(markerId)?.world ?? 1
   app.rig.goToWorld(startWorld, { instant: true })
 
-  mountNav({ markerId, onSelect: selectLevel, rig: app.rig })
+  nav = mountNav({ markerId, onSelect: selectLevel, rig: app.rig })
+  nav.setPlayerLevel(markerId)
   app.start()
 
   if (import.meta.env.DEV) {
     window.__app = app
     window.__map = map
     window.__player = player
+    window.__selectLevel = selectLevel
     // Drives frames by hand — the only way to exercise animation in embedded
     // browsers where rAF never fires because document.hidden stays true.
     window.__step = (frames = 60, dt = 1 / 60) => {

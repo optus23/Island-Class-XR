@@ -8,7 +8,8 @@
     "dev": "vite",
     "build": "node scripts/validate.mjs && vite build",
     "preview": "vite preview",
-    "validate": "node scripts/validate.mjs"
+    "validate": "node scripts/validate.mjs",
+    "placeholders": "node scripts/make-placeholders.mjs"
   },
   "dependencies": {
     "marked": "^18.0.11",
