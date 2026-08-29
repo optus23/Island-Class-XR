@@ -1,5 +1,5 @@
 import * as THREE from 'three'
-import { worlds } from '../config/worlds.js'
+import { worlds, worldAtX } from '../config/worlds.js'
 import { world as themeWorld, biomes } from '../config/theme.js'
 import { buildWorldCurves, buildConnectors } from './paths.js'
 
@@ -84,13 +84,10 @@ function worldInset(x, z, center) {
   return 6 - outside
 }
 
-/** Which world's biome owns this column. */
+/** Which world's biome owns this column. Shared with the road, so the terrain
+ * and the road change biome at exactly the same boundary. */
 function biomeAt(x) {
-  let best = worlds[0]
-  for (const w of worlds) {
-    if (Math.abs(x - w.center[0]) < Math.abs(x - best.center[0])) best = w
-  }
-  return biomes[best.biome] ?? biomes.meadow
+  return biomes[worldAtX(x).biome] ?? biomes.meadow
 }
 
 export function createIsland() {
