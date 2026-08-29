@@ -21,7 +21,7 @@ function dot(level, status) {
                 style="background:${color}"></span>`
 }
 
-export function mountNav({ markerId, onSelect, rig }) {
+export function mountNav({ markerId, onSelect, onSelectWorld }) {
   const host = document.getElementById('ui')
   const el = document.createElement('div')
   el.className = 'absolute top-3 right-3 w-[19rem] max-w-[calc(100vw-1.5rem)]'
@@ -113,7 +113,7 @@ export function mountNav({ markerId, onSelect, rig }) {
       render()
     })
     el.querySelectorAll('[data-world]').forEach((b) =>
-      b.addEventListener('click', () => rig.goToWorld(Number(b.dataset.world)))
+      b.addEventListener('click', () => onSelectWorld?.(Number(b.dataset.world)))
     )
     el.querySelectorAll('[data-level]').forEach((b) =>
       b.addEventListener('click', () => onSelect(b.dataset.level))

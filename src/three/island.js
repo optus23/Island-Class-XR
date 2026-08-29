@@ -19,7 +19,11 @@ import { buildWorldCurves, buildConnectors } from './paths.js'
  */
 
 const VOXEL = 2 // world units per terrain column
-const MARGIN = 26 // half-extent of a world's footprint, X
+// Footprints deliberately OVERLAP (centres are 58 apart, half-extent is 34),
+// so the three worlds fuse into one unbroken landmass. The old gaps only
+// existed to justify the camera cutting between fixed positions; the follow
+// camera has no cuts, so the island has no seams.
+const MARGIN = 34 // half-extent of a world's footprint, X
 const MARGIN_Z = 22 // half-extent, Z
 const BRIDGE_HALF_WIDTH = 6.5
 const PATH_FLATTEN_RADIUS = 7
