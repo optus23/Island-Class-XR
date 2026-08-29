@@ -75,6 +75,30 @@ even that moves only when a human presses a button.
 
 ---
 
+## One level = one class session
+
+The course runs **27 sessions per semester**, and Fall and Spring have the same
+shape (the source of truth is the Calendar board in Whimsical):
+
+| | Fall | Spring |
+| --- | --- | --- |
+| Scheduled slots | 29 | 29 |
+| Holidays | 2 | 2 (Semana Santa) |
+| **Sessions** | **27** | **27** |
+| Midterm | session 12 | session 12 |
+
+So `levels.json` holds **27 non-optional levels, 9 per world**. The midterm is
+the mini-boss at the centre of world 2, and the final exam is the final boss
+closing world 3 — both count as sessions.
+
+Optional/bonus levels are **extra**: they are not sessions, sit off the main
+path, and do not count toward the 27.
+
+Holidays still never appear here. They shift *when* a session happens, not
+whether it exists, so the count stays 27 either way.
+
+---
+
 ## Adding, editing and reordering levels
 
 Everything lives in [`src/data/levels.json`](src/data/levels.json). **Order in
