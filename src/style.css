@@ -7,9 +7,14 @@ html,
 body {
   height: 100%;
   margin: 0;
+  font-family: ui-sans-serif, system-ui, 'Segoe UI', sans-serif;
+}
+
+/* Map-only. These MUST NOT be global: /admin is an ordinary scrolling page and
+   inherited overflow:hidden made its form unreachable below the fold. */
+body.map-view {
   overflow: hidden;
   background: #9bd4e4;
-  font-family: ui-sans-serif, system-ui, 'Segoe UI', sans-serif;
 }
 
 #app {
