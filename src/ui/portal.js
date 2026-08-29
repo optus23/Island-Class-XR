@@ -30,6 +30,7 @@ const CATEGORY_LABELS = { theory: 'Teoría', practical: 'Práctica', boss: 'Jefe
 
 let root = null
 let escHandler = null
+let closeHandler = null
 
 function tabsFor(level) {
   const slides = { key: 'slides', label: 'Diapositivas' }
@@ -50,7 +51,8 @@ function tabsFor(level) {
   })
 }
 
-export function closePortal() {
+/** Removes the panel without notifying — used when swapping one level for another. */
+function teardown() {
   if (!root) return
   root.remove()
   root = null
@@ -60,8 +62,20 @@ export function closePortal() {
   }
 }
 
-export function openPortal(level, { markerId = null } = {}) {
-  closePortal()
+/** Closes and notifies, so the caller can clear the URL. */
+export function closePortal() {
+  if (!root) return
+  const notify = closeHandler
+  closeHandler = null
+  teardown()
+  notify?.()
+}
+
+export function openPortal(level, { markerId = null, onClose = null } = {}) {
+  // teardown, not closePortal: swapping levels must not fire the previous
+  // portal's onClose, which would clear the URL we are about to set.
+  teardown()
+  closeHandler = onClose
 
   const status = statusFor(level, markerId)
   const accent = level.optional
