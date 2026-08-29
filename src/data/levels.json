@@ -1,0 +1,504 @@
+{
+  "course": {
+    "title": "XR Island",
+    "subtitle": "Realidad Virtual y Realidad Aumentada · Entornos de Realidad Virtual"
+  },
+
+  "_readme": [
+    "ORDER MATTERS: levels appear on the map in the order listed here, per world.",
+    "The path is a curve (config/worlds.js) — nodes are spread along it at runtime,",
+    "so adding or removing a level just re-spaces the others. Never place nodes by hand.",
+    "World 2 must contain exactly one level with category 'boss' (the mini-boss); it",
+    "always lands on the bossSlot control point and splits that world into two halves.",
+    "Optional levels are lifted off the main path and attached to the previous",
+    "non-optional level (override with 'anchorAfter').",
+    "NO DATES ANYWHERE: the calendar lives outside this file, by design.",
+    "All exercise/answer/slide/todo bodies below are PLACEHOLDERS — replace them."
+  ],
+
+  "levels": [
+    {
+      "id": "w1-intro-01",
+      "title": "Bienvenida y panorama XR",
+      "world": 1,
+      "stage": "intro-theory",
+      "category": "theory",
+      "optional": false,
+      "completed": false,
+      "summary": "PLACEHOLDER — presentación del curso y del ecosistema RV/RA/MR.",
+      "slides": { "type": "pdf", "source": "content/slides/w1-intro-01.pdf" },
+      "exercises": "content/exercises/w1-intro-01.md",
+      "answers": "content/answers/w1-intro-01.md",
+      "todos": []
+    },
+    {
+      "id": "w1-intro-02",
+      "title": "Fundamentos de percepción y presencia",
+      "world": 1,
+      "stage": "intro-theory",
+      "category": "theory",
+      "optional": false,
+      "completed": false,
+      "summary": "PLACEHOLDER — teoría base: presencia, inmersión, mareo por movimiento.",
+      "slides": {
+        "type": "canva",
+        "source": "https://www.canva.com/design/PLACEHOLDER-ID/view?embed",
+        "note": "Usa el enlace público Compartir → Insertar (embed), nunca el de edición."
+      },
+      "exercises": "content/exercises/w1-intro-02.md",
+      "answers": "content/answers/w1-intro-02.md",
+      "todos": []
+    },
+    {
+      "id": "w1-intro-03",
+      "title": "Hardware y plataformas XR",
+      "world": 1,
+      "stage": "intro-theory",
+      "category": "theory",
+      "optional": false,
+      "completed": false,
+      "summary": "PLACEHOLDER — dispositivos, grados de libertad, tracking.",
+      "slides": { "type": "pdf", "source": "content/slides/w1-intro-03.pdf" },
+      "exercises": "content/exercises/w1-intro-03.md",
+      "answers": "content/answers/w1-intro-03.md",
+      "todos": []
+    },
+    {
+      "id": "w1-bonus-01",
+      "title": "Extra: historia de la RV",
+      "world": 1,
+      "stage": "intro-theory",
+      "category": "theory",
+      "optional": true,
+      "anchorAfter": "w1-intro-02",
+      "offsetSide": "right",
+      "completed": false,
+      "summary": "PLACEHOLDER — material opcional para casa. No evaluable.",
+      "slides": {
+        "type": "canva",
+        "source": "https://www.canva.com/design/PLACEHOLDER-ID-BONUS/view?embed"
+      },
+      "exercises": "content/exercises/w1-bonus-01.md",
+      "answers": null,
+      "todos": [
+        {
+          "id": "w1-bonus-01-t1",
+          "type": "objective-task",
+          "objective": "PLACEHOLDER — objetivo práctico opcional.",
+          "starting_point": "PLACEHOLDER — punto de partida.",
+          "milestones": ["PLACEHOLDER — hito 1", "PLACEHOLDER — hito 2"],
+          "deliverable": "PLACEHOLDER — qué se entrega."
+        }
+      ]
+    },
+    {
+      "id": "w1-arf-01",
+      "title": "AR Foundation: primer proyecto",
+      "world": 1,
+      "stage": "ar-foundation",
+      "category": "practical",
+      "optional": false,
+      "completed": false,
+      "summary": "PLACEHOLDER — configuración de AR Foundation en Unity y build a móvil.",
+      "slides": { "type": "pdf", "source": "content/slides/w1-arf-01.pdf" },
+      "exercises": "content/exercises/w1-arf-01.md",
+      "answers": "content/answers/w1-arf-01.md",
+      "todos": [
+        {
+          "id": "w1-arf-01-t1",
+          "type": "objective-task",
+          "objective": "Usar AR Foundation para instanciar un modelo 3D sobre un plano detectado.",
+          "starting_point": "PLACEHOLDER — proyecto Unity vacío con AR Foundation y el paquete del proveedor ya instalados.",
+          "milestones": [
+            "PLACEHOLDER — escena AR mínima creada (AR Session + XR Origin)",
+            "PLACEHOLDER — detección de planos activada y visualizada",
+            "PLACEHOLDER — raycast contra el plano al tocar la pantalla",
+            "PLACEHOLDER — prefab instanciado en el punto de impacto",
+            "PLACEHOLDER — build ejecutándose en el dispositivo"
+          ],
+          "deliverable": "PLACEHOLDER — vídeo corto del build en el móvil + carpeta del proyecto."
+        }
+      ]
+    },
+    {
+      "id": "w1-arf-02",
+      "title": "Image tracking",
+      "world": 1,
+      "stage": "ar-foundation",
+      "category": "practical",
+      "optional": false,
+      "completed": false,
+      "summary": "PLACEHOLDER — primer contacto con seguimiento de imágenes.",
+      "slides": { "type": "pdf", "source": "content/slides/w1-arf-02.pdf" },
+      "exercises": "content/exercises/w1-arf-02.md",
+      "answers": "content/answers/w1-arf-02.md",
+      "todos": [
+        {
+          "id": "w1-arf-02-t1",
+          "type": "objective-task",
+          "objective": "PLACEHOLDER — objetivo práctico de image tracking.",
+          "starting_point": "PLACEHOLDER — punto de partida.",
+          "milestones": ["PLACEHOLDER — hito 1", "PLACEHOLDER — hito 2", "PLACEHOLDER — hito 3"],
+          "deliverable": "PLACEHOLDER — qué se entrega."
+        }
+      ]
+    },
+    {
+      "id": "w1-arf-03",
+      "title": "Plane detection en profundidad",
+      "world": 1,
+      "stage": "ar-foundation",
+      "category": "practical",
+      "optional": false,
+      "completed": false,
+      "summary": "PLACEHOLDER — práctica móvil de detección de planos.",
+      "slides": { "type": "pdf", "source": "content/slides/w1-arf-03.pdf" },
+      "exercises": "content/exercises/w1-arf-03.md",
+      "answers": "content/answers/w1-arf-03.md",
+      "todos": [
+        {
+          "id": "w1-arf-03-t1",
+          "type": "objective-task",
+          "objective": "PLACEHOLDER — objetivo práctico de plane detection.",
+          "starting_point": "PLACEHOLDER — punto de partida.",
+          "milestones": ["PLACEHOLDER — hito 1", "PLACEHOLDER — hito 2"],
+          "deliverable": "PLACEHOLDER — qué se entrega."
+        }
+      ]
+    },
+
+    {
+      "id": "w2-pre-01",
+      "title": "Cierre de teoría: de AR a MR",
+      "world": 2,
+      "stage": "meta-pre-exam",
+      "category": "theory",
+      "optional": false,
+      "completed": false,
+      "summary": "PLACEHOLDER — passthrough, MR y el salto a Quest 3.",
+      "slides": { "type": "pdf", "source": "content/slides/w2-pre-01.pdf" },
+      "exercises": "content/exercises/w2-pre-01.md",
+      "answers": "content/answers/w2-pre-01.md",
+      "todos": []
+    },
+    {
+      "id": "w2-pre-02",
+      "title": "Meta Building Blocks: primeros pasos",
+      "world": 2,
+      "stage": "meta-pre-exam",
+      "category": "practical",
+      "optional": false,
+      "completed": false,
+      "summary": "PLACEHOLDER — el SDK all-in-one de Meta y sus bloques.",
+      "slides": { "type": "pdf", "source": "content/slides/w2-pre-02.pdf" },
+      "exercises": "content/exercises/w2-pre-02.md",
+      "answers": "content/answers/w2-pre-02.md",
+      "todos": [
+        {
+          "id": "w2-pre-02-t1",
+          "type": "objective-task",
+          "objective": "PLACEHOLDER — objetivo práctico con Building Blocks.",
+          "starting_point": "PLACEHOLDER — punto de partida.",
+          "milestones": ["PLACEHOLDER — hito 1", "PLACEHOLDER — hito 2", "PLACEHOLDER — hito 3"],
+          "deliverable": "PLACEHOLDER — qué se entrega."
+        }
+      ]
+    },
+    {
+      "id": "w2-pre-03",
+      "title": "Passthrough y anclajes espaciales",
+      "world": 2,
+      "stage": "meta-pre-exam",
+      "category": "practical",
+      "optional": false,
+      "completed": false,
+      "summary": "PLACEHOLDER — passthrough en Quest 3 con Building Blocks.",
+      "slides": { "type": "pdf", "source": "content/slides/w2-pre-03.pdf" },
+      "exercises": "content/exercises/w2-pre-03.md",
+      "answers": "content/answers/w2-pre-03.md",
+      "todos": [
+        {
+          "id": "w2-pre-03-t1",
+          "type": "objective-task",
+          "objective": "PLACEHOLDER — objetivo práctico de passthrough.",
+          "starting_point": "PLACEHOLDER — punto de partida.",
+          "milestones": ["PLACEHOLDER — hito 1", "PLACEHOLDER — hito 2"],
+          "deliverable": "PLACEHOLDER — qué se entrega."
+        }
+      ]
+    },
+    {
+      "id": "w2-bonus-01",
+      "title": "Extra: comparativa de SDKs XR",
+      "world": 2,
+      "stage": "meta-pre-exam",
+      "category": "theory",
+      "optional": true,
+      "anchorAfter": "w2-pre-02",
+      "offsetSide": "left",
+      "completed": false,
+      "summary": "PLACEHOLDER — lectura opcional para casa. No evaluable.",
+      "slides": { "type": "pdf", "source": "content/slides/w2-bonus-01.pdf" },
+      "exercises": "content/exercises/w2-bonus-01.md",
+      "answers": null,
+      "todos": []
+    },
+    {
+      "id": "w2-boss",
+      "title": "Examen parcial",
+      "world": 2,
+      "stage": "mini-boss-midterm",
+      "category": "boss",
+      "bossTier": "mini",
+      "optional": false,
+      "completed": false,
+      "summary": "PLACEHOLDER — prueba de medio curso. El proyecto final arranca aquí.",
+      "slides": { "type": "pdf", "source": "content/slides/w2-boss.pdf" },
+      "exercises": "content/exercises/w2-boss.md",
+      "answers": null,
+      "todos": []
+    },
+    {
+      "id": "w2-post-01",
+      "title": "Building Blocks: interacción avanzada",
+      "world": 2,
+      "stage": "meta-post-exam",
+      "category": "practical",
+      "optional": false,
+      "completed": false,
+      "summary": "PLACEHOLDER — se completa el recorrido por Building Blocks.",
+      "slides": { "type": "pdf", "source": "content/slides/w2-post-01.pdf" },
+      "exercises": "content/exercises/w2-post-01.md",
+      "answers": "content/answers/w2-post-01.md",
+      "todos": [
+        {
+          "id": "w2-post-01-t1",
+          "type": "objective-task",
+          "objective": "PLACEHOLDER — objetivo práctico de interacción.",
+          "starting_point": "PLACEHOLDER — punto de partida.",
+          "milestones": ["PLACEHOLDER — hito 1", "PLACEHOLDER — hito 2"],
+          "deliverable": "PLACEHOLDER — qué se entrega."
+        }
+      ]
+    },
+    {
+      "id": "w2-post-02",
+      "title": "Manos, gestos y hand tracking",
+      "world": 2,
+      "stage": "meta-post-exam",
+      "category": "practical",
+      "optional": false,
+      "completed": false,
+      "summary": "PLACEHOLDER — hand tracking con el SDK de Meta.",
+      "slides": { "type": "pdf", "source": "content/slides/w2-post-02.pdf" },
+      "exercises": "content/exercises/w2-post-02.md",
+      "answers": "content/answers/w2-post-02.md",
+      "todos": [
+        {
+          "id": "w2-post-02-t1",
+          "type": "objective-task",
+          "objective": "PLACEHOLDER — objetivo práctico de hand tracking.",
+          "starting_point": "PLACEHOLDER — punto de partida.",
+          "milestones": ["PLACEHOLDER — hito 1", "PLACEHOLDER — hito 2", "PLACEHOLDER — hito 3"],
+          "deliverable": "PLACEHOLDER — qué se entrega."
+        }
+      ]
+    },
+    {
+      "id": "w2-post-03",
+      "title": "Cierre de Building Blocks",
+      "world": 2,
+      "stage": "meta-post-exam",
+      "category": "practical",
+      "optional": false,
+      "completed": false,
+      "summary": "PLACEHOLDER — integración final de los bloques vistos.",
+      "slides": { "type": "pdf", "source": "content/slides/w2-post-03.pdf" },
+      "exercises": "content/exercises/w2-post-03.md",
+      "answers": "content/answers/w2-post-03.md",
+      "todos": [
+        {
+          "id": "w2-post-03-t1",
+          "type": "objective-task",
+          "objective": "PLACEHOLDER — objetivo práctico de integración.",
+          "starting_point": "PLACEHOLDER — punto de partida.",
+          "milestones": ["PLACEHOLDER — hito 1", "PLACEHOLDER — hito 2"],
+          "deliverable": "PLACEHOLDER — qué se entrega."
+        }
+      ]
+    },
+
+    {
+      "id": "w3-xrit-01",
+      "title": "XR Interaction Toolkit: setup con OpenXR",
+      "world": 3,
+      "stage": "xr-toolkit",
+      "category": "practical",
+      "optional": false,
+      "completed": false,
+      "summary": "PLACEHOLDER — plantillas y samples oficiales de GitHub como base.",
+      "slides": { "type": "pdf", "source": "content/slides/w3-xrit-01.pdf" },
+      "exercises": "content/exercises/w3-xrit-01.md",
+      "answers": "content/answers/w3-xrit-01.md",
+      "todos": [
+        {
+          "id": "w3-xrit-01-t1",
+          "type": "objective-task",
+          "objective": "PLACEHOLDER — objetivo práctico de setup XRIT.",
+          "starting_point": "PLACEHOLDER — plantilla de GitHub indicada en clase.",
+          "milestones": ["PLACEHOLDER — hito 1", "PLACEHOLDER — hito 2"],
+          "deliverable": "PLACEHOLDER — qué se entrega."
+        }
+      ]
+    },
+    {
+      "id": "w3-xrit-02",
+      "title": "Locomoción e interacción en VR",
+      "world": 3,
+      "stage": "xr-toolkit",
+      "category": "practical",
+      "optional": false,
+      "completed": false,
+      "summary": "PLACEHOLDER — teleport, grab, UI en VR.",
+      "slides": { "type": "pdf", "source": "content/slides/w3-xrit-02.pdf" },
+      "exercises": "content/exercises/w3-xrit-02.md",
+      "answers": "content/answers/w3-xrit-02.md",
+      "todos": [
+        {
+          "id": "w3-xrit-02-t1",
+          "type": "objective-task",
+          "objective": "PLACEHOLDER — objetivo práctico de locomoción.",
+          "starting_point": "PLACEHOLDER — punto de partida.",
+          "milestones": ["PLACEHOLDER — hito 1", "PLACEHOLDER — hito 2", "PLACEHOLDER — hito 3"],
+          "deliverable": "PLACEHOLDER — qué se entrega."
+        }
+      ]
+    },
+    {
+      "id": "w3-xrit-03",
+      "title": "Samples y buenas prácticas",
+      "world": 3,
+      "stage": "xr-toolkit",
+      "category": "practical",
+      "optional": false,
+      "completed": false,
+      "summary": "PLACEHOLDER — recorrido por los samples del toolkit.",
+      "slides": { "type": "pdf", "source": "content/slides/w3-xrit-03.pdf" },
+      "exercises": "content/exercises/w3-xrit-03.md",
+      "answers": "content/answers/w3-xrit-03.md",
+      "todos": [
+        {
+          "id": "w3-xrit-03-t1",
+          "type": "objective-task",
+          "objective": "PLACEHOLDER — objetivo práctico con samples.",
+          "starting_point": "PLACEHOLDER — punto de partida.",
+          "milestones": ["PLACEHOLDER — hito 1", "PLACEHOLDER — hito 2"],
+          "deliverable": "PLACEHOLDER — qué se entrega."
+        }
+      ]
+    },
+    {
+      "id": "w3-bonus-01",
+      "title": "Extra: refuerzo de shaders XR",
+      "world": 3,
+      "stage": "xr-toolkit",
+      "category": "theory",
+      "optional": true,
+      "anchorAfter": "w3-xrit-02",
+      "offsetSide": "right",
+      "completed": false,
+      "summary": "PLACEHOLDER — material opcional de refuerzo. No evaluable.",
+      "slides": {
+        "type": "canva",
+        "source": "https://www.canva.com/design/PLACEHOLDER-ID-SHADERS/view?embed"
+      },
+      "exercises": "content/exercises/w3-bonus-01.md",
+      "answers": null,
+      "todos": []
+    },
+    {
+      "id": "w3-proj-01",
+      "title": "Proyecto final: arranque y alcance",
+      "world": 3,
+      "stage": "final-project",
+      "category": "practical",
+      "optional": false,
+      "completed": false,
+      "summary": "PLACEHOLDER — definición de alcance. Sesión de soporte, sin contenido nuevo.",
+      "slides": { "type": "pdf", "source": "content/slides/w3-proj-01.pdf" },
+      "exercises": "content/exercises/w3-proj-01.md",
+      "answers": null,
+      "todos": [
+        {
+          "id": "w3-proj-01-t1",
+          "type": "objective-task",
+          "objective": "PLACEHOLDER — objetivo del arranque de proyecto.",
+          "starting_point": "PLACEHOLDER — punto de partida.",
+          "milestones": ["PLACEHOLDER — hito 1", "PLACEHOLDER — hito 2", "PLACEHOLDER — hito 3"],
+          "deliverable": "PLACEHOLDER — qué se entrega."
+        }
+      ]
+    },
+    {
+      "id": "w3-proj-02",
+      "title": "Proyecto final: producción",
+      "world": 3,
+      "stage": "final-project",
+      "category": "practical",
+      "optional": false,
+      "completed": false,
+      "summary": "PLACEHOLDER — días dedicados al proyecto con soporte del profesor.",
+      "slides": { "type": "pdf", "source": "content/slides/w3-proj-02.pdf" },
+      "exercises": "content/exercises/w3-proj-02.md",
+      "answers": null,
+      "todos": [
+        {
+          "id": "w3-proj-02-t1",
+          "type": "objective-task",
+          "objective": "PLACEHOLDER — objetivo de la fase de producción.",
+          "starting_point": "PLACEHOLDER — punto de partida.",
+          "milestones": ["PLACEHOLDER — hito 1", "PLACEHOLDER — hito 2"],
+          "deliverable": "PLACEHOLDER — qué se entrega."
+        }
+      ]
+    },
+    {
+      "id": "w3-proj-03",
+      "title": "Proyecto final: pulido y ensayo",
+      "world": 3,
+      "stage": "final-project",
+      "category": "practical",
+      "optional": false,
+      "completed": false,
+      "summary": "PLACEHOLDER — última sesión de soporte antes de la presentación.",
+      "slides": { "type": "pdf", "source": "content/slides/w3-proj-03.pdf" },
+      "exercises": "content/exercises/w3-proj-03.md",
+      "answers": null,
+      "todos": [
+        {
+          "id": "w3-proj-03-t1",
+          "type": "objective-task",
+          "objective": "PLACEHOLDER — objetivo del pulido final.",
+          "starting_point": "PLACEHOLDER — punto de partida.",
+          "milestones": ["PLACEHOLDER — hito 1", "PLACEHOLDER — hito 2"],
+          "deliverable": "PLACEHOLDER — qué se entrega."
+        }
+      ]
+    },
+    {
+      "id": "w3-boss",
+      "title": "Presentación del proyecto final",
+      "world": 3,
+      "stage": "final-boss-presentation",
+      "category": "boss",
+      "bossTier": "final",
+      "optional": false,
+      "completed": false,
+      "summary": "PLACEHOLDER — examen final: defensa del proyecto.",
+      "slides": { "type": "pdf", "source": "content/slides/w3-boss.pdf" },
+      "exercises": "content/exercises/w3-boss.md",
+      "answers": null,
+      "todos": []
+    }
+  ]
+}
