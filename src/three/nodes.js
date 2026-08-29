@@ -1,6 +1,6 @@
 import * as THREE from 'three'
-import { worlds, worldAtX } from '../config/worlds.js'
-import { palette, biomes, world as themeWorld, resolveNodeColor } from '../config/theme.js'
+import { worlds } from '../config/worlds.js'
+import { palette, world as themeWorld, resolveNodeColor } from '../config/theme.js'
 import { buildWorldCurves, buildConnectors, distributeNodes } from './paths.js'
 import { levelsForWorld, statusFor } from '../lib/levels.js'
 import { prefersReducedMotion } from '../lib/motion.js'
@@ -217,13 +217,11 @@ export function createMapObjects() {
  * A quad strip along the spline: two triangles per sample, one draw call for
  * the whole road network.
  */
-function ribbonGeometry(curves, halfWidth, lift, colorKey) {
+function ribbonGeometry(curves, halfWidth, lift) {
   const positions = []
-  const colors = []
   const indices = []
   let base = 0
   const side = new THREE.Vector3()
-  const col = new THREE.Color()
 
   for (const curve of curves) {
     const segments = Math.max(8, Math.round(curve.getLength() / 0.7))
@@ -235,12 +233,6 @@ function ribbonGeometry(curves, halfWidth, lift, colorKey) {
       side.set(t.z, 0, -t.x).normalize().multiplyScalar(halfWidth)
       positions.push(p.x - side.x, p.y + lift, p.z - side.z)
       positions.push(p.x + side.x, p.y + lift, p.z + side.z)
-
-      // The road takes each biome's own surface, so it never disappears into
-      // ground of a similar colour (a sand road on sand is invisible).
-      const biome = biomes[worldAtX(p.x).biome] ?? biomes.meadow
-      col.setHex(biome[colorKey])
-      colors.push(col.r, col.g, col.b, col.r, col.g, col.b)
     }
     for (let i = 0; i < segments; i++) {
       const a = base + i * 2
@@ -251,9 +243,6 @@ function ribbonGeometry(curves, halfWidth, lift, colorKey) {
 
   const geo = new THREE.BufferGeometry()
   geo.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3))
-  // A real per-vertex colour attribute, so vertexColors is correct here —
-  // unlike on an InstancedMesh, where it would eat the instance colours.
-  geo.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3))
   geo.setIndex(indices)
   geo.computeVertexNormals()
   return geo
@@ -264,13 +253,13 @@ function createPathRibbon() {
   const group = new THREE.Group()
 
   const border = new THREE.Mesh(
-    ribbonGeometry(curves, 1.55, 0.1, 'roadEdge'),
+    ribbonGeometry(curves, 1.55, 0.1),
     // DoubleSide keeps the strip visible regardless of which way a curve winds.
-    new THREE.MeshLambertMaterial({ vertexColors: true, side: THREE.DoubleSide })
+    new THREE.MeshLambertMaterial({ color: themeWorld.pathEdge, side: THREE.DoubleSide })
   )
   const road = new THREE.Mesh(
-    ribbonGeometry(curves, 1.15, 0.17, 'road'),
-    new THREE.MeshLambertMaterial({ vertexColors: true, side: THREE.DoubleSide })
+    ribbonGeometry(curves, 1.15, 0.17),
+    new THREE.MeshLambertMaterial({ color: themeWorld.path, side: THREE.DoubleSide })
   )
   border.frustumCulled = false
   road.frustumCulled = false

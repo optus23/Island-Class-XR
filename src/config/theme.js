@@ -42,8 +42,6 @@ export const palette = {
 export const biomes = {
   meadow: {
     props: 'leafy',
-    road: 0xf0cf7a,
-    roadEdge: 0xb98a3c,
     ground: 0x74c365,
     groundAlt: 0x5faa52,
     band: 0xc4693f,
@@ -56,11 +54,10 @@ export const biomes = {
   },
   desert: {
     props: 'cactus',
-    // Brick road: a sand-coloured road on sand is invisible.
-    road: 0xc75f3f,
-    roadEdge: 0x8e3f28,
-    ground: 0xe3c169,
-    groundAlt: 0xd0aa55,
+    // Warmer and darker than the cream road, so the road reads over it without
+    // needing a colour of its own.
+    ground: 0xdfa85c,
+    groundAlt: 0xcb9449,
     band: 0xc9793c,
     rock: 0xa85f2e,
     rockDeep: 0x84461f,
@@ -71,12 +68,11 @@ export const biomes = {
   },
   summit: {
     props: 'pine',
-    road: 0xa9bccd,
-    roadEdge: 0x6d8095,
     // Snow over dark rock. The gap between cap and rock has to stay wide or
     // the terracing vanishes into a flat white mass.
-    ground: 0xeaf2fa,
-    groundAlt: 0xd4e3f2,
+    // Cool white against the warm road: they differ in hue as well as value.
+    ground: 0xdfe9f4,
+    groundAlt: 0xc9dcec,
     band: 0x9fb3c4,
     rock: 0x5f7183,
     rockDeep: 0x3d4a57,
@@ -110,10 +106,17 @@ export const world = {
   terrain: 0x74c365,
   terrainEdge: 0x5a9e4d,
   cliff: 0xb08968,
-  water: 0x4ea8de,
+  water: 0x4ea8de, // fallback if the shader is unavailable
+  waterDeep: 0x2f7cc0,
+  waterShallow: 0x62b8ea,
+  waterFoam: 0xd8f0ff,
 
-  path: 0xf0cf7a, // the road surface
-  pathEdge: 0xb98a3c, // darker border under it, so the road reads as outlined
+  // ONE road for all three worlds, as in the reference art: a warm cream
+  // surface with a dark brown outline. The outline does most of the work —
+  // it is what keeps the road readable over pale sand and over snow, so the
+  // road never has to change colour per biome to stay visible.
+  path: 0xf6dfa6,
+  pathEdge: 0xa9763a,
   pathOptional: 0x9d4edd, // dashed connectors to bonus nodes
 
   player: 0xef476f,

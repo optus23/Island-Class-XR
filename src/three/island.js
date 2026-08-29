@@ -2,6 +2,7 @@ import * as THREE from 'three'
 import { worlds, worldAtX } from '../config/worlds.js'
 import { world as themeWorld, biomes, backdrop, flowers } from '../config/theme.js'
 import { buildWorldCurves, buildConnectors } from './paths.js'
+import { prefersReducedMotion } from '../lib/motion.js'
 
 /**
  * The voxel island.
@@ -232,18 +233,110 @@ export function createIsland() {
   }
 
   // --- water ---------------------------------------------------------------
-  const water = new THREE.Mesh(
-    new THREE.PlaneGeometry((maxX - minX) * 2.4, (maxZ - minZ) * 3.4),
-    new THREE.MeshLambertMaterial({ color: themeWorld.water })
-  )
-  water.rotation.x = -Math.PI / 2
-  water.position.set((minX + maxX) / 2, -2.2, (minZ + maxZ) / 2)
-  group.add(water)
+  const water = createWater(minX, maxX, minZ, maxZ)
+  group.add(water.mesh)
 
   group.add(createProps(cells))
   group.add(createBackdrop(minX, maxX, minZ))
 
-  return { group, terrain: caps, cells }
+  return { group, terrain: caps, cells, update: water.update }
+}
+
+/**
+ * Animated stylised sea.
+ *
+ * Built by patching a MeshLambertMaterial through onBeforeCompile rather than
+ * writing a raw ShaderMaterial: that way the water inherits the scene's fog,
+ * lighting and colour management for free. A raw shader would have to
+ * re-implement all three and would drift out of step with the rest of the
+ * island the moment the fog range changed.
+ *
+ * The pattern is deliberately quantised into a few bands, which reads as
+ * pixel-art water rather than a smooth gradient.
+ */
+function createWater(minX, maxX, minZ, maxZ) {
+  const width = (maxX - minX) * 2.4
+  const depth = (maxZ - minZ) * 3.4
+
+  const material = new THREE.MeshLambertMaterial({ color: 0xffffff })
+  const uniforms = {
+    uTime: { value: 0 },
+    uDeep: { value: new THREE.Color(themeWorld.waterDeep) },
+    uShallow: { value: new THREE.Color(themeWorld.waterShallow) },
+    uFoam: { value: new THREE.Color(themeWorld.waterFoam) },
+  }
+
+  // Shared between both stages so the crests line up with the displacement.
+  const WAVE = `
+    uniform float uTime;
+    varying vec2 vWave;
+    float waterWave(vec2 p, float t) {
+      // Fairly high frequencies: the plane spans hundreds of units, so gentle
+      // ones produce a few enormous blobs instead of a sea.
+      return sin(p.x * 0.20 + t * 1.10) * 0.50
+           + sin(p.y * 0.26 - t * 0.85) * 0.40
+           + sin((p.x + p.y) * 0.13 + t * 0.60) * 0.35
+           + sin((p.x - p.y) * 0.09 - t * 0.35) * 0.25;
+    }
+  `
+
+  material.onBeforeCompile = (shader) => {
+    Object.assign(shader.uniforms, uniforms)
+
+    shader.vertexShader = shader.vertexShader
+      .replace('#include <common>', `#include <common>
+${WAVE}`)
+      .replace(
+        '#include <begin_vertex>',
+        `#include <begin_vertex>
+         // The plane is rotated -90deg about X, so its LOCAL z is world up.
+         transformed.z += waterWave(position.xy, uTime) * 0.55;
+         vWave = position.xy;`
+      )
+
+    shader.fragmentShader = shader.fragmentShader
+      .replace(
+        '#include <common>',
+        `#include <common>
+         uniform vec3 uDeep;
+         uniform vec3 uShallow;
+         uniform vec3 uFoam;
+         ${WAVE}`
+      )
+      .replace(
+        '#include <color_fragment>',
+        `#include <color_fragment>
+         float w = waterWave(vWave, uTime);
+         float n = clamp(w * 0.5 + 0.5, 0.0, 1.0);
+         // Chunky steps instead of a smooth ramp — pixel-art water.
+         float band = clamp(floor(n * 6.0) / 5.0, 0.0, 1.0);
+         vec3 sea = mix(uDeep, uShallow, band);
+         // Foam only on the narrow tops of crests, or the sea turns milky.
+         sea = mix(sea, uFoam, step(0.93, n) * 0.45);
+         diffuseColor.rgb = sea;`
+      )
+  }
+
+  const mesh = new THREE.Mesh(
+    // Segments exist so the swell has vertices to displace.
+    new THREE.PlaneGeometry(width, depth, 96, 96),
+    material
+  )
+  mesh.rotation.x = -Math.PI / 2
+  mesh.position.set((minX + maxX) / 2, -2.2, (minZ + maxZ) / 2)
+  mesh.frustumCulled = false
+  mesh.renderOrder = -1
+
+  let t = 0
+  return {
+    mesh,
+    update(dt) {
+      // Frozen, not merely slowed, when the viewer asked for less motion.
+      if (prefersReducedMotion()) return
+      t += dt
+      uniforms.uTime.value = t
+    },
+  }
 }
 
 /**
