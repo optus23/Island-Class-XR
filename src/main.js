@@ -7,9 +7,10 @@ import { createPlayer } from './three/player.js'
 import { loadProgress } from './lib/progress.js'
 import { levelById, mainSequence } from './lib/levels.js'
 import { worlds } from './config/worlds.js'
-import { openPortal } from './ui/portal.js'
+import { openPortal, closePortal } from './ui/portal.js'
 import { mountNav } from './ui/nav.js'
 import { createTooltip, createCurtain } from './ui/hud.js'
+import { readLevelFromUrl, setLevelInUrl, onRouteChange } from './lib/router.js'
 
 const container = document.getElementById('app')
 const curtain = createCurtain()
@@ -144,7 +145,8 @@ function selectLevel(levelOrId) {
   const arrive = () => {
     tooltip.hide()
     nav?.setPlayerLevel(level.id)
-    openPortal(level, { markerId })
+    setLevelInUrl(level.id)
+    openPortal(level, { markerId, onClose: () => setLevelInUrl(null) })
   }
 
   if (player.levelId === level.id) {
@@ -161,14 +163,38 @@ async function boot() {
   markerId = progress.currentLevelId
   map.refresh(markerId)
 
-  const start = map.positionById.get(markerId)
-  if (start) player.snapTo(start, markerId)
-  const startWorld = levelById(markerId)?.world ?? 1
+  // A shared ?level=... link wins over the progress marker: whoever followed
+  // the link came for that level, so place the avatar there directly rather
+  // than hopping across three worlds to reach it.
+  const deepLinked = readLevelFromUrl()
+  const startId = deepLinked?.id ?? markerId
+
+  const start = map.positionById.get(startId)
+  if (start) player.snapTo(start, startId)
+  const startWorld = levelById(startId)?.world ?? 1
   app.rig.goToWorld(startWorld, { instant: true })
 
   nav = mountNav({ markerId, onSelect: selectLevel, rig: app.rig })
-  nav.setPlayerLevel(markerId)
+  nav.setPlayerLevel(startId)
   app.start()
+
+  if (deepLinked) {
+    setLevelInUrl(deepLinked.id, { replace: true }) // no phantom history entry
+    openPortal(deepLinked, { markerId, onClose: () => setLevelInUrl(null) })
+  }
+
+  // Back/Forward moves between the map and an open level.
+  onRouteChange((level) => {
+    if (!level) {
+      closePortal()
+      return
+    }
+    const at = map.positionById.get(level.id)
+    if (at) player.snapTo(at, level.id)
+    app.rig.goToWorld(level.world)
+    nav?.setPlayerLevel(level.id)
+    openPortal(level, { markerId, onClose: () => setLevelInUrl(null) })
+  })
   // Draw one frame before lifting the curtain, so the reveal is never a flash
   // of empty sky while the island's first frame is still being rasterised.
   requestAnimationFrame(() => curtain.lift())

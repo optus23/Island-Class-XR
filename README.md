@@ -169,6 +169,26 @@ for the number of levels on it.
 
 ---
 
+## Sharing a link to one level
+
+Append `?level=<id>` to the site URL and it opens with that level's portal
+already up:
+
+```
+https://optus23.github.io/Island-Class-XR/?level=w2-boss
+```
+
+The avatar is placed directly on that node rather than walking the whole route,
+since whoever followed the link came for the level. Opening a level from the map
+updates the address bar too, so **Back closes the portal** and the link is always
+copy-pasteable. An id that is not in `levels.json` is ignored with a console
+warning and the map opens normally at the progress marker.
+
+It is a query parameter rather than a path because GitHub Pages has no rewrite
+rules — `/level/w2-boss` would 404.
+
+---
+
 ## Progress marker (`/admin`)
 
 The one manual, explicit exception to "no dates".
