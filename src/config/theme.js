@@ -27,6 +27,56 @@ export const palette = {
   locked: 0x6c757d,
 }
 
+/**
+ * One palette per world, so the three read as distinct biomes the way a Mario
+ * overworld does. World 1 deliberately keeps the classic scheme — green grass
+ * over warm reddish cliffs — and the other two vary from it.
+ *
+ * `ground` is the flat cap you walk on; `band` is the bright stripe just under
+ * the lip; `rock` is the cliff face below it. That three-tone stack is what
+ * makes a plateau read as a plateau rather than a coloured slab.
+ */
+export const biomes = {
+  meadow: {
+    props: 'leafy',
+    ground: 0x74c365,
+    groundAlt: 0x5faa52,
+    band: 0xc4693f,
+    rock: 0xa04a2f,
+    rockDeep: 0x7d3823,
+    trunk: 0x8b5e34,
+    foliage: 0x3f9142,
+    foliageAlt: 0x50a854,
+    boulder: 0x8d99ae,
+  },
+  desert: {
+    props: 'cactus',
+    ground: 0xe3c169,
+    groundAlt: 0xd0aa55,
+    band: 0xc9793c,
+    rock: 0xa85f2e,
+    rockDeep: 0x84461f,
+    trunk: 0x9c7b4a,
+    foliage: 0x4f9455, // cacti
+    foliageAlt: 0x3f7d46,
+    boulder: 0xb08968,
+  },
+  summit: {
+    props: 'pine',
+    // Snow over dark rock. The gap between cap and rock has to stay wide or
+    // the terracing vanishes into a flat white mass.
+    ground: 0xeaf2fa,
+    groundAlt: 0xd4e3f2,
+    band: 0x9fb3c4,
+    rock: 0x5f7183,
+    rockDeep: 0x3d4a57,
+    trunk: 0x5b4636,
+    foliage: 0x2f6b4f, // pines
+    foliageAlt: 0x3d7d5c,
+    boulder: 0x9aa7b3,
+  },
+}
+
 export const world = {
   sky: 0x9bd4e4,
   fog: 0x9bd4e4,
