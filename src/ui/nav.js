@@ -82,7 +82,29 @@ export function mountNav({ markerId, onSelect, rig }) {
                       value="${index}" max="${Math.max(1, total - 1)}"></progress>
             <span class="text-[11px] opacity-70 shrink-0">${index + 1}/${total}</span>
           </div>
-          <div class="max-h-[62vh] overflow-auto pr-1">${worldSections}</div>
+          <div class="max-h-[52vh] overflow-auto pr-1">${worldSections}</div>
+
+          <div class="mt-2 pt-2 border-t border-base-content/15">
+            <p class="px-2 text-[10px] uppercase tracking-wide opacity-55 mb-1">Leyenda</p>
+            <ul class="px-2 grid grid-cols-2 gap-x-2 gap-y-1 text-[11px] opacity-80">
+              ${[
+                ['completed', 'Completado', 'rounded-[3px]'],
+                ['theory', 'Teoría', 'rounded-[3px]'],
+                ['practical', 'Práctica', 'rounded-[3px]'],
+                ['optional', 'Opcional', 'rounded-[3px]'],
+                ['boss', 'Jefe', 'rotate-45'],
+              ]
+                .map(
+                  ([key, label, shape]) => `
+                  <li class="flex items-center gap-1.5">
+                    <span class="inline-block w-2.5 h-2.5 shrink-0 ${shape}"
+                          style="background:${cssPalette[key]}"></span>
+                    <span class="truncate">${label}</span>
+                  </li>`
+                )
+                .join('')}
+            </ul>
+          </div>
         </div>
       </div>`
 

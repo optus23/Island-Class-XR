@@ -9,9 +9,12 @@ import { levelById, mainSequence } from './lib/levels.js'
 import { worlds } from './config/worlds.js'
 import { openPortal } from './ui/portal.js'
 import { mountNav } from './ui/nav.js'
+import { createTooltip, createCurtain } from './ui/hud.js'
 
 const container = document.getElementById('app')
+const curtain = createCurtain()
 const app = createScene(container)
+const tooltip = createTooltip()
 
 const island = createIsland()
 const map = createMapObjects()
@@ -100,17 +103,20 @@ function pick() {
   return map.levelFromHit(hits[0])
 }
 
-container.addEventListener('pointermove', () => {
+container.addEventListener('pointermove', (e) => {
   const level = pick()
   hoveredLevel = level
   map.setHovered(level?.id ?? null)
   container.classList.toggle('is-hovering-node', Boolean(level))
+  if (level) tooltip.show(level, e.clientX, e.clientY, markerId)
+  else tooltip.hide()
 })
 
 container.addEventListener('pointerleave', () => {
   hoveredLevel = null
   map.setHovered(null)
   container.classList.remove('is-hovering-node')
+  tooltip.hide()
 })
 
 // Distinguish a click from a drag/parallax sweep.
@@ -136,6 +142,7 @@ function selectLevel(levelOrId) {
   if (!level || player.isMoving) return
 
   const arrive = () => {
+    tooltip.hide()
     nav?.setPlayerLevel(level.id)
     openPortal(level, { markerId })
   }
@@ -162,6 +169,9 @@ async function boot() {
   nav = mountNav({ markerId, onSelect: selectLevel, rig: app.rig })
   nav.setPlayerLevel(markerId)
   app.start()
+  // Draw one frame before lifting the curtain, so the reveal is never a flash
+  // of empty sky while the island's first frame is still being rasterised.
+  requestAnimationFrame(() => curtain.lift())
 
   if (import.meta.env.DEV) {
     window.__app = app
