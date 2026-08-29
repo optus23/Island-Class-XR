@@ -4,6 +4,15 @@ import { worlds, worldById, CAMERA_FOV, parallax } from '../config/worlds.js'
 const easeInOutCubic = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2)
 
 /**
+ * How much of a world must stay visible, in world units. A world footprint is
+ * 52 x 44; these are the projected extents that keep it comfortably framed.
+ */
+const FIT_WIDTH = 64
+const FIT_HEIGHT = 46
+/** Beyond this the island is a speck; better to crop a little than zoom to nothing. */
+const MAX_FIT_SCALE = 3.5
+
+/**
  * One camera, three fixed positions. Never free-look, never orbit.
  * Moving between worlds eases position+target together, which reads as the
  * world sliding past — the Mario World overworld pan.
@@ -26,11 +35,30 @@ export function createCameraRig(startWorldId = 1) {
   let transition = 1 // 1 = settled
   let duration = 1.25
 
+  let aspect = 16 / 9
+
+  /**
+   * How far to push this world's camera OUT so the world still fits the
+   * viewport. A phone in portrait has an aspect near 0.46, which narrows the
+   * horizontal field so hard that only a corner of the world is visible.
+   *
+   * This only ever scales the offset's LENGTH — the direction, and therefore
+   * the world's fixed viewing angle, is untouched. There are still exactly
+   * three camera positions and still no free camera.
+   */
+  function fitScaleFor(w) {
+    const spread = 2 * Math.tan((CAMERA_FOV * Math.PI) / 180 / 2)
+    const needed = Math.max(FIT_WIDTH / (spread * aspect), FIT_HEIGHT / spread)
+    const base = Math.hypot(...w.camera.offset) || 1
+    return Math.min(MAX_FIT_SCALE, Math.max(1, needed / base))
+  }
+
   function anchorsFor(worldId) {
     const w = worldById.get(worldId) ?? worlds[0]
     const c = new THREE.Vector3(...w.center)
+    const offset = new THREE.Vector3(...w.camera.offset).multiplyScalar(fitScaleFor(w))
     return {
-      pos: c.clone().add(new THREE.Vector3(...w.camera.offset)),
+      pos: c.clone().add(offset),
       target: c.clone().add(new THREE.Vector3(...w.camera.target)),
     }
   }
@@ -46,6 +74,25 @@ export function createCameraRig(startWorldId = 1) {
     toTarget.copy(a.target)
     camera.position.copy(a.pos)
     camera.lookAt(a.target)
+  }
+
+  /**
+   * Called on every resize. Re-frames in place: a resize is already a visual
+   * discontinuity, so easing to the new framing would just look like drift.
+   * An in-flight world transition keeps easing — only its destination moves.
+   */
+  function setAspect(nextAspect) {
+    if (!Number.isFinite(nextAspect) || nextAspect <= 0) return
+    if (Math.abs(nextAspect - aspect) < 1e-4) return
+    aspect = nextAspect
+
+    const a = anchorsFor(currentWorldId)
+    toPos.copy(a.pos)
+    toTarget.copy(a.target)
+    if (transition >= 1) {
+      basePos.copy(a.pos)
+      baseTarget.copy(a.target)
+    }
   }
 
   function goToWorld(worldId, { instant = false, seconds = 1.25 } = {}) {
@@ -96,12 +143,17 @@ export function createCameraRig(startWorldId = 1) {
   return {
     camera,
     goToWorld,
+    setAspect,
     update,
     get currentWorldId() {
       return currentWorldId
     },
     get isSettled() {
       return transition >= 1
+    },
+    /** Current framing multiplier, so distance-based effects (fog) can follow. */
+    get fitScale() {
+      return fitScaleFor(worldById.get(currentWorldId) ?? worlds[0])
     },
     /**
      * Parallax tilt for the world group — subtle, never free rotation.

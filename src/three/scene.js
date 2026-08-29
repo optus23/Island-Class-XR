@@ -46,6 +46,25 @@ export function createScene(container) {
 
   const rig = createCameraRig(1)
 
+  /**
+   * Fog is measured from the camera, so it must follow the rig's framing. Without
+   * this, pushing the camera back on a narrow phone viewport drops the whole
+   * island past fogFar and the map fades out to flat sky.
+   *
+   * Memoised on the scale, because it touches updateProjectionMatrix and the
+   * framing only changes on resize or when moving between worlds.
+   */
+  let lastFitScale = 0
+  function syncFraming() {
+    const scale = rig.fitScale
+    if (Math.abs(scale - lastFitScale) < 1e-4) return
+    lastFitScale = scale
+    scene.fog.near = themeWorld.fogNear * scale
+    scene.fog.far = themeWorld.fogFar * scale
+    rig.camera.far = Math.max(400, themeWorld.fogFar * scale * 1.35)
+    rig.camera.updateProjectionMatrix()
+  }
+
   // --- pointer (for parallax + raycasting) --------------------------------
   const pointer = new THREE.Vector2(0, 0) // -1..1, NDC
   const parallaxPointer = { x: 0, y: 0 }
@@ -70,8 +89,13 @@ export function createScene(container) {
     const w = container.clientWidth || window.innerWidth
     const h = container.clientHeight || window.innerHeight
     renderer.setSize(w, h, false)
-    rig.camera.aspect = w / h
+    const aspect = w / h
+    rig.camera.aspect = aspect
     rig.camera.updateProjectionMatrix()
+    // Let the rig re-frame: a narrow portrait viewport needs the camera pushed
+    // back or only a corner of the world is visible.
+    rig.setAspect(aspect)
+    syncFraming()
   }
   resize()
   const ro = new ResizeObserver(resize)
@@ -90,6 +114,7 @@ export function createScene(container) {
     lastTime = now
     for (const fn of updaters) fn(dt)
     rig.update(dt, parallaxPointer)
+    syncFraming() // worlds differ in camera distance, so the framing can change without a resize
     worldGroup.rotation.x = rig.tilt.x
     worldGroup.rotation.y = rig.tilt.y
     renderer.render(scene, rig.camera)
