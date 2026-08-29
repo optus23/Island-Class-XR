@@ -87,6 +87,20 @@ export const biomes = {
   },
 }
 
+/**
+ * Pastel mounds standing behind the island. In the reference art the backdrop
+ * is a wall of soft striped hills — it is what stops the map reading as a
+ * diorama floating in empty sky.
+ */
+export const backdrop = {
+  meadow: [0x8fd694, 0xa8e6cf, 0xbfe6a0],
+  desert: [0xf2d091, 0xf7c59f, 0xe8b98a],
+  summit: [0xbcd8f0, 0xd9c7ef, 0xcfe3f2],
+}
+
+/** Flower colours scattered over the ground caps. */
+export const flowers = [0xffffff, 0xff8fab, 0xffd166, 0xef476f, 0xf7a8d8]
+
 export const world = {
   sky: 0x9bd4e4,
   fog: 0x9bd4e4,
