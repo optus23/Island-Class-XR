@@ -217,7 +217,7 @@ function render() {
           <label class="form-control mb-2 block">
             <span class="label-text text-sm">GitHub token (Contents: Read and write)</span>
             <input id="token" type="password" class="input input-bordered w-full"
-                   value="${store.token}" placeholder="github_pat_… / ghp_…"
+                   value="${store.token}" placeholder="Pega aquí tu token"
                    autocomplete="off" spellcheck="false" />
           </label>
 
