@@ -36,6 +36,21 @@ Then open the URL Vite prints. The admin panel is at `/admin/`.
 the map. It runs automatically as part of `build`, so a broken `levels.json` can
 never reach GitHub Pages.
 
+### Previewing exactly what Pages will serve
+
+On GitHub Pages the site lives under `/<repo-name>/`, not `/`. Vite derives that
+from the `GITHUB_REPOSITORY` variable Actions always sets, so CI needs no config
+— but to reproduce it locally you must set it for **both** the build and the
+preview, or the served base will not match the one baked into `index.html` and
+every script 404s:
+
+```bash
+GITHUB_REPOSITORY=optus23/Island-Class-XR npm run build && GITHUB_REPOSITORY=optus23/Island-Class-XR npm run preview
+```
+
+Then open `http://localhost:4173/Island-Class-XR/`. Plain `npm run dev` needs
+none of this — it serves from `/`.
+
 ---
 
 ## The three worlds
