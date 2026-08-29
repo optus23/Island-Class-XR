@@ -31,7 +31,13 @@ export function createScene(container) {
   const worldGroup = new THREE.Group()
   scene.add(worldGroup)
 
-  const ambient = new THREE.AmbientLight(themeWorld.ambient, themeWorld.ambientIntensity)
+  // Hemisphere rather than flat ambient: sky-tinted tops and ground-tinted
+  // undersides give voxel cubes readable shape without a second shadow pass.
+  const ambient = new THREE.HemisphereLight(
+    themeWorld.ambient,
+    themeWorld.terrainEdge,
+    themeWorld.ambientIntensity
+  )
   scene.add(ambient)
 
   const sun = new THREE.DirectionalLight(themeWorld.sun, themeWorld.sunIntensity)
