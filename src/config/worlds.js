@@ -18,7 +18,7 @@ export const worlds = [
     name: 'World 1 — Foundations & AR',
     center: [-58, 0, 0],
     // Isometric, from the LEFT looking right.
-    camera: { offset: [-36, 30, 32], target: [0, 2, -2] },
+    camera: { offset: [-42, 34, 38], target: [-2, 1, 1] },
     path: {
       bossSlotIndex: null,
       controlPoints: [
@@ -39,7 +39,7 @@ export const worlds = [
     name: 'World 2 — Meta Building Blocks',
     center: [0, 0, 0],
     // Frontal.
-    camera: { offset: [0, 23, 48], target: [0, 2, -4] },
+    camera: { offset: [0, 28, 56], target: [0, 2, -3] },
     path: {
       // The mini-boss (midterm castle) always sits on this control point, and
       // it splits the world into two equal halves: theory+BB start before it,
@@ -63,19 +63,23 @@ export const worlds = [
     name: 'World 3 — XR Toolkit & Final Project',
     center: [58, 0, 0],
     // Mirror of World 1: isometric, from the RIGHT looking left.
-    camera: { offset: [36, 30, 32], target: [0, 2, -2] },
+    camera: { offset: [42, 34, 38], target: [2, 1, 1] },
     path: {
+      // World 1's shape mirrored on X *and reversed*, so the silhouette is the
+      // mirror image (matching the mirrored camera) while the route still runs
+      // left-to-right. Mirroring alone would start this world at the island's
+      // far right edge and make the journey jump backwards over it.
       bossSlotIndex: null,
       controlPoints: [
-        [19, 0.0, 16],
-        [10, 0.5, 8],
-        [1, 0.0, 11],
-        [-7, 1.2, 3],
-        [-1, 0.6, -5],
-        [7, 0.0, -11],
-        [-3, 1.0, -16],
-        [-14, 0.4, -10],
         [-19, 0.0, -1],
+        [-14, 0.4, -10],
+        [-3, 1.0, -16],
+        [7, 0.0, -11],
+        [-1, 0.6, -5],
+        [-7, 1.2, 3],
+        [1, 0.0, 11],
+        [10, 0.5, 8],
+        [19, 0.0, 16],
       ],
     },
   },
