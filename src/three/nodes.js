@@ -1,6 +1,6 @@
 import * as THREE from 'three'
-import { worlds } from '../config/worlds.js'
-import { palette, world as themeWorld, resolveNodeColor } from '../config/theme.js'
+import { worlds, worldAtX } from '../config/worlds.js'
+import { palette, biomes, world as themeWorld, resolveNodeColor } from '../config/theme.js'
 import { buildWorldCurves, buildConnectors, distributeNodes } from './paths.js'
 import { levelsForWorld, statusFor } from '../lib/levels.js'
 import { prefersReducedMotion } from '../lib/motion.js'
@@ -33,13 +33,15 @@ export function createMapObjects() {
   const positionById = new Map(placed.map((p) => [p.level.id, p.position.clone()]))
 
   // --- paths ---------------------------------------------------------------
-  group.add(createPathTiles())
+  group.add(createPathRibbon())
   const dashed = createOptionalConnectors(placed, positionById)
   group.add(dashed)
 
   // --- regular nodes (instanced) ------------------------------------------
   const regular = placed.filter((p) => p.level.category !== 'boss')
-  const nodeGeo = new THREE.BoxGeometry(NODE_SIZE, NODE_SIZE * 0.75, NODE_SIZE)
+  // A flat disc sunk into the road, not a floating cube — see the NSMB world
+  // maps. 16 sides is plenty at this scale and keeps the silhouette crisp.
+  const nodeGeo = new THREE.CylinderGeometry(NODE_SIZE * 0.46, NODE_SIZE * 0.46, 0.42, 16)
   // See island.js: per-instance colour comes from instanceColor, and turning on
   // vertexColors here would multiply it by a missing attribute and go black.
   const nodeMat = new THREE.MeshLambertMaterial()
@@ -49,6 +51,16 @@ export function createMapObjects() {
   nodeMesh.name = 'nodes'
   nodeMesh.userData.levels = regular.map((p) => p.level)
   group.add(nodeMesh)
+
+  // Gold rim around every node disc, the way the reference rings each level.
+  const ringGeo = new THREE.CylinderGeometry(NODE_SIZE * 0.62, NODE_SIZE * 0.62, 0.3, 16)
+  const rims = new THREE.InstancedMesh(
+    ringGeo,
+    new THREE.MeshLambertMaterial({ color: palette.nodeRim }),
+    regular.length
+  )
+  rims.frustumCulled = false
+  group.add(rims)
 
   const baseMatrix = regular.map((p) => {
     const m = new THREE.Matrix4()
@@ -63,6 +75,11 @@ export function createMapObjects() {
   })
   baseMatrix.forEach((m, i) => nodeMesh.setMatrixAt(i, m))
   nodeMesh.instanceMatrix.needsUpdate = true
+
+  const rimM = new THREE.Matrix4()
+  const rimDrop = new THREE.Matrix4().makeTranslation(0, -0.07, 0)
+  baseMatrix.forEach((m, i) => rims.setMatrixAt(i, rimM.multiplyMatrices(m, rimDrop)))
+  rims.instanceMatrix.needsUpdate = true
 
   // --- bosses (bespoke castles) -------------------------------------------
   const bosses = placed.filter((p) => p.level.category === 'boss')
@@ -137,8 +154,10 @@ export function createMapObjects() {
       scaleV.setScalar(on ? 1.22 : 1)
       tmp.copy(baseMatrix[i]).scale(scaleV)
       nodeMesh.setMatrixAt(i, tmp)
+      rims.setMatrixAt(i, tmp.clone().multiply(rimDrop))
     })
     nodeMesh.instanceMatrix.needsUpdate = true
+    rims.instanceMatrix.needsUpdate = true
 
     for (const b of bossEntries) {
       const on = hoveredKey === b.level.id
@@ -190,38 +209,73 @@ export function createMapObjects() {
   }
 }
 
-/** Mario-style stepping-stone tiles along every world path and land bridge. */
-function createPathTiles() {
-  const curves = [...worlds.map((w) => buildWorldCurves(w).full), ...buildConnectors()]
-  const TILE_SPACING = 1.5
+/**
+ * One continuous road ribbon per curve, with a darker border laid underneath
+ * it — the outlined road of the New Super Mario Bros. world maps, rather than
+ * the scattered stepping stones this used to draw.
+ *
+ * A quad strip along the spline: two triangles per sample, one draw call for
+ * the whole road network.
+ */
+function ribbonGeometry(curves, halfWidth, lift, colorKey) {
+  const positions = []
+  const colors = []
+  const indices = []
+  let base = 0
+  const side = new THREE.Vector3()
+  const col = new THREE.Color()
 
-  const entries = []
   for (const curve of curves) {
-    const count = Math.max(2, Math.round(curve.getLength() / TILE_SPACING))
-    for (let i = 0; i <= count; i++) {
-      const u = i / count
-      entries.push({ p: curve.getPointAt(u), tan: curve.getTangentAt(u) })
+    const segments = Math.max(8, Math.round(curve.getLength() / 0.7))
+    for (let i = 0; i <= segments; i++) {
+      const u = i / segments
+      const p = curve.getPointAt(u)
+      const t = curve.getTangentAt(u)
+      // Perpendicular in the ground plane, so the road stays flat on the terrain.
+      side.set(t.z, 0, -t.x).normalize().multiplyScalar(halfWidth)
+      positions.push(p.x - side.x, p.y + lift, p.z - side.z)
+      positions.push(p.x + side.x, p.y + lift, p.z + side.z)
+
+      // The road takes each biome's own surface, so it never disappears into
+      // ground of a similar colour (a sand road on sand is invisible).
+      const biome = biomes[worldAtX(p.x).biome] ?? biomes.meadow
+      col.setHex(biome[colorKey])
+      colors.push(col.r, col.g, col.b, col.r, col.g, col.b)
     }
+    for (let i = 0; i < segments; i++) {
+      const a = base + i * 2
+      indices.push(a, a + 2, a + 1, a + 1, a + 2, a + 3)
+    }
+    base += (segments + 1) * 2
   }
 
-  const mesh = new THREE.InstancedMesh(
-    new THREE.BoxGeometry(1.15, 0.28, 1.15),
-    new THREE.MeshLambertMaterial({ color: themeWorld.path }),
-    entries.length
+  const geo = new THREE.BufferGeometry()
+  geo.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3))
+  // A real per-vertex colour attribute, so vertexColors is correct here —
+  // unlike on an InstancedMesh, where it would eat the instance colours.
+  geo.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3))
+  geo.setIndex(indices)
+  geo.computeVertexNormals()
+  return geo
+}
+
+function createPathRibbon() {
+  const curves = [...worlds.map((w) => buildWorldCurves(w).full), ...buildConnectors()]
+  const group = new THREE.Group()
+
+  const border = new THREE.Mesh(
+    ribbonGeometry(curves, 1.55, 0.1, 'roadEdge'),
+    // DoubleSide keeps the strip visible regardless of which way a curve winds.
+    new THREE.MeshLambertMaterial({ vertexColors: true, side: THREE.DoubleSide })
   )
-  const m = new THREE.Matrix4()
-  entries.forEach((e, i) => {
-    const yaw = Math.atan2(e.tan.x, e.tan.z)
-    m.compose(
-      new THREE.Vector3(e.p.x, e.p.y + 0.12, e.p.z),
-      new THREE.Quaternion().setFromAxisAngle(UP, yaw),
-      new THREE.Vector3(1, 1, 1)
-    )
-    mesh.setMatrixAt(i, m)
-  })
-  mesh.instanceMatrix.needsUpdate = true
-  mesh.frustumCulled = false
-  return mesh
+  const road = new THREE.Mesh(
+    ribbonGeometry(curves, 1.15, 0.17, 'road'),
+    new THREE.MeshLambertMaterial({ vertexColors: true, side: THREE.DoubleSide })
+  )
+  border.frustumCulled = false
+  road.frustumCulled = false
+  group.add(border, road)
+  return group
 }
 
 /**

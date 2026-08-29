@@ -25,6 +25,9 @@ export const palette = {
 
   // Locked-ahead levels (past the progress marker)
   locked: 0x6c757d,
+
+  // Gold rim drawn around every node disc, as in the NSMB world maps.
+  nodeRim: 0xf2c14e,
 }
 
 /**
@@ -39,6 +42,8 @@ export const palette = {
 export const biomes = {
   meadow: {
     props: 'leafy',
+    road: 0xf0cf7a,
+    roadEdge: 0xb98a3c,
     ground: 0x74c365,
     groundAlt: 0x5faa52,
     band: 0xc4693f,
@@ -51,6 +56,9 @@ export const biomes = {
   },
   desert: {
     props: 'cactus',
+    // Brick road: a sand-coloured road on sand is invisible.
+    road: 0xc75f3f,
+    roadEdge: 0x8e3f28,
     ground: 0xe3c169,
     groundAlt: 0xd0aa55,
     band: 0xc9793c,
@@ -63,6 +71,8 @@ export const biomes = {
   },
   summit: {
     props: 'pine',
+    road: 0xa9bccd,
+    roadEdge: 0x6d8095,
     // Snow over dark rock. The gap between cap and rock has to stay wide or
     // the terracing vanishes into a flat white mass.
     ground: 0xeaf2fa,
@@ -88,7 +98,8 @@ export const world = {
   cliff: 0xb08968,
   water: 0x4ea8de,
 
-  path: 0xe8d8b0,
+  path: 0xf0cf7a, // the road surface
+  pathEdge: 0xb98a3c, // darker border under it, so the road reads as outlined
   pathOptional: 0x9d4edd, // dashed connectors to bonus nodes
 
   player: 0xef476f,

@@ -94,6 +94,15 @@ export const worlds = [
 
 export const worldById = new Map(worlds.map((w) => [w.id, w]))
 
+/** Which world owns a given X — the biome boundary for terrain and road alike. */
+export function worldAtX(x) {
+  let best = worlds[0]
+  for (const w of worlds) {
+    if (Math.abs(x - w.center[0]) < Math.abs(x - best.center[0])) best = w
+  }
+  return best
+}
+
 /** Subtle mouse parallax — never free rotation. Tune or zero these out. */
 export const parallax = {
   maxOffset: 2.4, // world units the camera drifts at full pointer deflection
