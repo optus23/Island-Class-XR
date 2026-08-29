@@ -8,8 +8,8 @@ const easeInOutCubic = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2
  * How much of a world must stay visible, in world units. A world footprint is
  * 52 x 44; these are the projected extents that keep it comfortably framed.
  */
-const FIT_WIDTH = 64
-const FIT_HEIGHT = 46
+const FIT_WIDTH = 68
+const FIT_HEIGHT = 48 // for a flat world; each world's own climb is added on top
 /** Beyond this the island is a speck; better to crop a little than zoom to nothing. */
 const MAX_FIT_SCALE = 3.5
 
@@ -47,9 +47,18 @@ export function createCameraRig(startWorldId = 1) {
    * the world's fixed viewing angle, is untouched. There are still exactly
    * three camera positions and still no free camera.
    */
+  /** How much a world climbs, so a taller world is framed from further back. */
+  function heightSpan(w) {
+    const ys = w.path.controlPoints.map((p) => p[1])
+    return Math.max(...ys) - Math.min(...ys)
+  }
+
   function fitScaleFor(w) {
     const spread = 2 * Math.tan((CAMERA_FOV * Math.PI) / 180 / 2)
-    const needed = Math.max(FIT_WIDTH / (spread * aspect), FIT_HEIGHT / spread)
+    // A world that climbs 16 units needs more vertical room than a flat one,
+    // or its summit is cropped straight off the top of the frame.
+    const needHeight = FIT_HEIGHT + heightSpan(w) * 1.15
+    const needed = Math.max(FIT_WIDTH / (spread * aspect), needHeight / spread)
     const base = Math.hypot(...w.camera.offset) || 1
     return Math.min(MAX_FIT_SCALE, Math.max(1, needed / base))
   }

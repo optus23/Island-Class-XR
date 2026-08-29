@@ -1,22 +1,34 @@
 import * as THREE from 'three'
 import { worlds } from '../config/worlds.js'
-import { world as themeWorld } from '../config/theme.js'
+import { world as themeWorld, biomes } from '../config/theme.js'
 import { buildWorldCurves, buildConnectors } from './paths.js'
 
 /**
- * The voxel island: one InstancedMesh for the terrain columns, one for the
- * decorative props, one water plane. Three draw calls for the whole landmass.
+ * The voxel island.
  *
- * Terrain is generated from a land mask (world footprints + the land bridges
- * between them) so the three worlds read as a single connected island. Ground
- * under and near a path is flattened, so nodes never sit on a slope.
+ * Verticality is the point: ground height follows the height of the nearest
+ * path, so raising a control point in worlds.js lifts a whole plateau and the
+ * route climbs onto it. Cliffs then appear on their own wherever two plateaus
+ * of different heights meet, and around the whole coastline.
+ *
+ * Each column is drawn as three stacked boxes — a grass/sand/snow CAP, a bright
+ * BAND just under the lip, and the ROCK body below. That three-tone stack is
+ * what makes a plateau read as a plateau instead of a coloured slab.
+ *
+ * Three InstancedMeshes for the terrain, whatever the island's size.
  */
 
 const VOXEL = 2 // world units per terrain column
 const MARGIN = 26 // half-extent of a world's footprint, X
 const MARGIN_Z = 22 // half-extent, Z
 const BRIDGE_HALF_WIDTH = 6.5
-const PATH_FLATTEN_RADIUS = 6.5
+const PATH_FLATTEN_RADIUS = 7
+const TIER = 4 // height step for off-path plateaus
+const SHELF_Y = 1.5 // low coastal shelf that high plateaus rise out of
+
+const CAP_HEIGHT = 1.1 // the walkable top
+const BAND_HEIGHT = 1.4 // bright stripe below the lip
+const BASE_Y = -9 // every column runs down to here, well below the water
 
 /** Cheap deterministic hash noise — no dependency, stable across reloads. */
 function hash2(x, z) {
@@ -30,32 +42,38 @@ function smoothNoise(x, z) {
   const zf = z - zi
   const u = xf * xf * (3 - 2 * xf)
   const v = zf * zf * (3 - 2 * zf)
-  const a = hash2(xi, zi)
-  const b = hash2(xi + 1, zi)
-  const c = hash2(xi, zi + 1)
-  const d = hash2(xi + 1, zi + 1)
-  return a * (1 - u) * (1 - v) + b * u * (1 - v) + c * (1 - u) * v + d * u * v
+  return (
+    hash2(xi, zi) * (1 - u) * (1 - v) +
+    hash2(xi + 1, zi) * u * (1 - v) +
+    hash2(xi, zi + 1) * (1 - u) * v +
+    hash2(xi + 1, zi + 1) * u * v
+  )
 }
 
-/** Distance from a point to the nearest segment of a polyline. */
-function distanceToPolyline(x, z, pts) {
-  let best = Infinity
+/**
+ * Nearest point on a polyline, returning its height as well as the distance —
+ * the height is what drives the plateaus.
+ */
+function nearestOnPolyline(x, z, pts) {
+  let bestDist = Infinity
+  let bestY = 0
   for (let i = 1; i < pts.length; i++) {
-    const ax = pts[i - 1].x
-    const az = pts[i - 1].z
-    const bx = pts[i].x
-    const bz = pts[i].z
-    const dx = bx - ax
-    const dz = bz - az
+    const a = pts[i - 1]
+    const b = pts[i]
+    const dx = b.x - a.x
+    const dz = b.z - a.z
     const len2 = dx * dx + dz * dz
-    let t = len2 === 0 ? 0 : ((x - ax) * dx + (z - az) * dz) / len2
+    let t = len2 === 0 ? 0 : ((x - a.x) * dx + (z - a.z) * dz) / len2
     t = t < 0 ? 0 : t > 1 ? 1 : t
-    const px = ax + t * dx
-    const pz = az + t * dz
+    const px = a.x + t * dx
+    const pz = a.z + t * dz
     const d = Math.hypot(x - px, z - pz)
-    if (d < best) best = d
+    if (d < bestDist) {
+      bestDist = d
+      bestY = a.y + t * (b.y - a.y)
+    }
   }
-  return best
+  return { dist: bestDist, y: bestY }
 }
 
 /** Rounded-rectangle footprint for one world, as an inside-ness in world units. */
@@ -63,29 +81,50 @@ function worldInset(x, z, center) {
   const dx = Math.abs(x - center[0]) - (MARGIN - 6)
   const dz = Math.abs(z - center[2]) - (MARGIN_Z - 6)
   const outside = Math.hypot(Math.max(dx, 0), Math.max(dz, 0))
-  return 6 - outside // >0 inside, tapering at the rounded edge
+  return 6 - outside
+}
+
+/** Which world's biome owns this column. */
+function biomeAt(x) {
+  let best = worlds[0]
+  for (const w of worlds) {
+    if (Math.abs(x - w.center[0]) < Math.abs(x - best.center[0])) best = w
+  }
+  return biomes[best.biome] ?? biomes.meadow
 }
 
 export function createIsland() {
   const group = new THREE.Group()
 
-  // Sample every path (and the bridges) once, for flattening + the land mask.
-  const pathPoints = []
+  // Sample every path (and the bridges) once — they drive both the land mask
+  // and the terrain height.
+  const pathPolylines = []
   const bridgePolylines = []
   for (const w of worlds) {
-    pathPoints.push(buildWorldCurves(w).full.getSpacedPoints(120))
+    pathPolylines.push(buildWorldCurves(w).full.getSpacedPoints(160))
   }
   for (const c of buildConnectors()) {
-    const pts = c.getSpacedPoints(40)
-    pathPoints.push(pts)
+    const pts = c.getSpacedPoints(48)
+    pathPolylines.push(pts)
     bridgePolylines.push(pts)
   }
 
-  const nearestPath = (x, z) => Math.min(...pathPoints.map((p) => distanceToPolyline(x, z, p)))
-  const nearestBridge = (x, z) =>
-    bridgePolylines.length
-      ? Math.min(...bridgePolylines.map((p) => distanceToPolyline(x, z, p)))
-      : Infinity
+  function nearestPath(x, z) {
+    let best = { dist: Infinity, y: 0 }
+    for (const pts of pathPolylines) {
+      const hit = nearestOnPolyline(x, z, pts)
+      if (hit.dist < best.dist) best = hit
+    }
+    return best
+  }
+  function nearestBridge(x, z) {
+    let best = Infinity
+    for (const pts of bridgePolylines) {
+      const d = nearestOnPolyline(x, z, pts).dist
+      if (d < best) best = d
+    }
+    return best
+  }
 
   // --- land mask + heights -------------------------------------------------
   const cells = []
@@ -103,142 +142,178 @@ export function createIsland() {
   for (let x = minX; x <= maxX; x += VOXEL) {
     for (let z = minZ; z <= maxZ; z += VOXEL) {
       const inWorld = Math.max(...worlds.map((w) => worldInset(x, z, w.center)))
-      const bridgeDist = nearestBridge(x, z)
-      const inBridge = BRIDGE_HALF_WIDTH - bridgeDist
+      const inBridge = BRIDGE_HALF_WIDTH - nearestBridge(x, z)
       const inside = Math.max(inWorld, inBridge)
       if (inside <= 0) continue
 
-      const pathDist = nearestPath(x, z)
-      // Hills only well away from the path, and they fade out at the shoreline
-      // so the island never ends in a floating cliff.
-      const awayFromPath = Math.min(1, Math.max(0, (pathDist - PATH_FLATTEN_RADIUS) / 9))
-      const shore = Math.min(1, inside / 5)
-      const hill = (smoothNoise(x * 0.09, z * 0.09) - 0.35) * 5.2
-      const height = Math.max(0, hill) * awayFromPath * shore
+      const path = nearestPath(x, z)
 
-      cells.push({ x, z, height: Math.round(height / 0.5) * 0.5, pathDist, shore })
+      // Ground sits at the path's height, so a wide flat terrace surrounds the
+      // whole route and nodes never end up on a slope.
+      const away = Math.min(1, Math.max(0, (path.dist - PATH_FLATTEN_RADIUS) / 14))
+      const shore = Math.min(1, inside / 4)
+
+      // Big, low-frequency mounds only. Earlier this was strong high-frequency
+      // noise, and quantising it turned the whole island into corduroy instead
+      // of the few clean plateaus the reference has.
+      const hill = Math.max(0, smoothNoise(x * 0.045, z * 0.045) - 0.5) * 9
+
+      // Drop toward a low shelf as the coast approaches, but only well away
+      // from the route. Without this a high path lifts the ENTIRE footprint
+      // into one enormous slab; with it, plateaus stay local and are ringed by
+      // low ground, which is what makes them read as mesas.
+      const coastal = 1 - Math.min(1, inside / 9)
+      const drop = coastal * away
+      const grounded = path.y * (1 - drop) + SHELF_Y * drop
+
+      // Coarse steps far from the path give the stacked Mario silhouette;
+      // near the path the ground stays continuous so the route can ramp.
+      const raw = grounded + hill * away * shore
+      const height = away > 0.75 ? Math.round(raw / TIER) * TIER : raw
+
+      cells.push({ x, z, height, pathDist: path.dist, shore, biome: biomeAt(x) })
     }
   }
 
-  // --- terrain InstancedMesh ----------------------------------------------
-  const COLUMN_DEPTH = 7 // how far the land extends below sea level
-  const geo = new THREE.BoxGeometry(VOXEL, 1, VOXEL)
-  // NOT vertexColors: true. An InstancedMesh's per-instance colours arrive via
-  // `instanceColor`, which three wires up on its own. Setting vertexColors also
-  // makes the shader multiply by a per-VERTEX `color` attribute that a
-  // BoxGeometry does not have — it defaults to black and eats every colour.
-  const mat = new THREE.MeshLambertMaterial()
-  const terrain = new THREE.InstancedMesh(geo, mat, cells.length)
-  terrain.instanceMatrix.setUsage(THREE.StaticDrawUsage)
+  // --- terrain: cap + band + rock body ------------------------------------
+  const box = new THREE.BoxGeometry(VOXEL, 1, VOXEL)
+  const makeLayer = (count) => {
+    // No vertexColors: per-instance colour arrives via instanceColor, and
+    // enabling vertexColors would multiply it by a missing per-vertex
+    // attribute that defaults to black.
+    const mesh = new THREE.InstancedMesh(box, new THREE.MeshLambertMaterial(), count)
+    mesh.instanceMatrix.setUsage(THREE.StaticDrawUsage)
+    mesh.frustumCulled = false
+    return mesh
+  }
+
+  const caps = makeLayer(cells.length)
+  const bands = makeLayer(cells.length)
+  const bodies = makeLayer(cells.length)
 
   const m = new THREE.Matrix4()
-  const grass = new THREE.Color(themeWorld.terrain)
-  const grassEdge = new THREE.Color(themeWorld.terrainEdge)
-  const cliff = new THREE.Color(themeWorld.cliff)
   const tint = new THREE.Color()
+  const tmp = new THREE.Color()
 
   cells.forEach((c, i) => {
+    const b = c.biome
     const top = c.height
-    const h = top + COLUMN_DEPTH
-    m.makeScale(1, h, 1)
-    m.setPosition(c.x, top - h / 2, c.z)
-    terrain.setMatrixAt(i, m)
 
-    // Shoreline reads as sandy cliff, inland as grass, with a touch of noise
-    // so large flat areas do not band.
-    const t = 1 - Math.min(1, c.shore)
-    tint.copy(grass).lerp(grassEdge, hash2(c.x, c.z) * 0.35)
-    tint.lerp(cliff, t * 0.85)
-    terrain.setColorAt(i, tint)
+    // cap
+    m.makeScale(1, CAP_HEIGHT, 1)
+    m.setPosition(c.x, top - CAP_HEIGHT / 2, c.z)
+    caps.setMatrixAt(i, m)
+    tint.setHex(b.ground).lerp(tmp.setHex(b.groundAlt), hash2(c.x, c.z) * 0.6)
+    caps.setColorAt(i, tint)
+
+    // bright band under the lip
+    const bandTop = top - CAP_HEIGHT
+    m.makeScale(1, BAND_HEIGHT, 1)
+    m.setPosition(c.x, bandTop - BAND_HEIGHT / 2, c.z)
+    bands.setMatrixAt(i, m)
+    bands.setColorAt(i, tint.setHex(b.band))
+
+    // rock body down to the base
+    const bodyTop = bandTop - BAND_HEIGHT
+    const bodyH = Math.max(0.1, bodyTop - BASE_Y)
+    m.makeScale(1, bodyH, 1)
+    m.setPosition(c.x, bodyTop - bodyH / 2, c.z)
+    bodies.setMatrixAt(i, m)
+    // Deeper columns darken, so tall cliff faces gain depth.
+    tint.setHex(b.rock).lerp(tmp.setHex(b.rockDeep), Math.min(1, bodyH / 22))
+    bodies.setColorAt(i, tint)
   })
-  terrain.instanceMatrix.needsUpdate = true
-  if (terrain.instanceColor) terrain.instanceColor.needsUpdate = true
-  terrain.frustumCulled = false
-  group.add(terrain)
+
+  for (const layer of [caps, bands, bodies]) {
+    layer.instanceMatrix.needsUpdate = true
+    if (layer.instanceColor) layer.instanceColor.needsUpdate = true
+    group.add(layer)
+  }
 
   // --- water ---------------------------------------------------------------
   const water = new THREE.Mesh(
-    new THREE.PlaneGeometry((maxX - minX) * 2.2, (maxZ - minZ) * 3.2),
+    new THREE.PlaneGeometry((maxX - minX) * 2.4, (maxZ - minZ) * 3.4),
     new THREE.MeshLambertMaterial({ color: themeWorld.water })
   )
   water.rotation.x = -Math.PI / 2
-  water.position.set((minX + maxX) / 2, -1.6, (minZ + maxZ) / 2)
+  water.position.set((minX + maxX) / 2, -2.2, (minZ + maxZ) / 2)
   group.add(water)
 
-  // --- decorative props ----------------------------------------------------
   group.add(createProps(cells))
 
-  return { group, terrain, cells }
+  return { group, terrain: caps, cells }
 }
 
 /**
- * Trees and rocks, well clear of the path so they never hide a node.
- * Two InstancedMeshes, both driven off the same terrain cells.
+ * Biome props: leafy trees in the meadow, cacti in the desert, pines on the
+ * summit. All kept well clear of the path so they never hide a node.
  */
 function createProps(cells) {
   const props = new THREE.Group()
-  const candidates = cells.filter((c) => c.pathDist > 9 && c.shore > 0.8)
+  const candidates = cells.filter((c) => c.pathDist > 9 && c.shore > 0.85)
 
   const trunks = []
-  const leaves = []
-  const rocks = []
+  const crowns = []
+  const boulders = []
   for (const c of candidates) {
     const r = hash2(c.x * 3.3, c.z * 7.7)
-    if (r > 0.955) trunks.push(c)
-    else if (r < 0.022) rocks.push(c)
+    if (r > 0.945) {
+      trunks.push(c)
+      crowns.push(c)
+    } else if (r < 0.025) boulders.push(c)
   }
-  leaves.push(...trunks)
 
-  const push = (list, geom, color, scaleFn, yFn) => {
+  const box = new THREE.BoxGeometry(1, 1, 1)
+  const push = (list, sizeFor, yFor, colorFor) => {
     if (!list.length) return
-    const mesh = new THREE.InstancedMesh(
-      geom,
-      new THREE.MeshLambertMaterial({ color }),
-      list.length
-    )
+    const mesh = new THREE.InstancedMesh(box, new THREE.MeshLambertMaterial(), list.length)
     const mm = new THREE.Matrix4()
     const q = new THREE.Quaternion()
     const s = new THREE.Vector3()
     const p = new THREE.Vector3()
+    const col = new THREE.Color()
     list.forEach((c, i) => {
-      const k = scaleFn(c)
+      const k = sizeFor(c)
       s.set(k.x, k.y, k.z)
-      p.set(c.x, c.height + yFn(c, k), c.z)
+      p.set(c.x, c.height + yFor(c, k), c.z)
       mm.compose(p, q, s)
       mesh.setMatrixAt(i, mm)
+      mesh.setColorAt(i, col.setHex(colorFor(c)))
     })
     mesh.instanceMatrix.needsUpdate = true
+    if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true
     mesh.frustumCulled = false
     props.add(mesh)
   }
 
-  const box = new THREE.BoxGeometry(1, 1, 1)
+  // Trunk/stem: a cactus is a tall thin green column, a pine or a leafy tree
+  // gets a short brown one.
   push(
     trunks,
-    box,
-    0x8b5e34,
-    () => ({ x: 0.7, y: 1.8, z: 0.7 }),
-    (_, k) => k.y / 2
+    (c) => (c.biome.props === 'cactus' ? { x: 0.8, y: 3.2, z: 0.8 } : { x: 0.7, y: 1.9, z: 0.7 }),
+    (_, k) => k.y / 2,
+    (c) => (c.biome.props === 'cactus' ? c.biome.foliage : c.biome.trunk)
   )
+  // Crown: cactus arms, a narrow pine spire, or a fat leafy canopy.
   push(
-    leaves,
-    box,
-    0x3f9142,
+    crowns,
     (c) => {
-      const w = 2.2 + hash2(c.z, c.x) * 0.9
-      return { x: w, y: w * 0.85, z: w }
+      if (c.biome.props === 'cactus') return { x: 2.0, y: 0.9, z: 0.9 }
+      if (c.biome.props === 'pine') return { x: 1.7, y: 2.6, z: 1.7 }
+      const w = 2.2 + hash2(c.z, c.x) * 1.1
+      return { x: w, y: w * 0.8, z: w }
     },
-    (_, k) => 1.8 + k.y / 2 - 0.25
+    (c, k) => (c.biome.props === 'cactus' ? 2.1 : 1.9 + k.y / 2 - 0.3),
+    (c) => (hash2(c.x, c.z * 2) > 0.5 ? c.biome.foliage : c.biome.foliageAlt)
   )
   push(
-    rocks,
-    box,
-    0x8d99ae,
+    boulders,
     (c) => {
-      const w = 1 + hash2(c.x * 1.7, c.z * 1.3) * 0.8
+      const w = 1 + hash2(c.x * 1.7, c.z * 1.3) * 0.9
       return { x: w, y: w * 0.7, z: w }
     },
-    (_, k) => k.y / 2
+    (_, k) => k.y / 2,
+    (c) => c.biome.boulder
   )
 
   return props
