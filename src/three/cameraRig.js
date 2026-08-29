@@ -1,5 +1,6 @@
 import * as THREE from 'three'
 import { worlds, worldById, CAMERA_FOV, parallax } from '../config/worlds.js'
+import { prefersReducedMotion } from '../lib/motion.js'
 
 const easeInOutCubic = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2)
 
@@ -97,6 +98,7 @@ export function createCameraRig(startWorldId = 1) {
 
   function goToWorld(worldId, { instant = false, seconds = 1.25 } = {}) {
     if (worldId === currentWorldId && transition >= 1) return false
+    if (prefersReducedMotion()) instant = true
     const a = anchorsFor(worldId)
     fromPos.copy(basePos)
     fromTarget.copy(baseTarget)
@@ -124,7 +126,8 @@ export function createCameraRig(startWorldId = 1) {
       baseTarget.lerpVectors(fromTarget, toTarget, e)
     }
 
-    driftTarget.set(pointer.x * parallax.maxOffset, pointer.y * parallax.maxOffset * 0.55)
+    if (prefersReducedMotion()) driftTarget.set(0, 0)
+    else driftTarget.set(pointer.x * parallax.maxOffset, pointer.y * parallax.maxOffset * 0.55)
     drift.lerp(driftTarget, parallax.damping)
 
     // Drift sideways in screen space, so the parallax reads the same from all

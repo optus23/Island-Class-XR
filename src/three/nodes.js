@@ -3,6 +3,7 @@ import { worlds } from '../config/worlds.js'
 import { palette, world as themeWorld, resolveNodeColor } from '../config/theme.js'
 import { buildWorldCurves, buildConnectors, distributeNodes } from './paths.js'
 import { levelsForWorld, statusFor } from '../lib/levels.js'
+import { prefersReducedMotion } from '../lib/motion.js'
 
 /**
  * Everything clickable or path-shaped on the island.
@@ -158,6 +159,12 @@ export function createMapObjects() {
   // Gentle bob so the map feels alive; bosses breathe slower than nodes.
   let t = 0
   function update(dt) {
+    if (prefersReducedMotion()) {
+      // Hold everything still, but keep the marker clearly visible.
+      for (const b of bossEntries) b.group.position.y = b.baseY
+      if (ring.visible) ring.material.opacity = 0.9
+      return
+    }
     t += dt
     for (const b of bossEntries) {
       b.group.position.y = b.baseY + Math.sin(t * 1.1 + b.phase) * 0.12

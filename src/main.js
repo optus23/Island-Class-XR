@@ -5,7 +5,7 @@ import { createIsland } from './three/island.js'
 import { createMapObjects } from './three/nodes.js'
 import { createPlayer } from './three/player.js'
 import { loadProgress } from './lib/progress.js'
-import { levelById, mainSequence } from './lib/levels.js'
+import { levelById, mainSequence, allLevels } from './lib/levels.js'
 import { worlds } from './config/worlds.js'
 import { openPortal, closePortal } from './ui/portal.js'
 import { mountNav } from './ui/nav.js'
@@ -138,13 +138,15 @@ let nav = null
 let markerId = null
 
 /** Every node is clickable — bosses included. Accepts a level or a level id. */
-function selectLevel(levelOrId) {
+function selectLevel(levelOrId, { open = true } = {}) {
   const level = typeof levelOrId === 'string' ? levelById(levelOrId) : levelOrId
   if (!level || player.isMoving) return
 
   const arrive = () => {
     tooltip.hide()
     nav?.setPlayerLevel(level.id)
+    announce(level)
+    if (!open) return
     setLevelInUrl(level.id)
     openPortal(level, { markerId, onClose: () => setLevelInUrl(null) })
   }
@@ -155,6 +157,58 @@ function selectLevel(levelOrId) {
   }
   player.travel(buildRoute(player.levelId, level.id), level.id, arrive)
 }
+
+// --- keyboard access -------------------------------------------------------
+
+// The map is a canvas, so without this it is entirely unreachable by keyboard.
+container.tabIndex = 0
+container.setAttribute('role', 'application')
+container.setAttribute(
+  'aria-label',
+  'Mapa del curso. Flechas para moverte entre niveles, Enter para abrir el nivel actual.'
+)
+
+// Screen readers cannot see the avatar move, so say where it landed.
+const liveRegion = document.createElement('p')
+liveRegion.className = 'sr-only'
+liveRegion.setAttribute('aria-live', 'polite')
+document.getElementById('ui').appendChild(liveRegion)
+
+function announce(level) {
+  if (!level) return
+  liveRegion.textContent = `${level.title}. Mundo ${level.world}.`
+}
+
+window.addEventListener('keydown', (e) => {
+  // The portal traps its own keys while it is open.
+  if (document.querySelector('[role="dialog"]')) return
+  if (e.metaKey || e.ctrlKey || e.altKey) return
+  // Never hijack typing in the nav or any future input.
+  const tag = document.activeElement?.tagName
+  if (tag === 'INPUT' || tag === 'TEXTAREA') return
+
+  const order = allLevels
+  const idx = order.findIndex((l) => l.id === player.levelId)
+  if (idx === -1) return
+
+  if (e.key === 'Enter' || e.key === ' ') {
+    e.preventDefault()
+    selectLevel(order[idx])
+    return
+  }
+
+  let target = null
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown') target = order[idx + 1]
+  else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') target = order[idx - 1]
+  else if (e.key === 'Home') target = order[0]
+  else if (e.key === 'End') target = order[order.length - 1]
+  else return
+
+  e.preventDefault()
+  // Arrows walk the map; they do not open the level. Enter does that, so a
+  // keyboard user can look around without a modal opening on every keypress.
+  if (target) selectLevel(target, { open: false })
+})
 
 // --- boot ------------------------------------------------------------------
 
