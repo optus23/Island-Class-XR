@@ -89,7 +89,7 @@ export const worldById = new Map(worlds.map((w) => [w.id, w]))
 
 /** Subtle mouse parallax — never free rotation. Tune or zero these out. */
 export const parallax = {
-  maxOffset: 2.4, // world units the camera drifts
-  maxTilt: 0.035, // radians the world tips
+  maxOffset: 2.4, // world units the camera drifts at full pointer deflection
+  maxTilt: 0.085, // radians the world tips at full deflection (~4.8 degrees)
   damping: 0.055, // 0..1 per frame — lower is smoother/laggier
 }

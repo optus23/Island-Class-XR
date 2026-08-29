@@ -103,9 +103,15 @@ export function createCameraRig(startWorldId = 1) {
     get isSettled() {
       return transition >= 1
     },
-    /** Parallax tilt for the world group — subtle, never free rotation. */
+    /**
+     * Parallax tilt for the world group — subtle, never free rotation.
+     * drift is in world units, so it is normalised back to -1..1 first; that
+     * keeps `parallax.maxTilt` meaning what it says (radians at full pointer
+     * deflection) instead of silently scaling with maxOffset.
+     */
     get tilt() {
-      return { x: -drift.y * parallax.maxTilt, y: drift.x * parallax.maxTilt }
+      const n = parallax.maxOffset || 1
+      return { x: (-drift.y / n) * parallax.maxTilt, y: (drift.x / n) * parallax.maxTilt }
     },
   }
 }
