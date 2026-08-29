@@ -1,42 +1,172 @@
 import './style.css'
 import * as THREE from 'three'
 import { createScene } from './three/scene.js'
+import { createIsland } from './three/island.js'
+import { createMapObjects } from './three/nodes.js'
+import { createPlayer } from './three/player.js'
+import { loadProgress } from './lib/progress.js'
+import { levelById, mainSequence } from './lib/levels.js'
 import { worlds } from './config/worlds.js'
-import { world as themeWorld } from './config/theme.js'
+import { openPortal } from './ui/portal.js'
+import { mountNav } from './ui/nav.js'
 
 const container = document.getElementById('app')
 const app = createScene(container)
 
-// --- Phase 1 placeholder: one slab per world so the three fixed camera
-// positions are visibly correct. Replaced by the real island in phase 4.
-const slabGeo = new THREE.BoxGeometry(46, 2, 46)
-for (const w of worlds) {
-  const mat = new THREE.MeshLambertMaterial({ color: themeWorld.terrain })
-  const slab = new THREE.Mesh(slabGeo, mat)
-  slab.position.set(w.center[0], -1, w.center[2])
-  app.worldGroup.add(slab)
-}
+const island = createIsland()
+const map = createMapObjects()
+const player = createPlayer()
 
-// Temporary world switcher until the nav menu lands in phase 5.
-window.addEventListener('keydown', (e) => {
-  if (e.key >= '1' && e.key <= '3') app.rig.goToWorld(Number(e.key))
+app.worldGroup.add(island.group)
+app.worldGroup.add(map.group)
+app.worldGroup.add(player.group)
+
+app.onUpdate((dt) => {
+  map.update(dt)
+  player.update(dt)
+  // The camera follows the avatar across the island: crossing into another
+  // world pans to that world's fixed position. goToWorld ignores repeats.
+  app.rig.goToWorld(nearestWorldId(player.group.position.x))
 })
 
-if (import.meta.env.DEV) {
-  // Dev-only handle. `step()` drives frames by hand, which is the only way to
-  // exercise animation in embedded/offscreen browsers where requestAnimationFrame
-  // never fires because document.hidden stays true.
-  window.__app = app
-  window.__step = (frames = 60, dt = 1 / 60) => {
-    for (let i = 0; i < frames; i++) {
-      app.rig.update(dt, { x: 0, y: 0 })
-      for (const fn of app.updaters) fn(dt)
+function nearestWorldId(x) {
+  let best = worlds[0]
+  for (const w of worlds) {
+    if (Math.abs(x - w.center[0]) < Math.abs(x - best.center[0])) best = w
+  }
+  return best.id
+}
+
+// --- routing ---------------------------------------------------------------
+
+/** Walk the main sequence from one level to another, inclusive of the target. */
+function routeAlongMain(startId, targetId) {
+  const i = mainSequence.findIndex((l) => l.id === startId)
+  const j = mainSequence.findIndex((l) => l.id === targetId)
+  if (i === -1 || j === -1 || i === j) return []
+  const step = j > i ? 1 : -1
+  const out = []
+  for (let k = i + step; ; k += step) {
+    out.push(map.positionById.get(mainSequence[k].id))
+    if (k === j) break
+  }
+  return out.filter(Boolean)
+}
+
+function anchorOf(levelId) {
+  return map.placed.find((p) => p.level.id === levelId)?.anchorId ?? null
+}
+
+/**
+ * Waypoints from wherever the avatar stands to the clicked level.
+ * Optional nodes are reached via their anchor, and left the same way, so the
+ * avatar never cuts across open ground.
+ */
+function buildRoute(fromId, toId) {
+  const target = levelById(toId)
+  if (!target) return []
+
+  let startId = fromId
+  const out = []
+
+  const fromLevel = levelById(fromId)
+  if (fromLevel?.optional) {
+    startId = anchorOf(fromId) ?? mainSequence[0].id
+    const back = map.positionById.get(startId)
+    if (back) out.push(back)
+  }
+
+  if (target.optional) {
+    const anchorId = anchorOf(toId)
+    if (anchorId && anchorId !== startId) out.push(...routeAlongMain(startId, anchorId))
+    const dest = map.positionById.get(toId)
+    if (dest) out.push(dest)
+    return out
+  }
+
+  out.push(...routeAlongMain(startId, toId))
+  return out
+}
+
+// --- interaction -----------------------------------------------------------
+
+const raycaster = new THREE.Raycaster()
+let hoveredLevel = null
+
+function pick() {
+  if (!app.pointerInside) return null
+  raycaster.setFromCamera(app.pointer, app.rig.camera)
+  const hits = raycaster.intersectObjects(map.pickTargets, false)
+  return map.levelFromHit(hits[0])
+}
+
+container.addEventListener('pointermove', () => {
+  const level = pick()
+  hoveredLevel = level
+  map.setHovered(level?.id ?? null)
+  container.classList.toggle('is-hovering-node', Boolean(level))
+})
+
+container.addEventListener('pointerleave', () => {
+  hoveredLevel = null
+  map.setHovered(null)
+  container.classList.remove('is-hovering-node')
+})
+
+// Distinguish a click from a drag/parallax sweep.
+let downAt = null
+container.addEventListener('pointerdown', (e) => {
+  downAt = { x: e.clientX, y: e.clientY }
+})
+container.addEventListener('pointerup', (e) => {
+  if (!downAt) return
+  const moved = Math.hypot(e.clientX - downAt.x, e.clientY - downAt.y)
+  downAt = null
+  if (moved > 6) return
+  const level = pick()
+  if (level) selectLevel(level)
+})
+
+/** Every node is clickable — bosses included. */
+export function selectLevel(level) {
+  if (player.isMoving) return
+  if (player.levelId === level.id) {
+    openPortal(level)
+    return
+  }
+  const route = buildRoute(player.levelId, level.id)
+  player.travel(route, level.id, () => openPortal(level))
+}
+
+// --- boot ------------------------------------------------------------------
+
+async function boot() {
+  const progress = await loadProgress()
+  const markerId = progress.currentLevelId
+  map.refresh(markerId)
+
+  const start = map.positionById.get(markerId)
+  if (start) player.snapTo(start, markerId)
+  const startWorld = levelById(markerId)?.world ?? 1
+  app.rig.goToWorld(startWorld, { instant: true })
+
+  mountNav({ markerId, onSelect: selectLevel, rig: app.rig })
+  app.start()
+
+  if (import.meta.env.DEV) {
+    window.__app = app
+    window.__map = map
+    window.__player = player
+    // Drives frames by hand — the only way to exercise animation in embedded
+    // browsers where rAF never fires because document.hidden stays true.
+    window.__step = (frames = 60, dt = 1 / 60) => {
+      for (let i = 0; i < frames; i++) {
+        for (const fn of app.updaters) fn(dt)
+        app.rig.update(dt, { x: 0, y: 0 })
+      }
+      app.renderer.render(app.scene, app.rig.camera)
     }
-    app.renderer.render(app.scene, app.rig.camera)
   }
 }
 
-app.start()
-
-// eslint-disable-next-line no-console
-console.info('XR Island — press 1/2/3 to pan between worlds.')
+boot()
