@@ -63,6 +63,28 @@ export function nextMarker(markerId) {
   return mainSequence[Math.min(i + 1, mainSequence.length - 1)].id
 }
 
+/**
+ * Where a level sits in the course, Mario style.
+ *
+ * `world-N` is its index within its own world (so "1-3" reads like WORLD 1-3),
+ * and `global` is its index across all 27 sessions. Optional/bonus levels are
+ * not sessions, so they get no number.
+ */
+export function sessionNumber(level) {
+  if (!level || level.optional) return null
+  const inWorld = levelsForWorld(level.world).filter((l) => !l.optional)
+  const world = inWorld.findIndex((l) => l.id === level.id) + 1
+  const global = mainSequence.findIndex((l) => l.id === level.id) + 1
+  if (!world || !global) return null
+  return { world: level.world, index: world, global, total: mainSequence.length }
+}
+
+/** Sessions still ahead — the number behind the lives counter easter egg. */
+export function sessionsRemaining(level) {
+  const n = sessionNumber(level)
+  return n ? n.total - n.global : mainSequence.length
+}
+
 export function markerProgress(markerId) {
   const i = mainSequence.findIndex((l) => l.id === markerId)
   return { index: Math.max(0, i), total: mainSequence.length }

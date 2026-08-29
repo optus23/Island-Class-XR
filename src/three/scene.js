@@ -44,7 +44,7 @@ export function createScene(container) {
   sun.position.set(...themeWorld.sunPosition)
   scene.add(sun)
 
-  const rig = createCameraRig(1)
+  const rig = createCameraRig()
 
   /**
    * Fog is measured from the camera, so it must follow the rig's framing. Without

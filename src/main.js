@@ -5,11 +5,11 @@ import { createIsland } from './three/island.js'
 import { createMapObjects } from './three/nodes.js'
 import { createPlayer } from './three/player.js'
 import { loadProgress } from './lib/progress.js'
-import { levelById, mainSequence, allLevels } from './lib/levels.js'
-import { worlds } from './config/worlds.js'
+import { levelById, mainSequence, allLevels, levelsForWorld } from './lib/levels.js'
 import { openPortal, closePortal } from './ui/portal.js'
 import { mountNav } from './ui/nav.js'
 import { createTooltip, createCurtain } from './ui/hud.js'
+import { showLevelCard, hideLevelCard } from './ui/levelCard.js'
 import { readLevelFromUrl, setLevelInUrl, onRouteChange } from './lib/router.js'
 
 const container = document.getElementById('app')
@@ -28,18 +28,10 @@ app.worldGroup.add(player.group)
 app.onUpdate((dt) => {
   map.update(dt)
   player.update(dt)
-  // The camera follows the avatar across the island: crossing into another
-  // world pans to that world's fixed position. goToWorld ignores repeats.
-  app.rig.goToWorld(nearestWorldId(player.group.position.x))
+  // The camera simply follows the avatar. Crossing between worlds blends the
+  // viewing angle inside the rig, so there is nothing to switch here.
+  app.rig.follow(player.group.position)
 })
-
-function nearestWorldId(x) {
-  let best = worlds[0]
-  for (const w of worlds) {
-    if (Math.abs(x - w.center[0]) < Math.abs(x - best.center[0])) best = w
-  }
-  return best.id
-}
 
 // --- routing ---------------------------------------------------------------
 
@@ -142,10 +134,13 @@ function selectLevel(levelOrId, { open = true } = {}) {
   const level = typeof levelOrId === 'string' ? levelById(levelOrId) : levelOrId
   if (!level || player.isMoving) return
 
-  const arrive = () => {
+  const arrive = async () => {
     tooltip.hide()
     nav?.setPlayerLevel(level.id)
     announce(level)
+    // The Mario level card plays as the avatar settles on the session, and the
+    // portal waits for it so the two never overlap.
+    await showLevelCard(level, { markerId })
     if (!open) return
     setLevelInUrl(level.id)
     openPortal(level, { markerId, onClose: () => setLevelInUrl(null) })
@@ -224,28 +219,43 @@ async function boot() {
   const startId = deepLinked?.id ?? markerId
 
   const start = map.positionById.get(startId)
-  if (start) player.snapTo(start, startId)
-  const startWorld = levelById(startId)?.world ?? 1
-  app.rig.goToWorld(startWorld, { instant: true })
+  if (start) {
+    player.snapTo(start, startId)
+    app.rig.follow(start, { instant: true })
+  }
 
-  nav = mountNav({ markerId, onSelect: selectLevel, rig: app.rig })
+  nav = mountNav({
+    markerId,
+    onSelect: selectLevel,
+    // Jumping to a world moves the avatar to its first level; the camera then
+    // follows it there. Keeps one notion of "where you are".
+    onSelectWorld: (worldId) => {
+      const first = levelsForWorld(worldId).find((l) => !l.optional)
+      if (first) selectLevel(first, { open: false })
+    },
+  })
   nav.setPlayerLevel(startId)
   app.start()
 
   if (deepLinked) {
     setLevelInUrl(deepLinked.id, { replace: true }) // no phantom history entry
-    openPortal(deepLinked, { markerId, onClose: () => setLevelInUrl(null) })
+    showLevelCard(deepLinked, { markerId }).then(() =>
+      openPortal(deepLinked, { markerId, onClose: () => setLevelInUrl(null) })
+    )
   }
 
   // Back/Forward moves between the map and an open level.
   onRouteChange((level) => {
+    hideLevelCard()
     if (!level) {
       closePortal()
       return
     }
     const at = map.positionById.get(level.id)
-    if (at) player.snapTo(at, level.id)
-    app.rig.goToWorld(level.world)
+    if (at) {
+      player.snapTo(at, level.id)
+      app.rig.follow(at)
+    }
     nav?.setPlayerLevel(level.id)
     openPortal(level, { markerId, onClose: () => setLevelInUrl(null) })
   })
