@@ -1,179 +1,53 @@
 import * as THREE from 'three'
-import { worlds, worldAtX } from '../config/worlds.js'
+import { worlds } from '../config/worlds.js'
 import { world as themeWorld, biomes, backdrop, flowers } from '../config/theme.js'
-import { buildWorldCurves, buildConnectors } from './paths.js'
 import { prefersReducedMotion } from '../lib/motion.js'
+import {
+  VOXEL,
+  TIER,
+  BASE_Y,
+  hash2,
+  groundHeightAt,
+  landInset,
+  nearestPath,
+  islandBounds,
+  biomeKeyAt,
+} from './terrain.js'
 
 /**
  * The voxel island.
  *
- * Verticality is the point: ground height follows the height of the nearest
- * path, so raising a control point in worlds.js lifts a whole plateau and the
- * route climbs onto it. Cliffs then appear on their own wherever two plateaus
- * of different heights meet, and around the whole coastline.
+ * All height and land-mask logic now lives in terrain.js, so the mesh built
+ * here and the anchoring used by every placed object come from exactly the
+ * same functions and cannot drift apart.
  *
- * Each column is drawn as three stacked boxes — a grass/sand/snow CAP, a bright
- * BAND just under the lip, and the ROCK body below. That three-tone stack is
- * what makes a plateau read as a plateau instead of a coloured slab.
- *
- * Three InstancedMeshes for the terrain, whatever the island's size.
+ * Each column draws as three stacked boxes — a cap, a bright band under the
+ * lip, and the rock body below. That three-tone stack is what makes a plateau
+ * read as a plateau instead of a coloured slab.
  */
-
-const VOXEL = 2 // world units per terrain column
-// Footprints deliberately OVERLAP (centres are 58 apart, half-extent is 34),
-// so the three worlds fuse into one unbroken landmass. The old gaps only
-// existed to justify the camera cutting between fixed positions; the follow
-// camera has no cuts, so the island has no seams.
-const MARGIN = 34 // half-extent of a world's footprint, X
-const MARGIN_Z = 22 // half-extent, Z
-const BRIDGE_HALF_WIDTH = 6.5
-const PATH_FLATTEN_RADIUS = 7
-const TIER = 4 // height step for off-path plateaus
-const SHELF_Y = 1.5 // low coastal shelf that high plateaus rise out of
 
 const CAP_HEIGHT = 1.1 // the walkable top
 const BAND_HEIGHT = 1.4 // bright stripe below the lip
-const BASE_Y = -9 // every column runs down to here, well below the water
 
-/** Cheap deterministic hash noise — no dependency, stable across reloads. */
-function hash2(x, z) {
-  const s = Math.sin(x * 127.1 + z * 311.7) * 43758.5453
-  return s - Math.floor(s)
-}
-function smoothNoise(x, z) {
-  const xi = Math.floor(x)
-  const zi = Math.floor(z)
-  const xf = x - xi
-  const zf = z - zi
-  const u = xf * xf * (3 - 2 * xf)
-  const v = zf * zf * (3 - 2 * zf)
-  return (
-    hash2(xi, zi) * (1 - u) * (1 - v) +
-    hash2(xi + 1, zi) * u * (1 - v) +
-    hash2(xi, zi + 1) * (1 - u) * v +
-    hash2(xi + 1, zi + 1) * u * v
-  )
-}
-
-/**
- * Nearest point on a polyline, returning its height as well as the distance —
- * the height is what drives the plateaus.
- */
-function nearestOnPolyline(x, z, pts) {
-  let bestDist = Infinity
-  let bestY = 0
-  for (let i = 1; i < pts.length; i++) {
-    const a = pts[i - 1]
-    const b = pts[i]
-    const dx = b.x - a.x
-    const dz = b.z - a.z
-    const len2 = dx * dx + dz * dz
-    let t = len2 === 0 ? 0 : ((x - a.x) * dx + (z - a.z) * dz) / len2
-    t = t < 0 ? 0 : t > 1 ? 1 : t
-    const px = a.x + t * dx
-    const pz = a.z + t * dz
-    const d = Math.hypot(x - px, z - pz)
-    if (d < bestDist) {
-      bestDist = d
-      bestY = a.y + t * (b.y - a.y)
-    }
-  }
-  return { dist: bestDist, y: bestY }
-}
-
-/** Rounded-rectangle footprint for one world, as an inside-ness in world units. */
-function worldInset(x, z, center) {
-  const dx = Math.abs(x - center[0]) - (MARGIN - 6)
-  const dz = Math.abs(z - center[2]) - (MARGIN_Z - 6)
-  const outside = Math.hypot(Math.max(dx, 0), Math.max(dz, 0))
-  return 6 - outside
-}
-
-/** Which world's biome owns this column. Shared with the road, so the terrain
- * and the road change biome at exactly the same boundary. */
-function biomeAt(x) {
-  return biomes[worldAtX(x).biome] ?? biomes.meadow
-}
+const biomeAt = (x) => biomes[biomeKeyAt(x)] ?? biomes.meadow
 
 export function createIsland() {
   const group = new THREE.Group()
 
-  // Sample every path (and the bridges) once — they drive both the land mask
-  // and the terrain height.
-  const pathPolylines = []
-  const bridgePolylines = []
-  for (const w of worlds) {
-    pathPolylines.push(buildWorldCurves(w).full.getSpacedPoints(160))
-  }
-  for (const c of buildConnectors()) {
-    const pts = c.getSpacedPoints(48)
-    pathPolylines.push(pts)
-    bridgePolylines.push(pts)
-  }
-
-  function nearestPath(x, z) {
-    let best = { dist: Infinity, y: 0 }
-    for (const pts of pathPolylines) {
-      const hit = nearestOnPolyline(x, z, pts)
-      if (hit.dist < best.dist) best = hit
-    }
-    return best
-  }
-  function nearestBridge(x, z) {
-    let best = Infinity
-    for (const pts of bridgePolylines) {
-      const d = nearestOnPolyline(x, z, pts).dist
-      if (d < best) best = d
-    }
-    return best
-  }
-
-  // --- land mask + heights -------------------------------------------------
+  const { minX, maxX, minZ, maxZ } = islandBounds()
   const cells = []
-  let minX = Infinity
-  let maxX = -Infinity
-  let minZ = Infinity
-  let maxZ = -Infinity
-  for (const w of worlds) {
-    minX = Math.min(minX, w.center[0] - MARGIN)
-    maxX = Math.max(maxX, w.center[0] + MARGIN)
-    minZ = Math.min(minZ, w.center[2] - MARGIN_Z)
-    maxZ = Math.max(maxZ, w.center[2] + MARGIN_Z)
-  }
-
   for (let x = minX; x <= maxX; x += VOXEL) {
     for (let z = minZ; z <= maxZ; z += VOXEL) {
-      const inWorld = Math.max(...worlds.map((w) => worldInset(x, z, w.center)))
-      const inBridge = BRIDGE_HALF_WIDTH - nearestBridge(x, z)
-      const inside = Math.max(inWorld, inBridge)
+      const inside = landInset(x, z)
       if (inside <= 0) continue
-
-      const path = nearestPath(x, z)
-
-      // Ground sits at the path's height, so a wide flat terrace surrounds the
-      // whole route and nodes never end up on a slope.
-      const away = Math.min(1, Math.max(0, (path.dist - PATH_FLATTEN_RADIUS) / 14))
-      const shore = Math.min(1, inside / 4)
-
-      // Big, low-frequency mounds only. Earlier this was strong high-frequency
-      // noise, and quantising it turned the whole island into corduroy instead
-      // of the few clean plateaus the reference has.
-      const hill = Math.max(0, smoothNoise(x * 0.045, z * 0.045) - 0.5) * 9
-
-      // Drop toward a low shelf as the coast approaches, but only well away
-      // from the route. Without this a high path lifts the ENTIRE footprint
-      // into one enormous slab; with it, plateaus stay local and are ringed by
-      // low ground, which is what makes them read as mesas.
-      const coastal = 1 - Math.min(1, inside / 9)
-      const drop = coastal * away
-      const grounded = path.y * (1 - drop) + SHELF_Y * drop
-
-      // Coarse steps far from the path give the stacked Mario silhouette;
-      // near the path the ground stays continuous so the route can ramp.
-      const raw = grounded + hill * away * shore
-      const height = away > 0.75 ? Math.round(raw / TIER) * TIER : raw
-
-      cells.push({ x, z, height, pathDist: path.dist, shore, biome: biomeAt(x) })
+      cells.push({
+        x,
+        z,
+        height: groundHeightAt(x, z),
+        pathDist: nearestPath(x, z).dist,
+        shore: Math.min(1, inside / 4),
+        biome: biomeAt(x),
+      })
     }
   }
 

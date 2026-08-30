@@ -9,7 +9,8 @@ import { readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { dirname, resolve } from 'node:path'
 import { worlds } from '../src/config/worlds.js'
-import { distributeNodes, buildWorldCurves, buildConnectors } from '../src/three/paths.js'
+import { distributeNodes, buildWorldCurves, buildConnectors, assertOrthogonal } from '../src/three/paths.js'
+import { groundHeightAt } from '../src/three/terrain.js'
 
 const here = dirname(fileURLToPath(import.meta.url))
 const data = JSON.parse(readFileSync(resolve(here, '../src/data/levels.json'), 'utf8'))
@@ -138,6 +139,25 @@ for (const w of worlds) {
   for (const p of placed) {
     if (![p.position.x, p.position.y, p.position.z].every(Number.isFinite)) {
       err(`world ${w.id}: level "${p.level.id}" got a non-finite position`)
+    }
+  }
+
+  // Paths must stay blocky: straight runs joined by 90-degree corners.
+  const diagonal = assertOrthogonal(
+    w.path.controlPoints.map((c) => ({ x: c[0], z: c[2] })),
+    `world ${w.id}`
+  )
+  if (diagonal) err(diagonal)
+
+  // Nothing may be buried. This is the check that would have caught the
+  // world-2 bonus node sitting under the terrain.
+  for (const pl of placed) {
+    const ground = groundHeightAt(pl.position.x, pl.position.z)
+    if (pl.position.y < ground - 0.01) {
+      err(
+        `world ${w.id}: "${pl.level.id}" is ${(ground - pl.position.y).toFixed(2)} BELOW the ` +
+          `ground at its own position — anchor it with groundHeightAt()`
+      )
     }
   }
 

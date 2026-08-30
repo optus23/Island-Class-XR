@@ -1,5 +1,6 @@
 import * as THREE from 'three'
 import { worlds } from '../config/worlds.js'
+import { groundHeightAt } from './terrain.js'
 
 /**
  * Turns a world's spline template + its list of levels into node positions.
@@ -22,10 +23,38 @@ function toWorldPoints(worldDef) {
   return worldDef.path.controlPoints.map(([x, y, z]) => new THREE.Vector3(x + cx, y + cy, z + cz))
 }
 
+/**
+ * Builds a path out of straight runs joined by hard 90-degree corners, which
+ * is what a Super Mario World overworld route looks like. Previously these
+ * were centripetal Catmull-Rom splines, which read as organic and wrong.
+ *
+ * A CurvePath of LineCurve3 keeps the whole downstream API intact —
+ * getPointAt / getTangentAt / getLength / getSpacedPoints all still work, so
+ * node distribution stays arc-length correct across sharp corners.
+ */
 function makeCurve(points) {
-  // centripetal avoids the cusps/overshoot that plain Catmull-Rom gets on
-  // sharp turns — matters because nodes sit directly on this line.
-  return new THREE.CatmullRomCurve3(points, false, 'centripetal', 0.5)
+  const path = new THREE.CurvePath()
+  for (let i = 1; i < points.length; i++) {
+    if (points[i].distanceTo(points[i - 1]) < 1e-6) continue // skip repeats
+    path.add(new THREE.LineCurve3(points[i - 1].clone(), points[i].clone()))
+  }
+  return path
+}
+
+/**
+ * Waypoints are authored axis-aligned, but a run that changes height AND a
+ * horizontal axis at once still reads as one straight segment from above,
+ * which is what matters for the blocky look.
+ */
+export function assertOrthogonal(points, label) {
+  for (let i = 1; i < points.length; i++) {
+    const dx = Math.abs(points[i].x - points[i - 1].x)
+    const dz = Math.abs(points[i].z - points[i - 1].z)
+    if (dx > 1e-6 && dz > 1e-6) {
+      return `${label}: segment ${i} moves on both X and Z (${dx.toFixed(1)}, ${dz.toFixed(1)}) — paths must be orthogonal`
+    }
+  }
+  return null
 }
 
 /**
@@ -144,9 +173,15 @@ export function distributeNodes(worldDef, worldLevels) {
     const distance = level.offsetDistance ?? 7.5
     const lateral = anchor.tangent.clone().cross(UP).normalize().multiplyScalar(side * distance)
 
+    // Anchor to the ACTUAL ground under the offset position. Copying the
+    // anchor's height is what buried the world-2 bonus node: a sideways offset
+    // can easily land on a taller plateau than the node it hangs off.
+    const position = anchor.position.clone().add(lateral)
+    position.y = Math.max(groundHeightAt(position.x, position.z), anchor.position.y)
+
     placed.push({
       level,
-      position: anchor.position.clone().add(lateral).setY(anchor.position.y + 0.6),
+      position,
       tangent: anchor.tangent.clone(),
       onPath: false,
       anchorId: anchor.level.id,
@@ -167,9 +202,9 @@ export function buildConnectors() {
     const b = buildWorldCurves(worlds[i + 1]).full
     const from = a.getPointAt(1)
     const to = b.getPointAt(0)
-    const mid = from.clone().lerp(to, 0.5)
-    mid.y -= 0.4 // gentle dip, like a land bridge
-    links.push(makeCurve([from, mid, to]))
+    // An L, not a diagonal: run along X first, then along Z.
+    const corner = new THREE.Vector3(to.x, (from.y + to.y) / 2, from.z)
+    links.push(makeCurve([from, corner, to]))
   }
   return links
 }
