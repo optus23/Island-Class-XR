@@ -128,3 +128,53 @@ body.map-view {
   white-space: nowrap;
   border: 0;
 }
+
+/* ---- Iris wipe (Mario level entry) --------------------------------------
+   --iris-r must be registered with @property, otherwise it is just a string
+   and CSS will not interpolate it — the wipe would snap instead of animate. */
+@property --iris-r {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
+
+.iris-wipe {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  background: #05070a;
+  /* Blocks input for the duration, so a stray click cannot land mid-swap. */
+  pointer-events: auto;
+  --iris-r: 0px;
+  --iris-x: 50%;
+  --iris-y: 50%;
+  -webkit-mask: radial-gradient(
+    circle var(--iris-r) at var(--iris-x) var(--iris-y),
+    transparent 98%,
+    #000 100%
+  );
+  mask: radial-gradient(
+    circle var(--iris-r) at var(--iris-x) var(--iris-y),
+    transparent 98%,
+    #000 100%
+  );
+}
+
+/* ---- Full-screen level portal ------------------------------------------- */
+.portal-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  background: var(--color-base-100, #12161c);
+  overflow: hidden;
+}
+
+/* The one control allowed to overlay the full-screen UI. */
+.portal-back {
+  position: fixed;
+  top: 0.9rem;
+  left: 0.9rem;
+  z-index: 60;
+}

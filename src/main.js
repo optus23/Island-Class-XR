@@ -10,6 +10,7 @@ import { openPortal, closePortal } from './ui/portal.js'
 import { mountNav } from './ui/nav.js'
 import { createTooltip, createCurtain } from './ui/hud.js'
 import { showLevelCard, hideLevelCard } from './ui/levelCard.js'
+import { irisClose, screenPositionOf } from './ui/transition.js'
 import { readLevelFromUrl, setLevelInUrl, onRouteChange } from './lib/router.js'
 
 const container = document.getElementById('app')
@@ -147,8 +148,7 @@ function selectLevel(levelOrId, { open = false } = {}) {
     // portal waits for it so the two never overlap.
     await showLevelCard(level, { markerId })
     if (!open) return
-    setLevelInUrl(level.id)
-    openPortal(level, { markerId, onClose: () => setLevelInUrl(null) })
+    await enterLevel(level)
   }
 
   if (player.levelId === level.id) {
@@ -218,6 +218,27 @@ window.addEventListener('keydown', (e) => {
 })
 
 /**
+ * Enter a level: iris closes ON THE AVATAR, the full-screen UI mounts behind
+ * the black, then the iris opens onto it. Leaving reverses the same wipe, so
+ * neither direction is ever an abrupt cut.
+ */
+async function enterLevel(level) {
+  const at = screenPositionOf(player.group, app.rig.camera, container)
+  const iris = await irisClose(at)
+
+  setLevelInUrl(level.id)
+  openPortal(level, {
+    markerId,
+    onClose: async () => {
+      const back = await irisClose()
+      setLevelInUrl(null)
+      back.open()
+    },
+  })
+  await iris.open()
+}
+
+/**
  * Overview: frame all three worlds at once. Turning it off re-centres on the
  * character, so you never lose your place.
  */
@@ -263,9 +284,7 @@ async function boot() {
 
   if (deepLinked) {
     setLevelInUrl(deepLinked.id, { replace: true }) // no phantom history entry
-    showLevelCard(deepLinked, { markerId }).then(() =>
-      openPortal(deepLinked, { markerId, onClose: () => setLevelInUrl(null) })
-    )
+    showLevelCard(deepLinked, { markerId }).then(() => enterLevel(deepLinked))
   }
 
   // Back/Forward moves between the map and an open level.
@@ -281,7 +300,14 @@ async function boot() {
       app.rig.follow(at)
     }
     nav?.setPlayerLevel(level.id)
-    openPortal(level, { markerId, onClose: () => setLevelInUrl(null) })
+    openPortal(level, {
+      markerId,
+      onClose: async () => {
+        const back = await irisClose()
+        setLevelInUrl(null)
+        back.open()
+      },
+    })
   })
   // Draw one frame before lifting the curtain, so the reveal is never a flash
   // of empty sky while the island's first frame is still being rasterised.
