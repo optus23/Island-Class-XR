@@ -16,6 +16,7 @@ import { writeProgress } from './lib/githubProgress.js'
 import { nextMarker, START_MARKER } from './lib/levels.js'
 import { irisClose, screenPositionOf } from './ui/transition.js'
 import { buildGrandPath, nearestIndexOn } from './three/paths.js'
+import { createEnemies } from './three/enemies.js'
 import { readLevelFromUrl, setLevelInUrl, onRouteChange } from './lib/router.js'
 
 const container = document.getElementById('app')
@@ -36,6 +37,7 @@ app.worldGroup.add(player.group)
 const BACKDROP_PARALLAX = 0.28
 app.onUpdate((dt) => {
   island.update(dt)
+  enemies.update(dt)
   island.backdrop.position.x = app.rig.focusX * BACKDROP_PARALLAX
   map.update(dt)
   player.update(dt)
@@ -50,6 +52,10 @@ app.onUpdate((dt) => {
 
 // The road as one walkable polyline, plus where each node sits along it.
 const grandPath = buildGrandPath()
+
+// Decorative creatures patrolling the road.
+const enemies = createEnemies(grandPath, 8)
+app.worldGroup.add(enemies.group)
 const nodeIndexOnPath = new Map()
 for (const p of map.placed) {
   if (p.onPath) nodeIndexOnPath.set(p.level.id, nearestIndexOn(grandPath, p.position))
@@ -137,12 +143,31 @@ container.addEventListener('pointerleave', () => {
   tooltip.hide()
 })
 
-// Distinguish a click from a drag/parallax sweep.
+// Distinguish a click from a drag. A drag orbits the camera; a click selects.
 let downAt = null
+let dragging = null
 container.addEventListener('pointerdown', (e) => {
   downAt = { x: e.clientX, y: e.clientY }
+  dragging = { x: e.clientX, y: e.clientY }
+  container.setPointerCapture?.(e.pointerId)
 })
+
+container.addEventListener('pointermove', (e) => {
+  if (!dragging) return
+  app.rig.orbit(e.clientX - dragging.x, e.clientY - dragging.y)
+  dragging = { x: e.clientX, y: e.clientY }
+})
+
+container.addEventListener(
+  'wheel',
+  (e) => {
+    e.preventDefault()
+    app.rig.zoom(e.deltaY)
+  },
+  { passive: false }
+)
 container.addEventListener('pointerup', (e) => {
+  dragging = null
   if (!downAt) return
   const moved = Math.hypot(e.clientX - downAt.x, e.clientY - downAt.y)
   downAt = null
@@ -226,6 +251,12 @@ window.addEventListener('keydown', (e) => {
     return
   }
 
+  if (e.key.toLowerCase() === 'r') {
+    e.preventDefault()
+    app.rig.resetView()
+    return
+  }
+
   if (e.key.toLowerCase() === 'm' || e.key === 'Tab') {
     e.preventDefault()
     setOverview(!app.rig.isOverview)
@@ -279,6 +310,7 @@ async function enterLevel(level) {
  * character, so you never lose your place.
  */
 function setOverview(on) {
+  app.rig.resetView() // a nudged view plus an overview jump is disorienting
   app.rig.toggleOverview(on)
   document.getElementById('app').classList.toggle('is-overview', on)
   nav?.setOverview(on)

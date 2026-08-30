@@ -30,6 +30,14 @@ const OVERVIEW_SECONDS = 0.7
 const easeInOutCubic = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2)
 const clamp = (v, lo, hi) => (v < lo ? lo : v > hi ? hi : v)
 
+// Viewer-controlled nudge around the preset. Deliberately tight: this is a
+// look-around, not a free camera, so the world can never be viewed from an
+// angle the art was not built for.
+const ORBIT_YAW_MAX = 0.5 // ~29 degrees either way
+const ORBIT_PITCH_MAX = 0.28 // ~16 degrees
+const ZOOM_MIN = 0.62
+const ZOOM_MAX = 1.9
+
 export function createCameraRig() {
   const camera = new THREE.PerspectiveCamera(CAMERA_FOV, 1, 0.5, 500)
 
@@ -57,9 +65,13 @@ export function createCameraRig() {
   const offA = new THREE.Vector3()
   const offB = new THREE.Vector3()
   const flatForward = new THREE.Vector3()
+  const pitchAxis = new THREE.Vector3()
 
   let aspect = 16 / 9
   let seeded = false
+  let orbitYaw = 0
+  let orbitPitch = 0
+  let zoomMul = 1
   // The scale actually in use this frame, including the overview blend. Fog
   // reads this: using the follow scale alone whited-out the whole island the
   // moment the overview pulled the camera further back than fogFar.
@@ -164,7 +176,15 @@ export function createCameraRig() {
     activeScale = scale
     const centre = focus.clone().lerp(overviewCentre, o)
 
-    basePos.copy(centre).add(offset.clone().multiplyScalar(scale))
+    // Apply the viewer's clamped orbit and zoom on top of the preset.
+    const shaped = offset.clone()
+    if (orbitYaw !== 0) shaped.applyAxisAngle(THREE.Object3D.DEFAULT_UP, orbitYaw)
+    if (orbitPitch !== 0) {
+      pitchAxis.set(shaped.z, 0, -shaped.x)
+      if (pitchAxis.lengthSq() > 1e-6) shaped.applyAxisAngle(pitchAxis.normalize(), orbitPitch)
+    }
+
+    basePos.copy(centre).add(shaped.multiplyScalar(scale * zoomMul))
     baseTarget.set(centre.x, centre.y + lookY, centre.z)
 
     // Horizontal only: vertical drift fights the raised, near-overhead angle.
@@ -193,6 +213,24 @@ export function createCameraRig() {
     setAspect,
     update,
     toggleOverview,
+    /** Drag to look around, within a tight clamp. Never a free camera. */
+    orbit(dx, dy) {
+      orbitYaw = clamp(orbitYaw - dx * 0.005, -ORBIT_YAW_MAX, ORBIT_YAW_MAX)
+      orbitPitch = clamp(orbitPitch + dy * 0.004, -ORBIT_PITCH_MAX, ORBIT_PITCH_MAX)
+    },
+    /** Wheel zoom, also clamped. */
+    zoom(delta) {
+      zoomMul = clamp(zoomMul * (1 + delta * 0.0012), ZOOM_MIN, ZOOM_MAX)
+    },
+    /** Back to the world's own preset. */
+    resetView() {
+      orbitYaw = 0
+      orbitPitch = 0
+      zoomMul = 1
+    },
+    get isNudged() {
+      return orbitYaw !== 0 || orbitPitch !== 0 || zoomMul !== 1
+    },
     get isOverview() {
       return overview
     },

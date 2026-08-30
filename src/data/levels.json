@@ -109,7 +109,6 @@
       "category": "theory",
       "optional": true,
       "anchorAfter": "w1-intro-02",
-      "offsetSide": "right",
       "summary": "PLACEHOLDER — material opcional para casa. No evaluable.",
       "slides": {
         "type": "canva",
@@ -356,7 +355,6 @@
       "category": "theory",
       "optional": true,
       "anchorAfter": "w2-pre-02",
-      "offsetSide": "left",
       "summary": "PLACEHOLDER — lectura opcional para casa. No evaluable.",
       "slides": {
         "type": "pdf",
@@ -617,7 +615,6 @@
       "category": "theory",
       "optional": true,
       "anchorAfter": "w3-xrit-02",
-      "offsetSide": "right",
       "summary": "PLACEHOLDER — material opcional de refuerzo. No evaluable.",
       "slides": {
         "type": "canva",

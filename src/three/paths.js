@@ -1,6 +1,6 @@
 import * as THREE from 'three'
 import { worlds } from '../config/worlds.js'
-import { groundHeightAt } from './terrain.js'
+import { groundHeightAt, nearestPath, isLand } from './terrain.js'
 
 /**
  * Turns a world's spline template + its list of levels into node positions.
@@ -172,22 +172,68 @@ export function distributeNodes(worldDef, worldLevels) {
     anchor ??= placed[0]
     if (!anchor) return
 
-    const side = level.offsetSide === 'left' ? -1 : level.offsetSide === 'right' ? 1 : n % 2 ? -1 : 1
-    const distance = level.offsetDistance ?? 7.5
-    const lateral = anchor.tangent.clone().cross(UP).normalize().multiplyScalar(side * distance)
+    const distance = level.offsetDistance ?? 9
+    const axis = anchor.tangent.clone().cross(UP).normalize()
+
+    // Which way to branch. A fixed side (or alternating parity) regularly
+    // pointed the bonus node straight back INTO the road, because the route
+    // snakes and the perpendicular can face a neighbouring run. Instead, test
+    // both sides and keep whichever ends up FURTHER from the road, so an
+    // optional branch always reads as leaving the main path.
+    const forced = level.offsetSide === 'left' ? -1 : level.offsetSide === 'right' ? 1 : null
+    const dirs = forced != null ? [forced] : [1, -1]
+
+    // Search the ANCHOR too, not just side and distance. Where the route
+    // doubles back, every offset around one particular node lands near another
+    // run of the same road, so no side or distance can rescue it. Allowing the
+    // branch to hang off a neighbouring node instead is what actually gets it
+    // clear of the path. The declared anchor stays the preference: it is tried
+    // first and only beaten by a clearly better spot.
+    const onPath = placed.filter((p) => p.onPath)
+    const declaredIndex = onPath.indexOf(anchor)
+    const anchorChoices = []
+    for (let d = 0; d <= 2; d++) {
+      for (const step of d === 0 ? [0] : [-d, d]) {
+        const cand = onPath[declaredIndex + step]
+        if (cand) anchorChoices.push({ node: cand, penalty: d * 1.5 })
+      }
+    }
+
+    const candidates = []
+    for (const { node, penalty } of anchorChoices) {
+      const axis = node.tangent.clone().cross(UP).normalize()
+      for (const dir of dirs) {
+        for (const dist of [8, 10, 12, 14, 16]) {
+          const at = node.position.clone().addScaledVector(axis, dir * dist)
+          if (!isLand(at.x, at.z)) continue
+          candidates.push({
+            node,
+            axis,
+            dir,
+            dist,
+            score: nearestPath(at.x, at.z).dist - penalty,
+          })
+        }
+      }
+    }
+
+    const best = candidates.sort((a, b) => b.score - a.score)[0]
+    if (!best) return
+    const useAnchor = best.node
+    const lateral = best.axis.clone().multiplyScalar(best.dir * best.dist)
 
     // Anchor to the ACTUAL ground under the offset position. Copying the
     // anchor's height is what buried the world-2 bonus node: a sideways offset
     // can easily land on a taller plateau than the node it hangs off.
-    const position = anchor.position.clone().add(lateral)
-    position.y = Math.max(groundHeightAt(position.x, position.z), anchor.position.y)
+    const position = useAnchor.position.clone().add(lateral)
+    position.y = Math.max(groundHeightAt(position.x, position.z), useAnchor.position.y)
 
     placed.push({
       level,
       position,
-      tangent: anchor.tangent.clone(),
+      tangent: useAnchor.tangent.clone(),
       onPath: false,
-      anchorId: anchor.level.id,
+      anchorId: useAnchor.level.id,
     })
   })
 
