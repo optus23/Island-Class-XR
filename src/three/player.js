@@ -34,6 +34,10 @@ export function createPlayer() {
   box(1.1, 1.0, 0.8, themeWorld.player, 0, 1.05, 0) // torso
   const head = box(0.9, 0.8, 0.85, 0xffd9b3, 0, 1.95, 0) // head
   box(1.15, 0.28, 0.95, themeWorld.player, 0, 2.42, 0.02) // cap
+  // It is an XR course, so the character is wearing a headset.
+  box(1.0, 0.52, 0.34, 0x22272e, 0, 1.98, 0.44) // visor
+  box(0.78, 0.3, 0.1, 0x4cc9f0, 0, 1.99, 0.62) // lens glow
+  box(1.02, 0.2, 0.8, 0x3b434d, 0, 2.16, 0.06) // strap
   box(0.34, 0.22, 0.36, 0x2b2118, -0.34, 0.15, 0.05) // feet
   box(0.34, 0.22, 0.36, 0x2b2118, 0.34, 0.15, 0.05)
   box(0.3, 0.65, 0.3, 0xffd9b3, -0.68, 1.15, 0) // arms

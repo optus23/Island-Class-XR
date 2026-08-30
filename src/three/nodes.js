@@ -330,7 +330,8 @@ function createOptionalConnectors(placed, positionById) {
  */
 function createBossCastle(placement) {
   const isFinal = placement.level.bossTier === 'final'
-  const s = isFinal ? 1.35 : 1.0
+  // The final boss should dwarf the midterm castle, not merely edge it out.
+  const s = isFinal ? 2.0 : 0.95
 
   const g = new THREE.Group()
   g.position.copy(placement.position)

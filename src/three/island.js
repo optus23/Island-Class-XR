@@ -1,7 +1,8 @@
 import * as THREE from 'three'
 import { worlds } from '../config/worlds.js'
-import { world as themeWorld, biomes, backdrop, flowers } from '../config/theme.js'
+import { world as themeWorld, biomes, backdrop } from '../config/theme.js'
 import { prefersReducedMotion } from '../lib/motion.js'
+import { buildPropMesh, planProps } from './props.js'
 import {
   VOXEL,
   TIER,
@@ -46,6 +47,7 @@ export function createIsland() {
         height: groundHeightAt(x, z),
         pathDist: nearestPath(x, z).dist,
         shore: Math.min(1, inside / 4),
+        inside,
         biome: biomeAt(x),
       })
     }
@@ -89,9 +91,12 @@ export function createIsland() {
     bands.setMatrixAt(i, m)
     bands.setColorAt(i, tint.setHex(b.band))
 
-    // rock body down to the base
+    // Rock body. Its depth grows with how far inland the column sits, so the
+    // island's underside tapers to a point instead of ending in a flat slab —
+    // the floating-island silhouette from the reference art.
     const bodyTop = bandTop - BAND_HEIGHT
-    const bodyH = Math.max(0.1, bodyTop - BASE_Y)
+    const floor = 0.5 - Math.min(c.inside, 26) * 0.62
+    const bodyH = Math.max(0.4, bodyTop - floor)
     m.makeScale(1, bodyH, 1)
     m.setPosition(c.x, bodyTop - bodyH / 2, c.z)
     bodies.setMatrixAt(i, m)
@@ -109,8 +114,9 @@ export function createIsland() {
   // --- water ---------------------------------------------------------------
   const water = createWater(minX, maxX, minZ, maxZ)
   group.add(water.mesh)
+  group.add(createShoreFoam(minX, maxX, minZ, maxZ))
 
-  group.add(createProps(cells))
+  group.add(buildPropMesh(planProps(cells)))
   group.add(createRelief(cells))
 
   const backdropGroup = createBackdrop(minX, maxX, minZ)
@@ -123,6 +129,60 @@ export function createIsland() {
     cells,
     update: water.update,
   }
+}
+
+/**
+ * A ring of white foam hugging the coastline.
+ *
+ * The water shader cannot know where the land is, so the contact line between
+ * sea and island read as a hard edge. This lays foam tiles in the narrow band
+ * either side of the shore, which is what actually sells "island sitting in
+ * water" rather than "mesh intersecting a blue plane".
+ */
+function createShoreFoam(minX, maxX, minZ, maxZ) {
+  const group = new THREE.Group()
+  const tiles = []
+  const STEP = VOXEL
+
+  for (let x = minX - 6; x <= maxX + 6; x += STEP) {
+    for (let z = minZ - 6; z <= maxZ + 6; z += STEP) {
+      const inset = landInset(x, z)
+      // The band straddling the coastline, just outside it.
+      if (inset > 1.6 || inset < -3.4) continue
+      const t = (inset + 3.4) / 5.0 // 0 offshore .. 1 at the land edge
+      tiles.push({ x, z, t, jitter: hash2(x * 2.3, z * 1.7) })
+    }
+  }
+  if (!tiles.length) return group
+
+  const mesh = new THREE.InstancedMesh(
+    new THREE.BoxGeometry(1, 1, 1),
+    new THREE.MeshLambertMaterial({ transparent: true, opacity: 0.92 }),
+    tiles.length
+  )
+  const m = new THREE.Matrix4()
+  const q = new THREE.Quaternion()
+  const p = new THREE.Vector3()
+  const sv = new THREE.Vector3()
+  const col = new THREE.Color()
+  const foam = new THREE.Color(themeWorld.waterFoam)
+  const shallow = new THREE.Color(themeWorld.waterShallow)
+
+  tiles.forEach((tile, i) => {
+    const w = STEP * (0.85 + tile.jitter * 0.3)
+    sv.set(w, 0.42, w)
+    p.set(tile.x, -1.75 + tile.jitter * 0.16, tile.z)
+    m.compose(p, q, sv)
+    mesh.setMatrixAt(i, m)
+    // Whitest right at the land edge, fading out to sea.
+    col.copy(shallow).lerp(foam, Math.min(1, tile.t * 1.15))
+    mesh.setColorAt(i, col)
+  })
+  mesh.instanceMatrix.needsUpdate = true
+  if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true
+  mesh.frustumCulled = false
+  group.add(mesh)
+  return group
 }
 
 /**
@@ -140,7 +200,7 @@ function createRelief(cells) {
   for (const c of cells) {
     if (c.pathDist < 8 || c.shore < 0.9) continue
     const r = hash2(c.x * 1.13, c.z * 2.71)
-    if (r < 0.955) continue
+    if (r < 0.975) continue
 
     // A stack of 1-3 cubes, each narrower than the one below.
     const tiers = 1 + Math.floor(hash2(c.z * 5.3, c.x * 1.9) * 3)
@@ -172,7 +232,7 @@ function createRelief(cells) {
     m.compose(p, q, sv)
     mesh.setMatrixAt(i, m)
     // Higher tiers catch more light — cheap stylised shading.
-    col.setHex(b.biome.rock).lerp(tmp.setHex(b.biome.band), 0.25 + b.tier * 0.22)
+    col.setHex(b.biome.band).lerp(tmp.setHex(b.biome.groundAlt), 0.35 + b.tier * 0.2)
     mesh.setColorAt(i, col)
   })
   mesh.instanceMatrix.needsUpdate = true
@@ -352,140 +412,4 @@ function createBackdrop(minX, maxX, minZ) {
   mesh.frustumCulled = false
   group.add(mesh)
   return group
-}
-
-/**
- * Biome props: leafy trees in the meadow, cacti in the desert, pines on the
- * summit, plus flowers close to the route. All trees are kept well clear of
- * the path so they never hide a node.
- */
-function createProps(cells) {
-  const props = new THREE.Group()
-  const candidates = cells.filter((c) => c.pathDist > 9 && c.shore > 0.85)
-
-  const trunks = []
-  const crowns = []
-  const tops = [] // second, narrower canopy tier so trees read as round
-  const boulders = []
-  for (const c of candidates) {
-    const r = hash2(c.x * 3.3, c.z * 7.7)
-    if (r > 0.945) {
-      trunks.push(c)
-      crowns.push(c)
-      if (c.biome.props !== 'cactus') tops.push(c)
-    } else if (r < 0.025) boulders.push(c)
-  }
-
-  // Flowers hug the route rather than the wilderness — they are what makes the
-  // roadside feel planted instead of empty.
-  const blooms = cells.filter((c) => {
-    if (c.pathDist < 2.6 || c.pathDist > 9 || c.shore < 0.85) return false
-    return hash2(c.x * 5.1, c.z * 2.7) > 0.82
-  })
-
-  const box = new THREE.BoxGeometry(1, 1, 1)
-  const push = (list, sizeFor, yFor, colorFor) => {
-    if (!list.length) return
-    const mesh = new THREE.InstancedMesh(box, new THREE.MeshLambertMaterial(), list.length)
-    const mm = new THREE.Matrix4()
-    const q = new THREE.Quaternion()
-    const s = new THREE.Vector3()
-    const p = new THREE.Vector3()
-    const col = new THREE.Color()
-    list.forEach((c, i) => {
-      const k = sizeFor(c)
-      s.set(k.x, k.y, k.z)
-      p.set(c.x, c.height + yFor(c, k), c.z)
-      mm.compose(p, q, s)
-      mesh.setMatrixAt(i, mm)
-      mesh.setColorAt(i, col.setHex(colorFor(c)))
-    })
-    mesh.instanceMatrix.needsUpdate = true
-    if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true
-    mesh.frustumCulled = false
-    props.add(mesh)
-  }
-
-  // Trunk/stem: a cactus is a tall thin green column, a pine or a leafy tree
-  // gets a short brown one.
-  push(
-    trunks,
-    (c) => (c.biome.props === 'cactus' ? { x: 0.8, y: 3.2, z: 0.8 } : { x: 0.7, y: 1.9, z: 0.7 }),
-    (_, k) => k.y / 2,
-    (c) => (c.biome.props === 'cactus' ? c.biome.foliage : c.biome.trunk)
-  )
-  // Crown: cactus arms, a narrow pine spire, or a fat leafy canopy.
-  push(
-    crowns,
-    (c) => {
-      if (c.biome.props === 'cactus') return { x: 2.0, y: 0.9, z: 0.9 }
-      if (c.biome.props === 'pine') return { x: 1.7, y: 2.6, z: 1.7 }
-      const w = 2.2 + hash2(c.z, c.x) * 1.1
-      return { x: w, y: w * 0.8, z: w }
-    },
-    (c, k) => (c.biome.props === 'cactus' ? 2.1 : 1.9 + k.y / 2 - 0.3),
-    (c) => (hash2(c.x, c.z * 2) > 0.5 ? c.biome.foliage : c.biome.foliageAlt)
-  )
-  // Narrower cap on top of the canopy — two tiers read as a dome, one reads
-  // as a cube on a stick.
-  push(
-    tops,
-    (c) => {
-      const w = 1.5 + hash2(c.z * 1.9, c.x * 2.3) * 0.7
-      return { x: w, y: w * 0.7, z: w }
-    },
-    (c, k) => (c.biome.props === 'pine' ? 4.2 : 3.5) + k.y / 2,
-    (c) => c.biome.foliageAlt
-  )
-  push(
-    boulders,
-    (c) => {
-      const w = 1 + hash2(c.x * 1.7, c.z * 1.3) * 0.9
-      return { x: w, y: w * 0.7, z: w }
-    },
-    (_, k) => k.y / 2,
-    (c) => c.biome.boulder
-  )
-  // --- themed set dressing -------------------------------------------------
-  // Mario mushrooms plus XR props, so the island says what the course is about.
-  // Each is a small stack of boxes placed off-path, instanced by part.
-  const landmarks = cells.filter((c) => {
-    if (c.pathDist < 5.5 || c.pathDist > 13 || c.shore < 0.9) return false
-    return hash2(c.x * 7.7, c.z * 3.1) > 0.978
-  })
-
-  const kindOf = (c) => Math.floor(hash2(c.z * 9.1, c.x * 6.3) * 4)
-  const mushrooms = landmarks.filter((c) => kindOf(c) === 0)
-  const headsets = landmarks.filter((c) => kindOf(c) === 1)
-  const phones = landmarks.filter((c) => kindOf(c) === 2)
-  const markers = landmarks.filter((c) => kindOf(c) === 3)
-
-  // Mushroom: pale stalk, red cap, white spots implied by the cap band.
-  push(mushrooms, () => ({ x: 0.9, y: 1.3, z: 0.9 }), (_, k) => k.y / 2, () => 0xf3e6d0)
-  push(mushrooms, () => ({ x: 2.4, y: 1.0, z: 2.4 }), () => 1.75, () => 0xe63946)
-  push(mushrooms, () => ({ x: 1.0, y: 0.45, z: 1.0 }), () => 2.35, () => 0xfff3e6)
-
-  // VR headset on a stand: dark visor block with a lighter strap.
-  push(headsets, () => ({ x: 0.4, y: 1.6, z: 0.4 }), (_, k) => k.y / 2, () => 0x6b7280)
-  push(headsets, () => ({ x: 2.2, y: 1.1, z: 1.3 }), () => 2.05, () => 0x2b3440)
-  push(headsets, () => ({ x: 2.4, y: 0.3, z: 1.5 }), () => 2.75, () => 0x4cc9f0)
-
-  // Phone doing AR: an upright slab with a bright screen.
-  push(phones, () => ({ x: 0.35, y: 1.2, z: 0.35 }), (_, k) => k.y / 2, () => 0x6b7280)
-  push(phones, () => ({ x: 1.1, y: 1.9, z: 0.28 }), () => 2.15, () => 0x2b3440)
-  push(phones, () => ({ x: 0.85, y: 1.5, z: 0.34 }), () => 2.15, () => 0x9be7ff)
-
-  // Tracked image marker: a little chequered board on a post.
-  push(markers, () => ({ x: 0.3, y: 1.1, z: 0.3 }), (_, k) => k.y / 2, () => 0x8b5e34)
-  push(markers, () => ({ x: 1.7, y: 1.7, z: 0.2 }), () => 1.95, () => 0xf5f5f5)
-  push(markers, () => ({ x: 0.8, y: 0.8, z: 0.26 }), () => 2.25, () => 0x22272e)
-
-  push(
-    blooms,
-    () => ({ x: 0.36, y: 0.36, z: 0.36 }),
-    (_, k) => k.y / 2 + 0.05,
-    (c) => flowers[Math.floor(hash2(c.z * 3.7, c.x * 4.3) * flowers.length) % flowers.length]
-  )
-
-  return props
 }
