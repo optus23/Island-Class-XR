@@ -9,7 +9,17 @@
  * Coordinates in `controlPoints` are LOCAL to the world's `center`.
  */
 
-/** Camera never moves freely — exactly these three positions, one per world. */
+/**
+ * The camera follows the avatar; each world contributes a viewing ANGLE that
+ * the rig blends between as the focus moves along X. It is still never a free
+ * camera — the viewer cannot orbit or zoom.
+ *
+ * `offset`     direction and distance from the focus point (its length is
+ *              rescaled to fit the viewport).
+ * `lookHeight` how far above the focus the camera aims. A single number,
+ *              because the rig follows the avatar for X and Z — an X/Z target
+ *              here would drag the camera off the thing it is following.
+ */
 export const CAMERA_FOV = 40
 
 export const worlds = [
@@ -19,7 +29,7 @@ export const worlds = [
     biome: 'meadow',
     center: [-58, 0, 0],
     // Isometric, from the LEFT looking right.
-    camera: { offset: [-42, 38, 38], target: [-2, 4.5, 1] }, // aimed at W1's mid-height
+    camera: { offset: [-42, 38, 38], lookHeight: 4.5 },
     path: {
       bossSlotIndex: null,
       // The y values ARE the terrain: ground follows the nearest path height,
@@ -43,7 +53,7 @@ export const worlds = [
     biome: 'desert',
     center: [0, 0, 0],
     // Frontal.
-    camera: { offset: [0, 30, 58], target: [0, 7.5, -3] }, // aimed at W2's mid-height
+    camera: { offset: [0, 30, 58], lookHeight: 7.5 },
     path: {
       // The mini-boss (midterm castle) always sits on this control point, and
       // it splits the world into two equal halves: theory+BB start before it,
@@ -68,7 +78,7 @@ export const worlds = [
     biome: 'summit',
     center: [58, 0, 0],
     // Mirror of World 1: isometric, from the RIGHT looking left.
-    camera: { offset: [42, 40, 38], target: [2, 9, 1] }, // aimed at W3's mid-height
+    camera: { offset: [42, 40, 38], lookHeight: 9 },
     path: {
       // World 1's shape mirrored on X *and reversed*, so the silhouette is the
       // mirror image (matching the mirrored camera) while the route still runs
