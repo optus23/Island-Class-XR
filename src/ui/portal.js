@@ -1,5 +1,5 @@
 import { cssPalette } from '../config/theme.js'
-import { statusFor } from '../lib/levels.js'
+import { statusFor, sessionNumber } from '../lib/levels.js'
 import { renderSlides } from './slides.js'
 import { renderTodos } from './todos.js'
 import { loadMarkdown, renderMarkdownInto } from './markdown.js'
@@ -93,6 +93,11 @@ export function openPortal(level, { markerId = null, onClose = null } = {}) {
       ? cssPalette.completed
       : cssPalette[level.category] ?? cssPalette.theory
 
+  const n = sessionNumber(level)
+  const sessionLabel = n
+    ? `Mundo ${n.world}-${n.index} · sesión ${n.global} de ${n.total}`
+    : 'Nivel opcional'
+
   const tabs = tabsFor(level)
   const badges = [
     `<span class="badge badge-sm" style="background:${accent};color:#0b0f14;border:none">
@@ -110,28 +115,30 @@ export function openPortal(level, { markerId = null, onClose = null } = {}) {
     .join('')
 
   root = document.createElement('div')
-  root.className = 'fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-8'
+  root.className = 'portal-screen'
   root.innerHTML = `
-    <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" data-close></div>
+    <!-- The only thing allowed to overlay the full-screen UI. -->
+    <button class="portal-back btn btn-sm btn-circle btn-neutral shadow-lg"
+            data-close aria-label="Volver al mapa" title="Volver al mapa (Esc)">
+      <span aria-hidden="true">&larr;</span>
+    </button>
 
     <section role="dialog" aria-modal="true" aria-label="${level.title}"
-      class="pixel-panel relative w-full max-w-4xl h-[86vh] rounded-xl bg-base-100
-             text-base-content flex flex-col overflow-hidden">
+             class="flex flex-col h-full min-h-0">
 
-      <header class="px-5 pt-4 pb-3 border-b border-base-content/15"
-              style="box-shadow: inset 0 3px 0 0 ${accent}">
-        <div class="flex items-start justify-between gap-4">
-          <div class="min-w-0">
-            <h2 class="text-xl sm:text-2xl font-bold leading-tight truncate">${level.title}</h2>
-            <p class="text-sm opacity-70 mt-0.5">${level.summary ?? ''}</p>
-          </div>
-          <button class="btn btn-sm btn-circle btn-ghost shrink-0" data-close
-                  aria-label="Cerrar">✕</button>
+      <header class="shrink-0 px-5 sm:px-8 pt-5 pb-4 border-b border-base-content/10"
+              style="box-shadow: inset 0 4px 0 0 ${accent}">
+        <div class="pl-12 sm:pl-14">
+          <p class="text-[11px] uppercase tracking-[0.2em] opacity-55 mb-1">
+            ${sessionLabel}
+          </p>
+          <h2 class="text-2xl sm:text-4xl font-extrabold leading-tight">${level.title}</h2>
+          <p class="text-sm sm:text-base opacity-70 mt-1.5 max-w-3xl">${level.summary ?? ''}</p>
+          <div class="flex flex-wrap gap-1.5 mt-3">${badges}</div>
         </div>
-        <div class="flex flex-wrap gap-1.5 mt-3">${badges}</div>
       </header>
 
-      <nav class="px-5 pt-3 shrink-0" role="tablist">
+      <nav class="shrink-0 px-5 sm:px-8 pt-4" role="tablist">
         <div class="tabs tabs-box w-fit">
           ${tabs
             .map(
@@ -143,10 +150,10 @@ export function openPortal(level, { markerId = null, onClose = null } = {}) {
         </div>
       </nav>
 
-      <div class="flex-1 min-h-0 overflow-auto px-5 py-4" data-panel></div>
+      <div class="flex-1 min-h-0 overflow-auto px-5 sm:px-8 py-5" data-panel></div>
     </section>`
 
-  document.getElementById('ui').appendChild(root)
+  document.body.appendChild(root)
 
   const panel = root.querySelector('[data-panel]')
   const buttons = [...root.querySelectorAll('[data-tab]')]
@@ -209,5 +216,5 @@ export function openPortal(level, { markerId = null, onClose = null } = {}) {
   window.addEventListener('keydown', keyHandler, true)
 
   show(tabs[0].key)
-  root.querySelector('[data-close].btn')?.focus()
+  root.querySelector('[data-close]')?.focus()
 }
