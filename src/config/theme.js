@@ -18,7 +18,7 @@ export const palette = {
   // Categories (not completed) — PLACEHOLDERS, tune freely
   theory: 0x4cc9f0, // cyan
   practical: 0xf77f00, // orange
-  boss: 0xd62828, // red — both tiers, differentiated by size/shape not colour
+  boss: 0x9e2b2b, // deep brick red — tiers differ by size/shape, not colour
 
   // Optional / bonus levels — must never be green
   optional: 0x9d4edd, // purple / lilac
@@ -100,10 +100,12 @@ export const flowers = [0xffffff, 0xff8fab, 0xffd166, 0xef476f, 0xf7a8d8]
 export const world = {
   sky: 0x9bd4e4,
   fog: 0x9bd4e4,
-  // Tuned so the CURRENT world fills the frame and its neighbours fade out at
-  // the default follow framing. The overview toggle scales these out again.
-  fogNear: 72,
-  fogFar: 132,
+  // Barely-there haze. This used to hide the neighbouring worlds deliberately,
+  // but it also swallowed the whole island the moment you zoomed out, and the
+  // background never showed at all. Framing already keeps one world in view,
+  // so fog only has to soften the far horizon now.
+  fogNear: 260,
+  fogFar: 900,
 
   terrain: 0x74c365,
   terrainEdge: 0x5a9e4d,
@@ -111,7 +113,7 @@ export const world = {
   water: 0x4ea8de, // fallback if the shader is unavailable
   waterDeep: 0x2f7cc0,
   waterShallow: 0x62b8ea,
-  waterFoam: 0xd8f0ff,
+  waterFoam: 0xeaf7ff,
 
   // ONE road for all three worlds, as in the reference art: a warm cream
   // surface with a dark brown outline. The outline does most of the work —

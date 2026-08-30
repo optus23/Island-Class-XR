@@ -4,6 +4,7 @@ import { world as themeWorld, biomes, backdrop } from '../config/theme.js'
 import { prefersReducedMotion } from '../lib/motion.js'
 import { buildPropMesh, planProps } from './props.js'
 import {
+  buildShoreField,
   VOXEL,
   TIER,
   BASE_Y,
@@ -114,7 +115,6 @@ export function createIsland() {
   // --- water ---------------------------------------------------------------
   const water = createWater(minX, maxX, minZ, maxZ)
   group.add(water.mesh)
-  group.add(createShoreFoam(minX, maxX, minZ, maxZ))
 
   group.add(buildPropMesh(planProps(cells)))
   group.add(createRelief(cells))
@@ -129,60 +129,6 @@ export function createIsland() {
     cells,
     update: water.update,
   }
-}
-
-/**
- * A ring of white foam hugging the coastline.
- *
- * The water shader cannot know where the land is, so the contact line between
- * sea and island read as a hard edge. This lays foam tiles in the narrow band
- * either side of the shore, which is what actually sells "island sitting in
- * water" rather than "mesh intersecting a blue plane".
- */
-function createShoreFoam(minX, maxX, minZ, maxZ) {
-  const group = new THREE.Group()
-  const tiles = []
-  const STEP = VOXEL
-
-  for (let x = minX - 6; x <= maxX + 6; x += STEP) {
-    for (let z = minZ - 6; z <= maxZ + 6; z += STEP) {
-      const inset = landInset(x, z)
-      // The band straddling the coastline, just outside it.
-      if (inset > 1.6 || inset < -3.4) continue
-      const t = (inset + 3.4) / 5.0 // 0 offshore .. 1 at the land edge
-      tiles.push({ x, z, t, jitter: hash2(x * 2.3, z * 1.7) })
-    }
-  }
-  if (!tiles.length) return group
-
-  const mesh = new THREE.InstancedMesh(
-    new THREE.BoxGeometry(1, 1, 1),
-    new THREE.MeshLambertMaterial({ transparent: true, opacity: 0.92 }),
-    tiles.length
-  )
-  const m = new THREE.Matrix4()
-  const q = new THREE.Quaternion()
-  const p = new THREE.Vector3()
-  const sv = new THREE.Vector3()
-  const col = new THREE.Color()
-  const foam = new THREE.Color(themeWorld.waterFoam)
-  const shallow = new THREE.Color(themeWorld.waterShallow)
-
-  tiles.forEach((tile, i) => {
-    const w = STEP * (0.85 + tile.jitter * 0.3)
-    sv.set(w, 0.42, w)
-    p.set(tile.x, -1.75 + tile.jitter * 0.16, tile.z)
-    m.compose(p, q, sv)
-    mesh.setMatrixAt(i, m)
-    // Whitest right at the land edge, fading out to sea.
-    col.copy(shallow).lerp(foam, Math.min(1, tile.t * 1.15))
-    mesh.setColorAt(i, col)
-  })
-  mesh.instanceMatrix.needsUpdate = true
-  if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true
-  mesh.frustumCulled = false
-  group.add(mesh)
-  return group
 }
 
 /**
@@ -260,17 +206,44 @@ function createWater(minX, maxX, minZ, maxZ) {
   const depth = (maxZ - minZ) * 3.4
 
   const material = new THREE.MeshLambertMaterial({ color: 0xffffff })
+
+  // Distance-to-shore, baked once. Sampling this is what lets the foam belong
+  // to the shader — animating with the swell and hugging every inlet — rather
+  // than being a ring of cubes laid around the coast by hand.
+  const field = buildShoreField(256)
+  const shoreTex = new THREE.DataTexture(
+    field.data,
+    field.size,
+    field.size,
+    THREE.RedFormat,
+    THREE.UnsignedByteType
+  )
+  shoreTex.minFilter = THREE.LinearFilter
+  shoreTex.magFilter = THREE.LinearFilter
+  shoreTex.wrapS = THREE.ClampToEdgeWrapping
+  shoreTex.wrapT = THREE.ClampToEdgeWrapping
+  shoreTex.needsUpdate = true
+
   const uniforms = {
     uTime: { value: 0 },
     uDeep: { value: new THREE.Color(themeWorld.waterDeep) },
     uShallow: { value: new THREE.Color(themeWorld.waterShallow) },
     uFoam: { value: new THREE.Color(themeWorld.waterFoam) },
+    uShore: { value: shoreTex },
+    uShoreMin: { value: new THREE.Vector2(field.bounds.x0, field.bounds.z0) },
+    uShoreSize: {
+      value: new THREE.Vector2(
+        field.bounds.x1 - field.bounds.x0,
+        field.bounds.z1 - field.bounds.z0
+      ),
+    },
   }
 
   // Shared between both stages so the crests line up with the displacement.
   const WAVE = `
     uniform float uTime;
     varying vec2 vWave;
+    varying vec2 vWorldXZ;
     float waterWave(vec2 p, float t) {
       // Fairly high frequencies: the plane spans hundreds of units, so gentle
       // ones produce a few enormous blobs instead of a sea.
@@ -292,7 +265,10 @@ ${WAVE}`)
         `#include <begin_vertex>
          // The plane is rotated -90deg about X, so its LOCAL z is world up.
          transformed.z += waterWave(position.xy, uTime) * 0.55;
-         vWave = position.xy;`
+         vWave = position.xy;
+         // The plane is rotated -90deg about X, so local (x, y) is world (x, -z).
+         vec4 wp = modelMatrix * vec4(position, 1.0);
+         vWorldXZ = wp.xz;`
       )
 
     shader.fragmentShader = shader.fragmentShader
@@ -302,6 +278,9 @@ ${WAVE}`)
          uniform vec3 uDeep;
          uniform vec3 uShallow;
          uniform vec3 uFoam;
+         uniform sampler2D uShore;
+         uniform vec2 uShoreMin;
+         uniform vec2 uShoreSize;
          ${WAVE}`
       )
       .replace(
@@ -312,7 +291,18 @@ ${WAVE}`)
          // Three flat tones, hard edges: toon water, not a gradient.
          vec3 sea = uDeep;
          sea = mix(sea, uShallow, step(0.42, n));
-         sea = mix(sea, uFoam, step(0.88, n) * 0.75);
+         sea = mix(sea, uFoam, step(0.88, n) * 0.6);
+
+         // Shoreline foam: 1 at the land edge, 0 well offshore.
+         vec2 uv = (vWorldXZ - uShoreMin) / uShoreSize;
+         float shore = texture2D(uShore, uv).r;
+
+         // A shallow band hugging the coast, then two hard foam lines that
+         // breathe in and out with the swell — the surf running up the rocks.
+         sea = mix(sea, uShallow, smoothstep(0.25, 0.72, shore));
+         float surf = shore + w * 0.09 + sin(uTime * 1.4 + shore * 22.0) * 0.05;
+         sea = mix(sea, uFoam, smoothstep(0.70, 0.80, surf) * 0.85);
+         sea = mix(sea, uFoam, smoothstep(0.90, 0.97, surf));
          diffuseColor.rgb = sea;`
       )
   }

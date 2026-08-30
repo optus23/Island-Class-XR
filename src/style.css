@@ -556,3 +556,12 @@ body.map-view {
     grid-template-columns: 1fr;
   }
 }
+
+.legend-map {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.4rem;
+  width: calc(100% - 1.4rem);
+  margin: 0 0.7rem 0.55rem;
+}

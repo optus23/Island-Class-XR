@@ -38,6 +38,7 @@ export function mountLegend(actions = {}) {
   // Collapsed where screen space is scarce; the map is the point.
   let open = window.innerWidth >= 900
   let admin = hasAdminToken()
+  let overview = false
   let busy = false
   let note = ''
 
@@ -59,6 +60,10 @@ export function mountLegend(actions = {}) {
         </button>
 
         <div class="${open ? '' : 'is-collapsed'}">
+          <button class="legend-btn legend-map ${overview ? 'is-primary' : ''}" data-act="overview">
+            ${overview ? 'Volver al personaje' : 'Mapa completo (vista cenital)'}
+            <kbd>M</kbd>
+          </button>
           <ul class="legend-list">${swatches}</ul>
 
           ${
@@ -90,6 +95,10 @@ export function mountLegend(actions = {}) {
 
     el.querySelectorAll('[data-act]').forEach((b) =>
       b.addEventListener('click', async () => {
+        if (b.dataset.act === 'overview') {
+          actions.onToggleOverview?.()
+          return
+        }
         const fn = {
           complete: actions.onCompleteHere,
           back: actions.onBack,
@@ -115,6 +124,10 @@ export function mountLegend(actions = {}) {
   render()
 
   return {
+    setOverview(on) {
+      overview = on
+      render()
+    },
     /** Re-check the token, e.g. after the teacher signs in on /admin. */
     refreshAdmin() {
       const next = hasAdminToken()
