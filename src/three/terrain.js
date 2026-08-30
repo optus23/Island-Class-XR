@@ -21,6 +21,7 @@ export const MARGIN_Z = 34 // half-extent, Z
 export const BRIDGE_HALF_WIDTH = 7
 export const PATH_FLATTEN_RADIUS = 7
 export const TIER = 4 // height step for off-path plateaus
+export const QUANT = 1 // near-path height step — never leave ground continuous
 export const SHELF_Y = 1.5 // low coastal shelf that plateaus rise out of
 export const BASE_Y = -9 // every column runs down to here
 
@@ -142,7 +143,12 @@ export function groundHeightAt(x, z) {
   const grounded = path.y * (1 - drop) + SHELF_Y * drop
 
   const raw = grounded + hill * away * shore
-  return away > 0.75 ? Math.round(raw / TIER) * TIER : raw
+  // ALWAYS quantised. Continuous ground made every cell a hair taller than its
+  // neighbour, exposing thin dark slivers of rock between columns that read as
+  // scratches across the grass. Coarse steps far from the route, fine steps
+  // near it so the path can still climb.
+  const step = away > 0.75 ? TIER : QUANT
+  return Math.round(raw / step) * step
 }
 
 /**

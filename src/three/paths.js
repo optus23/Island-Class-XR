@@ -91,10 +91,11 @@ function spread(count, { startsAtBoss = false, endsAtBoss = false } = {}) {
 }
 
 function sample(curve, u) {
-  return {
-    position: curve.getPointAt(u),
-    tangent: curve.getTangentAt(u).normalize(),
-  }
+  const position = curve.getPointAt(u)
+  // Snap to the real ground so nodes never float over, or sink into, the
+  // quantised terrain the curve only approximates.
+  position.y = groundHeightAt(position.x, position.z)
+  return { position, tangent: curve.getTangentAt(u).normalize() }
 }
 
 /**
@@ -128,9 +129,11 @@ export function distributeNodes(worldDef, worldLevels) {
       placed.push({ level: pre[i], ...sample(curves.pre, u), onPath: true, anchorId: null })
     })
 
+    const bossPos = curves.bossPoint.clone()
+    bossPos.y = groundHeightAt(bossPos.x, bossPos.z)
     placed.push({
       level: boss,
-      position: curves.bossPoint.clone(),
+      position: bossPos,
       tangent: curves.post.getTangentAt(0).normalize(),
       onPath: true,
       anchorId: null,

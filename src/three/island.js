@@ -240,7 +240,7 @@ function createBackdrop(minX, maxX, minZ) {
     for (let x = minX - 30; x <= maxX + 30; x += step) {
       const r = hash2(x * 0.31, zBase * 0.17)
       const r2 = hash2(zBase * 0.53, x * 0.11)
-      const pool = backdrop[worldAtX(x).biome] ?? backdrop.meadow
+      const pool = backdrop[biomeKeyAt(x)] ?? backdrop.meadow
       mounds.push({
         x: x + (r - 0.5) * step * 0.6,
         z: zBase - r2 * 18,

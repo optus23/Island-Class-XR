@@ -21,7 +21,7 @@ function dot(level, status) {
                 style="background:${color}"></span>`
 }
 
-export function mountNav({ markerId, onSelect, onSelectWorld }) {
+export function mountNav({ markerId, onSelect, onSelectWorld, onToggleOverview }) {
   const host = document.getElementById('ui')
   const el = document.createElement('div')
   el.className = 'absolute top-3 right-3 w-[19rem] max-w-[calc(100vw-1.5rem)]'
@@ -30,6 +30,7 @@ export function mountNav({ markerId, onSelect, onSelectWorld }) {
   let open = window.innerWidth >= 900
   let currentMarker = markerId
   let playerLevelId = markerId
+  let overview = false
 
   function render() {
     const { index, total } = markerProgress(currentMarker)
@@ -80,8 +81,14 @@ export function mountNav({ markerId, onSelect, onSelectWorld }) {
           <div class="flex items-center gap-2 mb-2">
             <progress class="progress progress-success flex-1 h-1.5"
                       value="${index}" max="${Math.max(1, total - 1)}"></progress>
-            <span class="text-[11px] opacity-70 shrink-0">${index + 1}/${total}</span>
+            <span class="text-[11px] opacity-70 shrink-0 tabular-nums">${index + 1}/${total}</span>
           </div>
+
+          <button class="btn btn-xs btn-block mb-2 ${overview ? 'btn-primary' : 'btn-outline'}"
+                  data-overview>
+            ${overview ? 'Volver al personaje' : 'Ver la isla entera'}
+            <kbd class="kbd kbd-xs ml-auto">M</kbd>
+          </button>
           <div class="max-h-[52vh] overflow-auto pr-1">${worldSections}</div>
 
           <div class="mt-2 pt-2 border-t border-base-content/15">
@@ -112,6 +119,7 @@ export function mountNav({ markerId, onSelect, onSelectWorld }) {
       open = !open
       render()
     })
+    el.querySelector('[data-overview]')?.addEventListener('click', () => onToggleOverview?.())
     el.querySelectorAll('[data-world]').forEach((b) =>
       b.addEventListener('click', () => onSelectWorld?.(Number(b.dataset.world)))
     )
@@ -129,6 +137,10 @@ export function mountNav({ markerId, onSelect, onSelectWorld }) {
     },
     setPlayerLevel(id) {
       playerLevelId = id
+      render()
+    },
+    setOverview(on) {
+      overview = on
       render()
     },
   }

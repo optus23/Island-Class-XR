@@ -2,6 +2,7 @@ import * as THREE from 'three'
 import { worlds } from '../config/worlds.js'
 import { palette, world as themeWorld, resolveNodeColor } from '../config/theme.js'
 import { buildWorldCurves, buildConnectors, distributeNodes } from './paths.js'
+import { groundHeightAt } from './terrain.js'
 import { levelsForWorld, statusFor } from '../lib/levels.js'
 import { prefersReducedMotion } from '../lib/motion.js'
 
@@ -224,15 +225,23 @@ function ribbonGeometry(curves, halfWidth, lift) {
   const side = new THREE.Vector3()
 
   for (const curve of curves) {
-    const segments = Math.max(8, Math.round(curve.getLength() / 0.7))
+    const segments = Math.max(8, Math.round(curve.getLength() / 0.5))
     for (let i = 0; i <= segments; i++) {
+      // Denser sampling: the road has to follow every terrain step now.
       const u = i / segments
       const p = curve.getPointAt(u)
       const t = curve.getTangentAt(u)
       // Perpendicular in the ground plane, so the road stays flat on the terrain.
       side.set(t.z, 0, -t.x).normalize().multiplyScalar(halfWidth)
-      positions.push(p.x - side.x, p.y + lift, p.z - side.z)
-      positions.push(p.x + side.x, p.y + lift, p.z + side.z)
+      // Each edge rides the REAL ground under it, not the abstract curve, so
+      // the road lies flat on the quantised terrain instead of slicing through
+      // a step or hovering over one.
+      const lx = p.x - side.x
+      const lz = p.z - side.z
+      const rx = p.x + side.x
+      const rz = p.z + side.z
+      positions.push(lx, groundHeightAt(lx, lz) + lift, lz)
+      positions.push(rx, groundHeightAt(rx, rz) + lift, rz)
     }
     for (let i = 0; i < segments; i++) {
       const a = base + i * 2
@@ -290,6 +299,7 @@ function createOptionalConnectors(placed, positionById) {
     // Skip the first stride so the dashes start clear of the anchor node.
     for (let d = NODE_SIZE * 0.7; d < len - NODE_SIZE * 0.5; d += step) {
       const at = from.clone().addScaledVector(dir, d + DASH / 2)
+      at.y = groundHeightAt(at.x, at.z)
       dashes.push({ at, yaw })
     }
   }
@@ -302,7 +312,7 @@ function createOptionalConnectors(placed, positionById) {
   const m = new THREE.Matrix4()
   dashes.forEach((d, i) => {
     m.compose(
-      new THREE.Vector3(d.at.x, d.at.y - NODE_LIFT + 0.14, d.at.z),
+      new THREE.Vector3(d.at.x, d.at.y + 0.16, d.at.z),
       new THREE.Quaternion().setFromAxisAngle(UP, d.yaw),
       new THREE.Vector3(1, 1, 1)
     )

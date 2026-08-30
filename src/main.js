@@ -124,14 +124,18 @@ container.addEventListener('pointerup', (e) => {
   downAt = null
   if (moved > 6) return
   const level = pick()
-  if (level) selectLevel(level)
+  if (!level) return
+  // Select-vs-enter: the first click walks there, a second click on the SAME
+  // node enters. Moving never enters a level as a side effect.
+  if (level.id === player.levelId) selectLevel(level, { open: true })
+  else selectLevel(level, { open: false })
 })
 
 let nav = null
 let markerId = null
 
 /** Every node is clickable — bosses included. Accepts a level or a level id. */
-function selectLevel(levelOrId, { open = true } = {}) {
+function selectLevel(levelOrId, { open = false } = {}) {
   const level = typeof levelOrId === 'string' ? levelById(levelOrId) : levelOrId
   if (!level || player.isMoving) return
 
@@ -189,13 +193,20 @@ window.addEventListener('keydown', (e) => {
 
   if (e.key === 'Enter' || e.key === ' ') {
     e.preventDefault()
-    selectLevel(order[idx])
+    selectLevel(order[idx], { open: true }) // the only keyboard way in
     return
   }
 
+  if (e.key.toLowerCase() === 'm' || e.key === 'Tab') {
+    e.preventDefault()
+    setOverview(!app.rig.isOverview)
+    return
+  }
+
+  const key = e.key.toLowerCase()
   let target = null
-  if (e.key === 'ArrowRight' || e.key === 'ArrowDown') target = order[idx + 1]
-  else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') target = order[idx - 1]
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || key === 'd') target = order[idx + 1]
+  else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp' || key === 'a') target = order[idx - 1]
   else if (e.key === 'Home') target = order[0]
   else if (e.key === 'End') target = order[order.length - 1]
   else return
@@ -205,6 +216,17 @@ window.addEventListener('keydown', (e) => {
   // keyboard user can look around without a modal opening on every keypress.
   if (target) selectLevel(target, { open: false })
 })
+
+/**
+ * Overview: frame all three worlds at once. Turning it off re-centres on the
+ * character, so you never lose your place.
+ */
+function setOverview(on) {
+  app.rig.toggleOverview(on)
+  document.getElementById('app').classList.toggle('is-overview', on)
+  nav?.setOverview(on)
+  if (!on) app.rig.follow(player.group.position)
+}
 
 // --- boot ------------------------------------------------------------------
 
@@ -234,6 +256,7 @@ async function boot() {
       const first = levelsForWorld(worldId).find((l) => !l.optional)
       if (first) selectLevel(first, { open: false })
     },
+    onToggleOverview: () => setOverview(!app.rig.isOverview),
   })
   nav.setPlayerLevel(startId)
   app.start()
@@ -269,6 +292,7 @@ async function boot() {
     window.__map = map
     window.__player = player
     window.__selectLevel = selectLevel
+    window.__setOverview = setOverview
     // Drives frames by hand — the only way to exercise animation in embedded
     // browsers where rAF never fires because document.hidden stays true.
     window.__step = (frames = 60, dt = 1 / 60) => {
