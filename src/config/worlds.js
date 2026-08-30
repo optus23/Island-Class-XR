@@ -38,15 +38,15 @@ export const worlds = [
       // 90-degree corners. Height may ramp along a run; from above it still
       // reads as a straight blocky segment.
       controlPoints: [
-        [-28, 0, 18],
-        [-28, 0, 2],
+        [-26, 0, 18],
+        [-26, 0, 2],
         [-10, 4, 2],
         [-10, 4, -16],
         [6, 8, -16],
         [6, 8, -2],
-        [22, 8, -2],
-        [22, 4, 12],
-        [28, 2, 12],
+        [20, 8, -2],
+        [20, 4, 12],
+        [24, 2, 12],
       ],
     },
   },
@@ -63,15 +63,15 @@ export const worlds = [
       // BB completion after it. Change the index to move the castle.
       bossSlotIndex: 4,
       controlPoints: [
-        [-28, 2, 14],
-        [-28, 2, -2],
+        [-24, 2, 14],
+        [-24, 2, -2],
         [-12, 6, -2],
-        [-12, 6, -16],
-        [0, 12, -16], // <- bossSlot, castle on the highest mesa, exact centre
-        [12, 6, -16],
+        [-12, 6, -18],
+        [0, 12, -18], // <- bossSlot, castle on the highest mesa, exact centre
+        [12, 6, -18],
         [12, 6, -2],
-        [28, 2, -2],
-        [28, 2, 14],
+        [24, 2, -2],
+        [24, 2, 14],
       ],
     },
   },
@@ -91,15 +91,15 @@ export const worlds = [
       // A steady ascent: the final boss stands at the summit, the highest
       // point on the island.
       controlPoints: [
-        [-28, 2, 14],
-        [-28, 2, -2],
-        [-10, 6, -2],
-        [-10, 6, -18],
-        [8, 10, -18],
-        [8, 10, 4],
-        [22, 14, 4],
-        [22, 14, 18],
-        [28, 14, 18],
+        [-20, 2, 16],
+        [-20, 2, 2],
+        [-4, 6, 2],
+        [-4, 6, 16],
+        [10, 10, 16],
+        [10, 10, 2],
+        [22, 14, 2],
+        [22, 14, -14],
+        [6, 17, -14],
       ],
     },
   },

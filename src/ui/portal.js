@@ -31,6 +31,8 @@ const CATEGORY_LABELS = { theory: 'Teoría', practical: 'Práctica', boss: 'Jefe
 let root = null
 let keyHandler = null
 let closeHandler = null
+let beforeCloseHandler = null
+let closing = false
 let restoreFocusTo = null
 
 const FOCUSABLE =
@@ -71,19 +73,30 @@ function teardown() {
 }
 
 /** Closes and notifies, so the caller can clear the URL. */
-export function closePortal() {
-  if (!root) return
+export async function closePortal() {
+  if (!root || closing) return
+  closing = true
   const notify = closeHandler
+  const before = beforeCloseHandler
   closeHandler = null
+  beforeCloseHandler = null
+
+  // Let the caller cover the screen first, so the panel is never seen
+  // disappearing. `after` reopens whatever it drew.
+  const after = before ? await before() : null
   teardown()
   notify?.()
+  closing = false
+  after?.()
 }
 
-export function openPortal(level, { markerId = null, onClose = null } = {}) {
+export function openPortal(level, { markerId = null, onClose = null, onBeforeClose = null } = {}) {
   // teardown, not closePortal: swapping levels must not fire the previous
   // portal's onClose, which would clear the URL we are about to set.
   teardown()
   closeHandler = onClose
+  beforeCloseHandler = onBeforeClose
+  closing = false
   restoreFocusTo = document.activeElement instanceof HTMLElement ? document.activeElement : null
 
   const status = statusFor(level, markerId)

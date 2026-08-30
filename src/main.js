@@ -181,10 +181,11 @@ container.addEventListener('pointerup', (e) => {
 })
 
 let nav = null
+let legend = null
 let markerId = null
 
 /** Every node is clickable — bosses included. Accepts a level or a level id. */
-function selectLevel(levelOrId, { open = false } = {}) {
+function selectLevel(levelOrId, { open = false, instant = false } = {}) {
   const level = typeof levelOrId === 'string' ? levelById(levelOrId) : levelOrId
   if (!level || player.isMoving) return
   hideNodeLabel()
@@ -209,6 +210,20 @@ function selectLevel(levelOrId, { open = false } = {}) {
     arrive()
     return
   }
+
+  // Jumping from the index can span the whole island; walking 27 sessions of
+  // road would take the better part of a minute. Teleport instead, and let the
+  // camera catch up.
+  if (instant) {
+    const at = map.positionById.get(level.id)
+    if (at) {
+      player.snapTo(at, level.id)
+      app.rig.follow(at, { instant: true })
+    }
+    arrive()
+    return
+  }
+
   player.travel(buildRoute(player.levelId, level.id), level.id, arrive)
 }
 
@@ -296,11 +311,15 @@ async function enterLevel(level) {
   setLevelInUrl(level.id)
   openPortal(level, {
     markerId,
-    onClose: async () => {
+    // Close order matters: the iris must be fully black BEFORE the portal is
+    // torn down. Previously the panel vanished first, flashing the 3D map, and
+    // only then did the wipe play — so it read as a glitch rather than the
+    // reverse of the entry.
+    onBeforeClose: async () => {
       const back = await irisClose()
-      setLevelInUrl(null)
-      back.open()
+      return () => back.open()
     },
+    onClose: () => setLevelInUrl(null),
   })
   await iris.open()
 }
@@ -314,6 +333,7 @@ function setOverview(on) {
   app.rig.toggleOverview(on)
   document.getElementById('app').classList.toggle('is-overview', on)
   nav?.setOverview(on)
+  legend?.setOverview(on)
   if (!on) app.rig.follow(player.group.position)
 }
 
@@ -338,18 +358,19 @@ async function boot() {
 
   nav = mountNav({
     markerId,
-    onSelect: selectLevel,
+    onSelect: (id) => selectLevel(id, { instant: true }),
     // Jumping to a world moves the avatar to its first level; the camera then
     // follows it there. Keeps one notion of "where you are".
     onSelectWorld: (worldId) => {
       const first = levelsForWorld(worldId).find((l) => !l.optional)
-      if (first) selectLevel(first, { open: false })
+      if (first) selectLevel(first, { open: false, instant: true })
     },
     onToggleOverview: () => setOverview(!app.rig.isOverview),
   })
 
   // Colour key, plus teacher controls when a token is present in this browser.
-  mountLegend({
+  legend = mountLegend({
+    onToggleOverview: () => setOverview(!app.rig.isOverview),
     onCompleteHere: async () => {
       const next = nextMarker(markerId)
       await writeProgress(next, 'Completado')
@@ -392,11 +413,11 @@ async function boot() {
     nav?.setPlayerLevel(level.id)
     openPortal(level, {
       markerId,
-      onClose: async () => {
+      onBeforeClose: async () => {
         const back = await irisClose()
-        setLevelInUrl(null)
-        back.open()
+        return () => back.open()
       },
+      onClose: () => setLevelInUrl(null),
     })
   })
   // Draw one frame before lifting the curtain, so the reveal is never a flash

@@ -16,7 +16,7 @@ import { prefersReducedMotion } from '../lib/motion.js'
  */
 
 const NODE_SIZE = 2.4
-const NODE_LIFT = 0.35 // sit just proud of the ground
+const NODE_LIFT = 0.62 // clear of the ground even where the road crosses a step
 const UP = new THREE.Vector3(0, 1, 0)
 
 export function createMapObjects() {
@@ -262,13 +262,27 @@ function createPathRibbon() {
   const group = new THREE.Group()
 
   const border = new THREE.Mesh(
-    ribbonGeometry(curves, 1.55, 0.1),
+    ribbonGeometry(curves, 1.6, 0.30),
     // DoubleSide keeps the strip visible regardless of which way a curve winds.
-    new THREE.MeshLambertMaterial({ color: themeWorld.pathEdge, side: THREE.DoubleSide })
+    // polygonOffset pushes the road toward the camera in depth only, so it
+    // cannot z-fight the terrain where a quad spans a terrace step.
+    new THREE.MeshLambertMaterial({
+      color: themeWorld.pathEdge,
+      side: THREE.DoubleSide,
+      polygonOffset: true,
+      polygonOffsetFactor: -3,
+      polygonOffsetUnits: -6,
+    })
   )
   const road = new THREE.Mesh(
-    ribbonGeometry(curves, 1.15, 0.17),
-    new THREE.MeshLambertMaterial({ color: themeWorld.path, side: THREE.DoubleSide })
+    ribbonGeometry(curves, 1.2, 0.38),
+    new THREE.MeshLambertMaterial({
+      color: themeWorld.path,
+      side: THREE.DoubleSide,
+      polygonOffset: true,
+      polygonOffsetFactor: -4,
+      polygonOffsetUnits: -8,
+    })
   )
   border.frustumCulled = false
   road.frustumCulled = false
@@ -331,7 +345,7 @@ function createOptionalConnectors(placed, positionById) {
 function createBossCastle(placement) {
   const isFinal = placement.level.bossTier === 'final'
   // The final boss should dwarf the midterm castle, not merely edge it out.
-  const s = isFinal ? 2.0 : 0.95
+  const s = isFinal ? 2.3 : 0.95
 
   const g = new THREE.Group()
   g.position.copy(placement.position)

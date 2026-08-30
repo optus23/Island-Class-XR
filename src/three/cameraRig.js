@@ -33,6 +33,9 @@ const clamp = (v, lo, hi) => (v < lo ? lo : v > hi ? hi : v)
 // Viewer-controlled nudge around the preset. Deliberately tight: this is a
 // look-around, not a free camera, so the world can never be viewed from an
 // angle the art was not built for.
+// The overview looks almost straight down — a classic Mario paper map.
+const TOP_DOWN_OFFSET = [0, 96, 26]
+
 const ORBIT_YAW_MAX = 0.5 // ~29 degrees either way
 const ORBIT_PITCH_MAX = 0.28 // ~16 degrees
 const ZOOM_MIN = 0.62
@@ -66,6 +69,7 @@ export function createCameraRig() {
   const offB = new THREE.Vector3()
   const flatForward = new THREE.Vector3()
   const pitchAxis = new THREE.Vector3()
+  const topDown = new THREE.Vector3()
 
   let aspect = 16 / 9
   let seeded = false
@@ -170,11 +174,16 @@ export function createCameraRig() {
     const offset = offA.lerp(offB, t)
     const lookY = angleFrom.camera.lookHeight + (angleTo.camera.lookHeight - angleFrom.camera.lookHeight) * t
 
-    // Overview eases between following the character and framing everything.
+    // Overview eases between following the character and framing everything,
+    // AND swings the angle to near-vertical so it reads as a map rather than a
+    // pulled-back version of the same shot.
     const o = easeInOutCubic(overview ? overviewT : 1 - overviewT)
     const scale = followFit() + (overviewFit() - followFit()) * o
     activeScale = scale
     const centre = focus.clone().lerp(overviewCentre, o)
+
+    topDown.set(...TOP_DOWN_OFFSET)
+    offset.lerp(topDown, o)
 
     // Apply the viewer's clamped orbit and zoom on top of the preset.
     const shaped = offset.clone()
