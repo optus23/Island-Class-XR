@@ -60,15 +60,46 @@ no schedule and no holidays** — by design. A holiday shifts *when* a level is
 delivered, never *whether* it exists, so the calendar lives entirely outside this
 repo and the map stays reusable year after year.
 
-| World | Content | Camera |
-| --- | --- | --- |
-| 1 | Introduction and foundational theory, ending in AR Foundation | Isometric, from the left looking right |
-| 2 | Meta Building Blocks, split in half by the midterm castle | Frontal |
-| 3 | XR Interaction Toolkit, then the final project | Isometric, from the right looking left |
+| World | Content | Biome | Viewing angle |
+| --- | --- | --- | --- |
+| 1 | Introduction and foundational theory, ending in AR Foundation | Meadow | Isometric, from the left |
+| 2 | Meta Building Blocks, split in half by the midterm castle | Desert | Frontal |
+| 3 | XR Interaction Toolkit, then the final project | Snowy summit | Isometric, from the right |
 
-The camera only ever sits at those three fixed positions, easing between them
-when the avatar crosses worlds, plus a subtle mouse parallax. There is no free
-camera anywhere in the project.
+### The camera
+
+The camera **follows the avatar** across one continuous island, and blends its
+viewing angle between the three per-world angles as the focus moves along X. So
+the three perspectives still read — iso-left, frontal, iso-right — but they
+arrive as a drift rather than a cut.
+
+That is why the island has no gaps: an earlier version snapped between three
+fixed positions, and the worlds had to sit as separate padded blocks to justify
+the cuts. Following removed the need for both.
+
+It is still **never a free camera** — the viewer cannot orbit or zoom. Only the
+focus moves, plus a subtle mouse parallax. Each world contributes an `offset`
+(direction and distance) and a `lookHeight` in `config/worlds.js`.
+
+### Terrain, biomes and water
+
+Ground height follows the height of the nearest path, so raising a control
+point in `worlds.js` lifts a whole plateau and the route climbs onto it; cliffs
+appear wherever plateaus of different heights meet. Each column draws as a cap,
+a bright band under the lip, and a rock body — that stack is what makes a
+plateau read as a plateau.
+
+The road is one colour across all three worlds (a cream surface with a dark
+outline), matching the reference art. The sea is an animated shader patched
+into a Lambert material via `onBeforeCompile`, so it inherits the scene's fog
+and lighting instead of re-implementing them.
+
+### Level cards
+
+Arriving at a session shows a Mario-style card: `MUNDO <world>-<n>`, the title,
+and a lives counter. The lives number is the count of sessions **remaining**,
+so the easter egg carries real information. Optional levels get no card — they
+are not sessions.
 
 The single exception to "no dates" is the manual progress marker, below — and
 even that moves only when a human presses a button.

@@ -60,11 +60,7 @@ export function createCameraRig() {
     return Math.min(MAX_FIT_SCALE, Math.max(1, needed / base))
   }
 
-  /**
-   * Camera offset and look-height for a given X, blended across world angles.
-   * Only the HEIGHT of each world's configured target is used — its X/Z part
-   * would drag the camera off the avatar it is meant to be following.
-   */
+  /** Camera offset and look-height for a given X, blended across world angles. */
   function angleAt(x) {
     const first = ordered[0]
     const last = ordered[ordered.length - 1]
@@ -89,7 +85,7 @@ export function createCameraRig() {
 
     offA.set(...a.camera.offset)
     offB.set(...b.camera.offset)
-    const lookY = a.camera.target[1] + (b.camera.target[1] - a.camera.target[1]) * t
+    const lookY = a.camera.lookHeight + (b.camera.lookHeight - a.camera.lookHeight) * t
     return { offset: offA.lerp(offB, t).multiplyScalar(fitScale()), lookY }
   }
 
