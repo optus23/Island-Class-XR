@@ -83,8 +83,10 @@ function api(path, options = {}) {
 }
 
 function explain(status) {
-  if (status === 401) return 'Token no válido o caducado.'
-  if (status === 403) return 'El token no tiene permiso "Contents: Read and write".'
+  if (status === 401)
+    return 'Token no válido o caducado. Pégalo de nuevo en /admin (Configuración → Developer settings → Fine-grained tokens).'
+  if (status === 403)
+    return 'El token no tiene permiso "Contents: Read and write" sobre este repositorio.'
   if (status === 404) return `No existe ${FILE_PATH} en esa rama.`
   if (status === 409) return 'Conflicto: el archivo cambió. Vuelve a leerlo.'
   return `GitHub respondió ${status}.`

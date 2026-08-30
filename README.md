@@ -130,6 +130,37 @@ whether it exists, so the count stays 27 either way.
 
 ---
 
+## Where to put your content
+
+Everything a session shows lives in **one entry** in
+[`src/data/levels.json`](src/data/levels.json). There is no other place to edit.
+
+| What | Where | Notes |
+| --- | --- | --- |
+| Session **title** | `title` | Shown on the map, the index, the level card and the portal header |
+| One-line **summary** | `summary` | Under the title in the portal |
+| **Canva** deck | `slides: { "type": "canva", "source": "<embed URL>" }` | Must be the **Share → Embed** link and contain `?embed`. `npm run validate` rejects edit links |
+| **PDF** deck | `slides: { "type": "pdf", "source": "content/slides/<id>.pdf" }` | Drop the file at `public/content/slides/<id>.pdf` |
+| **Exercises** | `exercises: "content/exercises/<id>.md"` | Plain Markdown at `public/content/exercises/<id>.md` |
+| **Answers** | `answers: "content/answers/<id>.md"` | `null` hides the tab entirely |
+| **Activities** | `todos: [ … ]` | `objective-task` objects — objective, starting point, milestones, deliverable |
+
+Getting a Canva embed link: open the deck → **Share** → **More** → **Embed** →
+copy the URL from the `src="…"` of the snippet. It looks like
+`https://www.canva.com/design/DAF…/view?embed`.
+
+After editing, run:
+
+```bash
+npm run placeholders && npm run validate
+```
+
+`placeholders` creates any missing Markdown/PDF files so nothing 404s, and
+never overwrites what already exists. `validate` checks the whole model and
+also runs as part of `build`, so a broken `levels.json` cannot reach Pages.
+
+---
+
 ## Adding, editing and reordering levels
 
 Everything lives in [`src/data/levels.json`](src/data/levels.json). **Order in

@@ -17,7 +17,7 @@ import { buildWorldCurves, buildConnectors } from './paths.js'
 
 export const VOXEL = 2 // world units per terrain column
 export const MARGIN = 42 // half-extent of a world's footprint, X
-export const MARGIN_Z = 34 // half-extent, Z
+export const MARGIN_Z = 46 // half-extent, Z — deep enough that the back edge is off-frame
 export const BRIDGE_HALF_WIDTH = 7
 export const PATH_FLATTEN_RADIUS = 7
 export const TIER = 4 // height step for off-path plateaus
@@ -108,7 +108,10 @@ function worldInset(x, z, center) {
   const dx = Math.abs(x - center[0]) - (MARGIN - 8)
   const dz = Math.abs(z - center[2]) - (MARGIN_Z - 8)
   const outside = Math.hypot(Math.max(dx, 0), Math.max(dz, 0))
-  return 8 - outside
+  // Wobble the coastline. A clean rounded rectangle gave the island a dead
+  // straight back edge that read as the map being cut off rather than ending.
+  const wobble = (smoothNoise(x * 0.035, z * 0.035) - 0.5) * 13
+  return 8 - outside + wobble
 }
 
 /** How far inside the coastline (x, z) sits. <= 0 means open water. */
@@ -180,4 +183,42 @@ export function islandBounds() {
     maxZ = Math.max(maxZ, w.center[2] + MARGIN_Z)
   }
   return { minX, maxX, minZ, maxZ }
+}
+
+/**
+ * A coarse field of "how far is land from here", baked once into a texture the
+ * water shader can sample.
+ *
+ * This is what lets foam live in the SHADER rather than being hand-placed
+ * blocks around the coast. Those blocks read as exactly what they were —
+ * cubes someone laid out by hand — and could not animate with the waves.
+ *
+ * Red channel: 1 at the shoreline, falling to 0 by FOAM_REACH units offshore.
+ * A 256-wide field over a ~250-unit island is roughly one texel per unit,
+ * which is ample for a soft foam band.
+ */
+export const FOAM_REACH = 9
+
+export function buildShoreField(size = 256) {
+  const { minX, maxX, minZ, maxZ } = islandBounds()
+  const pad = 24
+  const x0 = minX - pad
+  const x1 = maxX + pad
+  const z0 = minZ - pad
+  const z1 = maxZ + pad
+
+  const data = new Uint8Array(size * size)
+  for (let j = 0; j < size; j++) {
+    const z = z0 + ((j + 0.5) / size) * (z1 - z0)
+    for (let i = 0; i < size; i++) {
+      const x = x0 + ((i + 0.5) / size) * (x1 - x0)
+      const inset = landInset(x, z)
+      // Only water matters; inset > 0 is land and is hidden by the island.
+      const dist = inset > 0 ? 0 : -inset
+      const v = 1 - Math.min(1, dist / FOAM_REACH)
+      data[j * size + i] = Math.round(v * 255)
+    }
+  }
+
+  return { data, size, bounds: { x0, x1, z0, z1 } }
 }
