@@ -3,3 +3,10 @@ dist/
 .DS_Store
 *.local
 .vite/
+
+# Local secrets. NEVER commit these.
+# The variable must NOT be named VITE_* — Vite inlines any VITE_-prefixed env
+# var straight into the public client bundle, which would publish the token.
+.env
+.env.*
+!.env.example
