@@ -100,8 +100,10 @@ export const flowers = [0xffffff, 0xff8fab, 0xffd166, 0xef476f, 0xf7a8d8]
 export const world = {
   sky: 0x9bd4e4,
   fog: 0x9bd4e4,
-  fogNear: 60,
-  fogFar: 190,
+  // Tuned so the CURRENT world fills the frame and its neighbours fade out at
+  // the default follow framing. The overview toggle scales these out again.
+  fogNear: 72,
+  fogFar: 132,
 
   terrain: 0x74c365,
   terrainEdge: 0x5a9e4d,

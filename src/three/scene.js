@@ -57,7 +57,7 @@ export function createScene(container) {
   let lastFitScale = 0
   function syncFraming() {
     const scale = rig.fitScale
-    if (Math.abs(scale - lastFitScale) < 1e-4) return
+    if (Math.abs(scale - lastFitScale) < 1e-3) return
     lastFitScale = scale
     scene.fog.near = themeWorld.fogNear * scale
     scene.fog.far = themeWorld.fogFar * scale

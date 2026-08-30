@@ -11,8 +11,9 @@ import { prefersReducedMotion } from '../lib/motion.js'
  * every node in between, which is what makes the map read as a journey.
  */
 
-const HOP_SPEED = 16 // world units per second
-const HOP_HEIGHT = 1.9
+const WALK_SPEED = 13 // world units per second
+const STRIDE = 2.2 // world units per bounce — sets the walk cadence
+const BOUNCE = 0.42 // how high each step lifts the body
 const UP = new THREE.Vector3(0, 1, 0)
 
 export function createPlayer() {
@@ -33,6 +34,10 @@ export function createPlayer() {
   box(1.1, 1.0, 0.8, themeWorld.player, 0, 1.05, 0) // torso
   const head = box(0.9, 0.8, 0.85, 0xffd9b3, 0, 1.95, 0) // head
   box(1.15, 0.28, 0.95, themeWorld.player, 0, 2.42, 0.02) // cap
+  // It is an XR course, so the character is wearing a headset.
+  box(1.0, 0.52, 0.34, 0x22272e, 0, 1.98, 0.44) // visor
+  box(0.78, 0.3, 0.1, 0x4cc9f0, 0, 1.99, 0.62) // lens glow
+  box(1.02, 0.2, 0.8, 0x3b434d, 0, 2.16, 0.06) // strap
   box(0.34, 0.22, 0.36, 0x2b2118, -0.34, 0.15, 0.05) // feet
   box(0.34, 0.22, 0.36, 0x2b2118, 0.34, 0.15, 0.05)
   box(0.3, 0.65, 0.3, 0xffd9b3, -0.68, 1.15, 0) // arms
@@ -45,6 +50,8 @@ export function createPlayer() {
   let moving = false
   let onArrive = null
   let currentLevelId = null
+  let travelled = 0
+  let lastSegmentT = 0
 
   const from = new THREE.Vector3()
   const to = new THREE.Vector3()
@@ -82,6 +89,8 @@ export function createPlayer() {
     waypoints = route.map((p) => p.clone())
     segment = 0
     segmentT = 0
+    lastSegmentT = 0
+    travelled = 0
     moving = true
     onArrive = done
     currentLevelId = levelId
@@ -104,7 +113,7 @@ export function createPlayer() {
     }
 
     const dist = from.distanceTo(to)
-    segmentT += dist > 0.0001 ? (dt * HOP_SPEED) / dist : 1
+    segmentT += dist > 0.0001 ? (dt * WALK_SPEED) / dist : 1
 
     if (segmentT >= 1) {
       group.position.copy(to)
@@ -119,23 +128,32 @@ export function createPlayer() {
         return
       }
       segmentT = 0
+      lastSegmentT = 0
       from.copy(group.position)
       to.copy(waypoints[segment])
       return
     }
 
     group.position.lerpVectors(from, to, segmentT)
-    // Parabolic hop, plus squash on take-off and landing.
-    const arc = Math.sin(Math.PI * segmentT)
-    body.position.y = arc * HOP_HEIGHT
-    const squash = 1 + arc * 0.12
+
+    // A continuous walk cycle driven by DISTANCE TRAVELLED, not by segment.
+    // The old code arced once per segment, which turned a route into a series
+    // of long leaps between node centres. Now the route is a dense polyline
+    // along the road, so the bounce has to come from distance or the character
+    // would vibrate once per sample.
+    travelled += from.distanceTo(to) * (segmentT - lastSegmentT)
+    lastSegmentT = segmentT
+    const phase = (travelled / STRIDE) * Math.PI
+    const bounce = Math.abs(Math.sin(phase))
+    body.position.y = bounce * BOUNCE
+    const squash = 1 + bounce * 0.09
     body.scale.set(2 - squash, squash, 2 - squash)
 
     // Face the direction of travel.
     const dir = to.clone().sub(from)
     if (dir.lengthSq() > 1e-6) {
       const yaw = Math.atan2(dir.x, dir.z)
-      group.quaternion.slerp(new THREE.Quaternion().setFromAxisAngle(UP, yaw), 0.25)
+      group.quaternion.slerp(new THREE.Quaternion().setFromAxisAngle(UP, yaw), 0.18)
     }
   }
 
