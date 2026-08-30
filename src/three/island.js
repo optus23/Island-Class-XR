@@ -198,12 +198,13 @@ function createRelief(cells) {
   const blocks = []
 
   for (const c of cells) {
-    if (c.pathDist < 8 || c.shore < 0.9) continue
+    // Well clear of the road: these are tall enough to hide the character.
+    if (c.pathDist < 13 || c.shore < 0.9) continue
     const r = hash2(c.x * 1.13, c.z * 2.71)
     if (r < 0.975) continue
 
     // A stack of 1-3 cubes, each narrower than the one below.
-    const tiers = 1 + Math.floor(hash2(c.z * 5.3, c.x * 1.9) * 3)
+    const tiers = 1 + Math.floor(hash2(c.z * 5.3, c.x * 1.9) * 2)
     let y = c.height
     for (let i = 0; i < tiers; i++) {
       const w = (3.2 - i * 0.7) * (0.8 + hash2(c.x + i, c.z) * 0.4)

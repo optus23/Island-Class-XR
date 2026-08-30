@@ -35,7 +35,8 @@ export function mountLegend(actions = {}) {
   el.className = 'legend-panel'
   document.getElementById('ui').appendChild(el)
 
-  let open = true
+  // Collapsed where screen space is scarce; the map is the point.
+  let open = window.innerWidth >= 900
   let admin = hasAdminToken()
   let busy = false
   let note = ''
