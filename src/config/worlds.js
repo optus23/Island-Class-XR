@@ -29,7 +29,7 @@ export const worlds = [
     biome: 'meadow',
     center: [-58, 0, 0],
     // Isometric, from the LEFT looking right.
-    camera: { offset: [-26, 52, 30], lookHeight: 3 },
+    camera: { offset: [-34, 45, 34], lookHeight: 3.5 },
     path: {
       bossSlotIndex: null,
       // The y values ARE the terrain: ground follows the nearest path height,
@@ -56,7 +56,7 @@ export const worlds = [
     biome: 'desert',
     center: [0, 0, 0],
     // Frontal.
-    camera: { offset: [0, 56, 34], lookHeight: 4 },
+    camera: { offset: [0, 48, 40], lookHeight: 4.5 },
     path: {
       // The mini-boss (midterm castle) always sits on this control point, and
       // it splits the world into two equal halves: theory+BB start before it,
@@ -81,7 +81,7 @@ export const worlds = [
     biome: 'summit',
     center: [58, 0, 0],
     // Mirror of World 1: isometric, from the RIGHT looking left.
-    camera: { offset: [26, 52, 30], lookHeight: 3 },
+    camera: { offset: [34, 45, 34], lookHeight: 3.5 },
     path: {
       // World 1's shape mirrored on X *and reversed*, so the silhouette is the
       // mirror image (matching the mirrored camera) while the route still runs

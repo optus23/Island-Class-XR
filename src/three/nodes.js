@@ -330,7 +330,7 @@ function createOptionalConnectors(placed, positionById) {
  */
 function createBossCastle(placement) {
   const isFinal = placement.level.bossTier === 'final'
-  const s = isFinal ? 1.5 : 1.1
+  const s = isFinal ? 1.35 : 1.0
 
   const g = new THREE.Group()
   g.position.copy(placement.position)
@@ -349,21 +349,57 @@ function createBossCastle(placement) {
     return mesh
   }
 
-  addBox(3.4, 1.6, 3.4, 0, 0.8, 0) // keep
-  addBox(1.0, 2.6, 1.0, -1.5, 1.3, -1.5) // towers
-  addBox(1.0, 2.6, 1.0, 1.5, 1.3, -1.5)
-  addBox(1.0, 2.6, 1.0, -1.5, 1.3, 1.5)
-  addBox(1.0, 2.6, 1.0, 1.5, 1.3, 1.5)
-  if (isFinal) addBox(2.0, 2.2, 2.0, 0, 2.7, 0) // extra tier for the final boss
-  // Dark gate, kept dark so the castle still reads as a castle when green.
-  addBox(1.1, 1.1, 0.3, 0, 0.55, 1.75, { color: 0x2b2118, keepColor: true })
+  const STONE = 0xb9b4ad
+  const ROOF_DARK = 0x2b2118
+  const WINDOW = 0x243447
 
-  // Invisible pick proxy: one clean box beats raycasting a dozen small ones.
+  // --- plinth and keep -----------------------------------------------------
+  addBox(6.4, 0.7, 6.4, 0, 0.35, 0, { color: STONE, keepColor: true })
+  addBox(4.2, 2.6, 4.2, 0, 1.95, 0)
+  addBox(4.7, 0.5, 4.7, 0, 3.45, 0) // cornice overhang
+
+  // --- corner towers with battlements -------------------------------------
+  for (const [tx, tz] of [
+    [-2.1, -2.1],
+    [2.1, -2.1],
+    [-2.1, 2.1],
+    [2.1, 2.1],
+  ]) {
+    addBox(1.5, 4.4, 1.5, tx, 2.2, tz)
+    addBox(1.9, 0.45, 1.9, tx, 4.6, tz) // tower cap
+    // Crenellations: four small teeth per tower.
+    for (const [ox, oz] of [
+      [-0.55, -0.55],
+      [0.55, -0.55],
+      [-0.55, 0.55],
+      [0.55, 0.55],
+    ]) {
+      addBox(0.5, 0.6, 0.5, tx + ox, 5.1, tz + oz, { color: STONE, keepColor: true })
+    }
+  }
+
+  // --- gate, windows, banner ----------------------------------------------
+  addBox(1.6, 2.0, 0.35, 0, 1.0, 2.25, { color: ROOF_DARK, keepColor: true })
+  addBox(1.0, 0.2, 0.4, 0, 2.05, 2.3, { color: STONE, keepColor: true }) // lintel
+  addBox(0.5, 0.6, 0.3, -1.2, 2.7, 2.2, { color: WINDOW, keepColor: true })
+  addBox(0.5, 0.6, 0.3, 1.2, 2.7, 2.2, { color: WINDOW, keepColor: true })
+
+  if (isFinal) {
+    // The final boss gets a taller central spire and a flag.
+    addBox(2.6, 3.0, 2.6, 0, 5.2, 0)
+    addBox(3.0, 0.45, 3.0, 0, 6.9, 0)
+    addBox(0.22, 2.2, 0.22, 0, 8.2, 0, { color: ROOF_DARK, keepColor: true })
+    addBox(1.5, 0.9, 0.12, 0.8, 8.9, 0, { color: 0xf2c14e, keepColor: true })
+  } else {
+    addBox(0.22, 1.8, 0.22, 0, 5.0, 0, { color: ROOF_DARK, keepColor: true })
+    addBox(1.2, 0.75, 0.12, 0.65, 5.5, 0, { color: 0xf2c14e, keepColor: true })
+  }
+
   const pick = new THREE.Mesh(
-    new THREE.BoxGeometry(4.4 * s, 4.4 * s, 4.4 * s),
+    new THREE.BoxGeometry(7 * s, 8 * s, 7 * s),
     new THREE.MeshBasicMaterial({ visible: false })
   )
-  pick.position.y = 1.8 * s
+  pick.position.y = 3.4 * s
   pick.userData.level = placement.level
   g.add(pick)
 

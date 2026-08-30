@@ -10,7 +10,9 @@ import { openPortal, closePortal } from './ui/portal.js'
 import { mountNav } from './ui/nav.js'
 import { createTooltip, createCurtain } from './ui/hud.js'
 import { showLevelCard, hideLevelCard } from './ui/levelCard.js'
+import { showNodeLabel, hideNodeLabel, positionNodeLabel } from './ui/nodeLabel.js'
 import { irisClose, screenPositionOf } from './ui/transition.js'
+import { buildGrandPath, nearestIndexOn } from './three/paths.js'
 import { readLevelFromUrl, setLevelInUrl, onRouteChange } from './lib/router.js'
 
 const container = document.getElementById('app')
@@ -26,29 +28,28 @@ app.worldGroup.add(island.group)
 app.worldGroup.add(map.group)
 app.worldGroup.add(player.group)
 
+// Backdrop parallax: the hills slide WITH the camera at a fraction of its
+// speed, so they read as far away instead of pinned to the island.
+const BACKDROP_PARALLAX = 0.28
 app.onUpdate((dt) => {
   island.update(dt)
+  island.backdrop.position.x = app.rig.focusX * BACKDROP_PARALLAX
   map.update(dt)
   player.update(dt)
   // The camera simply follows the avatar. Crossing between worlds blends the
   // viewing angle inside the rig, so there is nothing to switch here.
   app.rig.follow(player.group.position)
+  const at = screenPositionOf(player.group, app.rig.camera, container)
+  positionNodeLabel(at.x, at.y)
 })
 
 // --- routing ---------------------------------------------------------------
 
-/** Walk the main sequence from one level to another, inclusive of the target. */
-function routeAlongMain(startId, targetId) {
-  const i = mainSequence.findIndex((l) => l.id === startId)
-  const j = mainSequence.findIndex((l) => l.id === targetId)
-  if (i === -1 || j === -1 || i === j) return []
-  const step = j > i ? 1 : -1
-  const out = []
-  for (let k = i + step; ; k += step) {
-    out.push(map.positionById.get(mainSequence[k].id))
-    if (k === j) break
-  }
-  return out.filter(Boolean)
+// The road as one walkable polyline, plus where each node sits along it.
+const grandPath = buildGrandPath()
+const nodeIndexOnPath = new Map()
+for (const p of map.placed) {
+  if (p.onPath) nodeIndexOnPath.set(p.level.id, nearestIndexOn(grandPath, p.position))
 }
 
 function anchorOf(levelId) {
@@ -56,9 +57,24 @@ function anchorOf(levelId) {
 }
 
 /**
+ * Walk the ROAD between two on-path nodes, in either direction.
+ * Returns the slice of the grand polyline, so the avatar follows every corner
+ * instead of cutting across the terrain.
+ */
+function walkAlongRoad(fromId, toId) {
+  const a = nodeIndexOnPath.get(fromId)
+  const b = nodeIndexOnPath.get(toId)
+  if (a == null || b == null || a === b) return []
+  const step = b > a ? 1 : -1
+  const out = []
+  for (let i = a + step; i !== b + step; i += step) out.push(grandPath[i].clone())
+  return out
+}
+
+/**
  * Waypoints from wherever the avatar stands to the clicked level.
- * Optional nodes are reached via their anchor, and left the same way, so the
- * avatar never cuts across open ground.
+ * Optional nodes hang off the road, so they are reached by walking the road to
+ * their anchor and then stepping off it — never by cutting across open ground.
  */
 function buildRoute(fromId, toId) {
   const target = levelById(toId)
@@ -69,20 +85,24 @@ function buildRoute(fromId, toId) {
 
   const fromLevel = levelById(fromId)
   if (fromLevel?.optional) {
+    // Step back onto the road first.
     startId = anchorOf(fromId) ?? mainSequence[0].id
     const back = map.positionById.get(startId)
-    if (back) out.push(back)
+    if (back) out.push(back.clone())
   }
 
   if (target.optional) {
     const anchorId = anchorOf(toId)
-    if (anchorId && anchorId !== startId) out.push(...routeAlongMain(startId, anchorId))
+    if (anchorId && anchorId !== startId) out.push(...walkAlongRoad(startId, anchorId))
     const dest = map.positionById.get(toId)
-    if (dest) out.push(dest)
+    if (dest) out.push(dest.clone())
     return out
   }
 
-  out.push(...routeAlongMain(startId, toId))
+  out.push(...walkAlongRoad(startId, toId))
+  // Land exactly on the node, not merely on the nearest polyline sample.
+  const exact = map.positionById.get(toId)
+  if (exact) out.push(exact.clone())
   return out
 }
 
@@ -139,6 +159,7 @@ let markerId = null
 function selectLevel(levelOrId, { open = false } = {}) {
   const level = typeof levelOrId === 'string' ? levelById(levelOrId) : levelOrId
   if (!level || player.isMoving) return
+  hideNodeLabel()
 
   const arrive = async () => {
     tooltip.hide()
@@ -146,8 +167,13 @@ function selectLevel(levelOrId, { open = false } = {}) {
     announce(level)
     // The Mario level card plays as the avatar settles on the session, and the
     // portal waits for it so the two never overlap.
+    // Selecting shows only a small label above the avatar; the full-screen card
+    // belongs to entering a level, not to walking onto it.
+    if (!open) {
+      showNodeLabel(level, { markerId })
+      return
+    }
     await showLevelCard(level, { markerId })
-    if (!open) return
     await enterLevel(level)
   }
 

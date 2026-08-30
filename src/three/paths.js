@@ -211,3 +211,52 @@ export function buildConnectors() {
   }
   return links
 }
+
+/**
+ * One continuous polyline covering the whole journey: world 1, the bridge to
+ * world 2, world 2, the bridge to world 3, world 3.
+ *
+ * The avatar walks along THIS, rather than hopping in straight lines between
+ * node positions. Previously a route was just the list of node centres, so the
+ * character cut corners and leapt across terrain instead of following the road
+ * — the single most un-Mario thing on the map.
+ *
+ * Points are ground-anchored, so the walk climbs the terraces properly.
+ */
+export function buildGrandPath(step = 0.6) {
+  const ordered = [...worlds].sort((a, b) => a.center[0] - b.center[0])
+  const connectors = buildConnectors()
+
+  const curves = []
+  ordered.forEach((w, i) => {
+    curves.push(buildWorldCurves(w).full)
+    if (connectors[i]) curves.push(connectors[i])
+  })
+
+  const points = []
+  for (const curve of curves) {
+    const n = Math.max(2, Math.round(curve.getLength() / step))
+    for (let i = 0; i <= n; i++) {
+      const p = curve.getPointAt(i / n)
+      p.y = groundHeightAt(p.x, p.z)
+      // Skip duplicates where one curve ends and the next begins.
+      if (points.length && p.distanceToSquared(points[points.length - 1]) < 1e-4) continue
+      points.push(p)
+    }
+  }
+  return points
+}
+
+/** Index of the polyline point closest to `position`. */
+export function nearestIndexOn(points, position) {
+  let best = 0
+  let bestD = Infinity
+  for (let i = 0; i < points.length; i++) {
+    const d = points[i].distanceToSquared(position)
+    if (d < bestD) {
+      bestD = d
+      best = i
+    }
+  }
+  return best
+}

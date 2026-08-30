@@ -111,9 +111,75 @@ export function createIsland() {
   group.add(water.mesh)
 
   group.add(createProps(cells))
-  group.add(createBackdrop(minX, maxX, minZ))
+  group.add(createRelief(cells))
 
-  return { group, terrain: caps, cells, update: water.update }
+  const backdropGroup = createBackdrop(minX, maxX, minZ)
+  group.add(backdropGroup)
+
+  return {
+    group,
+    backdrop: backdropGroup,
+    terrain: caps,
+    cells,
+    update: water.update,
+  }
+}
+
+/**
+ * Free-standing blocks and stepped stacks scattered over the ground.
+ *
+ * The terrain itself is deliberately flat around the route so nodes never sit
+ * on a slope, which left large empty plains. These add silhouette and height
+ * variation WITHOUT touching the walkable surface, so the map gains
+ * verticality without the path becoming unreadable.
+ */
+function createRelief(cells) {
+  const group = new THREE.Group()
+  const blocks = []
+
+  for (const c of cells) {
+    if (c.pathDist < 8 || c.shore < 0.9) continue
+    const r = hash2(c.x * 1.13, c.z * 2.71)
+    if (r < 0.955) continue
+
+    // A stack of 1-3 cubes, each narrower than the one below.
+    const tiers = 1 + Math.floor(hash2(c.z * 5.3, c.x * 1.9) * 3)
+    let y = c.height
+    for (let i = 0; i < tiers; i++) {
+      const w = (3.2 - i * 0.7) * (0.8 + hash2(c.x + i, c.z) * 0.4)
+      const h = 1.6 + hash2(c.z + i, c.x) * 1.6
+      blocks.push({ x: c.x, z: c.z, w, h, y: y + h / 2, biome: c.biome, tier: i })
+      y += h
+    }
+  }
+
+  if (!blocks.length) return group
+
+  const mesh = new THREE.InstancedMesh(
+    new THREE.BoxGeometry(1, 1, 1),
+    new THREE.MeshLambertMaterial(),
+    blocks.length
+  )
+  const m = new THREE.Matrix4()
+  const q = new THREE.Quaternion()
+  const p = new THREE.Vector3()
+  const sv = new THREE.Vector3()
+  const col = new THREE.Color()
+  const tmp = new THREE.Color()
+  blocks.forEach((b, i) => {
+    sv.set(b.w, b.h, b.w)
+    p.set(b.x, b.y, b.z)
+    m.compose(p, q, sv)
+    mesh.setMatrixAt(i, m)
+    // Higher tiers catch more light — cheap stylised shading.
+    col.setHex(b.biome.rock).lerp(tmp.setHex(b.biome.band), 0.25 + b.tier * 0.22)
+    mesh.setColorAt(i, col)
+  })
+  mesh.instanceMatrix.needsUpdate = true
+  if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true
+  mesh.frustumCulled = false
+  group.add(mesh)
+  return group
 }
 
 /**
@@ -182,11 +248,10 @@ ${WAVE}`)
         `#include <color_fragment>
          float w = waterWave(vWave, uTime);
          float n = clamp(w * 0.5 + 0.5, 0.0, 1.0);
-         // Chunky steps instead of a smooth ramp — pixel-art water.
-         float band = clamp(floor(n * 6.0) / 5.0, 0.0, 1.0);
-         vec3 sea = mix(uDeep, uShallow, band);
-         // Foam only on the narrow tops of crests, or the sea turns milky.
-         sea = mix(sea, uFoam, step(0.93, n) * 0.45);
+         // Three flat tones, hard edges: toon water, not a gradient.
+         vec3 sea = uDeep;
+         sea = mix(sea, uShallow, step(0.42, n));
+         sea = mix(sea, uFoam, step(0.88, n) * 0.75);
          diffuseColor.rgb = sea;`
       )
   }
@@ -237,7 +302,9 @@ function createBackdrop(minX, maxX, minZ) {
    *              so the far row reads as distance rather than as more island
    */
   const row = (zBase, scale, step, haze) => {
-    for (let x = minX - 30; x <= maxX + 30; x += step) {
+    // Deliberately far past the island bounds: at the raised camera angle the
+    // end of a row used to slide into frame as a hard seam against open sky.
+    for (let x = minX - 140; x <= maxX + 140; x += step) {
       const r = hash2(x * 0.31, zBase * 0.17)
       const r2 = hash2(zBase * 0.53, x * 0.11)
       const pool = backdrop[biomeKeyAt(x)] ?? backdrop.meadow
@@ -254,6 +321,7 @@ function createBackdrop(minX, maxX, minZ) {
 
   row(minZ - 34, 1.0, 26, 0.16)
   row(minZ - 68, 1.6, 40, 0.4)
+  row(minZ - 112, 2.4, 62, 0.62) // closes the horizon
 
   // A squashed low-poly sphere, not a stack of boxes. Stacked boxes terrace
   // far too visibly at this size and read as glaciers; a coarse sphere still
@@ -378,6 +446,40 @@ function createProps(cells) {
     (_, k) => k.y / 2,
     (c) => c.biome.boulder
   )
+  // --- themed set dressing -------------------------------------------------
+  // Mario mushrooms plus XR props, so the island says what the course is about.
+  // Each is a small stack of boxes placed off-path, instanced by part.
+  const landmarks = cells.filter((c) => {
+    if (c.pathDist < 5.5 || c.pathDist > 13 || c.shore < 0.9) return false
+    return hash2(c.x * 7.7, c.z * 3.1) > 0.978
+  })
+
+  const kindOf = (c) => Math.floor(hash2(c.z * 9.1, c.x * 6.3) * 4)
+  const mushrooms = landmarks.filter((c) => kindOf(c) === 0)
+  const headsets = landmarks.filter((c) => kindOf(c) === 1)
+  const phones = landmarks.filter((c) => kindOf(c) === 2)
+  const markers = landmarks.filter((c) => kindOf(c) === 3)
+
+  // Mushroom: pale stalk, red cap, white spots implied by the cap band.
+  push(mushrooms, () => ({ x: 0.9, y: 1.3, z: 0.9 }), (_, k) => k.y / 2, () => 0xf3e6d0)
+  push(mushrooms, () => ({ x: 2.4, y: 1.0, z: 2.4 }), () => 1.75, () => 0xe63946)
+  push(mushrooms, () => ({ x: 1.0, y: 0.45, z: 1.0 }), () => 2.35, () => 0xfff3e6)
+
+  // VR headset on a stand: dark visor block with a lighter strap.
+  push(headsets, () => ({ x: 0.4, y: 1.6, z: 0.4 }), (_, k) => k.y / 2, () => 0x6b7280)
+  push(headsets, () => ({ x: 2.2, y: 1.1, z: 1.3 }), () => 2.05, () => 0x2b3440)
+  push(headsets, () => ({ x: 2.4, y: 0.3, z: 1.5 }), () => 2.75, () => 0x4cc9f0)
+
+  // Phone doing AR: an upright slab with a bright screen.
+  push(phones, () => ({ x: 0.35, y: 1.2, z: 0.35 }), (_, k) => k.y / 2, () => 0x6b7280)
+  push(phones, () => ({ x: 1.1, y: 1.9, z: 0.28 }), () => 2.15, () => 0x2b3440)
+  push(phones, () => ({ x: 0.85, y: 1.5, z: 0.34 }), () => 2.15, () => 0x9be7ff)
+
+  // Tracked image marker: a little chequered board on a post.
+  push(markers, () => ({ x: 0.3, y: 1.1, z: 0.3 }), (_, k) => k.y / 2, () => 0x8b5e34)
+  push(markers, () => ({ x: 1.7, y: 1.7, z: 0.2 }), () => 1.95, () => 0xf5f5f5)
+  push(markers, () => ({ x: 0.8, y: 0.8, z: 0.26 }), () => 2.25, () => 0x22272e)
+
   push(
     blooms,
     () => ({ x: 0.36, y: 0.36, z: 0.36 }),

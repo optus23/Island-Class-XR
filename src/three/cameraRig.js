@@ -56,6 +56,7 @@ export function createCameraRig() {
   const baseTarget = new THREE.Vector3()
   const offA = new THREE.Vector3()
   const offB = new THREE.Vector3()
+  const flatForward = new THREE.Vector3()
 
   let aspect = 16 / 9
   let seeded = false
@@ -171,8 +172,16 @@ export function createCameraRig() {
     else driftTarget.set(pointer.x * parallax.maxOffset, 0)
     drift.lerp(driftTarget, parallax.damping)
 
-    const forward = baseTarget.clone().sub(basePos).normalize()
-    const right = forward.clone().cross(THREE.Object3D.DEFAULT_UP).normalize()
+    // Right vector from the FLATTENED view direction. Deriving it from the raw
+    // forward vector degenerates as the camera approaches straight-down —
+    // forward becomes parallel to up, the cross product collapses toward zero,
+    // and normalising the remainder sent the mouse drift off diagonally
+    // instead of straight left-right.
+    const forward = baseTarget.clone().sub(basePos)
+    flatForward.set(forward.x, 0, forward.z)
+    if (flatForward.lengthSq() < 1e-6) flatForward.set(0, 0, 1)
+    flatForward.normalize()
+    const right = flatForward.clone().cross(THREE.Object3D.DEFAULT_UP).normalize()
 
     camera.position.copy(basePos).addScaledVector(right, drift.x)
     camera.lookAt(baseTarget)
