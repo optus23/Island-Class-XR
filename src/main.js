@@ -11,6 +11,9 @@ import { mountNav } from './ui/nav.js'
 import { createTooltip, createCurtain } from './ui/hud.js'
 import { showLevelCard, hideLevelCard } from './ui/levelCard.js'
 import { showNodeLabel, hideNodeLabel, positionNodeLabel } from './ui/nodeLabel.js'
+import { mountLegend } from './ui/legend.js'
+import { writeProgress } from './lib/githubProgress.js'
+import { nextMarker, START_MARKER } from './lib/levels.js'
 import { irisClose, screenPositionOf } from './ui/transition.js'
 import { buildGrandPath, nearestIndexOn } from './three/paths.js'
 import { readLevelFromUrl, setLevelInUrl, onRouteChange } from './lib/router.js'
@@ -243,6 +246,13 @@ window.addEventListener('keydown', (e) => {
   if (target) selectLevel(target, { open: false })
 })
 
+/** Apply a new marker everywhere at once, so map and menu never disagree. */
+function applyMarker(id) {
+  markerId = id
+  map.refresh(id)
+  nav?.setMarker(id)
+}
+
 /**
  * Enter a level: iris closes ON THE AVATAR, the full-screen UI mounts behind
  * the black, then the iris opens onto it. Leaving reverses the same wipe, so
@@ -304,6 +314,28 @@ async function boot() {
       if (first) selectLevel(first, { open: false })
     },
     onToggleOverview: () => setOverview(!app.rig.isOverview),
+  })
+
+  // Colour key, plus teacher controls when a token is present in this browser.
+  mountLegend({
+    onCompleteHere: async () => {
+      const next = nextMarker(markerId)
+      await writeProgress(next, 'Completado')
+      applyMarker(next)
+      return 'Marcador avanzado. El sitio se reconstruye en 1–2 min.'
+    },
+    onBack: async () => {
+      const i = mainSequence.findIndex((l) => l.id === markerId)
+      const prev = mainSequence[Math.max(0, i - 1)]?.id ?? START_MARKER
+      await writeProgress(prev, 'Retroceso')
+      applyMarker(prev)
+      return 'Marcador retrocedido.'
+    },
+    onReset: async () => {
+      await writeProgress(START_MARKER, 'Reinicio')
+      applyMarker(START_MARKER)
+      return 'Curso reiniciado.'
+    },
   })
   nav.setPlayerLevel(startId)
   app.start()
