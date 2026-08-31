@@ -53,8 +53,9 @@ app.onUpdate((dt) => {
 // The road as one walkable polyline, plus where each node sits along it.
 const grandPath = buildGrandPath()
 
-// Decorative creatures patrolling the road.
-const enemies = createEnemies(grandPath, 8)
+// Decorative creatures patrolling the road. Deliberately few: eight of them
+// along one road read as a crowd rather than as the odd wandering Goomba.
+const enemies = createEnemies(grandPath, 4)
 app.worldGroup.add(enemies.group)
 const nodeIndexOnPath = new Map()
 for (const p of map.placed) {
@@ -128,6 +129,9 @@ function pick() {
 }
 
 container.addEventListener('pointermove', (e) => {
+  // Hover is a mouse idea. On touch every drag would raise a tooltip under the
+  // finger and leave it stuck there once the finger lifted.
+  if (e.pointerType !== 'mouse') return
   const level = pick()
   hoveredLevel = level
   map.setHovered(level?.id ?? null)
@@ -143,19 +147,85 @@ container.addEventListener('pointerleave', () => {
   tooltip.hide()
 })
 
-// Distinguish a click from a drag. A drag orbits the camera; a click selects.
-let downAt = null
-let dragging = null
+/**
+ * Camera gestures, mouse and touch through the same pointer events.
+ *
+ *   one pointer  drag  -> look around (clamped orbit)
+ *   two pointers       -> pinch to zoom, and the midpoint still orbits
+ *   tap / click        -> select, or enter if already standing there
+ *
+ * Every live pointer is tracked in a Map rather than a single `dragging`
+ * object. With one variable the second finger simply overwrote the first, so a
+ * pinch registered as a huge jump from finger A's position to finger B's — the
+ * camera appeared to teleport and swing flat. The map also makes the
+ * one-to-two-finger handover seamless: lifting a finger re-seeds the gesture
+ * from the one still down instead of jerking.
+ *
+ * Combined with `touch-action: none` on the canvas (see style.css), which is
+ * what stops the browser eating these gestures as page scroll and page zoom.
+ */
+const TAP_SLOP = 8 // px of travel still counted as a tap, not a drag
+/** @type {Map<number, {x:number, y:number}>} */
+const pointers = new Map()
+let gesture = null // { mid: {x,y}, spread: number }
+let tap = null // { id, x, y } — only ever set while exactly one pointer is down
+
+/** Midpoint and finger spread of every pointer currently down. */
+function gestureState() {
+  let sx = 0
+  let sy = 0
+  for (const p of pointers.values()) {
+    sx += p.x
+    sy += p.y
+  }
+  const n = pointers.size
+  const mid = { x: sx / n, y: sy / n }
+  let spread = 0
+  if (n > 1) {
+    const [a, b] = [...pointers.values()]
+    spread = Math.hypot(a.x - b.x, a.y - b.y)
+  }
+  return { mid, spread }
+}
+
 container.addEventListener('pointerdown', (e) => {
-  downAt = { x: e.clientX, y: e.clientY }
-  dragging = { x: e.clientX, y: e.clientY }
-  container.setPointerCapture?.(e.pointerId)
+  pointers.set(e.pointerId, { x: e.clientX, y: e.clientY })
+  // Capture LAST, and never let it take the gesture down with it.
+  // setPointerCapture throws NotFoundError for a pointer the browser does not
+  // consider active; called first, that exception skipped the rest of the
+  // handler and the gesture was silently dropped before it began.
+  try {
+    container.setPointerCapture?.(e.pointerId)
+  } catch {
+    /* capture is an optimisation, not a requirement */
+  }
+  // Re-seed on every change of finger count, so adding or lifting one never
+  // registers as a sudden jump of the midpoint.
+  gesture = gestureState()
+  tap = pointers.size === 1 ? { id: e.pointerId, x: e.clientX, y: e.clientY } : null
+  // A tap may produce no pointermove at all, so pick from where it landed.
+  app.setPointerAt(e.clientX, e.clientY, { drift: e.pointerType === 'mouse' })
 })
 
 container.addEventListener('pointermove', (e) => {
-  if (!dragging) return
-  app.rig.orbit(e.clientX - dragging.x, e.clientY - dragging.y)
-  dragging = { x: e.clientX, y: e.clientY }
+  if (!pointers.has(e.pointerId)) return
+  pointers.set(e.pointerId, { x: e.clientX, y: e.clientY })
+  const now = gestureState()
+  if (!gesture) {
+    gesture = now
+    return
+  }
+
+  app.rig.orbit(now.mid.x - gesture.mid.x, now.mid.y - gesture.mid.y)
+  if (pointers.size > 1 && gesture.spread > 0 && now.spread > 0) {
+    // Pinch: the ratio of finger spread maps straight onto the zoom
+    // multiplier, so spreading to twice the distance zooms in by the same
+    // factor regardless of how fast it happened.
+    app.rig.zoomBy(now.spread / gesture.spread)
+  }
+  gesture = now
+
+  if (tap && Math.hypot(e.clientX - tap.x, e.clientY - tap.y) > TAP_SLOP) tap = null
 })
 
 container.addEventListener(
@@ -166,19 +236,32 @@ container.addEventListener(
   },
   { passive: false }
 )
-container.addEventListener('pointerup', (e) => {
-  dragging = null
-  if (!downAt) return
-  const moved = Math.hypot(e.clientX - downAt.x, e.clientY - downAt.y)
-  downAt = null
-  if (moved > 6) return
+
+function endPointer(e) {
+  const had = pointers.delete(e.pointerId)
+  gesture = pointers.size ? gestureState() : null
+  if (!had) return
+  const wasTap = tap && tap.id === e.pointerId && pointers.size === 0
+  tap = null
+  if (!wasTap) return
+
+  app.setPointerAt(e.clientX, e.clientY, { drift: e.pointerType === 'mouse' })
   const level = pick()
   if (!level) return
-  // Select-vs-enter: the first click walks there, a second click on the SAME
-  // node enters. Moving never enters a level as a side effect.
+  // Select-vs-enter: the first tap walks there, a second tap on the SAME node
+  // enters. Moving never enters a level as a side effect.
   if (level.id === player.levelId) selectLevel(level, { open: true })
   else selectLevel(level, { open: false })
+}
+
+container.addEventListener('pointerup', endPointer)
+container.addEventListener('pointercancel', (e) => {
+  pointers.delete(e.pointerId)
+  gesture = pointers.size ? gestureState() : null
+  tap = null
 })
+// A long-press on touch otherwise raises the OS callout over the map.
+container.addEventListener('contextmenu', (e) => e.preventDefault())
 
 let nav = null
 let legend = null
