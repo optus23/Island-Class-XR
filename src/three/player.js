@@ -157,10 +157,20 @@ export function createPlayer() {
     }
   }
 
+  /** Stop where we stand. The caller decides what level we now count as. */
+  function cancel() {
+    waypoints = []
+    moving = false
+    onArrive = null
+    body.position.y = 0
+    body.scale.set(1, 1, 1)
+  }
+
   return {
     group,
     travel,
     snapTo,
+    cancel,
     update,
     get isMoving() {
       return moving

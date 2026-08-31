@@ -5,6 +5,7 @@ import { prefersReducedMotion } from '../lib/motion.js'
 import { buildPropMesh, planProps } from './props.js'
 import {
   buildShoreField,
+  CELL_AREA_SCALE,
   VOXEL,
   TIER,
   BASE_Y,
@@ -96,7 +97,7 @@ export function createIsland() {
     // island's underside tapers to a point instead of ending in a flat slab —
     // the floating-island silhouette from the reference art.
     const bodyTop = bandTop - BAND_HEIGHT
-    const floor = 0.5 - Math.min(c.inside, 26) * 0.62
+    const floor = -1.2 - Math.min(c.inside, 30) * 0.95
     const bodyH = Math.max(0.4, bodyTop - floor)
     m.makeScale(1, bodyH, 1)
     m.setPosition(c.x, bodyTop - bodyH / 2, c.z)
@@ -147,7 +148,7 @@ function createRelief(cells) {
     // Well clear of the road: these are tall enough to hide the character.
     if (c.pathDist < 13 || c.shore < 0.9) continue
     const r = hash2(c.x * 1.13, c.z * 2.71)
-    if (r < 0.975) continue
+    if (r < 1 - (1 - 0.975) * CELL_AREA_SCALE) continue
 
     // A stack of 1-3 cubes, each narrower than the one below.
     const tiers = 1 + Math.floor(hash2(c.z * 5.3, c.x * 1.9) * 2)
@@ -370,9 +371,12 @@ function createBackdrop(minX, maxX, minZ) {
     }
   }
 
-  row(minZ - 34, 1.0, 26, 0.16)
-  row(minZ - 68, 1.6, 40, 0.4)
-  row(minZ - 112, 2.4, 62, 0.62) // closes the horizon
+  // Four bands. With the fog nearly gone the horizon is genuinely visible now,
+  // so it needs enough depth to read as distance rather than as a cutout.
+  row(minZ - 26, 0.85, 20, 0.10)
+  row(minZ - 48, 1.2, 30, 0.24)
+  row(minZ - 82, 1.8, 46, 0.44)
+  row(minZ - 130, 2.6, 68, 0.64) // closes the horizon
 
   // A squashed low-poly sphere, not a stack of boxes. Stacked boxes terrace
   // far too visibly at this size and read as glaciers; a coarse sphere still

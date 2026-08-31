@@ -5,18 +5,18 @@
   },
   "_readme": [
     "ORDER MATTERS: levels appear on the map in the order listed here, per world.",
-    "ONE LEVEL = ONE CLASS SESSION. The course runs 27 sessions per semester",
-    "(both Fall and Spring), so there are 27 non-optional levels, 9 per world.",
-    "The midterm is the mini-boss at the centre of world 2; the final exam is the",
-    "final boss that closes world 3. Both count as sessions.",
+    "ONE LEVEL = ONE CLASS SESSION, and the split matches the Whimsical calendar:",
+    "  11 sessions -> midterm (session 12) -> 15 sessions = 27 per semester.",
+    "That lands as world 1 = 7, world 2 = 9 (4 either side of the castle),",
+    "world 3 = 11. Both Fall and Spring have this same shape.",
     "The path is a curve (config/worlds.js) — nodes are spread along it at runtime,",
     "so adding or removing a level just re-spaces the others. Never place nodes by hand.",
     "Optional levels are EXTRA: they sit off the main path, are not sessions, and",
-    "attach to the previous non-optional level (override with anchorAfter).",
+    "do not count toward the 27.",
     "NO DATES ANYWHERE: the calendar lives outside this file, by design. Holidays",
     "shift when a session happens, never whether it exists.",
     "There is no per-level \"completed\" flag on purpose: completion is derived",
-    "from the progress marker in public/progress.json, which the /admin panel moves.",
+    "from the progress marker in public/progress.json.",
     "All exercise/answer/slide/todo bodies below are PLACEHOLDERS — replace them."
   ],
   "levels": [
@@ -83,22 +83,6 @@
       },
       "exercises": "content/exercises/w1-intro-04.md",
       "answers": "content/answers/w1-intro-04.md",
-      "todos": []
-    },
-    {
-      "id": "w1-intro-05",
-      "title": "PLACEHOLDER — sesión 5 (introducción y teoría)",
-      "world": 1,
-      "stage": "intro-theory",
-      "category": "theory",
-      "optional": false,
-      "summary": "PLACEHOLDER — sesión de intro-theory.",
-      "slides": {
-        "type": "pdf",
-        "source": "content/slides/w1-intro-05.pdf"
-      },
-      "exercises": "content/exercises/w1-intro-05.md",
-      "answers": "content/answers/w1-intro-05.md",
       "todos": []
     },
     {
@@ -209,34 +193,6 @@
           "id": "w1-arf-03-t1",
           "type": "objective-task",
           "objective": "PLACEHOLDER — objetivo práctico de plane detection.",
-          "starting_point": "PLACEHOLDER — punto de partida.",
-          "milestones": [
-            "PLACEHOLDER — hito 1",
-            "PLACEHOLDER — hito 2"
-          ],
-          "deliverable": "PLACEHOLDER — qué se entrega."
-        }
-      ]
-    },
-    {
-      "id": "w1-arf-04",
-      "title": "PLACEHOLDER — sesión 4 (AR Foundation)",
-      "world": 1,
-      "stage": "ar-foundation",
-      "category": "practical",
-      "optional": false,
-      "summary": "PLACEHOLDER — sesión de ar-foundation.",
-      "slides": {
-        "type": "pdf",
-        "source": "content/slides/w1-arf-04.pdf"
-      },
-      "exercises": "content/exercises/w1-arf-04.md",
-      "answers": "content/answers/w1-arf-04.md",
-      "todos": [
-        {
-          "id": "w1-arf-04-t1",
-          "type": "objective-task",
-          "objective": "PLACEHOLDER — objetivo práctico de la sesión.",
           "starting_point": "PLACEHOLDER — punto de partida.",
           "milestones": [
             "PLACEHOLDER — hito 1",
@@ -608,6 +564,34 @@
       ]
     },
     {
+      "id": "w3-xrit-05",
+      "title": "PLACEHOLDER — sesión 5 (XR Interaction Toolkit)",
+      "world": 3,
+      "stage": "xr-toolkit",
+      "category": "practical",
+      "optional": false,
+      "summary": "PLACEHOLDER — sesión de xr-toolkit.",
+      "slides": {
+        "type": "pdf",
+        "source": "content/slides/w3-xrit-05.pdf"
+      },
+      "exercises": "content/exercises/w3-xrit-05.md",
+      "answers": "content/answers/w3-xrit-05.md",
+      "todos": [
+        {
+          "id": "w3-xrit-05-t1",
+          "type": "objective-task",
+          "objective": "PLACEHOLDER — objetivo práctico de la sesión.",
+          "starting_point": "PLACEHOLDER — punto de partida.",
+          "milestones": [
+            "PLACEHOLDER — hito 1",
+            "PLACEHOLDER — hito 2"
+          ],
+          "deliverable": "PLACEHOLDER — qué se entrega."
+        }
+      ]
+    },
+    {
       "id": "w3-bonus-01",
       "title": "Extra: refuerzo de shaders XR",
       "world": 3,
@@ -726,6 +710,34 @@
       "todos": [
         {
           "id": "w3-proj-04-t1",
+          "type": "objective-task",
+          "objective": "PLACEHOLDER — objetivo práctico de la sesión.",
+          "starting_point": "PLACEHOLDER — punto de partida.",
+          "milestones": [
+            "PLACEHOLDER — hito 1",
+            "PLACEHOLDER — hito 2"
+          ],
+          "deliverable": "PLACEHOLDER — qué se entrega."
+        }
+      ]
+    },
+    {
+      "id": "w3-proj-05",
+      "title": "PLACEHOLDER — sesión 5 (proyecto final)",
+      "world": 3,
+      "stage": "final-project",
+      "category": "practical",
+      "optional": false,
+      "summary": "PLACEHOLDER — sesión de final-project.",
+      "slides": {
+        "type": "pdf",
+        "source": "content/slides/w3-proj-05.pdf"
+      },
+      "exercises": "content/exercises/w3-proj-05.md",
+      "answers": null,
+      "todos": [
+        {
+          "id": "w3-proj-05-t1",
           "type": "objective-task",
           "objective": "PLACEHOLDER — objetivo práctico de la sesión.",
           "starting_point": "PLACEHOLDER — punto de partida.",
