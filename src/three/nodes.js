@@ -240,8 +240,21 @@ function ribbonGeometry(curves, halfWidth, lift) {
       const lz = p.z - side.z
       const rx = p.x + side.x
       const rz = p.z + side.z
-      positions.push(lx, groundHeightAt(lx, lz) + lift, lz)
-      positions.push(rx, groundHeightAt(rx, rz) + lift, rz)
+
+      // BOTH edges take the HIGHEST ground under the ribbon's whole width,
+      // sampled a little beyond each side. Letting each edge follow its own
+      // ground tilted the quad wherever the terrain stepped, and the low edge
+      // then sliced straight through the terrace — the overlap that kept
+      // showing up in the desert and the forest.
+      const top = Math.max(
+        groundHeightAt(lx, lz),
+        groundHeightAt(rx, rz),
+        groundHeightAt(p.x, p.z),
+        groundHeightAt(p.x - side.x * 1.35, p.z - side.z * 1.35),
+        groundHeightAt(p.x + side.x * 1.35, p.z + side.z * 1.35)
+      )
+      positions.push(lx, top + lift, lz)
+      positions.push(rx, top + lift, rz)
     }
     for (let i = 0; i < segments; i++) {
       const a = base + i * 2
@@ -364,14 +377,24 @@ function createBossCastle(placement) {
     return mesh
   }
 
-  const STONE = 0xb9b4ad
-  const ROOF_DARK = 0x2b2118
-  const WINDOW = 0x243447
+  const STONE = palette.bossStone
+  const STONE_LIGHT = 0x878d96
+  const ROOF = palette.bossAccent
+  const ROOF_DARK = 0x7d1f1f
+  const WOOD = 0x3a2a1a
+  const WINDOW = 0xffd98a
 
-  // --- plinth and keep -----------------------------------------------------
-  addBox(6.4, 0.7, 6.4, 0, 0.35, 0, { color: STONE, keepColor: true })
-  addBox(4.2, 2.6, 4.2, 0, 1.95, 0)
-  addBox(4.7, 0.5, 4.7, 0, 3.45, 0) // cornice overhang
+  // --- plinth, steps and keep ---------------------------------------------
+  addBox(7.0, 0.5, 7.0, 0, 0.25, 0, { color: STONE_LIGHT, keepColor: true })
+  addBox(6.2, 0.5, 6.2, 0, 0.72, 0, { color: STONE, keepColor: true })
+  addBox(2.0, 0.3, 0.8, 0, 0.62, 3.3, { color: STONE_LIGHT, keepColor: true }) // stair
+  addBox(1.6, 0.3, 0.7, 0, 0.34, 3.9, { color: STONE_LIGHT, keepColor: true })
+  addBox(4.2, 2.8, 4.2, 0, 2.35, 0)
+  addBox(4.7, 0.45, 4.7, 0, 3.95, 0) // cornice overhang
+  // Red roof over the keep — the accent the stone is there to set off.
+  addBox(4.0, 0.7, 4.0, 0, 4.5, 0, { color: ROOF, keepColor: true })
+  addBox(2.8, 0.6, 2.8, 0, 5.1, 0, { color: ROOF, keepColor: true })
+  addBox(1.6, 0.5, 1.6, 0, 5.6, 0, { color: ROOF_DARK, keepColor: true })
 
   // --- corner towers with battlements -------------------------------------
   for (const [tx, tz] of [
@@ -380,8 +403,11 @@ function createBossCastle(placement) {
     [-2.1, 2.1],
     [2.1, 2.1],
   ]) {
-    addBox(1.5, 4.4, 1.5, tx, 2.2, tz)
-    addBox(1.9, 0.45, 1.9, tx, 4.6, tz) // tower cap
+    addBox(1.5, 4.9, 1.5, tx, 2.45, tz)
+    addBox(1.9, 0.4, 1.9, tx, 5.05, tz) // tower cap
+    addBox(1.7, 0.9, 1.7, tx, 5.7, tz, { color: ROOF, keepColor: true }) // red turret roof
+    addBox(0.9, 0.5, 0.9, tx, 6.3, tz, { color: ROOF_DARK, keepColor: true })
+    addBox(0.45, 0.5, 0.3, tx, 3.4, tz + 0.8, { color: WINDOW, keepColor: true })
     // Crenellations: four small teeth per tower.
     for (const [ox, oz] of [
       [-0.55, -0.55],
@@ -389,25 +415,29 @@ function createBossCastle(placement) {
       [-0.55, 0.55],
       [0.55, 0.55],
     ]) {
-      addBox(0.5, 0.6, 0.5, tx + ox, 5.1, tz + oz, { color: STONE, keepColor: true })
+      addBox(0.42, 0.55, 0.42, tx + ox, 5.5, tz + oz, { color: STONE_LIGHT, keepColor: true })
     }
   }
 
   // --- gate, windows, banner ----------------------------------------------
-  addBox(1.6, 2.0, 0.35, 0, 1.0, 2.25, { color: ROOF_DARK, keepColor: true })
-  addBox(1.0, 0.2, 0.4, 0, 2.05, 2.3, { color: STONE, keepColor: true }) // lintel
-  addBox(0.5, 0.6, 0.3, -1.2, 2.7, 2.2, { color: WINDOW, keepColor: true })
-  addBox(0.5, 0.6, 0.3, 1.2, 2.7, 2.2, { color: WINDOW, keepColor: true })
+  addBox(1.7, 2.2, 0.35, 0, 2.05, 2.25, { color: WOOD, keepColor: true }) // gate
+  addBox(0.16, 2.2, 0.1, 0, 2.05, 2.45, { color: STONE_LIGHT, keepColor: true }) // gate band
+  addBox(2.1, 0.3, 0.45, 0, 3.25, 2.3, { color: STONE_LIGHT, keepColor: true }) // lintel
+  addBox(0.5, 0.65, 0.3, -1.3, 3.0, 2.2, { color: WINDOW, keepColor: true })
+  addBox(0.5, 0.65, 0.3, 1.3, 3.0, 2.2, { color: WINDOW, keepColor: true })
 
   if (isFinal) {
-    // The final boss gets a taller central spire and a flag.
-    addBox(2.6, 3.0, 2.6, 0, 5.2, 0)
-    addBox(3.0, 0.45, 3.0, 0, 6.9, 0)
-    addBox(0.22, 2.2, 0.22, 0, 8.2, 0, { color: ROOF_DARK, keepColor: true })
-    addBox(1.5, 0.9, 0.12, 0.8, 8.9, 0, { color: 0xf2c14e, keepColor: true })
+    // The final boss gets a central spire above the roof, and a flag.
+    addBox(2.6, 3.2, 2.6, 0, 7.2, 0)
+    addBox(3.0, 0.4, 3.0, 0, 8.95, 0, { color: STONE_LIGHT, keepColor: true })
+    addBox(2.4, 1.5, 2.4, 0, 9.85, 0, { color: ROOF, keepColor: true })
+    addBox(1.2, 0.8, 1.2, 0, 10.9, 0, { color: ROOF_DARK, keepColor: true })
+    addBox(0.5, 0.6, 0.3, 0, 7.4, 1.35, { color: WINDOW, keepColor: true })
+    addBox(0.2, 2.4, 0.2, 0, 12.4, 0, { color: WOOD, keepColor: true })
+    addBox(1.6, 0.95, 0.12, 0.85, 13.2, 0, { color: 0xf2c14e, keepColor: true })
   } else {
-    addBox(0.22, 1.8, 0.22, 0, 5.0, 0, { color: ROOF_DARK, keepColor: true })
-    addBox(1.2, 0.75, 0.12, 0.65, 5.5, 0, { color: 0xf2c14e, keepColor: true })
+    addBox(0.2, 2.0, 0.2, 0, 6.8, 0, { color: WOOD, keepColor: true })
+    addBox(1.3, 0.8, 0.12, 0.7, 7.4, 0, { color: 0xf2c14e, keepColor: true })
   }
 
   const pick = new THREE.Mesh(

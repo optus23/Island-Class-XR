@@ -185,9 +185,31 @@ let legend = null
 let markerId = null
 
 /** Every node is clickable — bosses included. Accepts a level or a level id. */
+/** Nearest node to where the avatar physically stands. */
+function nodeUnderPlayer() {
+  let best = null
+  let bestD = Infinity
+  for (const p of map.placed) {
+    const d = p.position.distanceToSquared(player.group.position)
+    if (d < bestD) {
+      bestD = d
+      best = p.level.id
+    }
+  }
+  return best
+}
+
 function selectLevel(levelOrId, { open = false, instant = false } = {}) {
   const level = typeof levelOrId === 'string' ? levelById(levelOrId) : levelOrId
-  if (!level || player.isMoving) return
+  if (!level) return
+
+  // A new selection always wins. Ignoring input while the avatar walked meant
+  // the index did nothing mid-journey, which felt broken — and the index in
+  // particular must never be blocked by an animation it did not start.
+  if (player.isMoving) {
+    player.cancel()
+    player.snapTo(player.group.position.clone(), nodeUnderPlayer())
+  }
   hideNodeLabel()
 
   const arrive = async () => {

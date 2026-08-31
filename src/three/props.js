@@ -1,5 +1,5 @@
 import * as THREE from 'three'
-import { hash2 } from './terrain.js'
+import { hash2, CELL_AREA_SCALE } from './terrain.js'
 
 /**
  * Voxel set dressing.
@@ -203,6 +203,12 @@ export function planProps(cells) {
   const big = (c) => c.pathDist > 10 && c.shore > 0.88
   const near = (c) => c.pathDist > 2.4 && c.pathDist < 9 && c.shore > 0.85
 
+  // Placement is per CELL, so halving the voxel size quadruples the number of
+  // candidates. Without this correction the finer grid buried the island in
+  // four times the trees. `rare` keeps density per unit AREA constant.
+  const rare = (p) => 1 - (1 - p) * CELL_AREA_SCALE
+  const common = (p) => p * CELL_AREA_SCALE
+
   for (const c of cells) {
     const r = hash2(c.x * 3.3, c.z * 7.7)
     const yaw = hash2(c.z * 1.7, c.x * 2.9) * Math.PI * 2
@@ -213,23 +219,22 @@ export function planProps(cells) {
       const tree =
         c.biome.props === 'cactus' ? 'cactus' : c.biome.props === 'pine' ? 'pine' : 'treeLeafy'
       if (r > 0.945) out.push({ ...base, kind: tree })
-      else if (r < 0.022) out.push({ ...base, kind: 'boulder' })
-      else if (r > 0.9375 && r < 0.9395) out.push({ ...base, kind: 'mushroom', scale: scale * 1.1 })
     }
 
     if (near(c)) {
       const t = hash2(c.x * 5.1, c.z * 2.7)
-      if (t > 0.968) out.push({ ...base, kind: 'flower' })
-      else if (t > 0.93) out.push({ ...base, kind: 'grassTuft' })
+      if (t > rare(0.968)) out.push({ ...base, kind: 'flower' })
+      else if (t > rare(0.93)) out.push({ ...base, kind: 'grassTuft' })
     }
 
     // Course-themed landmarks: rarer, and only in the mid band so they read as
     // deliberate set pieces rather than clutter.
     if (c.pathDist > 6 && c.pathDist < 12 && c.shore > 0.9) {
       const t = hash2(c.z * 9.1, c.x * 6.3)
-      if (t > 0.9955) out.push({ ...base, kind: 'headset', scale: 1 })
-      else if (t < 0.0045) out.push({ ...base, kind: 'arPhone', scale: 1 })
-      else if (t > 0.4975 && t < 0.5015) out.push({ ...base, kind: 'marker', scale: 1 })
+      if (t > rare(0.9955)) out.push({ ...base, kind: 'headset', scale: 1 })
+      else if (t < common(0.0045)) out.push({ ...base, kind: 'arPhone', scale: 1 })
+      else if (t > 0.5 - 0.002 * CELL_AREA_SCALE && t < 0.5 + 0.002 * CELL_AREA_SCALE)
+        out.push({ ...base, kind: 'marker', scale: 1 })
     }
   }
   return out

@@ -15,14 +15,32 @@ import { buildWorldCurves, buildConnectors } from './paths.js'
  * the anchoring can never disagree.
  */
 
-export const VOXEL = 2 // world units per terrain column
+/**
+ * Terrain resolution, chosen per device.
+ *
+ * A finer grid looks markedly better but multiplies triangle count by four
+ * each time it halves, and that lands on the GPU of whatever phone a student
+ * happens to own. Coarse on small/low-memory devices, fine on desktop.
+ */
+function pickVoxelSize() {
+  if (typeof window === 'undefined') return 1 // node (validate script)
+  const mem = navigator.deviceMemory ?? 8
+  const coarsePointer = window.matchMedia?.('(pointer: coarse)').matches
+  const small = Math.min(window.innerWidth, window.innerHeight) < 700
+  if (mem <= 4 || (coarsePointer && small)) return 2
+  return 1
+}
+
+export const VOXEL = pickVoxelSize()
+/** Props are placed per cell, so their density must be corrected for it. */
+export const CELL_AREA_SCALE = (VOXEL * VOXEL) / 4
 export const MARGIN = 42 // half-extent of a world's footprint, X
 export const MARGIN_Z = 46 // half-extent, Z — deep enough that the back edge is off-frame
 export const BRIDGE_HALF_WIDTH = 7
 export const PATH_FLATTEN_RADIUS = 7
 export const TIER = 4 // height step for off-path plateaus
-export const QUANT = 1 // near-path height step — never leave ground continuous
-export const SHELF_Y = 1.5 // low coastal shelf that plateaus rise out of
+export const QUANT = 0.5 // near-path height step — finer, to match the finer grid
+export const SHELF_Y = 3.2 // coastal shelf — high enough that the island sits ON the sea
 export const BASE_Y = -9 // every column runs down to here
 
 /** Cheap deterministic hash noise — no dependency, stable across reloads. */
@@ -105,13 +123,20 @@ function nearestBridge(x, z) {
 
 /** Rounded-rectangle footprint for one world, as an inside-ness in world units. */
 function worldInset(x, z, center) {
-  const dx = Math.abs(x - center[0]) - (MARGIN - 8)
-  const dz = Math.abs(z - center[2]) - (MARGIN_Z - 8)
+  // Big corner radius: the footprint is closer to a rounded blob than a
+  // rectangle, so the island never presents a hard 90-degree corner to the sea.
+  const R = 20
+  const dx = Math.abs(x - center[0]) - (MARGIN - R)
+  const dz = Math.abs(z - center[2]) - (MARGIN_Z - R)
   const outside = Math.hypot(Math.max(dx, 0), Math.max(dz, 0))
-  // Wobble the coastline. A clean rounded rectangle gave the island a dead
-  // straight back edge that read as the map being cut off rather than ending.
-  const wobble = (smoothNoise(x * 0.035, z * 0.035) - 0.5) * 13
-  return 8 - outside + wobble
+
+  // Two octaves of wobble at different scales: the low one carves broad bays
+  // and headlands, the high one keeps the shoreline from reading as a smooth
+  // machine curve. Together they give the coast an organic, drawn feel rather
+  // than the boxy silhouette it had.
+  const broad = (smoothNoise(x * 0.018, z * 0.018) - 0.5) * 26
+  const fine = (smoothNoise(x * 0.075, z * 0.075) - 0.5) * 7
+  return R - outside + broad + fine
 }
 
 /** How far inside the coastline (x, z) sits. <= 0 means open water. */

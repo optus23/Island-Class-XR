@@ -18,7 +18,7 @@ export const palette = {
   // Categories (not completed) — PLACEHOLDERS, tune freely
   theory: 0x4cc9f0, // cyan
   practical: 0xf77f00, // orange
-  boss: 0x9e2b2b, // deep brick red — tiers differ by size/shape, not colour
+  boss: 0x4a5058, // dark stone — the red is an accent, not the whole castle
 
   // Optional / bonus levels — must never be green
   optional: 0x9d4edd, // purple / lilac
@@ -28,6 +28,10 @@ export const palette = {
 
   // Gold rim drawn around every node disc, as in the NSMB world maps.
   nodeRim: 0xf2c14e,
+
+  // Castle accents: roofs, banners and trim pick this up against the stone.
+  bossAccent: 0xb32a2a,
+  bossStone: 0x6a7079,
 }
 
 /**
