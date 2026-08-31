@@ -297,32 +297,35 @@ function createRoadStairs(samples, halfWidth) {
       const a = row[i - 1]
       const b = row[i]
       const rise = b.top - a.top
-      if (Math.abs(rise) < 0.4) continue
+      // A real change of plateau only. A lower threshold caught the wobble
+      // where the widest ground sample changes hands and littered flat road
+      // with stray slabs.
+      if (Math.abs(rise) < 0.9) continue
 
       const up = rise > 0
       const low = up ? a : b
       const high = up ? b : a
       const steps = Math.max(1, Math.round(Math.abs(rise) / TREAD_RISE))
-      // Centre the flight on the join, running from the low sample outward so
-      // it always meets ground rather than hanging off the edge of the step.
       const dir = new THREE.Vector3().subVectors(high.p, low.p).setY(0)
       if (dir.lengthSq() < 1e-6) continue
       dir.normalize()
 
       for (let k = 0; k < steps; k++) {
         const y = low.top + (k + 1) * (Math.abs(rise) / steps)
-        // Each tread reaches back toward the low end; the last one meets the
-        // upper shelf.
-        const back = (steps - k - 0.5) * TREAD_DEPTH
-        const at = low.p.clone().addScaledVector(dir, -back + TREAD_DEPTH * steps * 0.5)
+        // The flight runs backwards from the join, entirely onto the LOW
+        // shelf, tallest tread nearest the step. Centring it on the join
+        // instead pushed half the treads onto the upper shelf, where they
+        // surfaced as loose paving slabs lying beside the road.
+        const at = low.p.clone().addScaledVector(dir, -(steps - k - 0.5) * TREAD_DEPTH)
         treads.push({
           x: at.x,
           y: (y + low.top) / 2,
           z: at.z,
           h: y - low.top,
           yaw: low.yaw,
-          w: halfWidth * 1.82,
-          d: TREAD_DEPTH * 1.6,
+          // Inside the road, never wider than its dark border.
+          w: halfWidth * 1.5,
+          d: TREAD_DEPTH * 1.35,
         })
       }
     }
