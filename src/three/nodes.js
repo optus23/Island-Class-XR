@@ -288,9 +288,15 @@ function ribbonGeometry(samples, lift) {
  * to overlap its neighbour, so the flight is solid from every angle.
  */
 function createRoadStairs(samples, halfWidth) {
-  const TREAD_RISE = 0.5 // world units per step
-  const TREAD_DEPTH = 0.85
+  // Two chunky treads per plateau, not four fine ones. A long climb - the run
+  // up to the midterm castle rises 6 units - was otherwise ALL staircase from
+  // end to end, and the road stopped reading as a road at exactly the place it
+  // matters most.
+  const TREAD_RISE = 1.0 // world units per step
+  const TREAD_DEPTH = 0.9
+  const SKIRT = 2.2 // how far a tread reaches below its shelf, so none can float
   const treads = []
+  const dir = new THREE.Vector3()
 
   for (const row of samples) {
     for (let i = 1; i < row.length; i++) {
@@ -304,24 +310,31 @@ function createRoadStairs(samples, halfWidth) {
 
       const up = rise > 0
       const low = up ? a : b
-      const high = up ? b : a
       const steps = Math.max(1, Math.round(Math.abs(rise) / TREAD_RISE))
-      const dir = new THREE.Vector3().subVectors(high.p, low.p).setY(0)
-      if (dir.lengthSq() < 1e-6) continue
-      dir.normalize()
+
+      // Lay the flight along the LOW sample's OWN tangent, not along the chord
+      // between the two samples. Where a climb happens to land on one of the
+      // road's 90-degree corners, the chord runs diagonally across the bend,
+      // and the treads came out as loose slabs skewed off the side of the
+      // road. Its own tangent always follows the arm the flight belongs to.
+      dir.set(Math.sin(low.yaw), 0, Math.cos(low.yaw))
+      // Climbing, the flight extends back down the road from the step;
+      // descending, `low` is already the far side, so it extends forward.
+      const sign = up ? -1 : 1
 
       for (let k = 0; k < steps; k++) {
         const y = low.top + (k + 1) * (Math.abs(rise) / steps)
-        // The flight runs backwards from the join, entirely onto the LOW
-        // shelf, tallest tread nearest the step. Centring it on the join
-        // instead pushed half the treads onto the upper shelf, where they
-        // surfaced as loose paving slabs lying beside the road.
-        const at = low.p.clone().addScaledVector(dir, -(steps - k - 0.5) * TREAD_DEPTH)
+        const at = low.p.clone().addScaledVector(dir, sign * (steps - k - 0.5) * TREAD_DEPTH)
+        // Treads reach well below the shelf they stand on. The road samples
+        // the highest ground across its width, so its surface can sit a step
+        // above the ground immediately under a tread; a box starting exactly
+        // at the road's height would hang in the air there.
+        const foot = low.top - SKIRT
         treads.push({
           x: at.x,
-          y: (y + low.top) / 2,
+          y: (y + foot) / 2,
           z: at.z,
-          h: y - low.top,
+          h: y - foot,
           yaw: low.yaw,
           // Inside the road, never wider than its dark border.
           w: halfWidth * 1.5,

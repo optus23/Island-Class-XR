@@ -125,9 +125,10 @@ export const world = {
   // road never has to change colour per biome to stay visible.
   path: 0xf6dfa6,
   pathEdge: 0xa9763a,
-  // Wooden treads where the road climbs from one plateau to the next. Darker
-  // than the road so a flight of steps reads as steps from above.
-  pathStep: 0xc79a55,
+  // Treads where the road climbs from one plateau to the next. Only a shade
+  // under the road: they are still the road, just stepped. Made properly
+  // darker they read as separate paving slabs dropped beside it.
+  pathStep: 0xe8cf92,
   pathOptional: 0x9d4edd, // dashed connectors to bonus nodes
 
   player: 0xef476f,
