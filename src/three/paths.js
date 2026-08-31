@@ -1,6 +1,6 @@
 import * as THREE from 'three'
 import { worlds } from '../config/worlds.js'
-import { groundHeightAt, nearestPath, isLand } from './terrain.js'
+import { groundHeightAt, nearestPath, isLand, roadTopAt } from './terrain.js'
 
 /**
  * Turns a world's spline template + its list of levels into node positions.
@@ -295,7 +295,10 @@ export function buildGrandPath(step = 0.6) {
     const n = Math.max(2, Math.round(curve.getLength() / step))
     for (let i = 0; i <= n; i++) {
       const p = curve.getPointAt(i / n)
-      p.y = groundHeightAt(p.x, p.z)
+      // The ROAD's height, not the ground's — this polyline is what the avatar
+      // and the creatures walk along, and the road floats above the ground
+      // wherever it runs along the lip of a terrace.
+      p.y = roadTopAt(p.x, p.z)
       // Skip duplicates where one curve ends and the next begins.
       if (points.length && p.distanceToSquared(points[points.length - 1]) < 1e-4) continue
       points.push(p)

@@ -28,12 +28,20 @@ const PARTS = [
 ]
 
 const SPEED = 2.6 // world units per second
+/**
+ * Clearance between the road surface and the bottom of the lowest box.
+ *
+ * The feet parts sit at y = 0.14 with height 0.3, so their underside is at
+ * -0.01: a shade BELOW the origin. Anchoring the origin to the road therefore
+ * pushed every creature a little into it, and the bob only ever lifted them.
+ */
+const FOOT_CLEAR = 0.06
 
 /**
  * @param {THREE.Vector3[]} path the grand road polyline
  * @param {number} count how many creatures to scatter along it
  */
-export function createEnemies(path, count = 7) {
+export function createEnemies(path, count = 4) {
   const group = new THREE.Group()
   if (path.length < 40) return { group, update() {} }
 
@@ -102,7 +110,11 @@ export function createEnemies(path, count = 7) {
       q.setFromAxisAngle(up, yaw)
 
       const bx = a.x + (b.x - a.x) * frac
-      const by = a.y + (b.y - a.y) * frac
+      // FOOT_CLEAR lifts the recipe's origin off the road surface. Every part
+      // is measured upward from y = 0, so a creature anchored exactly on the
+      // road had its lowest boxes straddling it — which is why they read as
+      // half-buried, sunk to the waist in the path.
+      const by = a.y + (b.y - a.y) * frac + FOOT_CLEAR
       const bz = a.z + (b.z - a.z) * frac
       const cos = Math.cos(yaw)
       const sin = Math.sin(yaw)

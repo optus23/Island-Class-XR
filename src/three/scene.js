@@ -70,13 +70,29 @@ export function createScene(container) {
   const parallaxPointer = { x: 0, y: 0 }
   let pointerInside = false
 
-  container.addEventListener('pointermove', (e) => {
+  /**
+   * Put the raycast pointer at a client position.
+   *
+   * Exposed because a TAP may never produce a pointermove: on touch the first
+   * event a finger generates is pointerdown, and picking from a stale NDC made
+   * taps select whatever the previous gesture had been over.
+   *
+   * `drift` is the parallax contribution and is mouse-only — a finger dragging
+   * the camera must not also slide the whole world sideways.
+   */
+  function setPointerAt(clientX, clientY, { drift = true } = {}) {
     const r = container.getBoundingClientRect()
-    pointer.x = ((e.clientX - r.left) / r.width) * 2 - 1
-    pointer.y = -(((e.clientY - r.top) / r.height) * 2 - 1)
-    parallaxPointer.x = pointer.x
-    parallaxPointer.y = pointer.y
+    pointer.x = ((clientX - r.left) / r.width) * 2 - 1
+    pointer.y = -(((clientY - r.top) / r.height) * 2 - 1)
+    if (drift) {
+      parallaxPointer.x = pointer.x
+      parallaxPointer.y = pointer.y
+    }
     pointerInside = true
+  }
+
+  container.addEventListener('pointermove', (e) => {
+    setPointerAt(e.clientX, e.clientY, { drift: e.pointerType === 'mouse' })
   })
   container.addEventListener('pointerleave', () => {
     pointerInside = false
@@ -138,6 +154,7 @@ export function createScene(container) {
     worldGroup,
     rig,
     pointer,
+    setPointerAt,
     get pointerInside() {
       return pointerInside
     },

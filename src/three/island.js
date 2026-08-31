@@ -2,7 +2,7 @@ import * as THREE from 'three'
 import { worlds } from '../config/worlds.js'
 import { world as themeWorld, biomes, backdrop } from '../config/theme.js'
 import { prefersReducedMotion } from '../lib/motion.js'
-import { buildPropMesh, planProps } from './props.js'
+import { buildPropMesh, planProps, planLandmarks } from './props.js'
 import {
   buildShoreField,
   CELL_AREA_SCALE,
@@ -117,7 +117,9 @@ export function createIsland() {
   const water = createWater(minX, maxX, minZ, maxZ)
   group.add(water.mesh)
 
-  group.add(buildPropMesh(planProps(cells)))
+  // Scattered dressing and hand-placed corner landmarks share one mesh, so the
+  // whole island still costs a single draw call for every prop on it.
+  group.add(buildPropMesh([...planProps(cells), ...planLandmarks()]))
   group.add(createRelief(cells))
 
   const backdropGroup = createBackdrop(minX, maxX, minZ)
@@ -345,6 +347,7 @@ function createBackdrop(minX, maxX, minZ) {
   const group = new THREE.Group()
   const sky = new THREE.Color(themeWorld.sky)
   const mounds = []
+  const trims = []
 
   /**
    * @param zBase how far behind the island this row sits
@@ -360,23 +363,81 @@ function createBackdrop(minX, maxX, minZ) {
       const r = hash2(x * 0.31, zBase * 0.17)
       const r2 = hash2(zBase * 0.53, x * 0.11)
       const pool = backdrop[biomeKeyAt(x)] ?? backdrop.meadow
-      mounds.push({
+      const mound = {
         x: x + (r - 0.5) * step * 0.6,
         z: zBase - r2 * 18,
         w: (26 + r * 18) * scale,
         h: (11 + r2 * 9) * scale,
         hex: pool[Math.floor(r2 * pool.length) % pool.length],
         haze,
+      }
+      mounds.push(mound)
+
+      // The reference hills are not flat colour: each carries a band across
+      // its face and a scatter of speckles. Both are cheap here — one extra
+      // instanced mesh for the whole horizon.
+      // Only the near rows get them; further back they would read as noise.
+      if (haze > 0.3) continue
+
+      /**
+       * Put a marking ON the hill's surface.
+       *
+       * The mound is an ellipsoid sunk into the sea, so its front face pulls
+       * back sharply toward the crown. Placing markings at a fixed depth left
+       * the high ones hanging in mid-air in front of the hill, looking like
+       * balloons. `f` is the ellipsoid's cross-section at that height, which
+       * both finds the real surface and shrinks the marking to fit inside the
+       * silhouette.
+       */
+      const centreY = -mound.h * 0.55
+      const surfaceAt = (y) => {
+        const ny = (y - centreY) / mound.h
+        return Math.sqrt(Math.max(0, 1 - ny * ny))
+      }
+
+      const shade = new THREE.Color(mound.hex).multiplyScalar(0.84).getHex()
+      const pale = new THREE.Color(mound.hex).lerp(new THREE.Color(0xffffff), 0.4).getHex()
+
+      const bandY = mound.h * (0.05 + r * 0.12)
+      const bf = surfaceAt(bandY)
+      trims.push({
+        x: mound.x,
+        y: bandY,
+        z: mound.z + bf * mound.w * 0.4 * 0.97,
+        w: mound.w * 0.9 * bf,
+        h: mound.h * 0.14,
+        hex: shade,
+        haze,
       })
+
+      const dots = 3 + Math.floor(r2 * 3)
+      for (let i = 0; i < dots; i++) {
+        const a = hash2(x + i * 7.3, zBase + i * 3.1)
+        const b = hash2(zBase + i * 5.9, x + i * 2.2)
+        const dy = mound.h * (0.25 + b * 0.55)
+        const df = surfaceAt(dy)
+        if (df < 0.2) continue
+        const size = mound.w * (0.045 + a * 0.045)
+        trims.push({
+          x: mound.x + (a - 0.5) * mound.w * 0.62 * df,
+          y: dy,
+          z: mound.z + df * mound.w * 0.4 * 0.97,
+          w: size,
+          h: size,
+          hex: b > 0.5 ? shade : pale,
+          haze,
+        })
+      }
     }
   }
 
-  // Four bands. With the fog nearly gone the horizon is genuinely visible now,
+  // Five bands. With the fog nearly gone the horizon is genuinely visible now,
   // so it needs enough depth to read as distance rather than as a cutout.
-  row(minZ - 26, 0.85, 20, 0.10)
-  row(minZ - 48, 1.2, 30, 0.24)
-  row(minZ - 82, 1.8, 46, 0.44)
-  row(minZ - 130, 2.6, 68, 0.64) // closes the horizon
+  row(minZ - 18, 0.62, 15, 0.04)
+  row(minZ - 30, 0.85, 20, 0.12)
+  row(minZ - 52, 1.2, 30, 0.26)
+  row(minZ - 86, 1.8, 46, 0.46)
+  row(minZ - 134, 2.6, 68, 0.66) // closes the horizon
 
   // A squashed low-poly sphere, not a stack of boxes. Stacked boxes terrace
   // far too visibly at this size and read as glaciers; a coarse sphere still
@@ -406,5 +467,29 @@ function createBackdrop(minX, maxX, minZ) {
   if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true
   mesh.frustumCulled = false
   group.add(mesh)
+
+  // Bands and speckles: flat discs standing in front of their hill, facing the
+  // camera's side. A disc rather than a sphere so the marking reads as paint
+  // on the hill rather than as a lump growing out of it.
+  if (trims.length) {
+    const trimMesh = new THREE.InstancedMesh(
+      new THREE.CircleGeometry(0.5, 10),
+      new THREE.MeshBasicMaterial({ side: THREE.DoubleSide }),
+      trims.length
+    )
+    trims.forEach((t, i) => {
+      sv.set(t.w, t.h, 1)
+      p.set(t.x, t.y, t.z)
+      m.compose(p, q, sv)
+      trimMesh.setMatrixAt(i, m)
+      col.setHex(t.hex).lerp(sky, t.haze)
+      trimMesh.setColorAt(i, col)
+    })
+    trimMesh.instanceMatrix.needsUpdate = true
+    if (trimMesh.instanceColor) trimMesh.instanceColor.needsUpdate = true
+    trimMesh.frustumCulled = false
+    group.add(trimMesh)
+  }
+
   return group
 }

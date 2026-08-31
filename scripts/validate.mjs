@@ -202,9 +202,14 @@ for (const w of worlds) {
   let bossNote = ''
   if (boss) {
     const curves = buildWorldCurves(w)
+    // Compared on the GROUND PLANE only. Y is not the curve's to decide —
+    // every placed object is anchored through groundHeightAt(), so the moment
+    // the terrain quantisation changed, an exact 3D match started failing for
+    // a castle that was standing in precisely the right place.
+    const flat = (a, b) => Math.hypot(a.x - b.x, a.z - b.z)
     if (curves.bossPoint) {
       // World 2: the mini-boss must land exactly on the reserved slot.
-      const off = boss.position.distanceTo(curves.bossPoint)
+      const off = flat(boss.position, curves.bossPoint)
       if (off > 1e-6) err(`world ${w.id}: mini-boss is ${off.toFixed(4)} off its bossSlot`)
       bossNote = ', mini-boss exactly on slot ✓'
     } else {
@@ -213,7 +218,7 @@ for (const w of worlds) {
       const onPathOnly = placed.filter((p) => p.onPath)
       const isLast = onPathOnly[onPathOnly.length - 1]?.level.id === boss.level.id
       if (!isLast) err(`world ${w.id}: the final boss must be the last level on the path`)
-      const off = boss.position.distanceTo(curves.full.getPointAt(1))
+      const off = flat(boss.position, curves.full.getPointAt(1))
       if (off > 1e-6) err(`world ${w.id}: final boss is ${off.toFixed(4)} off the path end`)
       bossNote = ', final boss closes the path ✓'
     }

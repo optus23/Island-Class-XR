@@ -37,9 +37,24 @@ export const CELL_AREA_SCALE = (VOXEL * VOXEL) / 4
 export const MARGIN = 42 // half-extent of a world's footprint, X
 export const MARGIN_Z = 46 // half-extent, Z — deep enough that the back edge is off-frame
 export const BRIDGE_HALF_WIDTH = 7
-export const PATH_FLATTEN_RADIUS = 7
+export const PATH_FLATTEN_RADIUS = 13 // wide flat shelf, so the road never crosses a contour
 export const TIER = 4 // height step for off-path plateaus
-export const QUANT = 0.5 // near-path height step — finer, to match the finer grid
+
+/**
+ * Height step near the route.
+ *
+ * This used to be 0.5, which was the whole "artefacts along the path" problem.
+ * The height field varies slowly, so a fine step turned every gentle gradient
+ * into a fan of one-voxel terraces radiating away from the road; their shaded
+ * side faces read as scratches drawn across the grass. Nothing was
+ * z-fighting — the map was genuinely built that way.
+ *
+ * A coarse step gives few, tall terraces instead, which is how the reference
+ * art reads: flat plateaus joined by deliberate steps. It is a factor of TIER
+ * so the near and far grids line up instead of interleaving.
+ */
+export const PLATEAU = 2
+export const QUANT = PLATEAU // kept for callers that still import the old name
 export const SHELF_Y = 3.2 // coastal shelf — high enough that the island sits ON the sea
 export const BASE_Y = -9 // every column runs down to here
 
@@ -162,21 +177,55 @@ export function groundHeightAt(x, z) {
   if (inside <= 0) return SHELF_Y
 
   const path = nearestPath(x, z)
-  const away = Math.min(1, Math.max(0, (path.dist - PATH_FLATTEN_RADIUS) / 14))
+
+  // Snap the PATH's own height to the plateau grid before anything else.
+  // A run that ramps from 0 to 4 used to drag the surrounding ground up with
+  // it continuously, so the corridor itself was terraced into a fine staircase
+  // crossing the road. Snapped first, each stretch of route sits on one flat
+  // shelf and the climb happens at a small number of clean steps.
+  const shelf = Math.round(path.y / PLATEAU) * PLATEAU
+
+  const away = Math.min(1, Math.max(0, (path.dist - PATH_FLATTEN_RADIUS) / 16))
   const shore = Math.min(1, inside / 4)
   const hill = Math.max(0, smoothNoise(x * 0.045, z * 0.045) - 0.5) * 9
 
   const coastal = 1 - Math.min(1, inside / 9)
   const drop = coastal * away
-  const grounded = path.y * (1 - drop) + SHELF_Y * drop
+  const grounded = shelf * (1 - drop) + SHELF_Y * drop
 
   const raw = grounded + hill * away * shore
-  // ALWAYS quantised. Continuous ground made every cell a hair taller than its
-  // neighbour, exposing thin dark slivers of rock between columns that read as
-  // scratches across the grass. Coarse steps far from the route, fine steps
-  // near it so the path can still climb.
-  const step = away > 0.75 ? TIER : QUANT
+  // One step for the whole island. Mixing a fine step near the route with a
+  // coarse one further out put a seam wherever the two grids disagreed, on top
+  // of the contour fan the fine step created in the first place.
+  const step = away > 0.8 ? TIER : PLATEAU
   return Math.round(raw / step) * step
+}
+
+/** How far the road's surface floats above the ground it covers. */
+export const ROAD_LIFT = 0.44
+/** Half-width of the road's footprint, used when sampling the ground under it. */
+export const ROAD_FOOT = 1.6
+
+/**
+ * Height of the walkable ROAD surface at (x, z) — not the raw ground.
+ *
+ * The ribbon takes the HIGHEST ground under its whole width so it never slices
+ * into a terrace, which means the road sits above the ground directly beneath
+ * its centre wherever it runs along the lip of a step. Anything that walks the
+ * road has to use this same number, or it sinks: the patrolling creatures were
+ * buried to the waist for exactly this reason, having anchored to the centre
+ * sample alone.
+ */
+export function roadTopAt(x, z) {
+  return (
+    Math.max(
+      groundHeightAt(x, z),
+      groundHeightAt(x + ROAD_FOOT, z),
+      groundHeightAt(x - ROAD_FOOT, z),
+      groundHeightAt(x, z + ROAD_FOOT),
+      groundHeightAt(x, z - ROAD_FOOT)
+    ) + ROAD_LIFT
+  )
 }
 
 /**
