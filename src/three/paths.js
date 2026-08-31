@@ -90,12 +90,23 @@ function spread(count, { startsAtBoss = false, endsAtBoss = false } = {}) {
   return Array.from({ length: count }, (_, i) => i / (count - 1)) // 0 .. 1
 }
 
+const NODE_FOOT = 1.6 // half-width of the disc's footprint
+
 function sample(curve, u) {
   const position = curve.getPointAt(u)
-  // Snap to the real ground so nodes never float over, or sink into, the
-  // quantised terrain the curve only approximates.
-  position.y = groundHeightAt(position.x, position.z)
-  return { position, tangent: curve.getTangentAt(u).normalize() }
+  const t = curve.getTangentAt(u).normalize()
+  // Highest ground under the whole disc, not just its centre — a node placed
+  // right at a terrace step otherwise has half of itself buried.
+  const sx = t.z * NODE_FOOT
+  const sz = -t.x * NODE_FOOT
+  position.y = Math.max(
+    groundHeightAt(position.x, position.z),
+    groundHeightAt(position.x + sx, position.z + sz),
+    groundHeightAt(position.x - sx, position.z - sz),
+    groundHeightAt(position.x + t.x * NODE_FOOT, position.z + t.z * NODE_FOOT),
+    groundHeightAt(position.x - t.x * NODE_FOOT, position.z - t.z * NODE_FOOT)
+  )
+  return { position, tangent: t }
 }
 
 /**
