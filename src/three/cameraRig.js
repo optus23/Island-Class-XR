@@ -36,13 +36,33 @@ const clamp = (v, lo, hi) => (v < lo ? lo : v > hi ? hi : v)
 // The overview looks almost straight down — a classic Mario paper map.
 const TOP_DOWN_OFFSET = [0, 96, 26]
 
-const ORBIT_YAW_MAX = 0.5 // ~29 degrees either way
-const ORBIT_PITCH_MAX = 0.28 // ~16 degrees
-const ZOOM_MIN = 0.62
-const ZOOM_MAX = 1.9
+// Wider than before. The old clamp was so tight that dragging felt like the
+// camera was stuck, which is what made the map read as a flat rectangle: the
+// viewer never got a second angle on it. Still bounded — the art has no back
+// side, so the camera may never swing behind the island.
+const ORBIT_YAW_MAX = 0.95 // ~54 degrees either way
+const ORBIT_PITCH_MAX = 0.46 // ~26 degrees
+const ZOOM_MIN = 0.55
+// Deliberately modest. Pulling right back defeats the point of a Mario
+// overworld - the whole island should be a reveal, not the default view - and
+// the overview button is the sanctioned way to see all three worlds at once.
+const ZOOM_MAX = 1.5
+
+/**
+ * Where the zoom starts.
+ *
+ * Below 1 so the map opens CLOSER than the fit-everything framing: the point
+ * of a Mario overworld is that the next level is a discovery, not something
+ * you can read off the horizon on the first frame.
+ */
+const ZOOM_DEFAULT = 0.9
 
 export function createCameraRig() {
-  const camera = new THREE.PerspectiveCamera(CAMERA_FOV, 1, 0.5, 500)
+  // near is deliberately far out. Nothing is ever closer than the camera's own
+  // stand-off distance, and a near plane of 0.5 spent almost the entire depth
+  // buffer on empty space in front of the island — which is what let the road
+  // and the terrain trade pixels wherever they nearly touched.
+  const camera = new THREE.PerspectiveCamera(CAMERA_FOV, 1, 12, 500)
 
   const ordered = [...worlds].sort((a, b) => a.center[0] - b.center[0])
   const byId = new Map(ordered.map((w) => [w.id, w]))
@@ -75,7 +95,7 @@ export function createCameraRig() {
   let seeded = false
   let orbitYaw = 0
   let orbitPitch = 0
-  let zoomMul = 1
+  let zoomMul = ZOOM_DEFAULT
   // The scale actually in use this frame, including the overview blend. Fog
   // reads this: using the follow scale alone whited-out the whole island the
   // moment the overview pulled the camera further back than fogFar.
@@ -193,7 +213,11 @@ export function createCameraRig() {
       if (pitchAxis.lengthSq() > 1e-6) shaped.applyAxisAngle(pitchAxis.normalize(), orbitPitch)
     }
 
-    basePos.copy(centre).add(shaped.multiplyScalar(scale * zoomMul))
+    // The overview is a fixed framing of the whole island, so the viewer's own
+    // zoom has to fade out as it takes over — otherwise a zoomed-in map opened
+    // the overview already cropped, with a world missing off the side.
+    const userZoom = zoomMul + (1 - zoomMul) * o
+    basePos.copy(centre).add(shaped.multiplyScalar(scale * userZoom))
     baseTarget.set(centre.x, centre.y + lookY, centre.z)
 
     // Horizontal only: vertical drift fights the raised, near-overhead angle.
@@ -224,21 +248,30 @@ export function createCameraRig() {
     toggleOverview,
     /** Drag to look around, within a tight clamp. Never a free camera. */
     orbit(dx, dy) {
-      orbitYaw = clamp(orbitYaw - dx * 0.005, -ORBIT_YAW_MAX, ORBIT_YAW_MAX)
-      orbitPitch = clamp(orbitPitch + dy * 0.004, -ORBIT_PITCH_MAX, ORBIT_PITCH_MAX)
+      orbitYaw = clamp(orbitYaw - dx * 0.006, -ORBIT_YAW_MAX, ORBIT_YAW_MAX)
+      orbitPitch = clamp(orbitPitch + dy * 0.005, -ORBIT_PITCH_MAX, ORBIT_PITCH_MAX)
     },
     /** Wheel zoom, also clamped. */
     zoom(delta) {
       zoomMul = clamp(zoomMul * (1 + delta * 0.0012), ZOOM_MIN, ZOOM_MAX)
     },
+    /**
+     * Pinch zoom. Takes a RATIO rather than a delta, because that is what a
+     * pinch actually measures: fingers twice as far apart means twice as
+     * close, at any speed and from any starting spread.
+     */
+    zoomBy(ratio) {
+      if (!Number.isFinite(ratio) || ratio <= 0) return
+      zoomMul = clamp(zoomMul / ratio, ZOOM_MIN, ZOOM_MAX)
+    },
     /** Back to the world's own preset. */
     resetView() {
       orbitYaw = 0
       orbitPitch = 0
-      zoomMul = 1
+      zoomMul = ZOOM_DEFAULT
     },
     get isNudged() {
-      return orbitYaw !== 0 || orbitPitch !== 0 || zoomMul !== 1
+      return orbitYaw !== 0 || orbitPitch !== 0 || zoomMul !== ZOOM_DEFAULT
     },
     get isOverview() {
       return overview

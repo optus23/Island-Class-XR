@@ -218,49 +218,55 @@ export function createMapObjects() {
  * A quad strip along the spline: two triangles per sample, one draw call for
  * the whole road network.
  */
-function ribbonGeometry(curves, halfWidth, lift) {
+/**
+ * Walk a curve at a fixed spacing and record, per sample, the point, the
+ * sideways vector and the ground the road has to sit on.
+ *
+ * Shared by the ribbon and the stairs so the two can never disagree about
+ * where the road changes level.
+ */
+function sampleRoad(curve, halfWidth, spacing = 0.5) {
+  const segments = Math.max(8, Math.round(curve.getLength() / spacing))
+  const out = []
+  const side = new THREE.Vector3()
+  for (let i = 0; i <= segments; i++) {
+    const u = i / segments
+    const p = curve.getPointAt(u)
+    const t = curve.getTangentAt(u)
+    // Perpendicular in the ground plane, so the road stays flat on the terrain.
+    side.set(t.z, 0, -t.x).normalize().multiplyScalar(halfWidth)
+
+    // BOTH edges take the HIGHEST ground under the ribbon's whole width,
+    // sampled a little beyond each side. Letting each edge follow its own
+    // ground tilted the quad wherever the terrain stepped, and the low edge
+    // then sliced straight through the terrace.
+    const top = Math.max(
+      groundHeightAt(p.x - side.x, p.z - side.z),
+      groundHeightAt(p.x + side.x, p.z + side.z),
+      groundHeightAt(p.x, p.z),
+      groundHeightAt(p.x - side.x * 1.35, p.z - side.z * 1.35),
+      groundHeightAt(p.x + side.x * 1.35, p.z + side.z * 1.35)
+    )
+    out.push({ p, side: side.clone(), top, yaw: Math.atan2(t.x, t.z) })
+  }
+  return out
+}
+
+function ribbonGeometry(samples, lift) {
   const positions = []
   const indices = []
   let base = 0
-  const side = new THREE.Vector3()
 
-  for (const curve of curves) {
-    const segments = Math.max(8, Math.round(curve.getLength() / 0.5))
-    for (let i = 0; i <= segments; i++) {
-      // Denser sampling: the road has to follow every terrain step now.
-      const u = i / segments
-      const p = curve.getPointAt(u)
-      const t = curve.getTangentAt(u)
-      // Perpendicular in the ground plane, so the road stays flat on the terrain.
-      side.set(t.z, 0, -t.x).normalize().multiplyScalar(halfWidth)
-      // Each edge rides the REAL ground under it, not the abstract curve, so
-      // the road lies flat on the quantised terrain instead of slicing through
-      // a step or hovering over one.
-      const lx = p.x - side.x
-      const lz = p.z - side.z
-      const rx = p.x + side.x
-      const rz = p.z + side.z
-
-      // BOTH edges take the HIGHEST ground under the ribbon's whole width,
-      // sampled a little beyond each side. Letting each edge follow its own
-      // ground tilted the quad wherever the terrain stepped, and the low edge
-      // then sliced straight through the terrace — the overlap that kept
-      // showing up in the desert and the forest.
-      const top = Math.max(
-        groundHeightAt(lx, lz),
-        groundHeightAt(rx, rz),
-        groundHeightAt(p.x, p.z),
-        groundHeightAt(p.x - side.x * 1.35, p.z - side.z * 1.35),
-        groundHeightAt(p.x + side.x * 1.35, p.z + side.z * 1.35)
-      )
-      positions.push(lx, top + lift, lz)
-      positions.push(rx, top + lift, rz)
+  for (const row of samples) {
+    for (const s of row) {
+      positions.push(s.p.x - s.side.x, s.top + lift, s.p.z - s.side.z)
+      positions.push(s.p.x + s.side.x, s.top + lift, s.p.z + s.side.z)
     }
-    for (let i = 0; i < segments; i++) {
+    for (let i = 0; i < row.length - 1; i++) {
       const a = base + i * 2
       indices.push(a, a + 2, a + 1, a + 1, a + 2, a + 3)
     }
-    base += (segments + 1) * 2
+    base += row.length * 2
   }
 
   const geo = new THREE.BufferGeometry()
@@ -270,12 +276,89 @@ function ribbonGeometry(curves, halfWidth, lift) {
   return geo
 }
 
+/**
+ * Wooden steps wherever the road changes level.
+ *
+ * The ground is built from flat plateaus now (see terrain.js), so a climb
+ * arrives as one clean vertical face across the road. Left bare that reads as
+ * a wall the character walks through; the reference art puts a little
+ * staircase at exactly these places, so we build one.
+ *
+ * Treads are laid from the LOW side up to the high one and each is deep enough
+ * to overlap its neighbour, so the flight is solid from every angle.
+ */
+function createRoadStairs(samples, halfWidth) {
+  const TREAD_RISE = 0.5 // world units per step
+  const TREAD_DEPTH = 0.85
+  const treads = []
+
+  for (const row of samples) {
+    for (let i = 1; i < row.length; i++) {
+      const a = row[i - 1]
+      const b = row[i]
+      const rise = b.top - a.top
+      if (Math.abs(rise) < 0.4) continue
+
+      const up = rise > 0
+      const low = up ? a : b
+      const high = up ? b : a
+      const steps = Math.max(1, Math.round(Math.abs(rise) / TREAD_RISE))
+      // Centre the flight on the join, running from the low sample outward so
+      // it always meets ground rather than hanging off the edge of the step.
+      const dir = new THREE.Vector3().subVectors(high.p, low.p).setY(0)
+      if (dir.lengthSq() < 1e-6) continue
+      dir.normalize()
+
+      for (let k = 0; k < steps; k++) {
+        const y = low.top + (k + 1) * (Math.abs(rise) / steps)
+        // Each tread reaches back toward the low end; the last one meets the
+        // upper shelf.
+        const back = (steps - k - 0.5) * TREAD_DEPTH
+        const at = low.p.clone().addScaledVector(dir, -back + TREAD_DEPTH * steps * 0.5)
+        treads.push({
+          x: at.x,
+          y: (y + low.top) / 2,
+          z: at.z,
+          h: y - low.top,
+          yaw: low.yaw,
+          w: halfWidth * 1.82,
+          d: TREAD_DEPTH * 1.6,
+        })
+      }
+    }
+  }
+
+  const mesh = new THREE.InstancedMesh(
+    new THREE.BoxGeometry(1, 1, 1),
+    new THREE.MeshLambertMaterial({ color: themeWorld.pathStep }),
+    Math.max(1, treads.length)
+  )
+  const m = new THREE.Matrix4()
+  const q = new THREE.Quaternion()
+  const pos = new THREE.Vector3()
+  const sv = new THREE.Vector3()
+  treads.forEach((t, i) => {
+    q.setFromAxisAngle(UP, t.yaw)
+    pos.set(t.x, t.y, t.z)
+    sv.set(t.w, Math.max(0.2, t.h), t.d)
+    m.compose(pos, q, sv)
+    mesh.setMatrixAt(i, m)
+  })
+  mesh.count = treads.length
+  mesh.instanceMatrix.needsUpdate = true
+  mesh.frustumCulled = false
+  return mesh
+}
+
 function createPathRibbon() {
   const curves = [...worlds.map((w) => buildWorldCurves(w).full), ...buildConnectors()]
   const group = new THREE.Group()
 
+  const outer = curves.map((c) => sampleRoad(c, 1.6))
+  const inner = curves.map((c) => sampleRoad(c, 1.2))
+
   const border = new THREE.Mesh(
-    ribbonGeometry(curves, 1.6, 0.30),
+    ribbonGeometry(outer, 0.34),
     // DoubleSide keeps the strip visible regardless of which way a curve winds.
     // polygonOffset pushes the road toward the camera in depth only, so it
     // cannot z-fight the terrain where a quad spans a terrace step.
@@ -288,7 +371,7 @@ function createPathRibbon() {
     })
   )
   const road = new THREE.Mesh(
-    ribbonGeometry(curves, 1.2, 0.38),
+    ribbonGeometry(inner, 0.44),
     new THREE.MeshLambertMaterial({
       color: themeWorld.path,
       side: THREE.DoubleSide,
@@ -299,7 +382,7 @@ function createPathRibbon() {
   )
   border.frustumCulled = false
   road.frustumCulled = false
-  group.add(border, road)
+  group.add(border, road, createRoadStairs(inner, 1.6))
   return group
 }
 

@@ -1,5 +1,7 @@
 import * as THREE from 'three'
-import { hash2, CELL_AREA_SCALE } from './terrain.js'
+import { hash2, CELL_AREA_SCALE, groundHeightAt, nearestPath, landInset } from './terrain.js'
+import { worlds } from '../config/worlds.js'
+import { biomes } from '../config/theme.js'
 
 /**
  * Voxel set dressing.
@@ -132,6 +134,133 @@ const RECIPES = {
     part(0.22, 0.24, 0.1, 0.14, 0.48, 0.14, b.foliageAlt),
     part(-0.2, 0.2, -0.12, 0.13, 0.4, 0.13, b.foliage),
   ],
+
+  // --- landmarks ----------------------------------------------------------
+  // These are the set pieces that go on the CORNERS of the route. In the
+  // reference maps almost every bend has one — a toad house, a cannon, a
+  // little bridge — and it is those, far more than the terrain, that make an
+  // overworld feel like a place rather than a diagram. They are placed
+  // deliberately (see planLandmarks) rather than scattered.
+
+  /** Toad house: spotted cap, round door, lantern. */
+  mushroomHouse: () => [
+    part(0, 1.05, 0, 3.0, 2.1, 3.0, 0xf7ead6), // walls
+    part(0, 1.05, 1.5, 3.0, 2.1, 0.12, 0xfff6ea), // sunlit face
+    part(0, 2.28, 0, 3.4, 0.4, 3.4, 0xe0cfb4), // eave
+    part(0, 3.05, 0, 4.4, 1.35, 4.4, 0xe63946), // cap
+    part(0, 3.95, 0, 3.2, 0.75, 3.2, 0xd62839),
+    part(0, 4.5, 0, 1.7, 0.5, 1.7, 0xc41e3a),
+    // Spots ride the OUTSIDE of each cap tier. Set inside its half-width they
+    // were simply swallowed by the box they were meant to decorate.
+    ...ring(3.05, 2.15, 0.95, 0xfff6ea, 6, 0.3),
+    ...ring(3.95, 1.6, 0.66, 0xfff6ea, 4, 0.9),
+    // Spots on the TOP faces as well. The camera looks down on this map, so
+    // spots only on the sides left the roof reading as a plain red block from
+    // the angle players actually see it from.
+    ...ring(3.78, 1.75, 0.8, 0xfff6ea, 4, 0.0).map((q) => ({ ...q, h: 0.22 })),
+    ...ring(4.78, 0.95, 0.55, 0xfff6ea, 3, 0.6).map((q) => ({ ...q, h: 0.2 })),
+    part(0, 0.85, 1.58, 1.1, 1.7, 0.22, 0x8b5e34), // door
+    part(0, 1.3, 1.7, 0.9, 0.75, 0.06, 0xa9763a),
+    part(0.34, 0.85, 1.73, 0.16, 0.16, 0.06, 0xf2c14e), // handle
+    part(-1.05, 1.5, 1.58, 0.7, 0.7, 0.16, 0x9be7ff), // windows
+    part(1.05, 1.5, 1.58, 0.7, 0.7, 0.16, 0x9be7ff),
+    part(-1.75, 1.9, 1.25, 0.22, 0.22, 0.22, 0xf2c14e), // lantern
+  ],
+
+  /** The lilac cottage — the second house colour in the reference art. */
+  cottage: () => [
+    part(0, 1.0, 0, 2.9, 2.0, 2.6, 0xb9a0e3), // walls
+    part(0, 1.0, 1.32, 2.9, 2.0, 0.12, 0xc9b4ec), // sunlit face
+    part(0, 2.35, 0, 3.5, 0.7, 3.2, 0x6d4f9c), // roof, two tiers
+    part(0, 2.95, 0, 2.4, 0.6, 2.2, 0x5b3f86),
+    part(0, 3.4, 0, 1.2, 0.4, 1.1, 0x4b3270),
+    part(1.05, 3.3, -0.6, 0.55, 1.5, 0.55, 0x8d99ae), // chimney
+    part(1.05, 4.15, -0.6, 0.72, 0.24, 0.72, 0x6c757d),
+    part(0, 0.8, 1.42, 0.95, 1.6, 0.12, 0x5b3f86), // door
+    part(0.3, 0.8, 1.5, 0.14, 0.14, 0.06, 0xf2c14e),
+    part(-0.95, 1.45, 1.42, 0.8, 0.8, 0.1, 0x9be7ff), // window
+    part(-0.95, 1.45, 1.48, 0.12, 0.8, 0.06, 0xfff6ea), // mullion
+    part(-0.95, 1.45, 1.48, 0.8, 0.12, 0.06, 0xfff6ea),
+    part(0.95, 1.45, 1.42, 0.8, 0.8, 0.1, 0x9be7ff),
+  ],
+
+  /** Bill Blaster-ish cannon on a timber carriage. */
+  cannon: () => [
+    part(0, 0.35, 0, 2.4, 0.7, 1.6, 0x6f4a2a), // carriage
+    part(-0.9, 0.35, 0.72, 0.7, 0.7, 0.22, 0x4a3520), // wheels
+    part(0.9, 0.35, 0.72, 0.7, 0.7, 0.22, 0x4a3520),
+    part(-0.9, 0.35, -0.72, 0.7, 0.7, 0.22, 0x4a3520),
+    part(0.9, 0.35, -0.72, 0.7, 0.7, 0.22, 0x4a3520),
+    part(0, 1.15, -0.2, 1.5, 1.2, 1.5, 0x3f4650), // breech
+    part(0, 1.65, 0.35, 1.15, 1.15, 1.4, 0x4a5058), // barrel
+    part(0, 2.05, 0.95, 0.95, 0.95, 1.2, 0x555d66),
+    part(0, 2.3, 1.5, 0.78, 0.78, 0.5, 0x22272e), // muzzle
+    part(0, 1.15, -0.95, 0.5, 0.5, 0.4, 0x22272e), // fuse block
+  ],
+
+  /** Little stone arch bridge with the gap under it. */
+  archBridge: () => [
+    part(0, 0.9, 0, 5.2, 0.6, 2.4, 0xcdbfa6), // deck
+    part(-1.9, 0.4, 0, 1.4, 1.0, 2.4, 0xb6a68c), // piers
+    part(1.9, 0.4, 0, 1.4, 1.0, 2.4, 0xb6a68c),
+    part(-2.55, 0.55, 0, 0.6, 1.3, 2.6, 0xa08f74), // abutments
+    part(2.55, 0.55, 0, 0.6, 1.3, 2.6, 0xa08f74),
+    part(-2.4, 1.55, 1.05, 0.35, 0.9, 0.35, 0x8b5e34), // rail posts
+    part(2.4, 1.55, 1.05, 0.35, 0.9, 0.35, 0x8b5e34),
+    part(-2.4, 1.55, -1.05, 0.35, 0.9, 0.35, 0x8b5e34),
+    part(2.4, 1.55, -1.05, 0.35, 0.9, 0.35, 0x8b5e34),
+    part(0, 1.85, 1.05, 5.2, 0.22, 0.22, 0x8b5e34), // handrails
+    part(0, 1.85, -1.05, 5.2, 0.22, 0.22, 0x8b5e34),
+  ],
+
+  /** Warp pipe. Nothing says Mario faster. */
+  warpPipe: () => [
+    part(0, 0.9, 0, 1.7, 1.8, 1.7, 0x3f9142),
+    part(0, 1.3, 0.9, 1.7, 1.0, 0.14, 0x50a854), // highlight
+    part(0, 2.1, 0, 2.15, 0.65, 2.15, 0x4aa84d),
+    part(0, 2.42, 0, 1.5, 0.16, 1.5, 0x22402a), // dark mouth
+    part(-0.95, 2.1, 0, 0.16, 0.65, 2.15, 0x2f6b33),
+  ],
+
+  /** Village well — a corner needs somewhere for people to be. */
+  well: () => [
+    part(0, 0.45, 0, 2.1, 0.9, 2.1, 0x9aa7b3),
+    part(0, 0.95, 0, 1.75, 0.2, 1.75, 0x22272e), // water
+    part(-0.85, 1.55, 0, 0.28, 1.9, 0.28, 0x8b5e34), // posts
+    part(0.85, 1.55, 0, 0.28, 1.9, 0.28, 0x8b5e34),
+    part(0, 2.55, 0, 2.5, 0.45, 1.9, 0xb32a2a), // roof
+    part(0, 2.9, 0, 1.5, 0.35, 1.4, 0x8f2020),
+    part(0, 1.95, 0, 1.6, 0.16, 0.16, 0x6f4a2a), // winch
+    part(0, 1.5, 0, 0.1, 0.8, 0.1, 0xe8d9c0), // rope
+    part(0, 1.05, 0, 0.42, 0.35, 0.42, 0x6f4a2a), // bucket
+  ],
+
+  /** Signpost at a fork. */
+  signpost: () => [
+    part(0, 0.9, 0, 0.28, 1.8, 0.28, 0x8b5e34),
+    part(0.55, 1.55, 0, 1.5, 0.6, 0.16, 0xe8d9c0),
+    part(0.55, 1.55, 0.09, 1.2, 0.2, 0.05, 0xa9763a),
+    part(-0.45, 1.0, 0, 1.1, 0.45, 0.14, 0xe8d9c0),
+    part(0, 0.12, 0, 0.9, 0.24, 0.9, 0x9aa7b3), // stone footing
+  ],
+
+  /** Checkpoint flag, for the corners that need height rather than mass. */
+  bannerPole: () => [
+    part(0, 0.2, 0, 1.2, 0.4, 1.2, 0x9aa7b3),
+    part(0, 2.3, 0, 0.24, 4.2, 0.24, 0xe8e3d8),
+    part(0.85, 3.9, 0, 1.5, 1.1, 0.1, 0x4cc9f0),
+    part(0.85, 3.9, 0.06, 0.5, 0.5, 0.06, 0xfff6ea),
+    part(0, 4.5, 0, 0.4, 0.4, 0.4, 0xf2c14e),
+  ],
+
+  /** Stack of supply crates — cheap, and it breaks up a long straight. */
+  crates: () => [
+    part(0, 0.55, 0, 1.5, 1.1, 1.5, 0xb98a4e),
+    part(0, 0.55, 0.78, 1.2, 0.9, 0.1, 0x8b5e34),
+    part(0.25, 1.65, -0.2, 1.2, 1.1, 1.2, 0xc79a55),
+    part(0.25, 1.65, 0.42, 0.95, 0.85, 0.1, 0x8b5e34),
+    part(-0.9, 0.4, 0.6, 0.8, 0.8, 0.8, 0xa9763a),
+  ],
 }
 
 export const PROP_KINDS = Object.keys(RECIPES)
@@ -198,10 +327,46 @@ export function buildPropMesh(placements) {
  * road so they can never hide a node or the avatar; only small ground cover
  * comes near it.
  */
+/**
+ * Where the castles stand, straight from the path template.
+ *
+ * World 2 reserves a control point for its mini-boss; world 3's final boss
+ * closes the route, so it sits on the last one.
+ */
+function bossAnchors() {
+  const out = []
+  for (const w of worlds) {
+    const [cx, cy, cz] = w.center
+    const idx = w.path.bossSlotIndex
+    const cp = idx != null ? w.path.controlPoints[idx] : null
+    const last = w.path.controlPoints[w.path.controlPoints.length - 1]
+    const pick = cp ?? (w.id === 3 ? last : null)
+    if (pick) out.push({ x: pick[0] + cx, z: pick[2] + cz })
+  }
+  return out
+}
+
+const BOSS_GROVE_RADIUS = 26
+
 export function planProps(cells) {
   const out = []
+  const bosses = bossAnchors()
   const big = (c) => c.pathDist > 10 && c.shore > 0.88
   const near = (c) => c.pathDist > 2.4 && c.pathDist < 9 && c.shore > 0.85
+
+  /**
+   * 0 out in the open, 1 right at a castle. The reference art thickens the
+   * planting around every castle so it reads as the seat of the world rather
+   * than a model dropped on a lawn.
+   */
+  const grove = (c) => {
+    let best = 0
+    for (const b of bosses) {
+      const d = Math.hypot(c.x - b.x, c.z - b.z)
+      best = Math.max(best, 1 - Math.min(1, d / BOSS_GROVE_RADIUS))
+    }
+    return best
+  }
 
   // Placement is per CELL, so halving the voxel size quadruples the number of
   // candidates. Without this correction the finer grid buried the island in
@@ -218,7 +383,9 @@ export function planProps(cells) {
     if (big(c)) {
       const tree =
         c.biome.props === 'cactus' ? 'cactus' : c.biome.props === 'pine' ? 'pine' : 'treeLeafy'
-      if (r > 0.945) out.push({ ...base, kind: tree })
+      // Thicker planting close to a castle, ordinary density elsewhere.
+      const threshold = 0.945 - grove(c) * 0.16
+      if (r > threshold) out.push({ ...base, kind: tree })
     }
 
     if (near(c)) {
@@ -238,4 +405,98 @@ export function planProps(cells) {
     }
   }
   return out
+}
+
+/**
+ * Set pieces on the CORNERS of the route.
+ *
+ * Scattered props alone give texture but no landmarks, and a map with no
+ * landmarks is a map you cannot navigate from memory. In the reference art
+ * nearly every bend in the road has something built on it — a toad house, a
+ * cannon, a little bridge — and that is what turns a route into a journey.
+ *
+ * Deliberately placed, not random: the corner list comes straight from the
+ * path template, so reshaping a world in worlds.js moves its landmarks with
+ * it and none of this needs touching.
+ */
+const LANDMARKS_BY_BIOME = {
+  meadow: ['mushroomHouse', 'archBridge', 'cottage', 'warpPipe', 'well', 'signpost'],
+  desert: ['cannon', 'crates', 'well', 'signpost', 'warpPipe', 'cottage'],
+  summit: ['cottage', 'bannerPole', 'crates', 'signpost', 'mushroomHouse', 'well'],
+}
+
+/** How far off the road a landmark stands, and how much clearance it needs. */
+const LANDMARK_OFFSET = 8.5
+const LANDMARK_MIN_CLEARANCE = 6.5
+
+export function planLandmarks() {
+  const out = []
+
+  for (const w of worlds) {
+    const [cx, cy, cz] = w.center
+    const pts = w.path.controlPoints.map(([x, y, z]) => ({ x: x + cx, y: y + cy, z: z + cz }))
+    const biome = biomes[w.biome] ?? biomes.meadow
+    const kinds = LANDMARKS_BY_BIOME[w.biome] ?? LANDMARKS_BY_BIOME.meadow
+
+    for (let i = 1; i < pts.length - 1; i++) {
+      const prev = pts[i - 1]
+      const here = pts[i]
+      const next = pts[i + 1]
+
+      // Outward bisector of the corner: away from both arms, which is the one
+      // direction guaranteed to be clear of the road on a 90-degree bend.
+      const inA = norm(prev.x - here.x, prev.z - here.z)
+      const inB = norm(next.x - here.x, next.z - here.z)
+      let bx = inA.x + inB.x
+      let bz = inA.z + inB.z
+      if (Math.hypot(bx, bz) < 1e-3) {
+        // A straight-through waypoint has no bisector; step sideways instead.
+        bx = -inB.z
+        bz = inB.x
+      }
+      const b = norm(bx, bz)
+
+      // Try the bisector first, then its mirror, then either side — the first
+      // spot that is on land and genuinely clear of the road wins.
+      const tries = [
+        [b.x, b.z],
+        [-b.x, -b.z],
+        [-b.z, b.x],
+        [b.z, -b.x],
+      ]
+      let placed = null
+      for (const [dx, dz] of tries) {
+        for (const dist of [LANDMARK_OFFSET, LANDMARK_OFFSET + 3.5, LANDMARK_OFFSET - 2.5]) {
+          const x = here.x + dx * dist
+          const z = here.z + dz * dist
+          if (landInset(x, z) < 6) continue
+          if (nearestPath(x, z).dist < LANDMARK_MIN_CLEARANCE) continue
+          placed = { x, z, dx, dz }
+          break
+        }
+        if (placed) break
+      }
+      if (!placed) continue
+
+      const pick = kinds[(i + w.id) % kinds.length]
+      out.push({
+        kind: pick,
+        x: placed.x,
+        z: placed.z,
+        y: groundHeightAt(placed.x, placed.z),
+        biome,
+        // Face back toward the corner it belongs to, so doors and cannon
+        // muzzles point at the road rather than out to sea.
+        yaw: Math.atan2(-placed.dx, -placed.dz),
+        scale: 0.9 + hash2(placed.x, placed.z) * 0.25,
+      })
+    }
+  }
+
+  return out
+}
+
+function norm(x, z) {
+  const l = Math.hypot(x, z) || 1
+  return { x: x / l, z: z / l }
 }
