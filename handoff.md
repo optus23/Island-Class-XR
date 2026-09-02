@@ -7,14 +7,14 @@ Read `CLAUDE.md` first for the durable rules; this file is what was happening.
 
 ## Where things stand
 
-Everything through round 5 is **merged to `main` and live**:
+Everything through round 6 is **merged to `main` and live**:
 <https://optus23.github.io/Island-Class-XR/>
 
 | | |
 | --- | --- |
-| `main` | `232e369` — merge of PR #8 |
+| `main` | `2c015fa` — merge of PR #9 |
 | `develop` | same content |
-| Last deploy | run `33667382359`, success |
+| Last deploy | run `33694410152`, success |
 | Working tree | clean |
 | Performance | ~27 draw calls, ~700k triangles, 0.05 ms/frame CPU |
 
@@ -23,7 +23,12 @@ Shipped rounds: [#3](https://github.com/optus23/Island-Class-XR/pull/3) ·
 [#5](https://github.com/optus23/Island-Class-XR/pull/5) ·
 [#6](https://github.com/optus23/Island-Class-XR/pull/6) ·
 [#7](https://github.com/optus23/Island-Class-XR/pull/7) ·
-[#8](https://github.com/optus23/Island-Class-XR/pull/8)
+[#8](https://github.com/optus23/Island-Class-XR/pull/8) ·
+[#9](https://github.com/optus23/Island-Class-XR/pull/9)
+
+Verified live after the deploy: the assessment strip renders on all three
+blocks, `null` fields read «por decidir», block 1 shows its pending branch, and
+the console is clean.
 
 ---
 
