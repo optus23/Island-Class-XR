@@ -28,6 +28,65 @@ const STAGE_LABELS = {
 
 const CATEGORY_LABELS = { theory: 'Teoría', practical: 'Práctica', boss: 'Jefe' }
 
+// The graded practical blocks. `null` means the brief has not decided yet and
+// says so out loud — an empty slot here is a question still open, not an
+// oversight, so it must never render as blank.
+const SUBMISSION_LABELS = {
+  build: 'Build (APK), no vídeo',
+  video: 'Vídeo',
+  repo: 'Repositorio',
+}
+const GROUP_LABELS = {
+  individual: 'Individual',
+  'individual-within-group': 'Individual, dentro del grupo',
+  'per-group': 'Por grupo',
+}
+const UNDECIDED = '<span class="opacity-60 italic">por decidir</span>'
+
+/**
+ * The assessment strip: how this exercise is handed in, who hands it in, and
+ * what it is worth. Only graded block exercises have it.
+ */
+function assessmentStrip(level) {
+  if (!level.block) return ''
+
+  const b = level.block
+  const weight = level.gradeWeight
+  const weightText = weight
+    ? `${weight.block} del curso · ${weight.exercise ? `${weight.exercise} del bloque` : `reparto por ejercicio ${UNDECIDED}`}`
+    : UNDECIDED
+
+  const items = [
+    ['Bloque', `${b.number} · ${b.name} — ejercicio ${b.exercise} de ${b.of}`],
+    ['Entrega', SUBMISSION_LABELS[level.submissionMethod] ?? UNDECIDED],
+    ['Trabajo', GROUP_LABELS[level.groupMode] ?? UNDECIDED],
+    ['Peso', weightText],
+  ]
+
+  if (level.starterRepo) {
+    const branch = `<code class="text-[11px]">${level.starterRepo.branch}</code>`
+    items.push([
+      'Repositorio',
+      level.starterRepo.url
+        ? `<a class="link" href="${level.starterRepo.url}" target="_blank" rel="noopener">repo de ejercicios</a> · rama ${branch}`
+        : `rama ${branch} <span class="opacity-60 italic">(pendiente de publicar)</span>`,
+    ])
+  }
+
+  return `
+    <dl class="mt-3 flex flex-wrap gap-x-6 gap-y-1.5 text-sm">
+      ${items
+        .map(
+          ([label, value]) => `
+        <div class="flex items-baseline gap-2">
+          <dt class="text-[10px] uppercase tracking-[0.15em] opacity-55">${label}</dt>
+          <dd>${value}</dd>
+        </div>`
+        )
+        .join('')}
+    </dl>`
+}
+
 let root = null
 let keyHandler = null
 let closeHandler = null
@@ -148,6 +207,7 @@ export function openPortal(level, { markerId = null, onClose = null, onBeforeClo
           <h2 class="text-2xl sm:text-4xl font-extrabold leading-tight">${level.title}</h2>
           <p class="text-sm sm:text-base opacity-70 mt-1.5 max-w-3xl">${level.summary ?? ''}</p>
           <div class="flex flex-wrap gap-1.5 mt-3">${badges}</div>
+          ${assessmentStrip(level)}
         </div>
       </header>
 

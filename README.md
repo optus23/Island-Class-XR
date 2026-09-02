@@ -144,6 +144,7 @@ Everything a session shows lives in **one entry** in
 | **Exercises** | `exercises: "content/exercises/<id>.md"` | Plain Markdown at `public/content/exercises/<id>.md` |
 | **Answers** | `answers: "content/answers/<id>.md"` | `null` hides the tab entirely |
 | **Activities** | `todos: [ … ]` | `objective-task` objects — objective, starting point, milestones, deliverable |
+| **Graded exercise** | `block`, `submissionMethod`, `groupMode`, `gradeWeight` | Only on the 8 exercises of the three practical blocks — see below |
 
 Getting a Canva embed link: open the deck → **Share** → **More** → **Embed** →
 copy the URL from the `src="…"` of the snippet. It looks like
@@ -224,6 +225,46 @@ progress marker.
 
 Activity content is written by you (or generated offline). The site only renders
 it — there are no live AI calls in the browser and no API keys on the client.
+
+### Graded exercises (the three practical blocks)
+
+Eight levels carry the graded exercises of the **Blue Goblin** blocks — 30 % of
+the course, 10 % per block. They are ordinary `practical` levels plus four
+fields:
+
+```jsonc
+{
+  "block": { "number": 1, "name": "AR Foundation", "exercise": 1, "of": 3 },
+  "submissionMethod": "build",              // build | video | repo | null
+  "groupMode": "individual-within-group",   // individual | individual-within-group | per-group
+  "gradeWeight": { "block": "10 %", "exercise": null },
+  "starterRepo": { "url": null, "branch": "01-plane-detection" }  // block 1 only
+}
+```
+
+Where they sit:
+
+| Block | Levels | Submission | Work |
+| --- | --- | --- | --- |
+| 1 · AR Foundation | `w1-arf-01/02/03` | build (APK) | individual, within the group |
+| 2 · Meta Building Blocks | `w2-pre-02`, `w2-pre-03`, `w2-post-03` | build (APK) | per group |
+| 3 · XR Interaction Toolkit | `w3-xrit-02`, `w3-xrit-03` | *undecided* | per group |
+
+Block 2 straddles the midterm castle on purpose: exercises 1 and 2 are the short
+in-class ones and sit before it, exercise 3 is the heavy one that finishes at
+home and sits after.
+
+**`null` is a real value here and means "not decided yet".** The field being
+*absent* is an error; the field being `null` renders as *«por decidir»* in the
+portal. `gradeWeight.exercise` is null on all eight — the per-exercise split is
+an open decision and must not be guessed. See
+[`docs/decisiones-abiertas.md`](docs/decisiones-abiertas.md); `npm run validate`
+prints all four open decisions on every run.
+
+`starterRepo` points at a **separate** student repository, one branch per
+exercise — its Unity project never lands in this repo. It does not exist yet;
+[`docs/repo-ejercicios-bloque1.md`](docs/repo-ejercicios-bloque1.md) has the
+branch layout and the one-line edit that publishes the link.
 
 ### Boss and optional nodes
 

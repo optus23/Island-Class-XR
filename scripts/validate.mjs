@@ -30,8 +30,15 @@ const CATEGORIES = ['theory', 'practical', 'boss']
 const BOSS_TIERS = ['mini', 'final']
 const SLIDE_TYPES = ['pdf', 'canva']
 
+// The graded practical blocks — 30% of the course, 10% per block.
+// `null` is a legal value for submissionMethod and groupMode and means
+// "not decided yet". It is NOT the same as the field being absent.
+const SUBMISSION_METHODS = ['build', 'video', 'repo']
+const GROUP_MODES = ['individual', 'individual-within-group', 'per-group']
+
 const errors = []
 const warnings = []
+const fixmes = []
 const err = (m) => errors.push(m)
 const warn = (m) => warnings.push(m)
 
@@ -55,6 +62,49 @@ for (const l of levels) {
   } else if (l.bossTier) {
     err(`${at}: bossTier is only valid when category is "boss"`)
   }
+
+  // --- graded exercise fields ---------------------------------------------
+  // Checked whenever present, so a stray value on a non-exercise level is
+  // caught too.
+  if ('submissionMethod' in l && l.submissionMethod !== null &&
+      !SUBMISSION_METHODS.includes(l.submissionMethod)) {
+    err(`${at}: submissionMethod "${l.submissionMethod}" — use ${SUBMISSION_METHODS.join(' | ')} or null`)
+  }
+  if ('groupMode' in l && l.groupMode !== null && !GROUP_MODES.includes(l.groupMode)) {
+    err(`${at}: groupMode "${l.groupMode}" — use ${GROUP_MODES.join(' | ')} or null`)
+  }
+  if (l.gradeWeight) {
+    if (!('block' in l.gradeWeight) || !('exercise' in l.gradeWeight)) {
+      err(`${at}: gradeWeight needs both "block" and "exercise" (exercise may be null)`)
+    }
+  }
+  if (l.starterRepo) {
+    if (!l.starterRepo.branch) err(`${at}: starterRepo needs a branch name`)
+    if (l.starterRepo.url != null && !/^https:\/\//.test(l.starterRepo.url)) {
+      err(`${at}: starterRepo.url must be an https URL, or null until the repo exists`)
+    }
+  }
+
+  if (l.block) {
+    const b = l.block
+    if (![1, 2, 3].includes(b.number)) err(`${at}: block.number must be 1, 2 or 3`)
+    if (!b.name) err(`${at}: block.name is empty`)
+    if (!Number.isInteger(b.of) || b.of < 1) err(`${at}: block.of must be a positive integer`)
+    if (!Number.isInteger(b.exercise) || b.exercise < 1 || b.exercise > b.of) {
+      err(`${at}: block.exercise ${b.exercise} is out of range for a block of ${b.of}`)
+    }
+    if (l.category !== 'practical') err(`${at}: a graded block exercise must be category "practical"`)
+    if (l.optional) err(`${at}: a graded block exercise cannot be optional`)
+    if (!l.todos?.length) err(`${at}: a graded block exercise needs at least one todo`)
+    for (const f of ['submissionMethod', 'groupMode', 'gradeWeight']) {
+      if (!(f in l)) err(`${at}: graded exercise is missing "${f}" (null is fine, absent is not)`)
+    }
+    if (l.gradeWeight && !l.gradeWeight.block) {
+      err(`${at}: gradeWeight.block is the known 10% per block — it must not be empty`)
+    }
+  }
+
+  for (const note of l._fixme ?? []) fixmes.push(`${l.id}: ${note}`)
 
   if (l.slides) {
     if (!SLIDE_TYPES.includes(l.slides.type)) err(`${at}: slides.type must be pdf or canva`)
@@ -116,6 +166,33 @@ for (const w of worlds) {
     if (bi === 0 || bi === main.length - 1) {
       err(`world ${w.id}: the mini-boss must sit BETWEEN two halves, not at an end`)
     }
+  }
+}
+
+// --- graded practical blocks ----------------------------------------------
+// Each block's exercises must be numbered 1..of, once each, and must appear on
+// the map in that order — the narrative only works read front to back.
+const blocks = new Map()
+for (const l of levels.filter((x) => x.block)) {
+  const key = l.block.number
+  if (!blocks.has(key)) blocks.set(key, [])
+  blocks.get(key).push(l)
+}
+for (const [number, mine] of [...blocks].sort((a, b) => a[0] - b[0])) {
+  const of = mine[0].block.of
+  const seenEx = new Set()
+  for (const l of mine) {
+    if (l.block.of !== of) err(`block ${number}: "${l.id}" says block.of ${l.block.of}, siblings say ${of}`)
+    if (seenEx.has(l.block.exercise)) err(`block ${number}: two levels claim exercise ${l.block.exercise}`)
+    seenEx.add(l.block.exercise)
+  }
+  if (mine.length !== of) {
+    err(`block ${number}: ${mine.length} exercise levels but block.of says ${of}`)
+  }
+  // Map order is declaration order, so the indices must already ascend.
+  const order = mine.map((l) => l.block.exercise)
+  if (order.some((n, i) => i > 0 && n < order[i - 1])) {
+    err(`block ${number}: exercises are out of order on the map (${order.join(', ')})`)
   }
 }
 
@@ -252,9 +329,21 @@ cover('at least one optional node', levels.some((l) => l.optional),
 cover('a PDF slide example', levels.some((l) => l.slides?.type === 'pdf'))
 cover('a Canva slide example', levels.some((l) => l.slides?.type === 'canva'))
 cover('an objective-task todo', levels.some((l) => l.todos?.some((t) => t.type === 'objective-task')))
+cover(
+  'the 8 graded block exercises',
+  levels.filter((l) => l.block).length === 8,
+  [...blocks].sort((a, b) => a[0] - b[0]).map(([n, m]) => `bloque ${n}: ${m.length}`).join(', ')
+)
 
 // --- report ----------------------------------------------------------------
 console.log(`\n${levels.length} levels, ${totalNodes} nodes placed.`)
+if (fixmes.length) {
+  // Open decisions from the exercise brief. Deliberately unresolved — they are
+  // printed on every run so they cannot quietly become permanent.
+  console.log(`\n--- open decisions (${fixmes.length}) ---`)
+  for (const f of fixmes) console.log(`  ${f}`)
+  console.log('  full list: docs/decisiones-abiertas.md')
+}
 for (const w of warnings) console.warn(`WARN  ${w}`)
 for (const e of errors) console.error(`ERROR ${e}`)
 if (errors.length) {

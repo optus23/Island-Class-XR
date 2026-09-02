@@ -17,7 +17,16 @@
     "shift when a session happens, never whether it exists.",
     "There is no per-level \"completed\" flag on purpose: completion is derived",
     "from the progress marker in public/progress.json.",
-    "All exercise/answer/slide/todo bodies below are PLACEHOLDERS — replace them."
+    "THE 8 GRADED EXERCISES (30% of the course, 10% per block) carry four extra",
+    "fields: block {number,name,exercise,of}, submissionMethod, groupMode and",
+    "gradeWeight {block, exercise}. gradeWeight.exercise is null on purpose —",
+    "the per-exercise split is an open decision. Do not fill it in with a guess.",
+    "Block 1 nodes also carry starterRepo {url, branch}: a SEPARATE student",
+    "repository, one branch per exercise. Its code never lands in this repo —",
+    "set the url once it exists. See docs/repo-ejercicios-bloque1.md.",
+    "_fixme arrays hold the open decisions carried over from the brief. They are",
+    "teacher-facing, never rendered, and printed by `npm run validate`.",
+    "Remaining exercise/answer/slide bodies are PLACEHOLDERS — replace them."
   ],
   "levels": [
     {
@@ -116,12 +125,28 @@
     },
     {
       "id": "w1-arf-01",
-      "title": "AR Foundation: primer proyecto",
+      "title": "Ejercicio 1 · Plane Detection",
       "world": 1,
       "stage": "ar-foundation",
       "category": "practical",
       "optional": false,
-      "summary": "PLACEHOLDER — configuración de AR Foundation en Unity y build a móvil.",
+      "summary": "Un goblin azul se ha colado en el despacho del profesor. Replica la mecánica del vídeo de clase: tocar una superficie detectada instancia el objeto 3D con el que tú te enfrentas a Blue Goblin.",
+      "block": {
+        "number": 1,
+        "name": "AR Foundation",
+        "exercise": 1,
+        "of": 3
+      },
+      "submissionMethod": "build",
+      "groupMode": "individual-within-group",
+      "gradeWeight": {
+        "block": "10 %",
+        "exercise": null
+      },
+      "starterRepo": {
+        "url": null,
+        "branch": "01-plane-detection"
+      },
       "slides": {
         "type": "pdf",
         "source": "content/slides/w1-arf-01.pdf"
@@ -132,27 +157,51 @@
         {
           "id": "w1-arf-01-t1",
           "type": "objective-task",
-          "objective": "Usar AR Foundation para instanciar un modelo 3D sobre un plano detectado.",
-          "starting_point": "PLACEHOLDER — proyecto Unity vacío con AR Foundation y el paquete del proveedor ya instalados.",
+          "objective": "Blue Goblin está en la escena desde el primer frame. Replica la mecánica del vídeo del profesor —tocar un plano detectado instancia un modelo 3D— y usa ese objeto para enfrentarte a él o para camelarlo, según la historia que tú quieras contar. El modelo lo eliges tú, de donde quieras.",
+          "starting_point": "Proyecto Unity de la rama 01-plane-detection del repositorio de ejercicios, con Blue Goblin ya instanciado en la escena. Móvil Android o iOS propio, con cable de datos.",
           "milestones": [
-            "PLACEHOLDER — escena AR mínima creada (AR Session + XR Origin)",
-            "PLACEHOLDER — detección de planos activada y visualizada",
-            "PLACEHOLDER — raycast contra el plano al tocar la pantalla",
-            "PLACEHOLDER — prefab instanciado en el punto de impacto",
-            "PLACEHOLDER — build ejecutándose en el dispositivo"
+            "Build Settings en Android (o iOS) y XR Plug-in Management con el proveedor activado: ARCore o ARKit",
+            "Escena mínima montada: AR Session + XR Origin con AR Camera, y ninguna Main Camera duplicada colgando de la escena",
+            "AR Plane Manager en el XR Origin con un prefab de plano visible, para ver en pantalla qué está detectando el dispositivo",
+            "Toque leído con el Input System (Touchscreen / EnhancedTouch) y AR Raycast Manager en el XR Origin",
+            "Raycast contra TrackableType.PlaneWithinPolygon desde la posición del dedo; si no impacta en un plano, el toque se descarta sin instanciar nada",
+            "Modelo propio importado como prefab y escalado a tamaño real: sobre una mesa tiene que medir centímetros, no metros",
+            "El prefab aparece en el punto de impacto con la rotación del plano, y tocar dos veces no apila dos copias en el mismo sitio",
+            "Blue Goblin sigue en escena y el objeto instanciado hace algo visible con él: lo ataca, lo distrae, lo encanta. La escena cuenta tu versión sin que tengas que explicarla",
+            "Build APK generado, instalado y recorrido en el móvil físico, no solo en Play Mode"
           ],
-          "deliverable": "PLACEHOLDER — vídeo corto del build en el móvil + carpeta del proyecto."
+          "deliverable": "APK, no vídeo: se instala y se corrige en un móvil, por eso tiene que arrancar solo. Nómbralo bloque1-ej1-<apellido>.apk y acompáñalo del enlace a tu rama. En el README de la rama, tres líneas: qué modelo has usado, de dónde sale y con qué licencia, y cómo se enfrenta a Blue Goblin."
         }
+      ],
+      "_fixme": [
+        "TODO(decisión abierta a): el reparto de nota entre los tres ejercicios del bloque 1 está sin decidir. gradeWeight.exercise sigue en null a propósito.",
+        "TODO(decisión abierta b): sin decidir si AR Foundation se instala en clase con los alumnos y se les entrega el proyecto ya montado con Blue Goblin, o si lo generan ellos desde cero. starting_point asume lo primero; si cambia, hay que reescribirlo en los tres ejercicios del bloque."
       ]
     },
     {
       "id": "w1-arf-02",
-      "title": "Image tracking",
+      "title": "Ejercicio 2 · Image Tracking",
       "world": 1,
       "stage": "ar-foundation",
       "category": "practical",
       "optional": false,
-      "summary": "PLACEHOLDER — primer contacto con seguimiento de imágenes.",
+      "summary": "Blue Goblin se ha multiplicado: sus primos, de color verde, viajan escondidos en imágenes del mundo real. Registra al menos dos marcadores físicos y haz que cada uno invoque el suyo.",
+      "block": {
+        "number": 1,
+        "name": "AR Foundation",
+        "exercise": 2,
+        "of": 3
+      },
+      "submissionMethod": "build",
+      "groupMode": "individual-within-group",
+      "gradeWeight": {
+        "block": "10 %",
+        "exercise": null
+      },
+      "starterRepo": {
+        "url": null,
+        "branch": "02-image-tracking"
+      },
       "slides": {
         "type": "pdf",
         "source": "content/slides/w1-arf-02.pdf"
@@ -163,25 +212,46 @@
         {
           "id": "w1-arf-02-t1",
           "type": "objective-task",
-          "objective": "PLACEHOLDER — objetivo práctico de image tracking.",
-          "starting_point": "PLACEHOLDER — punto de partida.",
+          "objective": "Los primos verdes de Blue Goblin se han repartido por objetos que tienes a mano. Elige tú las imágenes físicas que hacen de marcador —una carta, una portada, una pegatina— y monta el seguimiento para que cada marcador invoque a su goblin. Mínimo dos marcadores distintos.",
+          "starting_point": "Tu propio proyecto del ejercicio 1, continuado en la rama 02-image-tracking. Necesitas las dos imágenes físicas encima de la mesa antes de empezar.",
           "milestones": [
-            "PLACEHOLDER — hito 1",
-            "PLACEHOLDER — hito 2",
-            "PLACEHOLDER — hito 3"
+            "Dos imágenes capturadas en alta resolución, rectas, sin reflejos ni recortes, importadas al proyecto",
+            "Reference Image Library creada con las dos, cada una con su tamaño físico real en metros — sin ese dato el goblin sale a una escala arbitraria",
+            "Puntuación de calidad de cada imagen revisada en el inspector; la que salga baja se sustituye por otra con más contraste y más detalle irregular",
+            "AR Tracked Image Manager en el XR Origin, con la librería asignada y el máximo de imágenes seguidas puesto a 2",
+            "Un prefab distinto por marcador, resueltos por el nombre de la imagen y no por el índice del array",
+            "trackedImagesChanged atendido en added, updated y removed: el goblin sigue a su marcador y desaparece —o se queda quieto— cuando el tracking se pierde, pero nunca parpadea",
+            "Prueba con los dos marcadores a la vez delante de la cámara: salen dos goblins distintos, cada uno sobre el suyo",
+            "Build APK probado con los marcadores impresos o mostrados en otra pantalla, con luz de aula"
           ],
-          "deliverable": "PLACEHOLDER — qué se entrega."
+          "deliverable": "APK más los dos marcadores en PDF o PNG listos para imprimir: sin ellos el ejercicio no se puede corregir. En el README de la rama, qué imagen invoca a qué goblin."
         }
       ]
     },
     {
       "id": "w1-arf-03",
-      "title": "Plane detection en profundidad",
+      "title": "Ejercicio 3 · Exploración libre",
       "world": 1,
       "stage": "ar-foundation",
       "category": "practical",
       "optional": false,
-      "summary": "PLACEHOLDER — práctica móvil de detección de planos.",
+      "summary": "Aquí cierras tú la historia de Blue Goblin en el móvil: elige una feature nueva de los samples de AR Foundation, intégrala en el proyecto de todo el bloque y cuenta con ella tu propio final.",
+      "block": {
+        "number": 1,
+        "name": "AR Foundation",
+        "exercise": 3,
+        "of": 3
+      },
+      "submissionMethod": "build",
+      "groupMode": "individual-within-group",
+      "gradeWeight": {
+        "block": "10 %",
+        "exercise": null
+      },
+      "starterRepo": {
+        "url": null,
+        "branch": "03-libre"
+      },
       "slides": {
         "type": "pdf",
         "source": "content/slides/w1-arf-03.pdf"
@@ -192,13 +262,19 @@
         {
           "id": "w1-arf-03-t1",
           "type": "objective-task",
-          "objective": "PLACEHOLDER — objetivo práctico de plane detection.",
-          "starting_point": "PLACEHOLDER — punto de partida.",
+          "objective": "Elige del repositorio público de samples de AR Foundation al menos una feature que no hayamos usado —light estimation, face tracking, mesh scanning, occlusion, lo que te llame— e intégrala en el mismo proyecto para inventar el desenlace de Blue Goblin en el móvil. Puedes combinar varias: si todas funcionan, sube la nota. La historia se evalúa igual que el código.",
+          "starting_point": "El proyecto de los ejercicios 1 y 2, continuado en la rama 03-libre, que al terminar contiene el bloque entero. Catálogo de referencia: el repositorio público Unity-Technologies/arfoundation-samples.",
           "milestones": [
-            "PLACEHOLDER — hito 1",
-            "PLACEHOLDER — hito 2"
+            "Feature elegida y justificada en una línea: qué le aporta a tu final de Blue Goblin, no solo que queda vistosa",
+            "Escena del sample ejecutada tal cual en tu dispositivo antes de tocar nada, para saber si un fallo posterior es tuyo o del hardware",
+            "Requisitos comprobados en tu móvil concreto: no todos soportan face tracking, profundidad u occlusion",
+            "Feature portada a tu proyecto —managers, prefabs y permisos— sin arrastrar la escena del sample entera",
+            "Plane detection e image tracking de los ejercicios 1 y 2 siguen funcionando después de integrarla",
+            "El desenlace ocurre en la app, no en el README: alguien que abra el APK sin leer nada ve cómo acaba tu Blue Goblin",
+            "Si combinas varias features, cada una funciona por separado y todas conviven en la misma sesión AR",
+            "Build APK final desde la rama 03-libre, probado en frío: instalar, abrir y recorrer las tres partes del bloque sin reiniciar"
           ],
-          "deliverable": "PLACEHOLDER — qué se entrega."
+          "deliverable": "APK con el bloque entero integrado, más la rama 03-libre. En el README: features añadidas, dispositivo en el que lo has probado y, en un párrafo, cómo termina tu Blue Goblin. Es el ejercicio de más peso del bloque y el storytelling puntúa."
         }
       ]
     },
@@ -220,12 +296,24 @@
     },
     {
       "id": "w2-pre-02",
-      "title": "Meta Building Blocks: primeros pasos",
+      "title": "Ejercicio 1 · Passthrough y planos",
       "world": 2,
       "stage": "meta-pre-exam",
       "category": "practical",
       "optional": false,
-      "summary": "PLACEHOLDER — el SDK all-in-one de Meta y sus bloques.",
+      "summary": "Blue Goblin ha encontrado la forma de salir del móvil: monta un mecha que ya se ve en 3D real a través del passthrough. Instáncialo sobre una superficie detectada por la Quest.",
+      "block": {
+        "number": 2,
+        "name": "Meta Building Blocks",
+        "exercise": 1,
+        "of": 3
+      },
+      "submissionMethod": "build",
+      "groupMode": "per-group",
+      "gradeWeight": {
+        "block": "10 %",
+        "exercise": null
+      },
       "slides": {
         "type": "pdf",
         "source": "content/slides/w2-pre-02.pdf"
@@ -236,25 +324,45 @@
         {
           "id": "w2-pre-02-t1",
           "type": "objective-task",
-          "objective": "PLACEHOLDER — objetivo práctico con Building Blocks.",
-          "starting_point": "PLACEHOLDER — punto de partida.",
+          "objective": "Blue Goblin se sube a un mecha y sale de la pantalla del móvil al espacio real. Móntalo con building blocks: passthrough para ver la sala, detección de superficies para saber dónde está el suelo o la mesa, y el mecha instanciado encima. Es el paralelo del ejercicio 1 de AR Foundation, ahora en realidad mixta, y es deliberadamente corto: la mitad de la sesión se va en conectar el visor.",
+          "starting_point": "Proyecto Unity nuevo con el Meta XR All-in-One SDK, en el ordenador del grupo. Una Quest 3 o Quest 2 cargada por grupo. Empezad por la conexión: es el obstáculo real de este bloque.",
           "milestones": [
-            "PLACEHOLDER — hito 1",
-            "PLACEHOLDER — hito 2",
-            "PLACEHOLDER — hito 3"
+            "Visor reconocido por el ordenador: modo desarrollador activado, cable de datos —no de carga—, diálogo de depuración USB aceptado dentro del visor y adb devices mostrándolo",
+            "Proyecto en plataforma Android, con el Meta XR All-in-One SDK instalado y el Project Setup Tool sin avisos pendientes",
+            "Building block Camera Rig en la escena y building block de Passthrough añadido: se ve la sala desde dentro del visor",
+            "Permiso de datos espaciales concedido y Space Setup ejecutado en el visor antes de la primera prueba",
+            "Building block de detección de superficies en escena, con el suelo o una mesa reconocidos y visualizados",
+            "Prefab del mecha de Blue Goblin colocado sobre la superficie detectada, orientado con ella y a escala real",
+            "Comprobación de que esto es MR y no AR: al andar alrededor, el mecha se queda anclado a la sala en lugar de seguir a la mirada",
+            "Build APK instalado en el visor y arrancado desde la biblioteca, sin cable y sin el editor abierto"
           ],
-          "deliverable": "PLACEHOLDER — qué se entrega."
+          "deliverable": "APK por grupo, con el nombre del grupo en el archivo. Se corrige instalándolo en un visor, así que tiene que arrancar solo y sin Space Setup previo por parte de quien corrige."
         }
+      ],
+      "_fixme": [
+        "TODO(decisión abierta a): el reparto de nota entre los tres ejercicios del bloque 2 está sin decidir. gradeWeight.exercise sigue en null a propósito."
       ]
     },
     {
       "id": "w2-pre-03",
-      "title": "Passthrough y anclajes espaciales",
+      "title": "Ejercicio 2 · Image Tracking en MR",
       "world": 2,
       "stage": "meta-pre-exam",
       "category": "practical",
       "optional": false,
-      "summary": "PLACEHOLDER — passthrough en Quest 3 con Building Blocks.",
+      "summary": "Blue Goblin cambia de bando. Un único marcador físico lo invoca ya como aliado, en passthrough, listo para plantar cara a una nueva amenaza que aparece en la sala.",
+      "block": {
+        "number": 2,
+        "name": "Meta Building Blocks",
+        "exercise": 2,
+        "of": 3
+      },
+      "submissionMethod": "build",
+      "groupMode": "per-group",
+      "gradeWeight": {
+        "block": "10 %",
+        "exercise": null
+      },
       "slides": {
         "type": "pdf",
         "source": "content/slides/w2-pre-03.pdf"
@@ -265,14 +373,23 @@
         {
           "id": "w2-pre-03-t1",
           "type": "objective-task",
-          "objective": "PLACEHOLDER — objetivo práctico de passthrough.",
-          "starting_point": "PLACEHOLDER — punto de partida.",
+          "objective": "El giro de la historia: Blue Goblin, ya evolucionado, se pasa a vuestro lado. Montad el seguimiento de imagen sobre passthrough para que un marcador físico lo invoque como aliado frente a la nueva amenaza. Un solo marcador, a diferencia de AR Foundation: en Meta el image tracking cuesta bastante más de configurar.",
+          "starting_point": "El proyecto del ejercicio 1 de este bloque, continuado. Un marcador impreso por grupo, medido con regla.",
           "milestones": [
-            "PLACEHOLDER — hito 1",
-            "PLACEHOLDER — hito 2"
+            "Marcador elegido, impreso y con su tamaño físico medido y anotado en centímetros",
+            "Features y permisos de seguimiento de imagen habilitados en la configuración de Meta XR y en el manifiesto",
+            "Building block de seguimiento de imagen en escena, con el marcador registrado y su tamaño real introducido",
+            "Blue Goblin aliado aparece sobre el marcador y se mantiene estable mientras el marcador está a la vista",
+            "Comportamiento decidido y programado para cuando se pierde el marcador: se queda anclado donde estaba, o desaparece — pero no parpadea",
+            "La nueva amenaza está en escena y se distingue de Blue Goblin a simple vista, por silueta o color",
+            "El cambio de bando se lee sin narración externa: algo en la escena —color, animación, hacia dónde mira— cuenta que ahora está con vosotros",
+            "Build APK probado en el visor con el marcador impreso y con la luz normal del aula, no con la persiana bajada"
           ],
-          "deliverable": "PLACEHOLDER — qué se entrega."
+          "deliverable": "APK por grupo más el marcador en PDF listo para imprimir. Sin el marcador el ejercicio no se puede corregir."
         }
+      ],
+      "_fixme": [
+        "TODO(decisión abierta c): la identidad concreta de la \"nueva amenaza\" contra la que Blue Goblin cambia de bando está sin definir. El enunciado la deja abierta a propósito; si se concreta, hay que fijarla aquí y en el ejercicio 3 del bloque, que la hereda."
       ]
     },
     {
@@ -396,12 +513,24 @@
     },
     {
       "id": "w2-post-03",
-      "title": "Cierre de Building Blocks",
+      "title": "Ejercicio 3 · Mixed reality libre",
       "world": 2,
       "stage": "meta-post-exam",
       "category": "practical",
       "optional": false,
-      "summary": "PLACEHOLDER — integración final de los bloques vistos.",
+      "summary": "Con Blue Goblin de vuestro lado, el escenario es vuestra propia sala: usad la malla de la escena para que la historia ocurra entre los muebles de verdad. Se arranca en clase y se termina en casa.",
+      "block": {
+        "number": 2,
+        "name": "Meta Building Blocks",
+        "exercise": 3,
+        "of": 3
+      },
+      "submissionMethod": "build",
+      "groupMode": "per-group",
+      "gradeWeight": {
+        "block": "10 %",
+        "exercise": null
+      },
       "slides": {
         "type": "pdf",
         "source": "content/slides/w2-post-03.pdf"
@@ -412,13 +541,19 @@
         {
           "id": "w2-post-03-t1",
           "type": "objective-task",
-          "objective": "PLACEHOLDER — objetivo práctico de integración.",
-          "starting_point": "PLACEHOLDER — punto de partida.",
+          "objective": "Ejercicio libre del bloque, el de más peso. Escoged un building block de impacto visual —Scene Mesh o Effect Mesh son los que más rinden, pero Room Guardian o la detección de objetos también valen— y usadlo para que el enfrentamiento de Blue Goblin y la amenaza ocurra dentro de vuestra habitación real. La narrativa la inventáis vosotros, con el mismo espíritu que el ejercicio 3 de AR Foundation.",
+          "starting_point": "El proyecto del bloque, con passthrough e image tracking ya funcionando. Se empieza en clase, con el profesor delante, y se termina en casa.",
           "milestones": [
-            "PLACEHOLDER — hito 1",
-            "PLACEHOLDER — hito 2"
+            "Building block elegido y probado en una escena aislada antes de meterlo en el proyecto del grupo",
+            "Space Setup rehecho en el visor con el que vais a entregar: la malla de la escena depende de la sala capturada, y una captura vieja da resultados raros",
+            "Scene Mesh o Effect Mesh en escena, con un material que deje ver la sala real por debajo en lugar de taparla",
+            "Colisiones reales contra la malla: algo del juego rebota, se apoya o se esconde detrás de vuestro mobiliario de verdad",
+            "Probado en una habitación distinta a la que usasteis para montarlo, y sigue teniendo sentido",
+            "Narrativa cerrada: qué pasa con Blue Goblin y con la amenaza en vuestra versión, y se ve dentro de la aplicación",
+            "Rendimiento revisado en el visor y no en el editor: sin caídas de frames al mirar la malla completa de la sala",
+            "Build APK final del bloque, instalado en frío y recorrido de principio a fin sin ayuda"
           ],
-          "deliverable": "PLACEHOLDER — qué se entrega."
+          "deliverable": "APK por grupo más medio folio con la narrativa y la lista de building blocks usados. Es el ejercicio de mayor peso del bloque."
         }
       ]
     },
@@ -480,12 +615,24 @@
     },
     {
       "id": "w3-xrit-02",
-      "title": "Locomoción e interacción en VR",
+      "title": "Ejercicio 1 · Locomoción e interacción",
       "world": 3,
       "stage": "xr-toolkit",
       "category": "practical",
       "optional": false,
-      "summary": "PLACEHOLDER — teleport, grab, UI en VR.",
+      "summary": "Ya no hay pantalla ni passthrough: entras en el mundo de Blue Goblin. Aprende a moverte por él y a agarrar lo que hay dentro, con mandos.",
+      "block": {
+        "number": 3,
+        "name": "XR Interaction Toolkit",
+        "exercise": 1,
+        "of": 2
+      },
+      "submissionMethod": null,
+      "groupMode": "per-group",
+      "gradeWeight": {
+        "block": "10 %",
+        "exercise": null
+      },
       "slides": {
         "type": "pdf",
         "source": "content/slides/w3-xrit-02.pdf"
@@ -496,25 +643,46 @@
         {
           "id": "w3-xrit-02-t1",
           "type": "objective-task",
-          "objective": "PLACEHOLDER — objetivo práctico de locomoción.",
-          "starting_point": "PLACEHOLDER — punto de partida.",
+          "objective": "La historia se muda a realidad virtual completa: ya no miráis el mundo de Blue Goblin a través de una cámara, estáis dentro. Montad desde cero un proyecto con el XR Interaction Toolkit y resolved lo básico de estar en él: moverse y tocar cosas. Este bloque no da proyecto de partida a propósito — a estas alturas el montaje lo lleváis vosotros.",
+          "starting_point": "Nada heredado: plantilla VR oficial de Unity, creada por el grupo. De consulta, el repositorio público Unity-Technologies/XR-Interaction-Toolkit-Examples.",
           "milestones": [
-            "PLACEHOLDER — hito 1",
-            "PLACEHOLDER — hito 2",
-            "PLACEHOLDER — hito 3"
+            "Proyecto creado desde la plantilla VR oficial, con OpenXR activo y el perfil de interacción del mando que vais a usar",
+            "XR Origin (VR) en escena y comprobación de que cabeza y mandos se mueven, con el visor conectado",
+            "Locomoción continua funcionando: desplazamiento con el stick y giro, sea snap turn o continuo",
+            "Teleportación funcionando en paralelo: áreas y anchors de teleport, con el rayo curvo visible al apuntar",
+            "Las dos locomociones conviven sin pelearse por el mismo input, y se sabe qué botón hace qué",
+            "Al menos un XR Grab Interactable con su attach point ajustado, que se agarre por donde toca y no quede flotando al soltarlo",
+            "Un interactable de otro tipo —botón, palanca o socket— para que no todo sea agarrar",
+            "Confort mínimo revisado: viñeta o fundido al moverse, altura del suelo correcta y ninguna rotación de cámara forzada por código"
           ],
-          "deliverable": "PLACEHOLDER — qué se entrega."
+          "deliverable": "Método de entrega del bloque 3 pendiente de definir (ver decisiones abiertas): el brief no lo especifica y no se asume el APK de los bloques 1 y 2. Mientras tanto, dejad el proyecto en un repositorio del grupo con un README que explique qué habéis montado y con qué mando se prueba."
         }
+      ],
+      "_fixme": [
+        "TODO(decisión abierta a): el reparto de nota entre los dos ejercicios del bloque 3 está sin decidir. gradeWeight.exercise sigue en null a propósito.",
+        "TODO(decisión abierta d): el brief no especifica método de entrega para el bloque 3. submissionMethod se deja en null en los dos ejercicios en vez de asumir \"build\" como en los bloques 1 y 2."
       ]
     },
     {
       "id": "w3-xrit-03",
-      "title": "Samples y buenas prácticas",
+      "title": "Ejercicio 2 · Hand tracking y gestos",
       "world": 3,
       "stage": "xr-toolkit",
       "category": "practical",
       "optional": false,
-      "summary": "PLACEHOLDER — recorrido por los samples del toolkit.",
+      "summary": "Sin mandos, solo tus manos: el gesto correcto cierra la historia de Blue Goblin que empezó colándose en el despacho del profesor.",
+      "block": {
+        "number": 3,
+        "name": "XR Interaction Toolkit",
+        "exercise": 2,
+        "of": 2
+      },
+      "submissionMethod": null,
+      "groupMode": "per-group",
+      "gradeWeight": {
+        "block": "10 %",
+        "exercise": null
+      },
       "slides": {
         "type": "pdf",
         "source": "content/slides/w3-xrit-03.pdf"
@@ -525,13 +693,19 @@
         {
           "id": "w3-xrit-03-t1",
           "type": "objective-task",
-          "objective": "PLACEHOLDER — objetivo práctico con samples.",
-          "starting_point": "PLACEHOLDER — punto de partida.",
+          "objective": "Último ejercicio del curso antes del proyecto final, y el que cierra la historia. Quitad los mandos: con hand tracking y un gesto que decidáis vosotros se resuelve lo que empezó cuando un goblin azul se coló en el despacho del profesor. El gesto tiene que ser la acción que dispara el desenlace, no un adorno.",
+          "starting_point": "El proyecto del ejercicio 1 de este bloque. Samples de manos del XR Interaction Toolkit y del proveedor, y los mandos fuera de la escena y fuera de la mesa.",
           "milestones": [
-            "PLACEHOLDER — hito 1",
-            "PLACEHOLDER — hito 2"
+            "Hand tracking habilitado en OpenXR y también en los ajustes del visor, con los mandos apartados",
+            "Samples de manos importados desde el Package Manager y ejecutados tal cual antes de integrar nada",
+            "Manos visibles y articuladas en escena, con los datos de las articulaciones llegando en tiempo de ejecución",
+            "Interacción básica sin mandos resuelta: poke o pinch sobre un objeto o sobre una UI",
+            "Un gesto reconocido de verdad con XR Hand Shape o Hand Pose, con los umbrales ajustados para que no salte solo al mover la mano",
+            "Ese gesto dispara el desenlace de Blue Goblin: es el cierre de los tres bloques, y se nota que lo es",
+            "Fallback cuando las manos salen del campo de visión: la escena no se rompe ni deja al jugador atascado esperando",
+            "Recorrido completo probado de pie, sin mandos y sin nadie explicando nada: entrar, hacer el gesto, ver el final"
           ],
-          "deliverable": "PLACEHOLDER — qué se entrega."
+          "deliverable": "Método de entrega del bloque 3 pendiente de definir (ver decisiones abiertas). De momento, el mismo repositorio del ejercicio 1, con el desenlace y el gesto documentados en el README."
         }
       ]
     },
