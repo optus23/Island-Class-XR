@@ -1,6 +1,6 @@
 import * as THREE from 'three'
 import { worlds } from '../config/worlds.js'
-import { groundHeightAt, nearestPath, isLand, roadTopAt } from './terrain.js'
+import { groundHeightAt, nearestPath, isLand, landInset, roadTopAt } from './terrain.js'
 
 /**
  * Turns a world's spline template + its list of levels into node positions.
@@ -91,6 +91,37 @@ function spread(count, { startsAtBoss = false, endsAtBoss = false } = {}) {
 }
 
 const NODE_FOOT = 1.6 // half-width of the disc's footprint
+
+/**
+ * Past this, extra distance from the road buys a bonus node nothing — it
+ * already reads as off the path, and chasing more just pushes it into the sea
+ * or up against a cliff.
+ */
+const BRANCH_ENOUGH = 13
+
+/** Height range of the ground over a disc — 0 means genuinely level. */
+const FLAT_SAMPLES = [
+  [0, 0],
+  [3, 0],
+  [-3, 0],
+  [0, 3],
+  [0, -3],
+  [2.1, 2.1],
+  [-2.1, 2.1],
+  [2.1, -2.1],
+  [-2.1, -2.1],
+]
+
+export function flatness(x, z) {
+  let lo = Infinity
+  let hi = -Infinity
+  for (const [dx, dz] of FLAT_SAMPLES) {
+    const h = groundHeightAt(x + dx, z + dz)
+    if (h < lo) lo = h
+    if (h > hi) hi = h
+  }
+  return hi - lo
+}
 
 function sample(curve, u) {
   const position = curve.getPointAt(u)
@@ -217,12 +248,23 @@ export function distributeNodes(worldDef, worldLevels) {
         for (const dist of [8, 10, 12, 14, 16]) {
           const at = node.position.clone().addScaledVector(axis, dir * dist)
           if (!isLand(at.x, at.z)) continue
+          // Distance from the road was the ONLY thing scored, so the search
+          // happily parked a bonus node against a cliff face or out on the
+          // shoreline as long as it was far from the path. It now has to be
+          // somewhere you could actually stand: level ground, well inland,
+          // and only far enough from the road to read as a branch.
+          const level = flatness(at.x, at.z)
+          const inland = landInset(at.x, at.z)
           candidates.push({
             node,
             axis,
             dir,
             dist,
-            score: nearestPath(at.x, at.z).dist - penalty,
+            score:
+              Math.min(nearestPath(at.x, at.z).dist, BRANCH_ENOUGH) -
+              level * 2.5 -
+              Math.max(0, 10 - inland) * 1.2 -
+              penalty,
           })
         }
       }

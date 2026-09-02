@@ -79,10 +79,34 @@ export function smoothNoise(x, z) {
   )
 }
 
-/** Nearest point on a polyline, with its height — the height drives plateaus. */
+/**
+ * How far around a point the road's LOWEST height is taken.
+ *
+ * See `lowY` below: this is what stops a change of plateau from slicing the
+ * road lengthways at a corner.
+ */
+const SHELF_LOOK = 5.5
+
+/**
+ * Nearest point on a polyline, with its height — the height drives plateaus.
+ *
+ * Also returns `lowY`: the lowest road height found anywhere within
+ * SHELF_LOOK of the query point.
+ *
+ * That second number is the whole fix for the terrain eating the road. Ground
+ * follows the height of the NEAREST piece of road, and at a 90-degree corner
+ * the set of points nearest to each arm meets along the bisector — a diagonal
+ * running clean across the bend. Where the two arms sit on different plateaus,
+ * that diagonal became a two-unit wall through the middle of the road and
+ * through the node standing on it. Taking the lowest road height in the
+ * neighbourhood instead makes the corner settle on the lower of its two
+ * plateaus, so the step retreats onto the high arm and crosses the road
+ * squarely, where the stairs can carry it.
+ */
 function nearestOnPolyline(x, z, pts) {
   let bestDist = Infinity
   let bestY = 0
+  let lowY = Infinity
   for (let i = 1; i < pts.length; i++) {
     const a = pts[i - 1]
     const b = pts[i]
@@ -94,12 +118,14 @@ function nearestOnPolyline(x, z, pts) {
     const px = a.x + t * dx
     const pz = a.z + t * dz
     const d = Math.hypot(x - px, z - pz)
+    const y = a.y + t * (b.y - a.y)
     if (d < bestDist) {
       bestDist = d
-      bestY = a.y + t * (b.y - a.y)
+      bestY = y
     }
+    if (d < SHELF_LOOK && y < lowY) lowY = y
   }
-  return { dist: bestDist, y: bestY }
+  return { dist: bestDist, y: bestY, lowY: lowY === Infinity ? bestY : lowY }
 }
 
 // Sampled once, lazily — the curves never change at runtime.
@@ -119,12 +145,17 @@ function polylines() {
 }
 
 export function nearestPath(x, z) {
-  let best = { dist: Infinity, y: 0 }
+  let best = { dist: Infinity, y: 0, lowY: 0 }
+  let lowY = Infinity
   for (const pts of polylines().paths) {
     const hit = nearestOnPolyline(x, z, pts)
     if (hit.dist < best.dist) best = hit
+    // Across every path, not just the nearest one: where two runs of road pass
+    // close by at different heights, the ground between them has to settle on
+    // the lower, or one of them ends up buried in the other's plateau.
+    if (hit.dist < SHELF_LOOK && hit.lowY < lowY) lowY = hit.lowY
   }
-  return best
+  return lowY === Infinity ? best : { ...best, lowY }
 }
 
 function nearestBridge(x, z) {
@@ -154,11 +185,83 @@ function worldInset(x, z, center) {
   return R - outside + broad + fine
 }
 
+
+/**
+ * Two small crossings on the route, one at each seam between worlds.
+ *
+ * NEITHER cuts the island in half. An earlier attempt ran a river from edge to
+ * edge and split the map into three separate landmasses, which is a different
+ * place entirely — the reference art keeps one island and puts small local
+ * features ON it: a stretch of water that begins and ends inland, a gap in the
+ * ground, each crossed by a short bridge a couple of paces long.
+ *
+ * Both are lens-shaped: narrow across the road, so the bridge stays tiny, and
+ * long along it, so the feature reads as a river or a chasm rather than a
+ * puddle. The edge wobbles, so neither is a drawn oval.
+ */
+const CROSSINGS = [
+  // Round, like a big well, and no two alike: different sizes, and each set
+  // off from its crossing in a different direction so the pair never reads as
+  // one feature mirrored across the map.
+  { kind: 'water', halfX: 4.0, halfZ: 4.7, offX: 0, offZ: 2.5 },
+  { kind: 'void', halfX: 5.0, halfZ: 5.6, offX: 1.5, offZ: -3.5 },
+]
+
+/** How far from a connector the missing ground still counts as bridged. */
+export const BRIDGE_DECK_REACH = 5
+
+/**
+ * Where each crossing sits, taken from the connectors themselves so the
+ * feature and the bridge over it can never disagree.
+ */
+let crossingsCache = null
+export function crossings() {
+  if (!crossingsCache) {
+    crossingsCache = buildConnectors().map((c, i) => {
+      const a = c.getPointAt(0)
+      const b = c.getPointAt(1)
+      const spec = CROSSINGS[i % CROSSINGS.length]
+      return { ...spec, x: (a.x + b.x) / 2 + spec.offX, z: a.z + spec.offZ }
+    })
+  }
+  return crossingsCache
+}
+
+/**
+ * How deep into a crossing (x, z) sits, in world units across the road.
+ * <= 0 is solid ground.
+ */
+function crossingCut(x, z) {
+  let best = -Infinity
+  for (const c of crossings()) {
+    const nx = (x - c.x) / c.halfX
+    const nz = (z - c.z) / c.halfZ
+    const r = Math.hypot(nx, nz)
+    // Wobble the rim so it reads as something worn into the ground rather than
+    // stamped out of it.
+    const rim = 1 + (smoothNoise(x * 0.11, z * 0.11) - 0.5) * 0.28
+    const d = (rim - r) * c.halfX
+    if (d > best) best = d
+  }
+  return best
+}
+
+/** The crossings you can fall into rather than swim in. */
+export function voidCrossings() {
+  return crossings().filter((c) => c.kind === 'void')
+}
+
 /** How far inside the coastline (x, z) sits. <= 0 means open water. */
 export function landInset(x, z) {
   const inWorld = Math.max(...worlds.map((w) => worldInset(x, z, w.center)))
   const inBridge = BRIDGE_HALF_WIDTH - nearestBridge(x, z)
-  return Math.max(inWorld, inBridge)
+  const base = Math.max(inWorld, inBridge)
+
+  // A crossing only ever REMOVES ground; it can never make open sea
+  // shallower. Returning its own depth outright would tell the foam field
+  // that points far out to sea were a few units from a shore.
+  const cut = crossingCut(x, z)
+  return cut > 0 ? Math.min(base, -cut) : base
 }
 
 export function isLand(x, z) {
@@ -174,7 +277,14 @@ export function isLand(x, z) {
  */
 export function groundHeightAt(x, z) {
   const inside = landInset(x, z)
-  if (inside <= 0) return SHELF_Y
+  if (inside <= 0) {
+    // Over the channel the road is still level: a bridge deck carries it
+    // across at the height of the land on both banks. Everywhere else out to
+    // sea, the coastal shelf.
+    const span = nearestPath(x, z)
+    if (span.dist < BRIDGE_DECK_REACH) return Math.round(span.lowY / PLATEAU) * PLATEAU
+    return SHELF_Y
+  }
 
   const path = nearestPath(x, z)
 
@@ -183,7 +293,10 @@ export function groundHeightAt(x, z) {
   // it continuously, so the corridor itself was terraced into a fine staircase
   // crossing the road. Snapped first, each stretch of route sits on one flat
   // shelf and the climb happens at a small number of clean steps.
-  const shelf = Math.round(path.y / PLATEAU) * PLATEAU
+  //
+  // From the LOWEST road height nearby rather than the nearest one — see
+  // nearestOnPolyline for why the nearest one cut the road in half at corners.
+  const shelf = Math.round(path.lowY / PLATEAU) * PLATEAU
 
   const away = Math.min(1, Math.max(0, (path.dist - PATH_FLATTEN_RADIUS) / 16))
   const shore = Math.min(1, inside / 4)

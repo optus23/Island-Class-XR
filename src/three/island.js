@@ -15,6 +15,7 @@ import {
   nearestPath,
   islandBounds,
   biomeKeyAt,
+  voidCrossings,
 } from './terrain.js'
 
 /**
@@ -116,6 +117,7 @@ export function createIsland() {
   // --- water ---------------------------------------------------------------
   const water = createWater(minX, maxX, minZ, maxZ)
   group.add(water.mesh)
+  group.add(createVoidPits())
 
   // Scattered dressing and hand-placed corner landmarks share one mesh, so the
   // whole island still costs a single draw call for every prop on it.
@@ -132,6 +134,45 @@ export function createIsland() {
     cells,
     update: water.update,
   }
+}
+
+/**
+ * The dark inside of a chasm.
+ *
+ * One of the two crossings is a hole rather than a river, and a hole cut in
+ * the terrain would otherwise show the sea through it — which reads as water,
+ * not as a drop. An elliptical plug of near-black sunk just under the rim
+ * gives the gap a bottom you cannot see, and its walls darken the sides.
+ */
+function createVoidPits() {
+  const group = new THREE.Group()
+  const pits = voidCrossings()
+  if (!pits.length) return group
+
+  const geo = new THREE.CylinderGeometry(1, 0.82, 1, 20, 1, false)
+  const mesh = new THREE.InstancedMesh(
+    geo,
+    new THREE.MeshLambertMaterial({ color: 0x121a27 }),
+    pits.length
+  )
+  const m = new THREE.Matrix4()
+  const q = new THREE.Quaternion()
+  const p = new THREE.Vector3()
+  const sv = new THREE.Vector3()
+  const DEPTH = 14
+  pits.forEach((c, i) => {
+    const rim = groundHeightAt(c.x, c.z + c.halfZ + 4)
+    // Just inside the rim so the plug never pokes through the ground, and its
+    // top sits a little below it so you look down INTO something.
+    sv.set(c.halfX * 1.96, DEPTH, c.halfZ * 1.96)
+    p.set(c.x, rim - 1.2 - DEPTH / 2, c.z)
+    m.compose(p, q, sv)
+    mesh.setMatrixAt(i, m)
+  })
+  mesh.instanceMatrix.needsUpdate = true
+  mesh.frustumCulled = false
+  group.add(mesh)
+  return group
 }
 
 /**
