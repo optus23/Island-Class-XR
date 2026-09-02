@@ -1,6 +1,8 @@
 import * as THREE from 'three'
 import { hash2, CELL_AREA_SCALE, groundHeightAt, nearestPath, landInset } from './terrain.js'
+import { distributeNodes, flatness } from './paths.js'
 import { worlds } from '../config/worlds.js'
+import { levelsForWorld } from '../lib/levels.js'
 import { biomes } from '../config/theme.js'
 
 /**
@@ -165,6 +167,30 @@ const RECIPES = {
     part(-1.05, 1.5, 1.58, 0.7, 0.7, 0.16, 0x9be7ff), // windows
     part(1.05, 1.5, 1.58, 0.7, 0.7, 0.16, 0x9be7ff),
     part(-1.75, 1.9, 1.25, 0.22, 0.22, 0.22, 0xf2c14e), // lantern
+  ],
+
+  /**
+   * The same house in lilac. Two colours of toad house, spotted the same way,
+   * is straight out of the reference maps — and having the pair means a
+   * session can be marked by a building rather than only by its disc.
+   */
+  mushroomHouseLilac: () => [
+    part(0, 1.05, 0, 3.0, 2.1, 3.0, 0xf7ead6),
+    part(0, 1.05, 1.5, 3.0, 2.1, 0.12, 0xfff6ea),
+    part(0, 2.28, 0, 3.4, 0.4, 3.4, 0xe0cfb4),
+    part(0, 3.05, 0, 4.4, 1.35, 4.4, 0x9d4edd),
+    part(0, 3.95, 0, 3.2, 0.75, 3.2, 0x7b2fbe),
+    part(0, 4.5, 0, 1.7, 0.5, 1.7, 0x6522a4),
+    ...ring(3.05, 2.15, 0.95, 0xfff6ea, 6, 0.3),
+    ...ring(3.95, 1.6, 0.66, 0xfff6ea, 4, 0.9),
+    ...ring(3.78, 1.75, 0.8, 0xfff6ea, 4, 0.0).map((q) => ({ ...q, h: 0.22 })),
+    ...ring(4.78, 0.95, 0.55, 0xfff6ea, 3, 0.6).map((q) => ({ ...q, h: 0.2 })),
+    part(0, 0.85, 1.58, 1.1, 1.7, 0.22, 0x8b5e34),
+    part(0, 1.3, 1.7, 0.9, 0.75, 0.06, 0xa9763a),
+    part(0.34, 0.85, 1.73, 0.16, 0.16, 0.06, 0xf2c14e),
+    part(-1.05, 1.5, 1.58, 0.7, 0.7, 0.16, 0x9be7ff),
+    part(1.05, 1.5, 1.58, 0.7, 0.7, 0.16, 0x9be7ff),
+    part(-1.75, 1.9, 1.25, 0.22, 0.22, 0.22, 0xf2c14e),
   ],
 
   /** The lilac cottage — the second house colour in the reference art. */
@@ -348,10 +374,14 @@ function bossAnchors() {
 
 const BOSS_GROVE_RADIUS = 26
 
+/** Radius around every node that scattered dressing must leave alone. */
+const GROUND_KEEP_OUT = 3.4 // flowers, tufts
+const BIG_KEEP_OUT = 8.5 // trees, cacti, headsets — anything that can hide a node
+
 export function planProps(cells) {
   const out = []
   const bosses = bossAnchors()
-  const big = (c) => c.pathDist > 10 && c.shore > 0.88
+  const big = (c) => c.pathDist > 10 && c.shore > 0.88 && nodeClearance(c.x, c.z) > BIG_KEEP_OUT
   const near = (c) => c.pathDist > 2.4 && c.pathDist < 9 && c.shore > 0.85
 
   /**
@@ -375,6 +405,12 @@ export function planProps(cells) {
   const common = (p) => p * CELL_AREA_SCALE
 
   for (const c of cells) {
+    // Nothing scattered may crowd a node. Big props keep well back so a level
+    // disc is always visible from above; even ground cover leaves the disc
+    // itself clear.
+    const nd = nodeClearance(c.x, c.z)
+    if (nd < GROUND_KEEP_OUT) continue
+
     const r = hash2(c.x * 3.3, c.z * 7.7)
     const yaw = hash2(c.z * 1.7, c.x * 2.9) * Math.PI * 2
     const scale = 0.85 + hash2(c.x * 0.7, c.z * 1.3) * 0.4
@@ -396,7 +432,7 @@ export function planProps(cells) {
 
     // Course-themed landmarks: rarer, and only in the mid band so they read as
     // deliberate set pieces rather than clutter.
-    if (c.pathDist > 6 && c.pathDist < 12 && c.shore > 0.9) {
+    if (c.pathDist > 6 && c.pathDist < 12 && c.shore > 0.9 && nd > BIG_KEEP_OUT) {
       const t = hash2(c.z * 9.1, c.x * 6.3)
       if (t > rare(0.9955)) out.push({ ...base, kind: 'headset', scale: 1 })
       else if (t < common(0.0045)) out.push({ ...base, kind: 'arPhone', scale: 1 })
@@ -408,95 +444,124 @@ export function planProps(cells) {
 }
 
 /**
- * Set pieces on the CORNERS of the route.
+ * Every node on the island, in one memoised list.
  *
- * Scattered props alone give texture but no landmarks, and a map with no
- * landmarks is a map you cannot navigate from memory. In the reference art
- * nearly every bend in the road has something built on it — a toad house, a
- * cannon, a little bridge — and that is what turns a route into a journey.
- *
- * Deliberately placed, not random: the corner list comes straight from the
- * path template, so reshaping a world in worlds.js moves its landmarks with
- * it and none of this needs touching.
+ * Exists so that anything scattered over the map can be told to keep AWAY from
+ * the nodes. The two systems previously knew nothing about each other, which
+ * is how a tree came to grow straight through a bonus level and a signpost
+ * ended up standing in the middle of a session.
  */
-const LANDMARKS_BY_BIOME = {
-  meadow: ['mushroomHouse', 'archBridge', 'cottage', 'warpPipe', 'well', 'signpost'],
-  desert: ['cannon', 'crates', 'well', 'signpost', 'warpPipe', 'cottage'],
-  summit: ['cottage', 'bannerPole', 'crates', 'signpost', 'mushroomHouse', 'well'],
+let nodesCache = null
+export function allNodePlacements() {
+  if (!nodesCache) {
+    nodesCache = []
+    for (const w of worlds) {
+      for (const p of distributeNodes(w, levelsForWorld(w.id))) {
+        nodesCache.push({ ...p, worldId: w.id })
+      }
+    }
+  }
+  return nodesCache
 }
 
-/** How far off the road a landmark stands, and how much clearance it needs. */
-const LANDMARK_OFFSET = 8.5
-const LANDMARK_MIN_CLEARANCE = 6.5
+/** Distance from (x, z) to the nearest node, on the ground plane. */
+export function nodeClearance(x, z) {
+  let best = Infinity
+  for (const n of allNodePlacements()) {
+    const d = Math.hypot(x - n.position.x, z - n.position.z)
+    if (d < best) best = d
+  }
+  return best
+}
+
+/**
+ * Set pieces standing just PAST each session, off to one side of the road.
+ *
+ * Placement follows the reference art rather than geometry for its own sake:
+ * walking the road you meet the level's disc first, and the building that
+ * belongs to it a moment later, beside the road ahead. Hanging them on the
+ * path's corners instead — the previous approach — put them wherever the route
+ * happened to bend, which is not where the eye looks for them.
+ *
+ * Everything is derived from the node list, so adding or removing a session
+ * re-places its landmark and nothing here needs touching.
+ */
+const LANDMARKS_BY_BIOME = {
+  meadow: ['mushroomHouse', 'mushroomHouseLilac', 'well', 'warpPipe', 'cottage', 'signpost'],
+  desert: ['mushroomHouseLilac', 'cannon', 'mushroomHouse', 'warpPipe', 'well', 'crates'],
+  summit: ['mushroomHouse', 'cottage', 'mushroomHouseLilac', 'bannerPole', 'warpPipe', 'well'],
+}
+
+/**
+ * How far past the node, and how far to the side.
+ *
+ * Close. The point is that the building belongs to THAT session: standing on
+ * the disc you should feel you have arrived somewhere, which needs the house
+ * at your shoulder, not across a field. The first pair of values is where it
+ * lands almost always; the rest are fallbacks for a cramped spot.
+ */
+const AHEAD = [1.5, 3.5, 0, 5.5]
+const ASIDE = [4.6, 5.6, 7]
+/** Off the road, but only just — measured to the road's centre line. */
+const LANDMARK_ROAD_CLEARANCE = 4.2
+const LANDMARK_NODE_CLEARANCE = 3.9
 
 export function planLandmarks() {
   const out = []
+  const nodes = allNodePlacements()
 
-  for (const w of worlds) {
-    const [cx, cy, cz] = w.center
-    const pts = w.path.controlPoints.map(([x, y, z]) => ({ x: x + cx, y: y + cy, z: z + cz }))
-    const biome = biomes[w.biome] ?? biomes.meadow
-    const kinds = LANDMARKS_BY_BIOME[w.biome] ?? LANDMARKS_BY_BIOME.meadow
+  let ordinal = -1
+  for (const n of nodes) {
+    // Bosses have their own castle, and a bonus node is already the landmark.
+    if (!n.onPath || n.level.category === 'boss') continue
+    ordinal++
 
-    for (let i = 1; i < pts.length - 1; i++) {
-      const prev = pts[i - 1]
-      const here = pts[i]
-      const next = pts[i + 1]
+    const biome = biomes[worlds.find((w) => w.id === n.worldId)?.biome] ?? biomes.meadow
+    const kinds = LANDMARKS_BY_BIOME[worlds.find((w) => w.id === n.worldId)?.biome] ??
+      LANDMARKS_BY_BIOME.meadow
 
-      // Outward bisector of the corner: away from both arms, which is the one
-      // direction guaranteed to be clear of the road on a 90-degree bend.
-      const inA = norm(prev.x - here.x, prev.z - here.z)
-      const inB = norm(next.x - here.x, next.z - here.z)
-      let bx = inA.x + inB.x
-      let bz = inA.z + inB.z
-      if (Math.hypot(bx, bz) < 1e-3) {
-        // A straight-through waypoint has no bisector; step sideways instead.
-        bx = -inB.z
-        bz = inB.x
-      }
-      const b = norm(bx, bz)
+    const fwd = n.tangent.clone().setY(0)
+    if (fwd.lengthSq() < 1e-6) continue
+    fwd.normalize()
+    const side = { x: fwd.z, z: -fwd.x }
 
-      // Try the bisector first, then its mirror, then either side — the first
-      // spot that is on land and genuinely clear of the road wins.
-      const tries = [
-        [b.x, b.z],
-        [-b.x, -b.z],
-        [-b.z, b.x],
-        [b.z, -b.x],
-      ]
-      let placed = null
-      for (const [dx, dz] of tries) {
-        for (const dist of [LANDMARK_OFFSET, LANDMARK_OFFSET + 3.5, LANDMARK_OFFSET - 2.5]) {
-          const x = here.x + dx * dist
-          const z = here.z + dz * dist
-          if (landInset(x, z) < 6) continue
-          if (nearestPath(x, z).dist < LANDMARK_MIN_CLEARANCE) continue
-          placed = { x, z, dx, dz }
+    // Prefer the side the road is NOT about to turn toward, then try the other.
+    const seed = hash2(n.position.x, n.position.z)
+    const sides = seed > 0.5 ? [1, -1] : [-1, 1]
+
+    let spot = null
+    for (const dir of sides) {
+      for (const ahead of AHEAD) {
+        for (const aside of ASIDE) {
+          const x = n.position.x + fwd.x * ahead + side.x * dir * aside
+          const z = n.position.z + fwd.z * ahead + side.z * dir * aside
+          if (landInset(x, z) < 7) continue
+          if (nearestPath(x, z).dist < LANDMARK_ROAD_CLEARANCE) continue
+          if (nodeClearance(x, z) < LANDMARK_NODE_CLEARANCE) continue
+          // Level ground only: a house half-sunk into a terrace looks broken.
+          if (flatness(x, z) > 0.01) continue
+          spot = { x, z, dir }
           break
         }
-        if (placed) break
+        if (spot) break
       }
-      if (!placed) continue
-
-      const pick = kinds[(i + w.id) % kinds.length]
-      out.push({
-        kind: pick,
-        x: placed.x,
-        z: placed.z,
-        y: groundHeightAt(placed.x, placed.z),
-        biome,
-        // Face back toward the corner it belongs to, so doors and cannon
-        // muzzles point at the road rather than out to sea.
-        yaw: Math.atan2(-placed.dx, -placed.dz),
-        scale: 0.9 + hash2(placed.x, placed.z) * 0.25,
-      })
+      if (spot) break
     }
+    if (!spot) continue
+
+    out.push({
+      // Cycle rather than hash: hashing left whole kinds unplaced, so the
+      // warp pipe and the lilac house simply never appeared on the map.
+      kind: kinds[ordinal % kinds.length],
+      x: spot.x,
+      z: spot.z,
+      y: groundHeightAt(spot.x, spot.z),
+      biome,
+      // Face the road: the door and the cannon muzzle should look at it.
+      yaw: Math.atan2(-side.x * spot.dir, -side.z * spot.dir),
+      scale: 0.78 + hash2(spot.x, spot.z) * 0.14,
+    })
   }
 
   return out
-}
-
-function norm(x, z) {
-  const l = Math.hypot(x, z) || 1
-  return { x: x / l, z: z / l }
 }

@@ -57,6 +57,12 @@ const ZOOM_MAX = 1.5
  */
 const ZOOM_DEFAULT = 0.9
 
+/**
+ * Smallest horizontal fraction of the camera offset — how far off straight
+ * down the camera is always kept. sin(8 degrees) is about 0.14.
+ */
+const MIN_HORIZONTAL = 0.14
+
 export function createCameraRig() {
   // near is deliberately far out. Nothing is ever closer than the camera's own
   // stand-off distance, and a near plane of 0.5 spent almost the entire depth
@@ -213,6 +219,27 @@ export function createCameraRig() {
       if (pitchAxis.lengthSq() > 1e-6) shaped.applyAxisAngle(pitchAxis.normalize(), orbitPitch)
     }
 
+    // Never let the view direction reach vertical.
+    //
+    // lookAt() has no defined roll when forward is parallel to up: on the far
+    // side of straight-down it picks the opposite one, so the whole island
+    // snapped through 180 degrees between one frame and the next. The overview
+    // angle is only ~15 degrees off vertical and the pitch nudge is 26, so
+    // tilting up in the overview walked straight into it.
+    //
+    // Keeping a floor under the offset's horizontal component holds the camera
+    // a few degrees short of the pole, where lookAt stays continuous.
+    const minHoriz = shaped.length() * MIN_HORIZONTAL
+    const horiz = Math.hypot(shaped.x, shaped.z)
+    if (horiz < minHoriz) {
+      if (horiz < 1e-4) shaped.z = minHoriz
+      else {
+        const k = minHoriz / horiz
+        shaped.x *= k
+        shaped.z *= k
+      }
+    }
+
     // The overview is a fixed framing of the whole island, so the viewer's own
     // zoom has to fade out as it takes over — otherwise a zoomed-in map opened
     // the overview already cropped, with a world missing off the side.
@@ -248,8 +275,12 @@ export function createCameraRig() {
     toggleOverview,
     /** Drag to look around, within a tight clamp. Never a free camera. */
     orbit(dx, dy) {
-      orbitYaw = clamp(orbitYaw - dx * 0.006, -ORBIT_YAW_MAX, ORBIT_YAW_MAX)
-      orbitPitch = clamp(orbitPitch + dy * 0.005, -ORBIT_PITCH_MAX, ORBIT_PITCH_MAX)
+      // Both axes follow the pointer: drag right and the island turns to the
+      // right, drag down and you look down on it. The signs used to be flipped
+      // on both, which was survivable while the clamps were tiny and became
+      // obviously wrong the moment the range opened up.
+      orbitYaw = clamp(orbitYaw + dx * 0.006, -ORBIT_YAW_MAX, ORBIT_YAW_MAX)
+      orbitPitch = clamp(orbitPitch - dy * 0.005, -ORBIT_PITCH_MAX, ORBIT_PITCH_MAX)
     },
     /** Wheel zoom, also clamped. */
     zoom(delta) {

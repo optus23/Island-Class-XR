@@ -2,7 +2,7 @@ import * as THREE from 'three'
 import { worlds } from '../config/worlds.js'
 import { palette, world as themeWorld, resolveNodeColor } from '../config/theme.js'
 import { buildWorldCurves, buildConnectors, distributeNodes } from './paths.js'
-import { groundHeightAt } from './terrain.js'
+import { groundHeightAt, landInset } from './terrain.js'
 import { levelsForWorld, statusFor } from '../lib/levels.js'
 import { prefersReducedMotion } from '../lib/motion.js'
 
@@ -16,6 +16,11 @@ import { prefersReducedMotion } from '../lib/motion.js'
  */
 
 const NODE_SIZE = 2.4
+const WATER_Y = -2.2 // matches the sea plane in island.js
+const BRIDGE_PLANK = 0xc08a4a
+const BRIDGE_BEAM = 0x8b5e34
+const BRIDGE_POST = 0x7a4f2c
+const BRIDGE_PIER = 0x6a4325
 const NODE_LIFT = 0.62 // clear of the ground even where the road crosses a step
 const UP = new THREE.Vector3(0, 1, 0)
 
@@ -219,37 +224,63 @@ export function createMapObjects() {
  * the whole road network.
  */
 /**
- * Walk a curve at a fixed spacing and record, per sample, the point, the
- * sideways vector and the ground the road has to sit on.
+ * Sample a road curve into one row per STRAIGHT RUN.
  *
- * Shared by the ribbon and the stairs so the two can never disagree about
- * where the road changes level.
+ * Per run, not per curve, and this is the fix for the wedge of terrain that
+ * kept punching through the road at every bend. Sampling the whole path as one
+ * strip put a single quad across each 90-degree corner, joining a sample whose
+ * sideways vector pointed along X to one pointing along Z. That quad is
+ * twisted: its two triangles fold through each other, half of the surface ends
+ * up under the ground, and the terrain shows through as a jagged green wedge
+ * pointing into the corner.
+ *
+ * Each run is now its own rectangular strip, run PAST both of its ends by half
+ * the road's width. Neighbouring runs then overlap in a square that squares off
+ * the bend exactly, and no quad ever has to turn a corner.
+ *
+ * Every sample carries the ground the road has to sit on, so the ribbon, its
+ * steps and its bridges can never disagree about where the road is.
  */
 function sampleRoad(curve, halfWidth, spacing = 0.5) {
-  const segments = Math.max(8, Math.round(curve.getLength() / spacing))
-  const out = []
+  const runs = curve.curves?.length ? curve.curves : [curve]
+  const rows = []
   const side = new THREE.Vector3()
-  for (let i = 0; i <= segments; i++) {
-    const u = i / segments
-    const p = curve.getPointAt(u)
-    const t = curve.getTangentAt(u)
-    // Perpendicular in the ground plane, so the road stays flat on the terrain.
-    side.set(t.z, 0, -t.x).normalize().multiplyScalar(halfWidth)
+  const dir = new THREE.Vector3()
 
-    // BOTH edges take the HIGHEST ground under the ribbon's whole width,
-    // sampled a little beyond each side. Letting each edge follow its own
-    // ground tilted the quad wherever the terrain stepped, and the low edge
-    // then sliced straight through the terrace.
-    const top = Math.max(
-      groundHeightAt(p.x - side.x, p.z - side.z),
-      groundHeightAt(p.x + side.x, p.z + side.z),
-      groundHeightAt(p.x, p.z),
-      groundHeightAt(p.x - side.x * 1.35, p.z - side.z * 1.35),
-      groundHeightAt(p.x + side.x * 1.35, p.z + side.z * 1.35)
-    )
-    out.push({ p, side: side.clone(), top, yaw: Math.atan2(t.x, t.z) })
+  for (const run of runs) {
+    const a = run.getPointAt(0)
+    const b = run.getPointAt(1)
+    const len = a.distanceTo(b)
+    if (len < 1e-6) continue
+
+    dir.copy(b).sub(a).normalize()
+    // Perpendicular in the ground plane, so the road stays flat on the terrain.
+    side.set(dir.z, 0, -dir.x).normalize().multiplyScalar(halfWidth)
+    const yaw = Math.atan2(dir.x, dir.z)
+
+    const pad = halfWidth
+    const total = len + pad * 2
+    const steps = Math.max(2, Math.round(total / spacing))
+    const row = []
+    for (let i = 0; i <= steps; i++) {
+      const p = a.clone().addScaledVector(dir, -pad + (i / steps) * total)
+
+      // BOTH edges take the HIGHEST ground under the ribbon's whole width,
+      // sampled a little beyond each side. Letting each edge follow its own
+      // ground tilted the quad wherever the terrain stepped, and the low edge
+      // then sliced straight through the terrace.
+      const top = Math.max(
+        groundHeightAt(p.x - side.x, p.z - side.z),
+        groundHeightAt(p.x + side.x, p.z + side.z),
+        groundHeightAt(p.x, p.z),
+        groundHeightAt(p.x - side.x * 1.35, p.z - side.z * 1.35),
+        groundHeightAt(p.x + side.x * 1.35, p.z + side.z * 1.35)
+      )
+      row.push({ p, side: side.clone(), top, yaw })
+    }
+    rows.push(row)
   }
-  return out
+  return rows
 }
 
 function ribbonGeometry(samples, lift) {
@@ -366,12 +397,153 @@ function createRoadStairs(samples, halfWidth) {
   return mesh
 }
 
+/**
+ * The wooden bridge over each channel between worlds.
+ *
+ * The road already crosses on a level deck (see groundHeightAt), but a plain
+ * ribbon floating over water reads as a bug. This gives it everything a bridge
+ * needs to be legible from above: cross planks, a rail on each side, and piers
+ * dropping into the water.
+ *
+ * Built from the same samples as the ribbon, so the deck can never drift away
+ * from the road it is carrying.
+ */
+function createBridges(samples, halfWidth) {
+  const parts = []
+  // Small and neat. These crossings are a couple of paces long, so a bridge
+  // built at road scale looked like civil engineering rather than scenery.
+  const RAIL_H = 0.78
+  const POST_EVERY = 1.7
+  const PIER_EVERY = 3.0
+
+  for (const row of samples) {
+    // Water spans only. A connector is mostly over land; the bridge is the
+    // stretch in the middle where the ground gives out.
+    let sinceCross = 0
+    let sincePost = 0
+    let sincePier = 0
+
+    for (let i = 0; i < row.length; i++) {
+      const p = row[i]
+      if (landInset(p.p.x, p.p.z) > 0) continue
+
+      const deck = p.top + 0.24
+      const nx = Math.sin(p.yaw)
+      const nz = Math.cos(p.yaw)
+      const sx = nz // sideways
+      const sz = -nx
+
+      // Under-deck beam, so the road is not a sheet of paper seen edge-on.
+      parts.push({
+        x: p.p.x,
+        y: p.top - 0.15,
+        z: p.p.z,
+        w: halfWidth * 2.05,
+        h: 0.42,
+        d: 0.55,
+        c: BRIDGE_BEAM,
+        yaw: p.yaw,
+      })
+
+      // Cross planks.
+      sinceCross += 0.5
+      if (sinceCross >= 1.0) {
+        sinceCross = 0
+        parts.push({
+          x: p.p.x,
+          y: deck,
+          z: p.p.z,
+          w: halfWidth * 2.05,
+          h: 0.14,
+          d: 0.55,
+          c: BRIDGE_PLANK,
+          yaw: p.yaw,
+        })
+      }
+
+      // Rail posts and the rail they carry.
+      sincePost += 0.5
+      if (sincePost >= POST_EVERY) {
+        sincePost = 0
+        for (const dir of [1, -1]) {
+          parts.push({
+            x: p.p.x + sx * halfWidth * dir,
+            y: deck + RAIL_H / 2,
+            z: p.p.z + sz * halfWidth * dir,
+            w: 0.24,
+            h: RAIL_H,
+            d: 0.24,
+            c: BRIDGE_POST,
+            yaw: p.yaw,
+          })
+        }
+      }
+      for (const dir of [1, -1]) {
+        parts.push({
+          x: p.p.x + sx * halfWidth * dir,
+          y: deck + RAIL_H,
+          z: p.p.z + sz * halfWidth * dir,
+          w: 0.18,
+          h: 0.18,
+          d: 0.55,
+          c: BRIDGE_POST,
+          yaw: p.yaw,
+        })
+      }
+
+      // Piers, down into the water.
+      sincePier += 0.5
+      if (sincePier >= PIER_EVERY) {
+        sincePier = 0
+        // Deep enough to disappear into either the water or the dark.
+        const drop = p.top - WATER_Y + 0.6
+        for (const dir of [1, -1]) {
+          parts.push({
+            x: p.p.x + sx * (halfWidth - 0.35) * dir,
+            y: p.top - drop / 2,
+            z: p.p.z + sz * (halfWidth - 0.35) * dir,
+            w: 0.34,
+            h: drop,
+            d: 0.34,
+            c: BRIDGE_PIER,
+            yaw: p.yaw,
+          })
+        }
+      }
+    }
+  }
+
+  const mesh = new THREE.InstancedMesh(
+    new THREE.BoxGeometry(1, 1, 1),
+    new THREE.MeshLambertMaterial(),
+    Math.max(1, parts.length)
+  )
+  const m = new THREE.Matrix4()
+  const q = new THREE.Quaternion()
+  const pos = new THREE.Vector3()
+  const sv = new THREE.Vector3()
+  const col = new THREE.Color()
+  parts.forEach((b, i) => {
+    q.setFromAxisAngle(UP, b.yaw)
+    pos.set(b.x, b.y, b.z)
+    sv.set(b.w, b.h, b.d)
+    m.compose(pos, q, sv)
+    mesh.setMatrixAt(i, m)
+    mesh.setColorAt(i, col.setHex(b.c))
+  })
+  mesh.count = parts.length
+  mesh.instanceMatrix.needsUpdate = true
+  if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true
+  mesh.frustumCulled = false
+  return mesh
+}
+
 function createPathRibbon() {
   const curves = [...worlds.map((w) => buildWorldCurves(w).full), ...buildConnectors()]
   const group = new THREE.Group()
 
-  const outer = curves.map((c) => sampleRoad(c, 1.6))
-  const inner = curves.map((c) => sampleRoad(c, 1.2))
+  const outer = curves.flatMap((c) => sampleRoad(c, 1.6))
+  const inner = curves.flatMap((c) => sampleRoad(c, 1.2))
 
   const border = new THREE.Mesh(
     ribbonGeometry(outer, 0.34),
@@ -399,6 +571,10 @@ function createPathRibbon() {
   border.frustumCulled = false
   road.frustumCulled = false
   group.add(border, road, createRoadStairs(inner, 1.6))
+
+  // Only the connectors ever leave the land, so only they need a bridge.
+  const links = buildConnectors().flatMap((c) => sampleRoad(c, 1.2))
+  group.add(createBridges(links, 1.35))
   return group
 }
 
