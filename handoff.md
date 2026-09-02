@@ -1,6 +1,6 @@
 # XR Island — handoff
 
-State as of **2 September 2026**, end of feedback round 5.
+State as of **3 September 2026**, end of the Blue Goblin content pass (round 6).
 Read `CLAUDE.md` first for the durable rules; this file is what was happening.
 
 ---
@@ -24,6 +24,59 @@ Shipped rounds: [#3](https://github.com/optus23/Island-Class-XR/pull/3) ·
 [#6](https://github.com/optus23/Island-Class-XR/pull/6) ·
 [#7](https://github.com/optus23/Island-Class-XR/pull/7) ·
 [#8](https://github.com/optus23/Island-Class-XR/pull/8)
+
+---
+
+## What round 6 changed — the practical blocks
+
+The first round that is **content, not engineering**. Marc's finalised exercise
+brief (three graded blocks, 30 % of the course, sharing a Blue Goblin narrative)
+is now in the level model. Nothing about the map, the camera, the paths or the
+interaction systems was touched.
+
+**Where the eight exercises landed.**
+
+| Block | Nodes | Entrega | Trabajo |
+| --- | --- | --- | --- |
+| 1 · AR Foundation | `w1-arf-01/02/03` | build (APK) | individual, dentro del grupo |
+| 2 · Meta Building Blocks | `w2-pre-02`, `w2-pre-03`, `w2-post-03` | build (APK) | por grupo |
+| 3 · XR Interaction Toolkit | `w3-xrit-02`, `w3-xrit-03` | *sin decidir* | por grupo |
+
+Block 2 straddles the midterm castle **on purpose**, and this was the one real
+judgement call of the round: exercises 1 and 2 are the short in-class ones and
+go before the exam, exercise 3 is the heavy free one that finishes at home and
+closes the block after it. If that ordering is wrong, it is a data move, not a
+rewrite.
+
+**Each node** got a drafted `objective-task` with 8–9 real technical
+checkpoints, written from the brief rather than pasted out of it, plus a
+student-facing statement in `public/content/exercises/`. The Blue Goblin beat
+lives in the `objective` and the `summary`, not in a separate story field, so a
+student who reads only the objective still gets the thread.
+
+**New level fields**, validated in `validate.mjs` and rendered by the portal's
+`assessmentStrip()`: `block`, `submissionMethod`, `groupMode`, `gradeWeight`,
+and `starterRepo` on block 1. `null` means *not decided yet* and renders as
+«por decidir»; the field being **absent** is an error. That distinction is the
+whole point — see below.
+
+**Four open decisions were carried forward, not resolved.** They live in
+`_fixme` on the relevant nodes, print at the end of every `npm run validate`,
+and are written up in [`docs/decisiones-abiertas.md`](docs/decisiones-abiertas.md).
+Do not fill any of them in with a plausible guess:
+
+1. the per-exercise grade split inside each block (`gradeWeight.exercise`),
+2. block 1's starting point — project handed over vs. built from scratch,
+3. the identity of block 2's "new threat",
+4. block 3's submission method — the brief simply does not say, and it is
+   deliberately **not** assumed to be the APK of blocks 1 and 2.
+
+**The block 1 starter repository does not exist yet.** It is a separate repo,
+one branch per exercise, accumulating so `03-libre` holds the full set;
+`starterRepo.url` is `null` until it does, and the portal says «pendiente de
+publicar». Its Unity project must never be merged into this repo —
+[`docs/repo-ejercicios-bloque1.md`](docs/repo-ejercicios-bloque1.md) has the
+layout and the one-line edit that publishes the link.
 
 ---
 
@@ -73,14 +126,21 @@ red one. Patrolling creatures keep off the discs.
 
 This is the main thing standing between the site and real use.
 
-- **5 placeholder titles** in `src/data/levels.json`: `w1-intro-04`, `w2-pre-04`,
+- **7 placeholder titles** in `src/data/levels.json`: `w1-intro-04`, `w2-pre-04`,
   `w2-post-04`, `w3-xrit-04`, `w3-xrit-05`, `w3-proj-04`, `w3-proj-05` show as
-  `PLACEHOLDER — sesión N (…)`. These are the slots the calendar recount opened.
+  `PLACEHOLDER — sesión N (…)`. These are the slots the calendar recount opened,
+  and round 6 did not touch them — none of them is one of the eight graded
+  exercises.
 - **The sample Canva link is private**, so session 1-2's slides render
   "Este diseño es privado". Replace it with a public Share → Embed URL. The
   validator already rejects `/edit` links and links without `?embed`.
-- Real slides (`public/content/slides/*.pdf`), exercises and answers
-  (`public/content/{exercises,answers}/*.md`) — all currently placeholders.
+- **Slides are still all placeholders** (`public/content/slides/*.pdf`), for the
+  eight exercise sessions too.
+- **Answers are still all placeholders** (`public/content/answers/*.md`),
+  including the eight exercises — though for open-ended creative work a
+  "solución" may not be the right shape; worth asking.
+- Exercises (`public/content/exercises/*.md`): the **eight graded ones are
+  written**; the rest are still placeholders.
 
 ---
 
