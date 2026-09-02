@@ -53,32 +53,37 @@ app.onUpdate((dt) => {
 // The road as one walkable polyline, plus where each node sits along it.
 const grandPath = buildGrandPath()
 
-// Decorative creatures patrolling the road. Deliberately few: eight of them
-// along one road read as a crowd rather than as the odd wandering Goomba.
-const enemies = createEnemies(grandPath, 4)
-app.worldGroup.add(enemies.group)
 const nodeIndexOnPath = new Map()
 for (const p of map.placed) {
   if (p.onPath) nodeIndexOnPath.set(p.level.id, nearestIndexOn(grandPath, p.position))
 }
+
+// Decorative creatures patrolling the road. Deliberately few — eight of them
+// along one road read as a crowd rather than as the odd wandering Goomba — and
+// they are given the node positions so they stay off the level discs.
+const enemies = createEnemies(grandPath, 4, [...nodeIndexOnPath.values()])
+app.worldGroup.add(enemies.group)
 
 function anchorOf(levelId) {
   return map.placed.find((p) => p.level.id === levelId)?.anchorId ?? null
 }
 
 /**
- * Walk the ROAD between two on-path nodes, in either direction.
- * Returns the slice of the grand polyline, so the avatar follows every corner
+ * Walk the ROAD from a point on the grand polyline to an on-path node.
+ * Returns the slice of the polyline, so the avatar follows every corner
  * instead of cutting across the terrain.
  */
-function walkAlongRoad(fromId, toId) {
-  const a = nodeIndexOnPath.get(fromId)
+function walkFromIndex(fromIndex, toId) {
   const b = nodeIndexOnPath.get(toId)
-  if (a == null || b == null || a === b) return []
-  const step = b > a ? 1 : -1
+  if (fromIndex == null || b == null || fromIndex === b) return []
+  const step = b > fromIndex ? 1 : -1
   const out = []
-  for (let i = a + step; i !== b + step; i += step) out.push(grandPath[i].clone())
+  for (let i = fromIndex + step; i !== b + step; i += step) out.push(grandPath[i].clone())
   return out
+}
+
+function walkAlongRoad(fromId, toId) {
+  return walkFromIndex(nodeIndexOnPath.get(fromId), toId)
 }
 
 /**
@@ -86,12 +91,16 @@ function walkAlongRoad(fromId, toId) {
  * Optional nodes hang off the road, so they are reached by walking the road to
  * their anchor and then stepping off it — never by cutting across open ground.
  */
-function buildRoute(fromId, toId) {
+function buildRoute(fromId, toId, fromPosition = null) {
   const target = levelById(toId)
   if (!target) return []
 
-  let startId = fromId
   const out = []
+  let startId = fromId
+  // Where on the road the walk begins. Mid-journey this is wherever the avatar
+  // actually stands, NOT the node it last left: routing from the node made a
+  // change of mind visibly backtrack to it before setting off again.
+  let startIndex = null
 
   const fromLevel = levelById(fromId)
   if (fromLevel?.optional) {
@@ -99,17 +108,22 @@ function buildRoute(fromId, toId) {
     startId = anchorOf(fromId) ?? mainSequence[0].id
     const back = map.positionById.get(startId)
     if (back) out.push(back.clone())
+    startIndex = nodeIndexOnPath.get(startId) ?? null
+  } else {
+    startIndex = fromPosition
+      ? nearestIndexOn(grandPath, fromPosition)
+      : (nodeIndexOnPath.get(startId) ?? null)
   }
 
   if (target.optional) {
     const anchorId = anchorOf(toId)
-    if (anchorId && anchorId !== startId) out.push(...walkAlongRoad(startId, anchorId))
+    if (anchorId) out.push(...walkFromIndex(startIndex, anchorId))
     const dest = map.positionById.get(toId)
     if (dest) out.push(dest.clone())
     return out
   }
 
-  out.push(...walkAlongRoad(startId, toId))
+  out.push(...walkFromIndex(startIndex, toId))
   // Land exactly on the node, not merely on the nearest polyline sample.
   const exact = map.positionById.get(toId)
   if (exact) out.push(exact.clone())
@@ -286,12 +300,15 @@ function selectLevel(levelOrId, { open = false, instant = false } = {}) {
   const level = typeof levelOrId === 'string' ? levelById(levelOrId) : levelOrId
   if (!level) return
 
-  // A new selection always wins. Ignoring input while the avatar walked meant
-  // the index did nothing mid-journey, which felt broken — and the index in
-  // particular must never be blocked by an animation it did not start.
+  // A new selection always wins, and it takes effect from wherever the avatar
+  // has got to. Ignoring input while it walked meant a change of mind had to
+  // wait out the whole journey; resuming from the last node instead made it
+  // turn round and walk back to that node first.
+  let resumeFrom = null
   if (player.isMoving) {
+    resumeFrom = player.group.position.clone()
     player.cancel()
-    player.snapTo(player.group.position.clone(), nodeUnderPlayer())
+    player.snapTo(resumeFrom, nodeUnderPlayer())
   }
   hideNodeLabel()
 
@@ -311,7 +328,9 @@ function selectLevel(levelOrId, { open = false, instant = false } = {}) {
     await enterLevel(level)
   }
 
-  if (player.levelId === level.id) {
+  // Standing on it already — but only if we did not just interrupt a walk,
+  // where levelId is merely the nearest node and the avatar is between two.
+  if (player.levelId === level.id && !resumeFrom) {
     arrive()
     return
   }
@@ -329,7 +348,7 @@ function selectLevel(levelOrId, { open = false, instant = false } = {}) {
     return
   }
 
-  player.travel(buildRoute(player.levelId, level.id), level.id, arrive)
+  player.travel(buildRoute(player.levelId, level.id, resumeFrom), level.id, arrive)
 }
 
 // --- keyboard access -------------------------------------------------------
@@ -411,7 +430,10 @@ function applyMarker(id) {
  */
 async function enterLevel(level) {
   const at = screenPositionOf(player.group, app.rig.camera, container)
-  const iris = await irisClose(at)
+  // The two castles get their own entrance: the screen closes through a horned
+  // silhouette rather than a plain circle.
+  const shape = level.category === 'boss' ? 'boss' : 'circle'
+  const iris = await irisClose({ ...at, shape })
 
   setLevelInUrl(level.id)
   openPortal(level, {
@@ -421,7 +443,7 @@ async function enterLevel(level) {
     // only then did the wipe play — so it read as a glitch rather than the
     // reverse of the entry.
     onBeforeClose: async () => {
-      const back = await irisClose()
+      const back = await irisClose({ shape })
       return () => back.open()
     },
     onClose: () => setLevelInUrl(null),

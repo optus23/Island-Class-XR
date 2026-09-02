@@ -29,9 +29,23 @@ function commitStyles(el) {
   void el.offsetWidth
 }
 
-function makeLayer(cx, cy) {
+/**
+ * Can this browser subtract one mask layer from another?
+ *
+ * The shaped wipe needs "black everywhere EXCEPT this silhouette", which a
+ * single mask image cannot express: outside its own box a mask image hides the
+ * element, and we need the opposite. Two layers with `subtract` can. Where it
+ * is unavailable the wipe quietly stays a circle rather than breaking.
+ */
+const canSubtractMasks =
+  typeof CSS !== 'undefined' &&
+  CSS.supports?.('mask-composite', 'exclude') &&
+  CSS.supports?.('mask-image', 'linear-gradient(#000, #000)')
+
+function makeLayer(cx, cy, shape) {
   const el = document.createElement('div')
   el.className = 'iris-wipe'
+  if (shape === 'boss' && canSubtractMasks) el.classList.add('iris-wipe--boss')
   el.style.setProperty('--iris-x', `${cx}px`)
   el.style.setProperty('--iris-y', `${cy}px`)
   document.body.appendChild(el)
@@ -55,9 +69,20 @@ function coveringRadius(cx, cy) {
  * @returns {Promise<{open: () => Promise<void>}>} resolves once the screen is
  *   fully black — the caller swaps content here, then calls open().
  */
-export function irisClose({ x = window.innerWidth / 2, y = window.innerHeight / 2 } = {}) {
+/**
+ * @param {object} [opts]
+ * @param {number} [opts.x] centre of the wipe, in client px
+ * @param {number} [opts.y]
+ * @param {'circle'|'boss'} [opts.shape] `boss` closes through a horned
+ *   silhouette instead of a circle — the two castles get their own entrance.
+ */
+export function irisClose({
+  x = window.innerWidth / 2,
+  y = window.innerHeight / 2,
+  shape = 'circle',
+} = {}) {
   const reduced = prefersReducedMotion()
-  const el = makeLayer(x, y)
+  const el = makeLayer(x, y, shape)
   const full = coveringRadius(x, y)
 
   el.style.setProperty('--iris-r', `${full}px`)
