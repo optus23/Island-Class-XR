@@ -50,7 +50,17 @@ export function createVR({
   onEnter = () => {},
   playerLevelId = () => null,
 }) {
-  if (!navigator.xr) return { supported: false, mount() {}, update() {}, get presenting() { return false } }
+  if (!navigator.xr) {
+    return {
+      supported: false,
+      mount: async () => false,
+      update() {},
+      endSession() {},
+      get presenting() {
+        return false
+      },
+    }
+  }
 
   renderer.xr.enabled = true
 
@@ -74,6 +84,7 @@ export function createVR({
   let zoom = 1
   let session = null
   let button = null
+  let note = null
 
   // --- controllers ---------------------------------------------------------
 
@@ -228,23 +239,42 @@ export function createVR({
 
   async function startSession() {
     if (session) return
+
+    // ONE try around both halves. setSession() used to be awaited outside it,
+    // so when it threw — which is what InvalidStateError does here — the
+    // rejection was unhandled, the button kept saying "Entrar en VR" and the
+    // only trace was a console line. An error the user cannot see is a bug.
+    let pending = null
     try {
-      session = await navigator.xr.requestSession('immersive-vr', {
-        optionalFeatures: ['local-floor', 'bounded-floor', 'hand-tracking', 'layers'],
+      pending = await navigator.xr.requestSession('immersive-vr', {
+        // No 'layers'. Three picks the projection-layer path from feature
+        // detection, not from this list, so asking for it buys nothing and is
+        // one more thing that can be refused.
+        optionalFeatures: ['local-floor', 'bounded-floor', 'hand-tracking'],
       })
+
+      pending.addEventListener('end', () => {
+        session = null
+        detach()
+        setLabel('Entrar en VR')
+      })
+
+      attach()
+      await renderer.xr.setSession(pending)
+      session = pending
+      setLabel('Salir de VR')
     } catch (e) {
-      setLabel(`VR no disponible (${e.name})`)
-      session = null
-      return
-    }
-    session.addEventListener('end', () => {
-      session = null
+      // Leave nothing half-attached: a failed entry must return the map to
+      // exactly the 2D state it was in.
       detach()
+      session = null
+      pending?.end().catch(() => {})
       setLabel('Entrar en VR')
-    })
-    attach()
-    await renderer.xr.setSession(session)
-    setLabel('Salir de VR')
+      console.error('[xr] could not start the session:', e)
+      // On screen, not only in the console: whoever hits this is wearing a
+      // headset or standing at a laptop with no devtools open.
+      setNote(`${e.name}: ${e.message}`)
+    }
   }
 
   function endSession() {
@@ -253,6 +283,12 @@ export function createVR({
 
   function setLabel(text) {
     if (button) button.textContent = text
+  }
+
+  function setNote(text) {
+    if (!note) return
+    note.textContent = text ?? ''
+    note.hidden = !text
   }
 
   // --- the button ----------------------------------------------------------
@@ -269,8 +305,16 @@ export function createVR({
     button = document.createElement('button')
     button.className = 'btn btn-sm vr-button'
     button.textContent = 'Entrar en VR'
-    button.addEventListener('click', () => (session ? endSession() : startSession()))
+    button.addEventListener('click', () => {
+      setNote(null)
+      session ? endSession() : startSession()
+    })
     host.appendChild(button)
+
+    note = document.createElement('p')
+    note.className = 'vr-note'
+    note.hidden = true
+    host.appendChild(note)
     return true
   }
 

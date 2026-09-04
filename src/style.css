@@ -865,3 +865,23 @@ body.map-view {
     inset 0 0 0 2px rgb(255 255 255 / 0.14),
     0 4px 0 -3px rgb(0 0 0 / 0.4);
 }
+
+/* Why entering VR failed, said on screen. Whoever hits it is in a headset or
+   at a laptop with no devtools open — a console line reaches nobody. */
+.vr-note {
+  position: fixed;
+  left: 50%;
+  bottom: calc(max(1rem, env(safe-area-inset-bottom)) + 2.9rem);
+  transform: translateX(-50%);
+  z-index: 40;
+  max-width: min(90vw, 34rem);
+  margin: 0;
+  padding: 0.4rem 0.7rem;
+  border-radius: 0.5rem;
+  background: #7f1d1d;
+  color: #fff;
+  font-family: var(--xri-font);
+  font-size: 0.78rem;
+  text-align: center;
+  box-shadow: 0 0 0 3px #0b0f16;
+}

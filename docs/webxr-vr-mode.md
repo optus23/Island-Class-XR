@@ -96,14 +96,50 @@ length and the second as the world lurching when you move your head.
 
 ---
 
-## Honest status: none of this has been run
+## Fixed on first contact: `InvalidStateError` on entering VR
 
-**Not one line of the VR path has been executed.** There was no headset and no
-browser automation available in the session that wrote it. What *is* verified:
+First real run (Quest Link + desktop Chrome) failed with `InvalidStateError`,
+a pause, Chrome reloading, and no VR. The chain:
 
-- it compiles, and `npm run build` and `npm run validate` pass
-- the module is inert without `navigator.xr`: `createVR` returns a no-op stub,
-  mounts no button and touches no state
+1. `WebGLRenderer` builds its context attributes from a **fixed list** —
+   `alpha, depth, stencil, antialias, premultipliedAlpha, preserveDrawingBuffer,
+   powerPreference, failIfMajorPerformanceCaveat`. **`xrCompatible` is not in
+   it**, so passing it to the constructor does nothing.
+2. So three's `setSession()` reaches
+   `if (attributes.xrCompatible !== true) await gl.makeXRCompatible()`.
+3. On any machine where the headset is on a different GPU than the one Chrome
+   picked — every Link setup with two adapters — that migrates the context to
+   the other adapter and **the WebGL context is lost**.
+4. Three then calls `new XRWebGLBinding(session, gl)` on the dead context, which
+   throws `InvalidStateError`. Chrome restores the context seconds later with no
+   session attached.
+
+The fix is to create the context **by hand** with `xrCompatible: true` and hand
+it to `WebGLRenderer` via `{ canvas, context }`, so the adapter is right from
+the first frame and `makeXRCompatible()` is never called. See `three/scene.js`.
+
+Two things were wrong on our side as well, and are fixed:
+
+- `renderer.xr.setSession()` was awaited **outside** the try/catch, so its
+  rejection was unhandled: the button kept saying "Entrar en VR" and the only
+  trace was a console line. Both halves are now in one try, a failure detaches
+  cleanly, and the reason is printed on screen under the button.
+- `'layers'` was dropped from `optionalFeatures`. Three chooses the
+  projection-layer path from feature detection, not from that list, so asking
+  for it bought nothing and was one more thing that could be refused.
+
+---
+
+## Honest status: what has and has not been run
+
+**Verified on a real Quest 3, over Link, in desktop Chrome:** the button appears
+(so `isSessionSupported('immersive-vr')` is true) and pressing it requests a
+session. That is as far as it got before `InvalidStateError`, which is now
+fixed but **not yet re-tested**.
+
+**Still unverified:** everything past session start — stereo rendering, the
+diorama framing, the controller rays, the thumbstick locomotion, and entering a
+level from inside the headset.
 
 Treat the first headset run as a bring-up, not a demo. In particular:
 

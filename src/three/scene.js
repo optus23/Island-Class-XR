@@ -15,7 +15,42 @@ import { createCameraRig } from './cameraRig.js'
  *     contexts that still drive frames while reporting document.hidden
  */
 export function createScene(container) {
+  /**
+   * The context is created BY HAND, purely to pass `xrCompatible: true`.
+   *
+   * This is not a style choice. `WebGLRenderer` builds its context attributes
+   * from a fixed list — alpha, depth, stencil, antialias, premultipliedAlpha,
+   * preserveDrawingBuffer, powerPreference, failIfMajorPerformanceCaveat — and
+   * `xrCompatible` is not in it, so passing it to the constructor does nothing.
+   *
+   * Without it, three's `setSession()` hits this:
+   *
+   *     if (attributes.xrCompatible !== true) await gl.makeXRCompatible()
+   *
+   * and on a machine whose headset lives on a different GPU than the one Chrome
+   * picked — every Quest Link setup with two adapters — `makeXRCompatible()`
+   * migrates the context to the other adapter and the WebGL context is LOST.
+   * Three then immediately calls `new XRWebGLBinding(session, gl)` on that dead
+   * context, which throws **InvalidStateError**, and Chrome restores the context
+   * a few seconds later with no session attached. That is exactly the reported
+   * failure: an InvalidStateError, a pause, the page coming back, and no VR.
+   *
+   * Creating the context XR-compatible up front means the adapter is right from
+   * the first frame and `makeXRCompatible()` is never called.
+   */
+  const canvas = document.createElement('canvas')
+  const gl = canvas.getContext('webgl2', {
+    alpha: true,
+    antialias: true,
+    depth: true,
+    stencil: false,
+    powerPreference: 'high-performance',
+    xrCompatible: true,
+  })
+
   const renderer = new THREE.WebGLRenderer({
+    canvas,
+    context: gl ?? undefined,
     antialias: true,
     powerPreference: 'high-performance',
   })
@@ -23,6 +58,15 @@ export function createScene(container) {
   // Immersive VR is opt-in per session; enabling the flag alone costs nothing
   // and changes nothing until something calls renderer.xr.setSession().
   renderer.xr.enabled = true
+
+  // A lost context is otherwise silent, and it is the failure mode most likely
+  // to come back here. Say so loudly rather than leaving a black canvas.
+  canvas.addEventListener('webglcontextlost', (e) => {
+    console.error('[xr] WebGL context lost', e)
+  })
+  canvas.addEventListener('webglcontextrestored', () => {
+    console.warn('[xr] WebGL context restored')
+  })
   renderer.setClearColor(themeWorld.sky)
   renderer.shadowMap.enabled = false
   container.appendChild(renderer.domElement)
