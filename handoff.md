@@ -1,21 +1,21 @@
 # XR Island — handoff
 
-State as of **4 September 2026**, end of round 8 (Marp slides + the VR branch).
+State as of **4 September 2026**, end of round 9 (teacher controls, no answers).
 Read `CLAUDE.md` first for the durable rules; this file is what was happening.
 
 ---
 
 ## Where things stand
 
-Everything through round 8 is **merged to `main` and live** — except the VR
+Everything through round 9 is **merged to `main` and live** — except the VR
 branch, which is deliberately not:
 <https://optus23.github.io/Island-Class-XR/>
 
 | | |
 | --- | --- |
-| `main` | `6746ffb` — merge of PR #11 |
+| `main` | merge of PR #12 |
 | `develop` | same content |
-| Last deploy | run `33917815677`, success |
+| Last deploy | run `33922729738`, success |
 | Working tree | clean |
 | Performance | ~27 draw calls, ~700k triangles, 0.05 ms/frame CPU |
 
@@ -27,16 +27,65 @@ Shipped rounds: [#3](https://github.com/optus23/Island-Class-XR/pull/3) ·
 [#8](https://github.com/optus23/Island-Class-XR/pull/8) ·
 [#9](https://github.com/optus23/Island-Class-XR/pull/9) ·
 [#10](https://github.com/optus23/Island-Class-XR/pull/10) ·
-[#11](https://github.com/optus23/Island-Class-XR/pull/11)
+[#11](https://github.com/optus23/Island-Class-XR/pull/11) ·
+[#12](https://github.com/optus23/Island-Class-XR/pull/12)
 
-Verified live after the deploy by fetching the deployed files: `progress.json`
-carries `answersUnlocked`, the manifest lists 8 decks with 8 answer slides held
-back, a statement deck serves 6 slides with no `answer` class in it, and
-`theme.css` is 200.
+Verified live after the deploy: `progress.json` has no `answersUnlocked` and
+keeps the teacher's own marker (`w1-intro-02`), the deck manifest carries no
+`answers` key, `decks/*.answers.json` and `content/answers/*.md` are real 404s,
+and `/admin/` serves.
 
-**Not verified in round 8:** anything requiring a browser. The browser tooling
-was disconnected for that session, so the deck viewer has been exercised only
-at the data and routing level, never rendered.
+**Still not verified:** anything requiring a browser. The tooling has been
+unavailable for two rounds, so the deck viewer, the new legend Profesor block
+and the admin card have been built and served but never seen rendered. That is
+the first thing to check next session.
+
+---
+
+## What round 9 changed — teacher controls, and no answers
+
+### The advance bug
+
+`applyMarker()` recoloured the node and updated the index, and nothing else. It
+never touched the avatar or the camera, so pressing **Completar y avanzar**
+wrote the marker to GitHub and looked, on screen, like a dead button. The
+writes had always worked — `main` carries seven `chore(progress)` commits from
+the user testing it. It now walks the avatar to the new marker; reset
+teleports, because from session 27 the walk home crosses the island.
+
+**The lesson is the old one.** "El botón no funciona" was a rendering gap, not
+a write failure. Reproduce before believing the stated cause.
+
+### /admin is sign-in only now
+
+The full-screen console was the wrong shape: you pressed *Avanzar* while
+looking at a form, so there was nothing to see. `/admin` is now a small
+floating card — token in, verified read-only, shows where the class is. The
+controls live in the legend's **Profesor** block, on the map, together with the
+marker readout that used to be on the admin page. Admin bundle halved.
+
+### No answers, at all
+
+The user's decision, and the right one: *"la asignatura no ha de contener
+respuestas — los todos son las instrucciones. Te envío el mueble desmontado con
+un papel de instrucciones; las respuestas serían enviarte el mueble montado."*
+
+This also dissolves what round 8 only papered over. He asked whether answers
+could be moved between folders to hide them; they cannot — the repo is public
+and `git log` keeps whatever was ever committed. The global unlock was removed
+rather than hardened. 854 lines deleted.
+
+Nothing was ever exposed: the answer slides only held a placeholder.
+
+**Do not reintroduce an answers surface** — it is now a hard constraint in
+`CLAUDE.md`. A solved Unity project may be shared one day, as a separate repo,
+discussed first.
+
+### The progress.json conflict, again
+
+Exactly as the rule written last round predicted. `main` had seven marker
+writes `develop` had never seen. Merged `main` back, kept **his** value
+(`w1-intro-02`) — resetting it would have silently undone his last press.
 
 ---
 
