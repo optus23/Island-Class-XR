@@ -265,28 +265,11 @@ export function createScene(container) {
   }
 
   // Three normally refreshes the XR cameras INSIDE render(), after any frame
-  // callback has run — so adjusting them from vrUpdate would be overwritten.
-  // Taking the update over is the supported way to get in between.
+  // callback has run — so adjusting them afterwards would be overwritten.
+  // Taking the update over is the supported way to get in between; frame()
+  // calls updateCamera() itself and then applyMono().
   renderer.xr.cameraAutoUpdate = false
 
-  function applyStereoDepth() {
-    const xrCam = renderer.xr.getCamera()
-    const eyes = xrCam?.cameras
-    if (!eyes || eyes.length < 2) return
-    if (stereoDepth >= 1) return
-
-    eyeMid.set(0, 0, 0)
-    for (const e of eyes) eyeMid.add(e.position)
-    eyeMid.divideScalar(eyes.length)
-
-    for (const e of eyes) {
-      e.position.lerp(eyeMid, 1 - stereoDepth)
-      e.updateMatrixWorld(true)
-      // projectionMatrix carries the per-eye frustum offset, which is the other
-      // half of the parallax. At zero depth both eyes must also share it.
-      if (stereoDepth === 0) e.projectionMatrix.copy(eyes[0].projectionMatrix)
-    }
-  }
 
   function frame(now) {
     if (!running) return
