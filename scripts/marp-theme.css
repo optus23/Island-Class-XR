@@ -1,0 +1,196 @@
+/* @theme xr-island */
+
+/**
+ * The one Marp theme for every generated deck.
+ *
+ * Same palette as src/config/theme.js and the same chrome idiom as the map:
+ * dark ground, hard black outline, bright inner rim, Fredoka. Marp's default
+ * theme is a white business deck and would look like a different product.
+ *
+ * Colours are duplicated here as literals on purpose: this file is consumed by
+ * the Marp compiler under Node, outside the bundler, so it cannot import
+ * theme.js. If the palette changes there, change it here too — the deck build
+ * is the only other place a colour is allowed to live.
+ */
+
+@import 'default';
+
+section {
+  --xri-ground: #12161c;
+  --xri-plate: #1b2230;
+  --xri-ink: #e8eef7;
+  --xri-theory: #4cc9f0;
+  --xri-practical: #f77f00;
+  --xri-gold: #f2c14e;
+  --xri-optional: #9d4edd;
+
+  width: 1280px;
+  height: 720px;
+  padding: 68px 76px;
+  background: var(--xri-ground);
+  color: var(--xri-ink);
+  font-family: Fredoka, ui-rounded, 'Segoe UI', system-ui, sans-serif;
+  font-size: 26px;
+  line-height: 1.45;
+  letter-spacing: 0.01em;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+/* A gold rule under the top edge, the same one the node discs are rimmed in. */
+section::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 6px;
+  background: var(--xri-gold);
+}
+
+section h1 {
+  font-size: 62px;
+  font-weight: 700;
+  line-height: 1.08;
+  margin: 0 0 0.35em;
+  color: #fff;
+}
+
+section h2 {
+  font-size: 42px;
+  font-weight: 600;
+  margin: 0 0 0.5em;
+  color: var(--xri-theory);
+}
+
+section h3 {
+  font-size: 32px;
+  font-weight: 600;
+  margin: 0 0 0.4em;
+  color: var(--xri-gold);
+}
+
+section strong {
+  color: #fff;
+  font-weight: 600;
+}
+
+section em {
+  color: var(--xri-gold);
+  font-style: normal;
+}
+
+section a {
+  color: var(--xri-theory);
+}
+
+section ul,
+section ol {
+  margin: 0.2em 0 0.6em;
+  padding-left: 1.1em;
+}
+
+section li {
+  margin-bottom: 0.34em;
+}
+
+section li::marker {
+  color: var(--xri-practical);
+}
+
+section code {
+  background: rgb(255 255 255 / 0.09);
+  border-radius: 0.28em;
+  padding: 0.06em 0.32em;
+  font-size: 0.86em;
+}
+
+section pre {
+  background: #0a0d12;
+  border: 2px solid rgb(255 255 255 / 0.12);
+  border-radius: 12px;
+  padding: 0.7em 0.9em;
+  font-size: 0.72em;
+}
+
+section blockquote {
+  border-left: 6px solid var(--xri-practical);
+  background: rgb(247 127 0 / 0.09);
+  margin: 0.3em 0 0.6em;
+  padding: 0.5em 0.9em;
+  border-radius: 0 10px 10px 0;
+  color: #fff;
+}
+
+section table {
+  font-size: 0.8em;
+  border-collapse: collapse;
+}
+
+section th,
+section td {
+  border: 2px solid rgb(255 255 255 / 0.14);
+  padding: 0.32em 0.6em;
+}
+
+section th {
+  background: var(--xri-plate);
+  color: #fff;
+}
+
+section footer,
+section::after {
+  color: rgb(232 238 247 / 0.4);
+  font-size: 18px;
+}
+
+/* --- the title slide: <!-- _class: lead --> ------------------------------ */
+
+section.lead {
+  justify-content: center;
+  text-align: center;
+  background:
+    radial-gradient(circle at 50% 34%, rgb(76 201 240 / 0.16), transparent 62%),
+    var(--xri-ground);
+}
+
+section.lead h1 {
+  font-size: 76px;
+}
+
+section.lead h2 {
+  color: var(--xri-practical);
+}
+
+/* --- the answer slide: <!-- _class: answer -------------------------------
+   This is the class the build step looks for to split a deck in two. Renaming
+   it means changing SLIDE_ANSWER_CLASS in scripts/build-decks.mjs as well. */
+
+section.answer {
+  background:
+    radial-gradient(circle at 50% 30%, rgb(56 176 0 / 0.15), transparent 62%),
+    var(--xri-ground);
+}
+
+section.answer::before {
+  background: #38b000;
+}
+
+section.answer h1,
+section.answer h2 {
+  color: #38b000;
+}
+
+/* Badge, so it is obvious at a glance that this slide is not the statement. */
+section.answer::after {
+  content: 'RESPUESTA';
+  position: absolute;
+  top: 30px;
+  right: 40px;
+  background: #38b000;
+  color: #08101a;
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  padding: 0.22em 0.7em;
+  border-radius: 0.4em;
+}

@@ -97,7 +97,7 @@ let restoreFocusTo = null
 const FOCUSABLE =
   'a[href], button:not([disabled]), input:not([disabled]), select, textarea, iframe, [tabindex]:not([tabindex="-1"])'
 
-function tabsFor(level) {
+function tabsFor(level, answersUnlocked) {
   const slides = { key: 'slides', label: 'Diapositivas' }
   const todos = { key: 'todos', label: 'Actividades' }
   const exercises = { key: 'exercises', label: 'Ejercicios' }
@@ -111,7 +111,10 @@ function tabsFor(level) {
 
   return ordered.filter((t) => {
     if (t.key === 'todos') return Boolean(level.todos?.length)
-    if (t.key === 'answers') return Boolean(level.answers)
+    // Answers are hidden for EVERYONE until Marc unlocks them from /admin. The
+    // flag is global and public, exactly like the progress marker — there is
+    // deliberately no per-visitor override.
+    if (t.key === 'answers') return Boolean(level.answers) && answersUnlocked
     return true
   })
 }
@@ -149,7 +152,10 @@ export async function closePortal() {
   after?.()
 }
 
-export function openPortal(level, { markerId = null, onClose = null, onBeforeClose = null } = {}) {
+export function openPortal(
+  level,
+  { markerId = null, answersUnlocked = false, onClose = null, onBeforeClose = null } = {}
+) {
   // teardown, not closePortal: swapping levels must not fire the previous
   // portal's onClose, which would clear the URL we are about to set.
   teardown()
@@ -170,7 +176,7 @@ export function openPortal(level, { markerId = null, onClose = null, onBeforeClo
     ? `Mundo ${n.world}-${n.index} · sesión ${n.global} de ${n.total}`
     : 'Nivel opcional'
 
-  const tabs = tabsFor(level)
+  const tabs = tabsFor(level, answersUnlocked)
   const badges = [
     `<span class="badge badge-sm" style="background:${accent};color:#0b0f14;border:none">
        ${CATEGORY_LABELS[level.category] ?? level.category}</span>`,
@@ -238,7 +244,7 @@ export function openPortal(level, { markerId = null, onClose = null, onBeforeClo
 
     if (key === 'slides') {
       panel.innerHTML = '<div class="h-full" data-slot></div>'
-      renderSlides(panel.querySelector('[data-slot]'), level)
+      await renderSlides(panel.querySelector('[data-slot]'), level, { answersUnlocked })
       return
     }
     if (key === 'todos') {

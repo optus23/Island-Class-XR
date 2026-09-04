@@ -1,7 +1,17 @@
+---
+marp: true
+theme: xr-island
+paginate: true
+---
+
+<!-- _class: lead -->
+
 # Ejercicio 1 · Plane Detection
 
 **Bloque 1 — AR Foundation** · 10 % del curso, reparto por ejercicio *por decidir*
 **Individual**, dentro de tu grupo de referencia · **Entrega: build (APK)**
+
+---
 
 ## La historia
 
@@ -12,6 +22,9 @@ del móvil.
 En clase has visto un vídeo en el que el profesor toca la pantalla y aparece un
 objeto sobre la superficie que la cámara ha detectado. **Ese vídeo es el
 enunciado**: tienes que llegar al mismo resultado con tu propia idea.
+
+
+---
 
 ## Qué tienes que hacer
 
@@ -24,6 +37,9 @@ lo que tengas). Lo único que se te pide es que **represente cómo te enfrentas 
 Blue Goblin o cómo lo camelas**, según la historia que quieras contar. Una espada,
 una jaula, un pastel, un altavoz enorme: da igual, mientras se entienda.
 
+
+---
+
 ## Requisitos mínimos
 
 - Detección de planos activa y **visible**: hay que ver en pantalla qué está
@@ -32,6 +48,9 @@ una jaula, un pastel, un altavoz enorme: da igual, mientras se entienda.
   origen del mundo.
 - Escala real. Sobre una mesa, tu objeto mide centímetros.
 - Blue Goblin sigue en escena y pasa algo entre él y lo que instancias.
+
+
+---
 
 ## Entrega
 
@@ -42,7 +61,22 @@ a tu rama del repositorio de ejercicios (`01-plane-detection`).
 En el `README` de la rama, tres líneas: qué modelo has usado, de dónde sale y
 con qué licencia, y qué le hace a Blue Goblin.
 
+
+---
+
 ## Cómo se evalúa
 
 Que la mecánica funcione en un móvil real. Que la escala y el anclaje sean
 creíbles. Que la escena cuente algo sin que tengas que explicarlo al lado.
+
+---
+
+<!-- _class: answer -->
+
+## Respuesta
+
+> **Pendiente de escribir.** Marc redacta aquí la solución comentada o los
+> criterios de corrección de este ejercicio.
+
+Esta diapositiva está marcada con `<!-- _class: answer -->`, así que se compila
+a un archivo aparte y no se descarga hasta que el desbloqueo global está activo.

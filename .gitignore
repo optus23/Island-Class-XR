@@ -10,3 +10,6 @@ dist/
 .env
 .env.*
 !.env.example
+
+# Slide decks compiled from Marp markdown by scripts/build-decks.mjs.
+public/decks/

@@ -169,6 +169,32 @@ for (const w of worlds) {
   }
 }
 
+// --- generated Marp decks --------------------------------------------------
+// `npm run decks` runs before this (prebuild), so the manifest is current.
+// Missing is fine: it just means no exercise markdown has opted in yet.
+let decks = {}
+try {
+  decks = JSON.parse(readFileSync(resolve(here, '../public/decks/index.json'), 'utf8')).decks ?? {}
+} catch {
+  warn('no public/decks/index.json — run `npm run decks` (build does it for you)')
+}
+for (const [id, deck] of Object.entries(decks)) {
+  const level = levels.find((l) => l.id === id)
+  if (!level) {
+    warn(`deck "${id}" has no level with that id — the file will never be opened`)
+    continue
+  }
+  // The generated deck wins in the viewer, so a slides block underneath it is
+  // config that can never take effect.
+  if (level.slides) {
+    warn(
+      `level "${id}": has a generated Marp deck AND a "${level.slides.type}" slides block — ` +
+        `the deck wins, so the slides block is dead config`
+    )
+  }
+  if (!deck.answers) warn(`deck "${id}": no slide tagged \`<!-- _class: answer -->\``)
+}
+
 // --- graded practical blocks ----------------------------------------------
 // Each block's exercises must be numbered 1..of, once each, and must appear on
 // the map in that order — the narrative only works read front to back.
@@ -329,6 +355,12 @@ cover('at least one optional node', levels.some((l) => l.optional),
 cover('a PDF slide example', levels.some((l) => l.slides?.type === 'pdf'))
 cover('a Canva slide example', levels.some((l) => l.slides?.type === 'canva'))
 cover('an objective-task todo', levels.some((l) => l.todos?.some((t) => t.type === 'objective-task')))
+cover(
+  'a generated Marp deck',
+  Object.keys(decks).length > 0,
+  `${Object.keys(decks).length} deck(s), ` +
+    `${Object.values(decks).reduce((n, d) => n + d.answers, 0)} answer slide(s) held back`
+)
 cover(
   'the 8 graded block exercises',
   levels.filter((l) => l.block).length === 8,

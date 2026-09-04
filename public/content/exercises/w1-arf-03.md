@@ -1,14 +1,27 @@
+---
+marp: true
+theme: xr-island
+paginate: true
+---
+
+<!-- _class: lead -->
+
 # Ejercicio 3 · Exploración libre
 
 **Bloque 1 — AR Foundation** · 10 % del curso, reparto por ejercicio *por decidir*
 (este ejercicio es el de **más peso** del bloque)
 **Individual**, dentro de tu grupo de referencia · **Entrega: build (APK)**
 
+---
+
 ## La historia
 
 Hasta aquí has seguido instrucciones. El final de Blue Goblin en el móvil **lo
 escribes tú**. ¿Se va? ¿Se queda? ¿Se hace amigo tuyo? ¿Se lo lleva un primo
 verde? Lo que decidas es lo que se corrige.
+
+
+---
 
 ## Qué tienes que hacer
 
@@ -23,12 +36,18 @@ feature que no hayamos usado en clase**:
 Intégrala **en el mismo proyecto** de los ejercicios 1 y 2 y úsala para contar el
 desenlace. Puedes combinar varias: **si todas funcionan, sube la nota**.
 
+
+---
+
 ## Requisitos mínimos
 
 - Al menos una feature nueva, distinta de plane detection e image tracking.
 - Los ejercicios 1 y 2 **siguen funcionando** después de integrarla.
 - El desenlace se ve **dentro de la app**. Un final que solo está en el `README`
   no cuenta como final.
+
+
+---
 
 ## Entrega
 
@@ -38,8 +57,23 @@ terminar contiene la suma de los tres ejercicios.
 En el `README`: qué features has añadido, en qué dispositivo lo has probado, y
 un párrafo con el final de tu Blue Goblin.
 
+
+---
+
 ## Cómo se evalúa
 
 Que la feature elegida funcione de verdad en tu dispositivo, no en el editor.
 Que la integración no rompa lo anterior. Y el **storytelling**: aquí puntúa
 explícitamente.
+
+---
+
+<!-- _class: answer -->
+
+## Respuesta
+
+> **Pendiente de escribir.** Marc redacta aquí la solución comentada o los
+> criterios de corrección de este ejercicio.
+
+Esta diapositiva está marcada con `<!-- _class: answer -->`, así que se compila
+a un archivo aparte y no se descarga hasta que el desbloqueo global está activo.
