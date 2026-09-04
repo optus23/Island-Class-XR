@@ -23,6 +23,7 @@ import { irisClose, screenPositionOf } from './ui/transition.js'
 import { buildGrandPath, nearestIndexOn } from './three/paths.js'
 import { createEnemies } from './three/enemies.js'
 import { readLevelFromUrl, setLevelInUrl, onRouteChange } from './lib/router.js'
+import { createVR } from './three/vr.js'
 
 const container = document.getElementById('app')
 const curtain = createCurtain()
@@ -287,6 +288,8 @@ let legend = null
 let markerId = null
 // Global, public, read once per load — see lib/progress.js. Never per-visitor.
 let answersUnlocked = false
+// Assigned in boot(). Null until then, and on any device without WebXR.
+let vr = null
 
 /** Every node is clickable — bosses included. Accepts a level or a level id. */
 /** Nearest node to where the avatar physically stands. */
@@ -443,6 +446,10 @@ function applyMarker(id) {
  * neither direction is ever an abrupt cut.
  */
 async function enterLevel(level) {
+  // Every route into the portal passes through here, so this is the one place
+  // that can promise the headset is never left presenting behind a 2D panel.
+  if (vr?.presenting) vr.endSession()
+
   const at = screenPositionOf(player.group, app.rig.camera, container)
   // The two castles get their own entrance: the screen closes through a horned
   // silhouette rather than a plain circle.
@@ -541,6 +548,28 @@ async function boot() {
   })
   nav.setPlayerLevel(startId)
   app.start()
+
+  // --- immersive VR (experimental, webxr-vr-mode branch) -------------------
+  // Mounts a button only when a headset actually reports immersive-vr support,
+  // so on a phone or a laptop nothing about the page changes.
+  vr = createVR({
+    renderer: app.renderer,
+    scene: app.scene,
+    camera: app.rig.camera,
+    worldGroup: app.worldGroup,
+    pickTargets: () => map.pickTargets,
+    levelFromHit: (hit) => map.levelFromHit(hit),
+    playerLevelId: () => player.levelId,
+    onSelect: (level) => selectLevel(level),
+    // The session has already ended by the time this runs: the level portal is
+    // a flat 2D surface in this phase, by design.
+    onEnter: (level) => selectLevel(level, { open: true }),
+  })
+  app.setVRUpdate((dt) => vr.update(dt))
+  vr.mount(document.getElementById('ui')).then((mounted) => {
+    if (mounted) console.info('[vr] immersive-vr available — "Entrar en VR" mounted')
+  })
+
 
   if (deepLinked) {
     setLevelInUrl(deepLinked.id, { replace: true }) // no phantom history entry

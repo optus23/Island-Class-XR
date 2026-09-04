@@ -834,3 +834,34 @@ body.map-view {
   width: calc(100% - 1.4rem);
   margin: 0 0.7rem 0.55rem;
 }
+
+/* --------------------------------------------------------------------------
+   Immersive VR entry (experimental — webxr-vr-mode branch).
+
+   The button only ever exists when navigator.xr reports immersive-vr support,
+   so this block is dead weight on a phone or a laptop. Bottom-centre, clear of
+   the nav (top-left) and the legend.
+   -------------------------------------------------------------------------- */
+.vr-button {
+  position: fixed;
+  left: 50%;
+  bottom: max(1rem, env(safe-area-inset-bottom));
+  transform: translateX(-50%);
+  z-index: 40;
+  font-family: var(--xri-font);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  background: var(--xri-plate);
+  color: var(--xri-ink);
+  border: 0;
+  box-shadow:
+    0 0 0 3px #0b0f16,
+    inset 0 0 0 2px rgb(255 255 255 / 0.14),
+    0 8px 0 -3px rgb(0 0 0 / 0.4);
+}
+.vr-button:active {
+  box-shadow:
+    0 0 0 3px #0b0f16,
+    inset 0 0 0 2px rgb(255 255 255 / 0.14),
+    0 4px 0 -3px rgb(0 0 0 / 0.4);
+}

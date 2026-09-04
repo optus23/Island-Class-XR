@@ -20,6 +20,9 @@ export function createScene(container) {
     powerPreference: 'high-performance',
   })
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+  // Immersive VR is opt-in per session; enabling the flag alone costs nothing
+  // and changes nothing until something calls renderer.xr.setSession().
+  renderer.xr.enabled = true
   renderer.setClearColor(themeWorld.sky)
   renderer.shadowMap.enabled = false
   container.appendChild(renderer.domElement)
@@ -102,6 +105,9 @@ export function createScene(container) {
 
   // --- resize --------------------------------------------------------------
   function resize() {
+    // While presenting, the headset owns the framebuffer size and the
+    // projection. Touching either from here fights it.
+    if (renderer.xr.isPresenting) return
     const w = container.clientWidth || window.innerWidth
     const h = container.clientHeight || window.innerHeight
     renderer.setSize(w, h, false)
@@ -123,29 +129,42 @@ export function createScene(container) {
   let running = false
   let lastTime = 0
 
+  /** Per-frame hook used only while an immersive session is presenting. */
+  let vrUpdate = null
+
   function frame(now) {
     if (!running) return
     // Clamp dt so a backgrounded tab or a stall can never teleport animations.
     const dt = Math.min((now - lastTime) / 1000, 0.05)
     lastTime = now
     for (const fn of updaters) fn(dt)
-    rig.update(dt, parallaxPointer)
-    syncFraming() // worlds differ in camera distance, so the framing can change without a resize
-    worldGroup.rotation.x = rig.tilt.x
-    worldGroup.rotation.y = rig.tilt.y
+
+    if (renderer.xr.isPresenting) {
+      // The headset owns the camera pose, so the follow rig must not write to
+      // it. Fog and the parallax tilt are off too — see three/vr.js.
+      vrUpdate?.(dt)
+    } else {
+      rig.update(dt, parallaxPointer)
+      syncFraming() // worlds differ in camera distance, so framing can change without a resize
+      worldGroup.rotation.x = rig.tilt.x
+      worldGroup.rotation.y = rig.tilt.y
+    }
     renderer.render(scene, rig.camera)
-    requestAnimationFrame(frame)
   }
 
+  // setAnimationLoop, not requestAnimationFrame: WebXR drives frames from the
+  // headset's own clock, and rAF is simply never called while presenting.
+  // Outside a session three falls back to rAF, so 2D behaviour is unchanged.
   function start() {
     if (running) return
     running = true
     // Reset the clock so the gap while paused never lands as one huge dt.
     lastTime = performance.now()
-    requestAnimationFrame(frame)
+    renderer.setAnimationLoop(frame)
   }
   function stop() {
     running = false
+    renderer.setAnimationLoop(null)
   }
 
   return {
@@ -159,6 +178,9 @@ export function createScene(container) {
       return pointerInside
     },
     onUpdate: (fn) => updaters.push(fn),
+    setVRUpdate: (fn) => {
+      vrUpdate = fn
+    },
     updaters,
     start,
     stop,

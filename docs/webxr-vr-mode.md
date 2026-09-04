@@ -1,0 +1,139 @@
+# WebXR immersive mode — experimental branch
+
+**Branch:** `webxr-vr-mode` · **Not merged, and not to be merged without Marc
+saying so.** `develop` and `main` are untouched by any of this.
+
+Scope for this phase: **looking around and navigating the map**. Opening a level
+ends the immersive session and hands over to the ordinary 2D portal — nothing
+renders slides inside the headset.
+
+---
+
+## How to try it on a Quest 3
+
+WebXR needs a secure context, so `localhost` over the network is not enough.
+Two ways:
+
+**A. The deployed site (simplest).** The branch is not deployed — Pages only
+publishes `main` — so this needs a temporary deploy or a tunnel. Easiest is a
+tunnel from your machine:
+
+```bash
+git checkout webxr-vr-mode
+npm ci && npm run build
+npx serve dist            # or: npm run preview -- --host
+# then expose it over https, e.g.
+npx localtunnel --port 4173
+```
+
+Open the `https://…` URL in the Quest's browser.
+
+**B. Over USB with port forwarding.** Quest developer mode on, headset plugged
+in, then on the machine:
+
+```bash
+npm run dev -- --host
+adb reverse tcp:5173 tcp:5173
+```
+
+Open `http://localhost:5173` **in the Quest browser** — `localhost` counts as a
+secure origin, so this needs no certificate.
+
+Either way: a button reading **«Entrar en VR»** appears at the bottom centre
+**only** if the browser reports `immersive-vr` support. If you do not see it,
+the browser said no — nothing else on the page changes.
+
+---
+
+## What it does
+
+**The island is a tabletop diorama, not a world you stand in.** The whole
+`worldGroup` is scaled to about 3 m across and parked at table height 1.5 m in
+front of you. That is a deliberate design decision, not a shortcut:
+
+> The desktop camera has `near = 12`, chosen because a near plane of 0.5 at ~90
+> units out spent almost the whole depth buffer on empty space — that is what
+> made the road and terrain trade pixels (see `CLAUDE.md`). Standing inside the
+> map at 1 unit = 1 m would force `near ≈ 0.1` across a 180 m field and walk
+> straight back into that hole. At diorama scale the depth range is a couple of
+> metres, `near = 0.1` is free, and a map you can lean over reads better than
+> one you are a giant on.
+
+| Input | Does |
+| --- | --- |
+| Head | Look around, stereo, 6DoF — walk around the model |
+| Point + trigger | Ray at a node → **select**, and the avatar walks there |
+| Trigger on the node you are on | **Enter** → ends the session, opens the 2D portal |
+| Left thumbstick | Pan the model |
+| Right thumbstick ← → | Rotate the model |
+| Right thumbstick ↑ ↓ | Zoom (0.4×–3.2×) |
+
+The ray turns **green** over a node and stays gold otherwise.
+
+The **model** moves, not the viewer — pushing a standing person around by
+thumbstick is the reliable way to make them sick, and reaching over and spinning
+a table map is what you would actually do.
+
+Fog and the mouse-parallax tilt are **off** while presenting. Both are framing
+tricks for a fixed 2D camera; in a headset the first reads as haze at arm's
+length and the second as the world lurching when you move your head.
+
+---
+
+## What is NOT done
+
+- **No slides in the headset.** Out of scope this phase, by instruction. The
+  pipeline was built to allow it later: `scripts/build-decks.mjs` emits each
+  slide as `{ html, classes }` data, and `src/ui/deck.js` is the only file that
+  assumes a DOM. An in-world panel would be a sibling of that file.
+- **No hand tracking.** `hand-tracking` is requested as an optional feature, but
+  nothing consumes the joint data. Controllers only.
+- **No teleport locomotion.** Not needed at diorama scale, where panning the
+  model is the navigation.
+- **No AR / passthrough mode.** `immersive-vr` only.
+- **The 2D map's own `Entrar` affordances are unreachable while presenting** —
+  by design, the trigger is the way in.
+
+---
+
+## Honest status: none of this has been run
+
+**Not one line of the VR path has been executed.** There was no headset and no
+browser automation available in the session that wrote it. What *is* verified:
+
+- it compiles, and `npm run build` and `npm run validate` pass
+- the module is inert without `navigator.xr`: `createVR` returns a no-op stub,
+  mounts no button and touches no state
+
+Treat the first headset run as a bring-up, not a demo. In particular:
+
+1. **The 2D map changed too.** The render loop moved from
+   `requestAnimationFrame` to `renderer.setAnimationLoop`, which is required —
+   rAF is never called while presenting. Three falls back to rAF outside a
+   session, so desktop behaviour *should* be identical, but it is a change to
+   the shared path and has not been watched in a browser. **This alone is
+   reason enough not to merge yet.**
+2. **Thumbstick axes are a guess.** Quest controllers usually report the stick
+   on axes 2/3, with 0/1 the trackpad slot; the code reads 2/3 and falls back to
+   0/1. If a stick does nothing, log `gamepad.axes` first.
+3. **`DIORAMA_SCALE` and `DIORAMA_AT` are eyeballed** (`src/three/vr.js`). The
+   model may land too big, too small or clipping the floor. They are two
+   constants at the top of the file.
+4. **Water and terrain shaders were written for a 1-unit-per-unit world.**
+   Scaling the group should be fine, but the animated sea in particular has not
+   been looked at in stereo.
+5. **Performance is unmeasured in stereo.** The desktop scene is ~27 draw calls
+   and ~700k triangles; stereo roughly doubles the per-frame cost and the Quest
+   3 has to hold 72–90 Hz. Watch the castles especially — they are individual
+   meshes rather than instanced, and push draw calls to ~77 when in frame.
+
+---
+
+## Files
+
+| | |
+| --- | --- |
+| `src/three/vr.js` | All of it: dolly, controllers, rays, locomotion, session |
+| `src/three/scene.js` | `renderer.xr.enabled`, `setAnimationLoop`, the presenting branch |
+| `src/main.js` | Wiring; `enterLevel` ends the session before any portal opens |
+| `src/style.css` | `.vr-button` |
