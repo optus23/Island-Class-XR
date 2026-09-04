@@ -144,6 +144,7 @@ Everything a session shows lives in **one entry** in
 | **Exercises** | `exercises: "content/exercises/<id>.md"` | Plain Markdown at `public/content/exercises/<id>.md` |
 | **Answers** | `answers: "content/answers/<id>.md"` | `null` hides the tab entirely |
 | **Activities** | `todos: [ … ]` | `objective-task` objects — objective, starting point, milestones, deliverable |
+| **Generated deck** | `marp: true` in the exercise Markdown | Slides built from that Markdown at build time — see below. Beats a `slides` block |
 | **Graded exercise** | `block`, `submissionMethod`, `groupMode`, `gradeWeight` | Only on the 8 exercises of the three practical blocks — see below |
 
 Getting a Canva embed link: open the deck → **Share** → **More** → **Embed** →
@@ -265,6 +266,80 @@ prints all four open decisions on every run.
 exercise — its Unity project never lands in this repo. It does not exist yet;
 [`docs/repo-ejercicios-bloque1.md`](docs/repo-ejercicios-bloque1.md) has the
 branch layout and the one-line edit that publishes the link.
+
+### Slides generated from Markdown (Marp)
+
+**You no longer build decks by hand.** Put `marp: true` at the top of a level's
+exercise Markdown and a slide deck appears in that level's *Diapositivas* tab.
+That front-matter line is the entire opt-in — nothing to add to `levels.json`.
+
+```markdown
+---
+marp: true
+theme: xr-island
+paginate: true
+---
+
+<!-- _class: lead -->
+
+# Ejercicio 1 · Plane Detection
+
+**Bloque 1 — AR Foundation** · entrega: build (APK)
+
+---
+
+## La historia
+
+Un goblin azul se ha colado en el despacho del profesor…
+
+---
+
+<!-- _class: answer -->
+
+## Respuesta
+
+La solución comentada va aquí.
+```
+
+The rules, in full:
+
+| | |
+| --- | --- |
+| Opt in | `marp: true` in the front-matter. Without it the file stays plain prose in the *Ejercicios* tab. |
+| New slide | a line with `---` between slides. |
+| Title slide | `<!-- _class: lead -->` — centred, larger, with a glow. |
+| **Answer slide** | `<!-- _class: answer -->` — green, badged `RESPUESTA`, **and held back until unlocked**. |
+| Theme | `xr-island`, in [`scripts/marp-theme.css`](scripts/marp-theme.css). One theme for every deck; don't set another. |
+
+The conversion happens **at build time**, under Node. Marp is a
+`devDependency` and none of it is shipped: the browser downloads small JSON with
+the slides already rendered, plus one shared stylesheet. Adding the pipeline
+grew the bundle by 3.8 kB — the viewer, nothing else.
+
+```bash
+npm run decks      # regenerate; build and dev both do this for you
+```
+
+Output lands in `public/decks/` (gitignored, rebuilt every time). A generated
+deck **wins over** a `slides` PDF/Canva block on the same level, and `validate`
+warns if you leave one underneath where it can never be seen.
+
+### Publishing the answers — one global switch
+
+Answer slides are compiled into a **separate file** and the site does not fetch
+it while answers are locked. Flip it in `/admin` → **Respuestas** →
+*Publicar respuestas*. That writes `answersUnlocked` into
+[`public/progress.json`](public/progress.json), the same file and the same
+GitHub Contents API path as the progress marker, and every visitor picks it up
+on their next load. There is no per-student setting and no local override —
+one switch, everybody, at once. It also gates the *Respuestas* tab.
+
+> **Be honest with yourself about what this is.** The site is static and has no
+> backend, so "locked" means the page never requests the answers file — not that
+> the file is unreachable. Anyone who guesses
+> `decks/<level-id>.answers.json` can fetch it directly. It stops answers being
+> seen by accident or in passing; it is not a vault, and it should not be
+> treated as one for anything that actually matters, like an exam.
 
 ### Boss and optional nodes
 

@@ -67,7 +67,14 @@ const store = {
 }
 
 const root = document.getElementById('admin-root')
-let state = { sha: null, currentLevelId: null, busy: false, message: null, tone: 'info' }
+let state = {
+  sha: null,
+  currentLevelId: null,
+  answersUnlocked: false,
+  busy: false,
+  message: null,
+  tone: 'info',
+}
 
 const encodeBase64 = (text) => {
   const bytes = new TextEncoder().encode(text)
@@ -124,6 +131,7 @@ async function loadCurrent() {
     state.sha = data.sha
     const parsed = JSON.parse(decodeBase64(data.content))
     state.currentLevelId = parsed.currentLevelId ?? START_MARKER
+    state.answersUnlocked = parsed.answersUnlocked === true
     say(`Leído desde ${store.repo}@${store.branch}.`, 'success')
   } catch (e) {
     state.currentLevelId = null
@@ -134,23 +142,26 @@ async function loadCurrent() {
   }
 }
 
-async function write(nextId, label) {
+/**
+ * Writes progress.json as a PATCH over what was last read.
+ *
+ * The file now carries two independent settings — the marker and the global
+ * answer unlock — so a writer that rebuilt the document from one of them would
+ * silently reset the other every time a button was pressed.
+ */
+async function write(patch, label, message) {
   if (state.busy) return
   state.busy = true
   render()
   try {
+    const doc = {
+      currentLevelId: patch.currentLevelId ?? state.currentLevelId,
+      answersUnlocked: patch.answersUnlocked ?? state.answersUnlocked,
+      note: 'Moved only by the /admin panel. Students read this; they never write it.',
+    }
     const body = {
-      message: `chore(progress): ${label} → ${nextId}`,
-      content: encodeBase64(
-        JSON.stringify(
-          {
-            currentLevelId: nextId,
-            note: 'Moved only by the /admin panel. Students read this; they never write it.',
-          },
-          null,
-          2
-        ) + '\n'
-      ),
+      message,
+      content: encodeBase64(JSON.stringify(doc, null, 2) + '\n'),
       branch: store.branch,
       ...(state.sha ? { sha: state.sha } : {}),
     }
@@ -167,7 +178,8 @@ async function write(nextId, label) {
     }
     const data = await res.json()
     state.sha = data.content.sha
-    state.currentLevelId = nextId
+    if (patch.currentLevelId != null) state.currentLevelId = patch.currentLevelId
+    if (patch.answersUnlocked != null) state.answersUnlocked = patch.answersUnlocked
     say(
       `${label} correcto. GitHub Actions reconstruirá el sitio en 1–2 minutos.`,
       'success'
@@ -280,6 +292,46 @@ function render() {
             despliegue. El mapa público lo lee en modo solo lectura.
           </p>
         </section>
+
+        <section class="pixel-panel rounded-xl bg-base-100 p-5 mt-5">
+          <h2 class="font-bold mb-3">Respuestas</h2>
+
+          <p class="text-sm opacity-70 mb-4">
+            Las diapositivas marcadas como respuesta se generan aparte y
+            <strong>no se descargan</strong> mientras esto esté bloqueado. Es un
+            único interruptor global: al publicarlas, las ve todo el mundo a la vez.
+          </p>
+
+          ${
+            state.currentLevelId
+              ? `
+            <div class="flex items-center gap-3 mb-4">
+              <span class="badge ${state.answersUnlocked ? 'badge-success' : 'badge-neutral'}">
+                ${state.answersUnlocked ? '🔓 Publicadas' : '🔒 Bloqueadas'}
+              </span>
+              <span class="text-sm opacity-70">
+                ${
+                  state.answersUnlocked
+                    ? 'Los estudiantes ven las diapositivas de respuesta y la pestaña «Respuestas».'
+                    : 'Los estudiantes solo ven el enunciado.'
+                }
+              </span>
+            </div>
+
+            <button id="answers" class="btn ${state.answersUnlocked ? 'btn-outline btn-warning' : 'btn-success'}"
+                    ${state.busy ? 'disabled' : ''}>
+              ${state.answersUnlocked ? 'Volver a bloquear' : 'Publicar respuestas'}
+            </button>`
+              : `<p class="opacity-70">Introduce el repositorio y el token para gestionarlo.</p>`
+          }
+
+          <p class="text-xs opacity-60 mt-3">
+            Aviso honesto: esto es un sitio estático sin servidor. Bloqueado significa
+            que la web no pide el archivo de respuestas, no que sea inaccesible —
+            quien conozca la URL puede pedirlo a mano. Sirve para que no se vean por
+            descuido, no para guardar un secreto.
+          </p>
+        </section>
       </div>
     </main>`
 
@@ -298,13 +350,26 @@ function render() {
     state.sha = null
     say('Token borrado de este navegador.', 'info')
   })
-  el('advance')?.addEventListener('click', () =>
-    write(nextMarker(state.currentLevelId), 'Avance')
-  )
+  el('advance')?.addEventListener('click', () => {
+    const next = nextMarker(state.currentLevelId)
+    write({ currentLevelId: next }, 'Avance', `chore(progress): Avance → ${next}`)
+  })
   el('reset')?.addEventListener('click', () => {
     if (confirm('¿Devolver el marcador al primer nivel del curso?')) {
-      write(START_MARKER, 'Reinicio')
+      write({ currentLevelId: START_MARKER }, 'Reinicio', `chore(progress): Reinicio → ${START_MARKER}`)
     }
+  })
+  el('answers')?.addEventListener('click', () => {
+    const next = !state.answersUnlocked
+    const ask = next
+      ? '¿Publicar las respuestas para TODOS los estudiantes?'
+      : '¿Volver a ocultar las respuestas para todos?'
+    if (!confirm(ask)) return
+    write(
+      { answersUnlocked: next },
+      next ? 'Publicación de respuestas' : 'Bloqueo de respuestas',
+      `chore(answers): ${next ? 'publicar' : 'ocultar'} respuestas`
+    )
   })
 }
 

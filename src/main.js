@@ -285,6 +285,8 @@ container.addEventListener('contextmenu', (e) => e.preventDefault())
 let nav = null
 let legend = null
 let markerId = null
+// Global, public, read once per load — see lib/progress.js. Never per-visitor.
+let answersUnlocked = false
 
 /** Every node is clickable — bosses included. Accepts a level or a level id. */
 /** Nearest node to where the avatar physically stands. */
@@ -456,6 +458,7 @@ async function enterLevel(level) {
   setLevelInUrl(level.id)
   openPortal(level, {
     markerId,
+    answersUnlocked,
     // Close order matters: the iris must be fully black BEFORE the portal is
     // torn down. Previously the panel vanished first, flashing the 3D map, and
     // only then did the wipe play — so it read as a glitch rather than the
@@ -487,6 +490,7 @@ function setOverview(on) {
 async function boot() {
   const progress = await loadProgress()
   markerId = progress.currentLevelId
+  answersUnlocked = progress.answersUnlocked
   map.refresh(markerId)
 
   // A shared ?level=... link wins over the progress marker: whoever followed
@@ -558,6 +562,7 @@ async function boot() {
     nav?.setPlayerLevel(level.id)
     openPortal(level, {
       markerId,
+      answersUnlocked,
       onBeforeClose: async () => {
         const back = await irisClose()
         return () => back.open()

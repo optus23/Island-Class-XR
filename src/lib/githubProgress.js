@@ -92,7 +92,15 @@ function explain(status) {
   return `GitHub respondió ${status}.`
 }
 
-/** @returns {Promise<{currentLevelId:string, sha:string}>} */
+/**
+ * The whole document plus its sha.
+ *
+ * Returns everything, not just the marker: progress.json now carries
+ * `answersUnlocked` as well, and a writer that only knew about one field would
+ * silently reset the other every time it saved.
+ *
+ * @returns {Promise<{doc:object, sha:string}>}
+ */
 export async function readProgress() {
   if (!settings.token || !settings.repo) throw new Error('Falta el token o el repositorio.')
   const res = await api(
@@ -100,38 +108,52 @@ export async function readProgress() {
   )
   if (!res.ok) throw new Error(explain(res.status))
   const data = await res.json()
-  const parsed = JSON.parse(decodeBase64(data.content))
-  return { currentLevelId: parsed.currentLevelId, sha: data.sha }
+  return { doc: JSON.parse(decodeBase64(data.content)), sha: data.sha }
 }
 
+const NOTE = 'Moved only by the teacher controls. Students read this; they never write it.'
+
 /**
- * Moves the marker. Always re-reads first so the sha is fresh — otherwise two
- * clicks in a row collide with a 409.
+ * Read-modify-write of progress.json.
+ *
+ * Always re-reads first, so the sha is fresh — otherwise two clicks in a row
+ * collide with a 409 — and so that a patch to one field preserves the other.
  */
-export async function writeProgress(levelId, label = 'Actualización') {
-  const { sha } = await readProgress()
-  const body = {
-    message: `chore(progress): ${label} → ${levelId}`,
-    content: encodeBase64(
-      JSON.stringify(
-        {
-          currentLevelId: levelId,
-          note: 'Moved only by the teacher controls. Students read this; they never write it.',
-        },
-        null,
-        2
-      ) + '\n'
-    ),
-    branch: settings.branch,
-    sha,
-  }
+async function patchProgress(patch, message) {
+  const { doc, sha } = await readProgress()
+  const next = { ...doc, ...patch, note: NOTE }
   const res = await api(`/repos/${settings.repo}/contents/${FILE_PATH}`, {
     method: 'PUT',
-    body: JSON.stringify(body),
+    body: JSON.stringify({
+      message,
+      content: encodeBase64(JSON.stringify(next, null, 2) + '\n'),
+      branch: settings.branch,
+      sha,
+    }),
   })
   if (!res.ok) {
     const detail = await res.json().catch(() => ({}))
     throw new Error(detail.message ?? explain(res.status))
   }
+  return next
+}
+
+/**
+ * Moves the marker, leaving the answer-unlock flag exactly as it was.
+ */
+export async function writeProgress(levelId, label = 'Actualización') {
+  await patchProgress({ currentLevelId: levelId }, `chore(progress): ${label} → ${levelId}`)
   return levelId
+}
+
+/**
+ * Publishes or hides the answer slides for EVERY visitor at once.
+ * There is deliberately no per-student variant of this.
+ */
+export async function writeAnswersUnlocked(unlocked) {
+  await patchProgress(
+    { answersUnlocked: Boolean(unlocked) },
+    `chore(answers): ${unlocked ? 'publicar' : 'ocultar'} respuestas`
+  )
+  return Boolean(unlocked)
 }

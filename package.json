@@ -9,13 +9,17 @@
     "build": "node scripts/validate.mjs && vite build",
     "preview": "vite preview",
     "validate": "node scripts/validate.mjs",
-    "placeholders": "node scripts/make-placeholders.mjs"
+    "placeholders": "node scripts/make-placeholders.mjs",
+    "decks": "node scripts/build-decks.mjs",
+    "prebuild": "npm run decks",
+    "predev": "npm run decks"
   },
   "dependencies": {
     "marked": "^18.0.11",
     "three": "^0.185.1"
   },
   "devDependencies": {
+    "@marp-team/marp-core": "^4.4.0",
     "@tailwindcss/vite": "^4.3.3",
     "daisyui": "^5.7.22",
     "tailwindcss": "^4.3.3",
