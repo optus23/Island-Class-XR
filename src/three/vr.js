@@ -83,6 +83,8 @@ export function createVR({
 
   let zoom = 1
   let session = null
+  /** True while requestSession is in flight — see startSession(). */
+  let starting = false
   let button = null
   let note = null
 
@@ -238,7 +240,13 @@ export function createVR({
   }
 
   async function startSession() {
-    if (session) return
+    // `session` is only assigned once setSession() has succeeded, so it does
+    // not guard the window while requestSession is still in flight. Without a
+    // second flag a double click fires two requests, the first one wins, and
+    // the second is refused with "There is already an active, immersive
+    // XRSession" — leaving one session alive that nothing owns.
+    if (session || starting) return
+    starting = true
 
     // ONE try around both halves. setSession() used to be awaited outside it,
     // so when it threw — which is what InvalidStateError does here — the
@@ -246,6 +254,16 @@ export function createVR({
     // only trace was a console line. An error the user cannot see is a bug.
     let pending = null
     try {
+      // A previous attempt that failed after requestSession succeeded can leave
+      // an immersive session alive at the browser level. Three still holds it
+      // even when this module's own reference is gone — which is exactly what
+      // survives a hot reload, since the document is never torn down.
+      const stale = renderer.xr.getSession?.()
+      if (stale) {
+        console.warn('[xr] ending a stale session before starting a new one')
+        await stale.end().catch(() => {})
+      }
+
       pending = await navigator.xr.requestSession('immersive-vr', {
         // No 'layers'. Three picks the projection-layer path from feature
         // detection, not from this list, so asking for it buys nothing and is
@@ -272,8 +290,18 @@ export function createVR({
       setLabel('Entrar en VR')
       console.error('[xr] could not start the session:', e)
       // On screen, not only in the console: whoever hits this is wearing a
-      // headset or standing at a laptop with no devtools open.
-      setNote(`${e.name}: ${e.message}`)
+      // headset or standing at a laptop with no devtools open. And when the
+      // message is one we recognise, say what to DO about it rather than
+      // repeating the browser's wording back at them.
+      const orphan = e.name === 'InvalidStateError' && /already/i.test(e.message ?? '')
+      setNote(
+        orphan
+          ? 'Quedó una sesión de VR abierta de un intento anterior. Cierra esta ' +
+              'pestaña del todo (recargar no basta) y vuelve a abrirla.'
+          : `${e.name}: ${e.message}`
+      )
+    } finally {
+      starting = false
     }
   }
 
