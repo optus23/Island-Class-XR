@@ -69,14 +69,3 @@ con qué licencia, y qué le hace a Blue Goblin.
 Que la mecánica funcione en un móvil real. Que la escala y el anclaje sean
 creíbles. Que la escena cuente algo sin que tengas que explicarlo al lado.
 
----
-
-<!-- _class: answer -->
-
-## Respuesta
-
-> **Pendiente de escribir.** Marc redacta aquí la solución comentada o los
-> criterios de corrección de este ejercicio.
-
-Esta diapositiva está marcada con `<!-- _class: answer -->`, así que se compila
-a un archivo aparte y no se descarga hasta que el desbloqueo global está activo.

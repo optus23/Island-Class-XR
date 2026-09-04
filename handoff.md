@@ -1,20 +1,21 @@
 # XR Island — handoff
 
-State as of **4 September 2026**, end of round 7 (controls and the entrance).
+State as of **4 September 2026**, end of round 8 (Marp slides + the VR branch).
 Read `CLAUDE.md` first for the durable rules; this file is what was happening.
 
 ---
 
 ## Where things stand
 
-Everything through round 7 is **merged to `main` and live**:
+Everything through round 8 is **merged to `main` and live** — except the VR
+branch, which is deliberately not:
 <https://optus23.github.io/Island-Class-XR/>
 
 | | |
 | --- | --- |
-| `main` | `064e720` — merge of PR #10 |
+| `main` | `6746ffb` — merge of PR #11 |
 | `develop` | same content |
-| Last deploy | run `33892056485`, success |
+| Last deploy | run `33917815677`, success |
 | Working tree | clean |
 | Performance | ~27 draw calls, ~700k triangles, 0.05 ms/frame CPU |
 
@@ -25,11 +26,75 @@ Shipped rounds: [#3](https://github.com/optus23/Island-Class-XR/pull/3) ·
 [#7](https://github.com/optus23/Island-Class-XR/pull/7) ·
 [#8](https://github.com/optus23/Island-Class-XR/pull/8) ·
 [#9](https://github.com/optus23/Island-Class-XR/pull/9) ·
-[#10](https://github.com/optus23/Island-Class-XR/pull/10)
+[#10](https://github.com/optus23/Island-Class-XR/pull/10) ·
+[#11](https://github.com/optus23/Island-Class-XR/pull/11)
 
-Verified live after the deploy, with a real click on the node plate: it enters,
-and the entrance runs iris 995→0 px, card on the black for its beat, then
-0→995 px onto the portal. Console clean.
+Verified live after the deploy by fetching the deployed files: `progress.json`
+carries `answersUnlocked`, the manifest lists 8 decks with 8 answer slides held
+back, a statement deck serves 6 slides with no `answer` class in it, and
+`theme.css` is 200.
+
+**Not verified in round 8:** anything requiring a browser. The browser tooling
+was disconnected for that session, so the deck viewer has been exercised only
+at the data and routing level, never rendered.
+
+---
+
+## What round 8 changed — Marp slides, and a VR branch
+
+Two independent pieces. **Only the first one shipped.**
+
+### Slides generate themselves now
+
+`marp: true` in a level's exercise Markdown is the whole opt-in: a themed deck
+appears in that level's *Diapositivas* tab, with no entry in `levels.json`.
+Conversion runs under Node in `scripts/build-decks.mjs`, wired as `prebuild`.
+Marp is a devDependency and **nothing of it ships** — the client gets small
+JSON with the slides already rendered plus one stylesheet. `main.js` grew
+3.8 kB, which is the viewer.
+
+Answer slides (`<!-- _class: answer -->`) compile into a **separate file** the
+site does not fetch while locked. Hiding them with CSS inside the same payload
+would have handed every answer to anyone with devtools.
+
+**Read the caveat and repeat it to Marc if it comes up:** the site is static,
+so "locked" means the page never asks for that file — not that it is
+unreachable. `curl …/decks/w1-arf-01.answers.json` returns 200 today. It stops
+answers being seen in passing; it is not a vault and must not be used as one
+for an exam.
+
+The unlock is global and public, on the progress-marker mechanism:
+`answersUnlocked` in `progress.json`, flipped from `/admin` → **Respuestas**.
+It gates the answer slides *and* the Respuestas tab.
+
+`progress.json` now carries two independent settings, so **both writers were
+changed to patch the document rather than rebuild it**. The old code would have
+reset one field every time the other was saved.
+
+### The first merge conflict in eleven PRs
+
+`/admin` writes `progress.json` straight to `main`, so `main` carried commits
+`develop` had never seen. Ten PRs merged cleanly because nothing on `develop`
+had touched that file. This round did. Resolved by merging `main` back into
+`develop`, keeping the teacher's marker value. **Expect this again** any time a
+round edits `progress.json` — merge `main` back first.
+
+### WebXR: on `webxr-vr-mode`, NOT merged
+
+Immersive VR entry for the Quest 3, scoped to map navigation. The island is
+presented as a **tabletop diorama** rather than a world you stand in, because
+at 1 unit = 1 m the near plane would have to drop to ~0.1 over a 180 m field —
+straight back into the depth-precision hole that caused the road artefacts.
+
+**None of the VR path has been run.** No headset, and the browser tooling was
+unavailable that session. It compiles and is inert without `navigator.xr`; that
+is all that is verified. The render loop also moved from `requestAnimationFrame`
+to `setAnimationLoop` on that branch, which WebXR requires but which changes the
+shared 2D path unwatched — reason enough on its own to keep it out of `develop`.
+
+[`docs/webxr-vr-mode.md`](docs/webxr-vr-mode.md) has the bring-up notes: how to
+reach it from the headset, what is implemented, and the five things most likely
+to be wrong on the first run.
 
 ---
 

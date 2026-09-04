@@ -160,37 +160,3 @@ section.lead h1 {
 section.lead h2 {
   color: var(--xri-practical);
 }
-
-/* --- the answer slide: <!-- _class: answer -------------------------------
-   This is the class the build step looks for to split a deck in two. Renaming
-   it means changing SLIDE_ANSWER_CLASS in scripts/build-decks.mjs as well. */
-
-section.answer {
-  background:
-    radial-gradient(circle at 50% 30%, rgb(56 176 0 / 0.15), transparent 62%),
-    var(--xri-ground);
-}
-
-section.answer::before {
-  background: #38b000;
-}
-
-section.answer h1,
-section.answer h2 {
-  color: #38b000;
-}
-
-/* Badge, so it is obvious at a glance that this slide is not the statement. */
-section.answer::after {
-  content: 'RESPUESTA';
-  position: absolute;
-  top: 30px;
-  right: 40px;
-  background: #38b000;
-  color: #08101a;
-  font-size: 17px;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  padding: 0.22em 0.7em;
-  border-radius: 0.4em;
-}

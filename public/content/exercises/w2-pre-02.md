@@ -64,14 +64,3 @@ en un visor, así que tiene que arrancar solo.
 Que compile y arranque en el visor sin el editor delante. Que el anclaje espacial
 sea real. Nada más: este ejercicio es la puerta de entrada al bloque.
 
----
-
-<!-- _class: answer -->
-
-## Respuesta
-
-> **Pendiente de escribir.** Marc redacta aquí la solución comentada o los
-> criterios de corrección de este ejercicio.
-
-Esta diapositiva está marcada con `<!-- _class: answer -->`, así que se compila
-a un archivo aparte y no se descarga hasta que el desbloqueo global está activo.

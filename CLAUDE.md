@@ -24,10 +24,19 @@ These come from the brief and are not negotiable without the user saying so.
 - **No backend, no database.** Everything is static files plus the GitHub
   Contents API for the one marker write.
 - **The admin GitHub token never touches source or the build.** It lives only in
-  the `localStorage` of whoever uses `/admin`. The repo-side token lives in the
-  gitignored `.env` as `GH_TOKEN` — never `VITE_`-prefixed, because Vite inlines
-  `VITE_*` into the public bundle.
-- **No live in-browser AI calls, no API keys on the client.**
+  the `localStorage` of whoever uses `/admin`. `/admin` is sign-in ONLY — the
+  marker controls live in the map's legend, where their effect is visible.
+  The repo-side token lives in the gitignored `.env` as `GH_TOKEN` — never
+  `VITE_`-prefixed, because Vite inlines `VITE_*` into the public bundle.
+- **No live in-browser AI calls, no API keys on the client.** The slide decks
+  are a Markdown→HTML pipeline run at build time, not generation.
+- **The course publishes no answers.** The todos are the instructions and that
+  is the whole deliverable — "you send the flat-pack and the instructions, not
+  the assembled furniture" (Marc, round 9). An earlier round built a global
+  answer lock; it was removed rather than hardened, because the repo is public
+  and `git log` keeps whatever was ever committed to it. Do not reintroduce an
+  answers surface. A solved Unity project may be shared one day; that would be
+  a separate repo, discussed first.
 - **Do not authenticate against or embed Atenea Virtual.**
 - The content is public. The README must keep flagging that it needs a
   copyright / student-data review before publishing.
@@ -63,6 +72,15 @@ git -c credential.helper= -c credential.helper='!f(){ echo username=x-access-tok
 
 `npm run validate` runs as part of `npm run build`. It checks the level model,
 path orthogonality, buried nodes, bonus-node clearance and the no-dates rule.
+`npm run decks` runs before it (as `prebuild`) and compiles the Marp decks into
+the gitignored `public/decks/`.
+
+**If the round touches `public/progress.json`, merge `main` back into `develop`
+first.** `/admin` writes that file straight to `main`, so `main` always carries
+commits `develop` has never seen. Eleven PRs merged cleanly only because
+nothing on `develop` had touched it; the first round that did hit a conflict
+mid-ship. Resolve in favour of `develop`'s shape, keeping `main`'s marker value
+— that is the teacher's live position and must not be rolled back.
 
 ---
 

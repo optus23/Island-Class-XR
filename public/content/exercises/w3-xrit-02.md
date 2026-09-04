@@ -67,14 +67,3 @@ Mientras tanto: dejad el proyecto en un **repositorio del grupo**, con un
 Que las dos locomociones funcionen a la vez sin conflictos, y que agarrar un
 objeto se sienta bien y no aproximado.
 
----
-
-<!-- _class: answer -->
-
-## Respuesta
-
-> **Pendiente de escribir.** Marc redacta aquí la solución comentada o los
-> criterios de corrección de este ejercicio.
-
-Esta diapositiva está marcada con `<!-- _class: answer -->`, así que se compila
-a un archivo aparte y no se descarga hasta que el desbloqueo global está activo.
