@@ -1,13 +1,26 @@
+---
+marp: true
+theme: xr-island
+paginate: true
+---
+
+<!-- _class: lead -->
+
 # Ejercicio 1 · Locomoción e interacción
 
 **Bloque 3 — XR Interaction Toolkit** · 10 % del curso, reparto por ejercicio *por decidir*
 **Por grupo** · **Entrega: pendiente de definir** · Se hace **en clase**, rápido
+
+---
 
 ## La historia
 
 Se acabó mirar el mundo de Blue Goblin a través de una cámara. Te pones el visor
 y **estás dentro**. No hay passthrough, no hay sala: hay un sitio, y hay que
 aprender a moverse por él y a tocar lo que tiene.
+
+
+---
 
 ## Qué tenéis que hacer
 
@@ -17,6 +30,9 @@ estar dentro de una escena en VR.
 
 De consulta, el repositorio público *XR Interaction Toolkit Examples*: está para
 mirarlo, no para copiar la escena entera.
+
+
+---
 
 ## Requisitos mínimos
 
@@ -32,6 +48,9 @@ mirarlo, no para copiar la escena entera.
 - Confort mínimo: viñeta o fundido al moverse, altura del suelo correcta, y
   **ninguna rotación de cámara forzada por código**.
 
+
+---
+
 ## Entrega
 
 > **Pendiente de definir.** El método de entrega de este bloque no está fijado, y
@@ -40,7 +59,22 @@ mirarlo, no para copiar la escena entera.
 Mientras tanto: dejad el proyecto en un **repositorio del grupo**, con un
 `README` que explique qué habéis montado y con qué mando se prueba.
 
+
+---
+
 ## Cómo se evalúa
 
 Que las dos locomociones funcionen a la vez sin conflictos, y que agarrar un
 objeto se sienta bien y no aproximado.
+
+---
+
+<!-- _class: answer -->
+
+## Respuesta
+
+> **Pendiente de escribir.** Marc redacta aquí la solución comentada o los
+> criterios de corrección de este ejercicio.
+
+Esta diapositiva está marcada con `<!-- _class: answer -->`, así que se compila
+a un archivo aparte y no se descarga hasta que el desbloqueo global está activo.

@@ -147,10 +147,6 @@
         "url": null,
         "branch": "01-plane-detection"
       },
-      "slides": {
-        "type": "pdf",
-        "source": "content/slides/w1-arf-01.pdf"
-      },
       "exercises": "content/exercises/w1-arf-01.md",
       "answers": "content/answers/w1-arf-01.md",
       "todos": [
@@ -202,10 +198,6 @@
         "url": null,
         "branch": "02-image-tracking"
       },
-      "slides": {
-        "type": "pdf",
-        "source": "content/slides/w1-arf-02.pdf"
-      },
       "exercises": "content/exercises/w1-arf-02.md",
       "answers": "content/answers/w1-arf-02.md",
       "todos": [
@@ -251,10 +243,6 @@
       "starterRepo": {
         "url": null,
         "branch": "03-libre"
-      },
-      "slides": {
-        "type": "pdf",
-        "source": "content/slides/w1-arf-03.pdf"
       },
       "exercises": "content/exercises/w1-arf-03.md",
       "answers": "content/answers/w1-arf-03.md",
@@ -314,10 +302,6 @@
         "block": "10 %",
         "exercise": null
       },
-      "slides": {
-        "type": "pdf",
-        "source": "content/slides/w2-pre-02.pdf"
-      },
       "exercises": "content/exercises/w2-pre-02.md",
       "answers": "content/answers/w2-pre-02.md",
       "todos": [
@@ -362,10 +346,6 @@
       "gradeWeight": {
         "block": "10 %",
         "exercise": null
-      },
-      "slides": {
-        "type": "pdf",
-        "source": "content/slides/w2-pre-03.pdf"
       },
       "exercises": "content/exercises/w2-pre-03.md",
       "answers": "content/answers/w2-pre-03.md",
@@ -531,10 +511,6 @@
         "block": "10 %",
         "exercise": null
       },
-      "slides": {
-        "type": "pdf",
-        "source": "content/slides/w2-post-03.pdf"
-      },
       "exercises": "content/exercises/w2-post-03.md",
       "answers": "content/answers/w2-post-03.md",
       "todos": [
@@ -633,10 +609,6 @@
         "block": "10 %",
         "exercise": null
       },
-      "slides": {
-        "type": "pdf",
-        "source": "content/slides/w3-xrit-02.pdf"
-      },
       "exercises": "content/exercises/w3-xrit-02.md",
       "answers": "content/answers/w3-xrit-02.md",
       "todos": [
@@ -682,10 +654,6 @@
       "gradeWeight": {
         "block": "10 %",
         "exercise": null
-      },
-      "slides": {
-        "type": "pdf",
-        "source": "content/slides/w3-xrit-03.pdf"
       },
       "exercises": "content/exercises/w3-xrit-03.md",
       "answers": "content/answers/w3-xrit-03.md",

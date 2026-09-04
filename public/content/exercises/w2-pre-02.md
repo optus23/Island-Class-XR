@@ -1,7 +1,17 @@
+---
+marp: true
+theme: xr-island
+paginate: true
+---
+
+<!-- _class: lead -->
+
 # Ejercicio 1 · Passthrough y planos
 
 **Bloque 2 — Meta Building Blocks** · 10 % del curso, reparto por ejercicio *por decidir*
 **Por grupo** · **Entrega: build (APK)** · Se hace **en clase**
+
+---
 
 ## La historia
 
@@ -12,6 +22,9 @@ través del visor.
 
 Esta es la diferencia que vimos en teoría: en **AR** miras el mundo a través de
 un cristal; en **MR** el contenido ocupa tu habitación y puedes ir hacia él.
+
+
+---
 
 ## Qué tienes que hacer
 
@@ -24,6 +37,9 @@ Es **deliberadamente corto**. La mitad de la sesión se va en que el ordenador
 reconozca la Quest: batería, cable de datos, modo desarrollador, permisos. Eso
 también es parte del ejercicio.
 
+
+---
+
 ## Requisitos mínimos
 
 - Passthrough activo: se ve la sala real desde dentro del visor.
@@ -32,12 +48,30 @@ también es parte del ejercicio.
 - **Anclado a la sala**: si te mueves alrededor, se queda donde está. Si te sigue
   la mirada, no es MR.
 
+
+---
+
 ## Entrega
 
 **Un APK por grupo**, con el nombre del grupo en el archivo. Se corrige instalado
 en un visor, así que tiene que arrancar solo.
 
+
+---
+
 ## Cómo se evalúa
 
 Que compile y arranque en el visor sin el editor delante. Que el anclaje espacial
 sea real. Nada más: este ejercicio es la puerta de entrada al bloque.
+
+---
+
+<!-- _class: answer -->
+
+## Respuesta
+
+> **Pendiente de escribir.** Marc redacta aquí la solución comentada o los
+> criterios de corrección de este ejercicio.
+
+Esta diapositiva está marcada con `<!-- _class: answer -->`, así que se compila
+a un archivo aparte y no se descarga hasta que el desbloqueo global está activo.

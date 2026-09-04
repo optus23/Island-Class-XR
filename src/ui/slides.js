@@ -1,10 +1,17 @@
+import { renderDeck } from './deck.js'
+
 /**
- * Hybrid slide viewer: a PDF committed to this repo, or a Canva embed for the
- * decks that need animation/video that a PDF cannot carry.
+ * Slide viewer, in priority order:
  *
- * Each level declares which one it uses; nothing here guesses. The Canva URL
- * must be the public Share → Embed link — validate.mjs rejects edit links so a
- * private deck can never reach the published site.
+ *   1. a deck GENERATED from the level's Marp markdown, if one was built
+ *   2. a Canva embed, for decks that need animation or video
+ *   3. a PDF committed to this repo, so it also works offline in class
+ *
+ * The generated deck wins because it is opt-in at the source: a deck only
+ * exists when Marc put `marp: true` in that level's exercise markdown, so its
+ * presence IS the instruction to prefer it. Everything else is unchanged — the
+ * Canva URL must still be the public Share → Embed link, and validate.mjs
+ * still rejects edit links so a private deck cannot reach the published site.
  */
 
 function frame(src, title) {
@@ -20,14 +27,20 @@ function frame(src, title) {
     ></iframe>`
 }
 
-export function renderSlides(el, level) {
+export async function renderSlides(el, level, { answersUnlocked = false } = {}) {
+  // 1. Generated deck. Returns false when this level has none.
+  if (await renderDeck(el, level, { answersUnlocked })) return
+
   const slides = level.slides
   if (!slides?.source) {
     el.innerHTML = `
       <div class="h-full grid place-items-center text-center opacity-70">
         <div>
           <p class="font-semibold">Este nivel no tiene diapositivas.</p>
-          <p class="text-sm">Añade "slides" en levels.json para mostrarlas aquí.</p>
+          <p class="text-sm">
+            Añade <code>marp: true</code> al markdown del ejercicio para generarlas,
+            o un bloque <code>slides</code> en levels.json.
+          </p>
         </div>
       </div>`
     return
