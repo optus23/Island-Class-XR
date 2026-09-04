@@ -7,14 +7,14 @@ Read `CLAUDE.md` first for the durable rules; this file is what was happening.
 
 ## Where things stand
 
-Everything through round 5 is **merged to `main` and live**:
+Everything through round 6 is **merged to `main` and live**:
 <https://optus23.github.io/Island-Class-XR/>
 
 | | |
 | --- | --- |
-| `main` | `232e369` — merge of PR #8 |
+| `main` | `2c015fa` — merge of PR #9 |
 | `develop` | same content |
-| Last deploy | run `33667382359`, success |
+| Last deploy | run `33694410152`, success |
 | Working tree | clean |
 | Performance | ~27 draw calls, ~700k triangles, 0.05 ms/frame CPU |
 
@@ -23,7 +23,46 @@ Shipped rounds: [#3](https://github.com/optus23/Island-Class-XR/pull/3) ·
 [#5](https://github.com/optus23/Island-Class-XR/pull/5) ·
 [#6](https://github.com/optus23/Island-Class-XR/pull/6) ·
 [#7](https://github.com/optus23/Island-Class-XR/pull/7) ·
-[#8](https://github.com/optus23/Island-Class-XR/pull/8)
+[#8](https://github.com/optus23/Island-Class-XR/pull/8) ·
+[#9](https://github.com/optus23/Island-Class-XR/pull/9)
+
+Verified live after the deploy: the assessment strip renders on all three
+blocks, `null` fields read «por decidir», block 1 shows its pending branch, and
+the console is clean.
+
+---
+
+## What round 7 changed — controls and the entrance
+
+**Orbit horizontal was inverted; vertical was not.** Measured in the running
+scene rather than argued from the code: dragging right moved the camera +24.4
+units along its own right vector, which is Unity's Alt+left-drag backwards.
+Both signs in `rig.orbit()` are now negative — the camera moves opposite the
+pointer on both axes, so it feels like grabbing the island and turning it.
+
+The user reported the vertical as inverted too, hedged ("creo que también").
+It was not: drag down already moved the camera up (+15), which is what Unity
+does. It was left alone and the measurement was reported back. If it still
+reads wrong to them, it is one sign flip in one line — but flipping it would
+then be Unity-wrong, so don't do it on a hunch.
+
+**The node plate is a real button now.** It says "entrar" and had
+`pointer-events: none` plus `aria-hidden="true"` — a label telling you to do
+something it would not let you do. It is a `<button>` with an `aria-label`, and
+clicking or tapping it enters, exactly like clicking the disc underneath.
+
+**The entrance no longer fades.** It used to be: fade to black → "MUNDO 1-6" →
+fade out → *then* the iris wipe. Two transitions stacked, where leaving only
+ever had one. The card now plays INSIDE the closed iris, so both directions are
+the same single gesture: circle in → card → circle out. Verified frame by frame
+— iris 935→11px, then 0px with the card on top for its beat, then 227→938px
+onto the portal.
+
+That meant moving the card above the iris: `#ui` carries `z-index: 10` and so
+opens its own stacking context, which trapped the card under the wipe however
+high its own z-index went. It is appended to `body` at `z-index: 80` instead.
+`showLevelCard` also lost its `requestAnimationFrame` fade-in, which was one
+more instance of the hidden-tab rAF trap waiting to happen.
 
 ---
 

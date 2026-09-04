@@ -275,11 +275,18 @@ export function createCameraRig() {
     toggleOverview,
     /** Drag to look around, within a tight clamp. Never a free camera. */
     orbit(dx, dy) {
-      // Both axes follow the pointer: drag right and the island turns to the
-      // right, drag down and you look down on it. The signs used to be flipped
-      // on both, which was survivable while the clamps were tiny and became
-      // obviously wrong the moment the range opened up.
-      orbitYaw = clamp(orbitYaw + dx * 0.006, -ORBIT_YAW_MAX, ORBIT_YAW_MAX)
+      // Unity's Alt + left-drag orbit, which is the reference the user gave.
+      //
+      // THE CAMERA MOVES OPPOSITE THE POINTER, on both axes. It feels like
+      // grabbing the island and turning it: drag left, the camera swings right
+      // and the island follows your hand; drag down and you end up looking at
+      // it from above. Both signs are therefore negative — if one of them is
+      // ever positive again, that axis is inverted.
+      //
+      // Verified in the running scene, not derived on paper: drag right used to
+      // move the camera +24 units along its own right vector, which is Unity
+      // backwards. The vertical was already correct and is untouched.
+      orbitYaw = clamp(orbitYaw - dx * 0.006, -ORBIT_YAW_MAX, ORBIT_YAW_MAX)
       orbitPitch = clamp(orbitPitch - dy * 0.005, -ORBIT_PITCH_MAX, ORBIT_PITCH_MAX)
     },
     /** Wheel zoom, also clamped. */
