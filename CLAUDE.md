@@ -114,6 +114,11 @@ Changing any of these is a design decision, not a refactor.
   bars, gold level tiles, Fredoka. Dark, but in the same language as the island.
   The full-screen level portal is a separate, calmer design and is approved as-is.
 - **Bosses** close the screen through a horned silhouette instead of a circle.
+- **The iris is the only transition, in both directions.** Entering a level is
+  circle in → the "MUNDO 1-6" card on the black → circle out onto the portal;
+  leaving reverses it. The card must never fade: it lives above the iris
+  (`z-index: 80`, appended to `body`, not `#ui`) and is only ever shown while
+  the wipe is already closed. A fade anywhere in that sequence is the bug.
 
 ---
 
@@ -147,6 +152,13 @@ Every one of these was diagnosed the hard way. Do not re-derive them.
   the first and a pinch registers as one enormous jump.
 - `setPointerCapture` **throws** for a pointer the browser does not consider
   active. Call it last, wrapped in try/catch, or it takes the gesture with it.
+- **Orbit is Unity's Alt + left-drag, and the camera moves OPPOSITE the
+  pointer on both axes.** Drag left, the camera swings right; drag down, you end
+  up looking from above. It should feel like grabbing the island and turning it.
+  Both signs in `rig.orbit()` are therefore negative — a positive one means that
+  axis is inverted. This has now been reported twice; don't re-derive it on
+  paper, measure it: `rig.orbit(100, 0)` then compare `camera.position` against
+  the camera's own right vector from `matrixWorld.extractBasis`.
 
 **CSS**
 
