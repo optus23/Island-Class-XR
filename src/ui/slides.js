@@ -27,9 +27,9 @@ function frame(src, title) {
     ></iframe>`
 }
 
-export async function renderSlides(el, level, { answersUnlocked = false } = {}) {
+export async function renderSlides(el, level) {
   // 1. Generated deck. Returns false when this level has none.
-  if (await renderDeck(el, level, { answersUnlocked })) return
+  if (await renderDeck(el, level)) return
 
   const slides = level.slides
   if (!slides?.source) {

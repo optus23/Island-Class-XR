@@ -5,7 +5,13 @@ import { createIsland } from './three/island.js'
 import { createMapObjects } from './three/nodes.js'
 import { createPlayer } from './three/player.js'
 import { loadProgress } from './lib/progress.js'
-import { levelById, mainSequence, allLevels, levelsForWorld } from './lib/levels.js'
+import {
+  levelById,
+  mainSequence,
+  allLevels,
+  levelsForWorld,
+  sessionNumber,
+} from './lib/levels.js'
 import { openPortal, closePortal } from './ui/portal.js'
 import { mountNav } from './ui/nav.js'
 import { createTooltip, createCurtain } from './ui/hud.js'
@@ -285,8 +291,6 @@ container.addEventListener('contextmenu', (e) => e.preventDefault())
 let nav = null
 let legend = null
 let markerId = null
-// Global, public, read once per load — see lib/progress.js. Never per-visitor.
-let answersUnlocked = false
 
 /** Every node is clickable — bosses included. Accepts a level or a level id. */
 /** Nearest node to where the avatar physically stands. */
@@ -431,10 +435,34 @@ window.addEventListener('keydown', (e) => {
 })
 
 /** Apply a new marker everywhere at once, so map and menu never disagree. */
-function applyMarker(id) {
+/**
+ * Move the progress marker.
+ *
+ * `walk` is not decoration. The avatar IS "where the class is", so a marker
+ * that moves while the avatar stays put reads as the button having done
+ * nothing — which is exactly how it was reported: the node recoloured, and
+ * neither the character nor the camera went anywhere.
+ *
+ * `instant` teleports instead of walking, for jumps long enough that watching
+ * the walk would be a punishment (resetting the course from session 27).
+ */
+function applyMarker(id, { walk = false, instant = false } = {}) {
   markerId = id
   map.refresh(id)
   nav?.setMarker(id)
+  legend?.setMarker(markerReadout(id))
+  if (walk) selectLevel(id, { open: false, instant })
+}
+
+/** "La clase está en" — the readout that used to live on the /admin page. */
+function markerReadout(id) {
+  const level = levelById(id)
+  if (!level) return null
+  const n = sessionNumber(level)
+  return {
+    title: level.title,
+    label: n ? `Mundo ${n.world}-${n.index} · sesión ${n.global} de ${n.total}` : 'Nivel opcional',
+  }
 }
 
 /**
@@ -458,7 +486,6 @@ async function enterLevel(level) {
   setLevelInUrl(level.id)
   openPortal(level, {
     markerId,
-    answersUnlocked,
     // Close order matters: the iris must be fully black BEFORE the portal is
     // torn down. Previously the panel vanished first, flashing the 3D map, and
     // only then did the wipe play — so it read as a glitch rather than the
@@ -490,7 +517,6 @@ function setOverview(on) {
 async function boot() {
   const progress = await loadProgress()
   markerId = progress.currentLevelId
-  answersUnlocked = progress.answersUnlocked
   map.refresh(markerId)
 
   // A shared ?level=... link wins over the progress marker: whoever followed
@@ -523,22 +549,24 @@ async function boot() {
     onCompleteHere: async () => {
       const next = nextMarker(markerId)
       await writeProgress(next, 'Completado')
-      applyMarker(next)
+      applyMarker(next, { walk: true })
       return 'Marcador avanzado. El sitio se reconstruye en 1–2 min.'
     },
     onBack: async () => {
       const i = mainSequence.findIndex((l) => l.id === markerId)
       const prev = mainSequence[Math.max(0, i - 1)]?.id ?? START_MARKER
       await writeProgress(prev, 'Retroceso')
-      applyMarker(prev)
+      applyMarker(prev, { walk: true })
       return 'Marcador retrocedido.'
     },
     onReset: async () => {
       await writeProgress(START_MARKER, 'Reinicio')
-      applyMarker(START_MARKER)
+      // Teleport: from session 27 the walk home crosses the whole island.
+      applyMarker(START_MARKER, { walk: true, instant: true })
       return 'Curso reiniciado.'
     },
   })
+  legend.setMarker(markerReadout(markerId))
   nav.setPlayerLevel(startId)
   app.start()
 
@@ -562,7 +590,6 @@ async function boot() {
     nav?.setPlayerLevel(level.id)
     openPortal(level, {
       markerId,
-      answersUnlocked,
       onBeforeClose: async () => {
         const back = await irisClose()
         return () => back.open()

@@ -65,14 +65,3 @@ Que el gesto se reconozca sin falsos positivos, que haya fallback, y que el fina
 de Blue Goblin se entienda haciéndolo — de pie, sin mandos y sin nadie
 explicándolo al lado.
 
----
-
-<!-- _class: answer -->
-
-## Respuesta
-
-> **Pendiente de escribir.** Marc redacta aquí la solución comentada o los
-> criterios de corrección de este ejercicio.
-
-Esta diapositiva está marcada con `<!-- _class: answer -->`, así que se compila
-a un archivo aparte y no se descarga hasta que el desbloqueo global está activo.

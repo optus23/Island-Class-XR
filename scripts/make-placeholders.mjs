@@ -1,6 +1,6 @@
 /**
  * Creates a placeholder file for every content path levels.json references
- * that does not exist yet — Markdown for exercises/answers, a one-page PDF for
+ * that does not exist yet — Markdown for exercises, a one-page PDF for
  * pdf-type slides.
  *
  * Existing files are NEVER touched, so this is safe to re-run after adding
@@ -68,14 +68,11 @@ function makePdf(title, subtitle) {
   return Buffer.from(pdf, 'latin1')
 }
 
-const mdBody = (level, kind) => `# ${level.title}
+const mdBody = (level) => `# ${level.title}
 
-> **PLACEHOLDER.** ${
-  kind === 'answers'
-    ? 'Escribe aquí las respuestas o la solución comentada.'
-    : 'Escribe aquí el enunciado de los ejercicios.'
-}
+> **PLACEHOLDER.** Escribe aquí el enunciado de los ejercicios.
 > Este archivo es Markdown normal: se renderiza tal cual en el portal del nivel.
+> Añade \`marp: true\` en una cabecera al principio y se convierte en diapositivas.
 
 - Mundo ${level.world} · etapa \`${level.stage}\` · categoría \`${level.category}\`
 ${level.optional ? '- Nivel **opcional** (para casa, no evaluable)\n' : ''}
@@ -87,8 +84,7 @@ ${level.optional ? '- Nivel **opcional** (para casa, no evaluable)\n' : ''}
 
 console.log('Creating missing placeholder content…')
 for (const level of levels) {
-  ensure(level.exercises, () => mdBody(level, 'exercises'))
-  ensure(level.answers, () => mdBody(level, 'answers'))
+  ensure(level.exercises, () => mdBody(level))
   if (level.slides?.type === 'pdf') {
     ensure(
       level.slides.source,
