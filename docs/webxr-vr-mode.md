@@ -71,15 +71,20 @@ front of you. That is a deliberate design decision, not a shortcut:
 
 The ray turns **green** over a node and stays gold otherwise.
 
-**Stereo is off by default.** The button beside *Entrar en VR* cycles
-Mono → Estéreo ½ → Estéreo. Mono gives both eyes the same view and the same
-projection, so there is no binocular parallax at all — it was made the default
-after the first session caused real nausea, and depth cues matter less on a map
-you read than on something you reach into.
+**Mono is the default**, and it is a straight on/off — the button beside
+*Entrar en VR* toggles Mono / Estéreo. Mono copies eye 0's view and projection
+onto the other eye, so both see exactly the same image. There is no half
+setting: halving the eye separation properly means rebuilding each eye's
+asymmetric frustum, and the first attempt at a partial version — lerping eye
+positions and calling `updateMatrixWorld()` — produced two eyes with
+inconsistent view matrices that looked like cameras facing different ways.
 
 **The monitor mirrors the headset** while presenting, on alternate frames.
 Without it the desktop shows only the clear colour, which is why it looked
-like flat sky.
+like flat sky. The mirror viewport must be the whole DRAWING BUFFER, not the
+CSS box: entering XR resizes the buffer to the headset's framebuffer, so
+viewporting by CSS pixels painted a corner of it that the canvas then stretched
+across the page.
 
 The **model** moves, not the viewer — pushing a standing person around by
 thumbstick is the reliable way to make them sick, and reaching over and spinning

@@ -177,31 +177,48 @@ export function createScene(container) {
   let vrUpdate = null
 
   /**
-   * Stereo depth, 0..1. 0 is genuinely MONOSCOPIC: both eyes are given the
-   * same view, so there is no binocular parallax at all.
+   * MONOSCOPIC MODE — both eyes shown exactly the same image.
    *
-   * Why this exists: a diorama sitting a metre and a half away is exactly the
-   * range where a wrong IPD or a mismatched scale hits hardest, and the tester
-   * reported real nausea. Rather than guess at the cause, make the depth a dial
-   * that can be turned to zero.
+   * Done by copying eye 0's view and projection onto every other eye, and
+   * nothing else. The first attempt moved each eye's `position` toward the
+   * midpoint and called updateMatrixWorld(), which was wrong twice over:
+   * three composes an eye's `matrix` from the raw view transform and then sets
+   * `matrixWorld` separately, so updateMatrixWorld() recomputes it from the
+   * wrong basis — and `matrixWorldInverse`, which is what the renderer
+   * actually reads, was never touched at all. The two eyes ended up with
+   * inconsistent view matrices, which is why it looked like two cameras with
+   * an enormous IPD facing different ways.
    *
-   * It is applied by moving each eye toward the midpoint between them, which is
-   * what "reduce the IPD" means geometrically.
+   * Partial IPD is deliberately not offered. Halving the eye separation
+   * properly means rebuilding each eye's asymmetric frustum, not lerping a
+   * position, and a half-correct version of this is worse than none.
+   *
+   * `viewport` is left alone: each eye still draws to its own half of the
+   * framebuffer, it just draws the same picture there.
    */
-  let stereoDepth = 1
-  const eyeMid = new THREE.Vector3()
+  let mono = true
+
+  function applyMono() {
+    if (!mono) return
+    const eyes = renderer.xr.getCamera()?.cameras
+    if (!eyes || eyes.length < 2) return
+
+    const src = eyes[0]
+    for (let i = 1; i < eyes.length; i++) {
+      const e = eyes[i]
+      e.matrixWorld.copy(src.matrixWorld)
+      e.matrixWorldInverse.copy(src.matrixWorldInverse)
+      e.projectionMatrix.copy(src.projectionMatrix)
+      e.projectionMatrixInverse.copy(src.projectionMatrixInverse)
+    }
+  }
 
   /**
    * Desktop mirror while presenting.
    *
    * With the headset driving the frame, three renders into the XR framebuffer
    * and the canvas keeps whatever was last in it — which is the clear colour,
-   * so the monitor just shows flat sky. Nobody outside the headset can see what
-   * the wearer is doing, which makes it impossible to help them.
-   *
-   * So after the XR pass, render the scene once more to the canvas from the
-   * head's own pose. It costs a full extra pass, so it runs on alternate frames
-   * and can be switched off.
+   * so the monitor just shows flat sky.
    */
   let mirror = true
   let mirrorTick = 0
@@ -220,15 +237,28 @@ export function createScene(container) {
     eye.getWorldPosition(mirrorCamera.position)
     eye.getWorldQuaternion(mirrorCamera.quaternion)
 
-    const w = container.clientWidth || window.innerWidth
-    const h = container.clientHeight || window.innerHeight
-    mirrorCamera.aspect = w / h
+    // Entering XR, three calls setPixelRatio(1) and resizes the drawing buffer
+    // to the headset's framebuffer — far larger than the window, and a
+    // different shape. Viewporting by CSS pixels painted a small corner of that
+    // buffer, which the canvas then stretched across the page: about a third of
+    // the screen, cut off. The viewport has to be the WHOLE drawing buffer.
+    const gl2 = renderer.getContext()
+    const bw = gl2.drawingBufferWidth
+    const bh = gl2.drawingBufferHeight
+    if (!bw || !bh) return
+
+    // The buffer is stretched to the canvas's CSS box for display, so the
+    // camera's aspect must be the DISPLAYED one for the result to look right
+    // once that stretch is applied.
+    const cw = container.clientWidth || window.innerWidth
+    const ch = container.clientHeight || window.innerHeight
+    mirrorCamera.aspect = cw / ch
     mirrorCamera.updateProjectionMatrix()
 
     // xr.enabled off for the duration, or three renders into the XR layer again.
     renderer.xr.enabled = false
     renderer.setRenderTarget(null)
-    renderer.setViewport(0, 0, w, h)
+    renderer.setViewport(0, 0, bw, bh)
     renderer.setScissorTest(false)
     renderer.render(scene, mirrorCamera)
     renderer.xr.enabled = true
@@ -269,7 +299,7 @@ export function createScene(container) {
       // The headset owns the camera pose, so the follow rig must not write to
       // it. The parallax tilt is off too — see three/vr.js.
       renderer.xr.updateCamera(rig.camera)
-      applyStereoDepth()
+      applyMono()
       vrUpdate?.(dt)
     } else {
       rig.update(dt, parallaxPointer)
@@ -315,13 +345,13 @@ export function createScene(container) {
       mirror = Boolean(on)
       return mirror
     },
-    /** 0 = monoscopic, 1 = the headset's true IPD. */
-    setStereoDepth: (v) => {
-      stereoDepth = Math.max(0, Math.min(1, v))
-      return stereoDepth
+    /** true = both eyes see the same image. */
+    setMono: (on) => {
+      mono = Boolean(on)
+      return mono
     },
-    get stereoDepth() {
-      return stereoDepth
+    get mono() {
+      return mono
     },
     updaters,
     start,

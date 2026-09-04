@@ -842,12 +842,20 @@ body.map-view {
    so this block is dead weight on a phone or a laptop. Bottom-centre, clear of
    the nav (top-left) and the legend.
    -------------------------------------------------------------------------- */
-.vr-button {
+.vr-bar {
   position: fixed;
   left: 50%;
   bottom: max(1rem, env(safe-area-inset-bottom));
   transform: translateX(-50%);
   z-index: 40;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.vr-button {
   font-family: var(--xri-font);
   font-weight: 600;
   letter-spacing: 0.04em;
@@ -869,11 +877,8 @@ body.map-view {
 /* Why entering VR failed, said on screen. Whoever hits it is in a headset or
    at a laptop with no devtools open — a console line reaches nobody. */
 .vr-note {
-  position: fixed;
-  left: 50%;
-  bottom: calc(max(1rem, env(safe-area-inset-bottom)) + 2.9rem);
-  transform: translateX(-50%);
-  z-index: 40;
+  flex-basis: 100%;
+  order: -1;
   max-width: min(90vw, 34rem);
   margin: 0;
   padding: 0.4rem 0.7rem;
@@ -886,10 +891,3 @@ body.map-view {
   box-shadow: 0 0 0 3px #0b0f16;
 }
 
-/* Stereo depth toggle, beside the VR button. Mono by default — comfort wins
-   over depth cues on a map you read rather than reach into. */
-.vr-button--stereo {
-  left: auto;
-  right: 1rem;
-  transform: none;
-}

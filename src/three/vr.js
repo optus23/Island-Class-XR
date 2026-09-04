@@ -67,7 +67,7 @@ export function createVR({
   onSelect = () => {},
   onEnter = () => {},
   playerLevelId = () => null,
-  setStereoDepth = () => {},
+  setMono = () => {},
 }) {
   if (!navigator.xr) {
     return {
@@ -119,18 +119,14 @@ export function createVR({
   let note = null
 
   /**
-   * Stereo depth options, and MONO IS THE DEFAULT.
+   * MONO IS THE DEFAULT, and it is a straight on/off.
    *
    * Not a hedge: the tester reported real nausea, and comfort beats depth cues
-   * on a map you read rather than reach into. Full stereo is one press away for
-   * anyone who wants it.
+   * on a map you read rather than reach into. There is no half setting because
+   * halving the eye separation properly means rebuilding each eye's asymmetric
+   * frustum — a half-correct version of that is worse than none.
    */
-  const STEREO_STEPS = [
-    { value: 0, label: 'Mono' },
-    { value: 0.5, label: 'Estéreo ½' },
-    { value: 1, label: 'Estéreo' },
-  ]
-  let stereoStep = 0
+  let mono = true
 
   // --- controllers ---------------------------------------------------------
 
@@ -471,9 +467,13 @@ export function createVR({
   }
 
   function applyStereo() {
-    const step = STEREO_STEPS[stereoStep]
-    setStereoDepth(step.value)
-    if (stereoButton) stereoButton.textContent = step.label
+    setMono(mono)
+    if (stereoButton) {
+      stereoButton.textContent = mono ? 'Mono' : 'Estéreo'
+      stereoButton.title = mono
+        ? 'Ambos ojos ven lo mismo. Pulsa para estereoscópico.'
+        : 'Estereoscópico. Pulsa para volver a mono si marea.'
+    }
   }
 
   function setNote(text) {
@@ -493,6 +493,12 @@ export function createVR({
     }
     if (!ok) return false // no headset: no button, nothing changed
 
+    // One bar holding both, so "beside Entrar en VR" is literally where it is.
+    // The first version positioned each button `fixed` on its own and the
+    // stereo one landed in the opposite corner from where it was described.
+    const bar = document.createElement('div')
+    bar.className = 'vr-bar'
+
     button = document.createElement('button')
     button.className = 'btn btn-sm vr-button'
     button.textContent = 'Entrar en VR'
@@ -500,21 +506,23 @@ export function createVR({
       setNote(null)
       session ? endSession() : startSession()
     })
-    host.appendChild(button)
+    bar.appendChild(button)
 
     stereoButton = document.createElement('button')
-    stereoButton.className = 'btn btn-sm vr-button vr-button--stereo'
+    stereoButton.className = 'btn btn-sm vr-button'
     stereoButton.addEventListener('click', () => {
-      stereoStep = (stereoStep + 1) % STEREO_STEPS.length
+      mono = !mono
       applyStereo()
     })
-    host.appendChild(stereoButton)
-    applyStereo()
+    bar.appendChild(stereoButton)
 
     note = document.createElement('p')
     note.className = 'vr-note'
     note.hidden = true
-    host.appendChild(note)
+    bar.appendChild(note)
+
+    host.appendChild(bar)
+    applyStereo()
     return true
   }
 
