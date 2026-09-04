@@ -8,10 +8,10 @@ import * as THREE from 'three'
  * nothing here has to render slides inside a headset.
  *
  * THE DIORAMA, and why the island is not walked through at full size
- * The map is ~180 units across and the desktop camera sits ~90 units out with a
+ * The map is ~200 units across and the desktop camera sits ~90 units out with a
  * near plane of 12 — a number chosen precisely because the depth buffer was
  * being wasted on empty space (see CLAUDE.md). Standing inside that at 1 unit =
- * 1 metre would mean a near plane of 0.1 over a 180 m field, which is exactly
+ * 1 metre would mean a near plane of 0.1 over a 200 m field, which is exactly
  * the depth-precision hole that produced the road/terrain artefacts.
  *
  * So VR presents the island as a TABLETOP DIORAMA: the whole world group is
@@ -20,23 +20,38 @@ import * as THREE from 'three'
  * result reads like a physical model of the course — which is a better answer
  * for a map than being a giant standing on it.
  *
- * Fog and the parallax tilt are switched off while presenting: both are framing
- * tricks for a fixed 2D camera, and in a headset the first reads as haze at
- * arm's length and the second as the world lurching when you move your head.
+ * THE MODEL MUST STAY IN FRONT OF YOU. The first version picked the scale by
+ * hand against the island's width and forgot the sea, which is 2.4x that width
+ * and 3.4x its depth: the water ended up 8.6 x 5.6 m and reached 1.3 m BEHIND
+ * the viewer, surface at chest height. That is one bug wearing two hats — the
+ * water "not rendering properly" (you were inside it) and rotation "turning me
+ * as well" (an 8-metre plane sweeping through your body). The scale is now
+ * DERIVED from the measured bounding box, so it stays right as the map grows.
+ *
+ * The parallax tilt is switched off while presenting: it is a framing trick for
+ * a fixed 2D camera and in a headset it reads as the world lurching when you
+ * move your head. Fog is left alone on purpose — see attach().
  *
  * NOTHING HERE RUNS UNLESS A HEADSET ASKS FOR IT. With no `navigator.xr` the
  * module mounts no button and touches no state.
  */
 
-/** Island units per metre. ~180 units across becomes a ~3.2 m model. */
-const DIORAMA_SCALE = 0.018
-/** Where the model sits: metres in front of, and above, the floor origin. */
-const DIORAMA_AT = [0, 1.05, -1.5]
+/**
+ * How wide the WHOLE model is allowed to be, in metres, and where its centre
+ * sits relative to the floor origin.
+ *
+ * The scale itself is derived from the scene's measured bounding box, not
+ * hardcoded: the sea is 2.4x the island's width and 3.4x its depth, so a
+ * constant tuned against the island alone put the viewer inside the water.
+ * Fit the box, and everything stays in front of you whatever the map grows to.
+ */
+const DIORAMA_SPAN = 2.4
+const DIORAMA_AT = [0, 1.0, -1.8]
 
 const PAN_SPEED = 1.1 // metres/second at full stick
 const TURN_SPEED = 1.4 // radians/second
 const ZOOM_SPEED = 0.9 // scale factor per second
-const ZOOM_RANGE = [0.4, 3.2] // multiplier on DIORAMA_SCALE
+const ZOOM_RANGE = [0.4, 3.2] // multiplier on the fitted scale
 const DEAD_ZONE = 0.15
 
 export function createVR({
@@ -44,6 +59,7 @@ export function createVR({
   scene,
   camera,
   worldGroup,
+  backdrop = null,
   pickTargets = () => [],
   levelFromHit = () => null,
   onSelect = () => {},
@@ -71,14 +87,22 @@ export function createVR({
   dolly.name = 'xr-dolly'
   scene.add(dolly)
 
+  // The diorama hangs off this while presenting. Rotating, zooming and panning
+  // all act on the PIVOT, whose origin is the model's own centre — so a turn is
+  // the model spinning on the spot instead of swinging around some other point.
+  const pivot = new THREE.Group()
+  pivot.name = 'xr-diorama'
+  scene.add(pivot)
+
   let attached = false
   const saved = {
     parent: null,
+    worldParent: null,
     scale: new THREE.Vector3(),
     position: new THREE.Vector3(),
     rotation: new THREE.Euler(),
     near: camera.near,
-    fog: null,
+    backdropVisible: null,
   }
 
   let zoom = 1
@@ -187,12 +211,14 @@ export function createVR({
       if (hand === 'left') {
         // Pan in the viewer's own horizontal frame, so "left" is screen-left.
         const yaw = new THREE.Euler().setFromQuaternion(camera.quaternion, 'YXZ').y
-        worldGroup.position.x -= (x * Math.cos(yaw) - y * Math.sin(yaw)) * PAN_SPEED * dt
-        worldGroup.position.z -= (x * Math.sin(yaw) + y * Math.cos(yaw)) * PAN_SPEED * dt
+        pivot.position.x -= (x * Math.cos(yaw) - y * Math.sin(yaw)) * PAN_SPEED * dt
+        pivot.position.z -= (x * Math.sin(yaw) + y * Math.cos(yaw)) * PAN_SPEED * dt
       } else {
-        worldGroup.rotation.y += x * TURN_SPEED * dt
+        // Turns the model about its own centre. Nothing here touches the dolly,
+        // so the viewer never moves.
+        pivot.rotation.y += x * TURN_SPEED * dt
         zoom = THREE.MathUtils.clamp(zoom * (1 - y * ZOOM_SPEED * dt), ...ZOOM_RANGE)
-        worldGroup.scale.setScalar(DIORAMA_SCALE * zoom)
+        pivot.scale.setScalar(zoom)
       }
     }
   }
@@ -204,24 +230,59 @@ export function createVR({
     attached = true
 
     saved.parent = camera.parent
+    saved.worldParent = worldGroup.parent
     saved.scale.copy(worldGroup.scale)
     saved.position.copy(worldGroup.position)
     saved.rotation.copy(worldGroup.rotation)
     saved.near = camera.near
-    saved.fog = scene.fog
+    saved.backdropVisible = backdrop ? backdrop.visible : null
 
     dolly.add(camera)
 
-    zoom = 1
-    worldGroup.scale.setScalar(DIORAMA_SCALE)
-    worldGroup.position.set(...DIORAMA_AT)
-    worldGroup.rotation.set(0, 0, 0)
+    // The backdrop is a fixed-camera trick: distant hills with their markings
+    // projected onto an ellipsoid for one particular viewing angle. In a
+    // headset you can walk round the model and see it edge-on, where it reads
+    // as a painted flat. It is also the widest thing in the scene, so leaving
+    // it in would shrink everything else to fit it.
+    if (backdrop) backdrop.visible = false
 
-    // Safe at diorama scale: the whole model is ~3 m deep, so the depth buffer
-    // is not being asked to cover 180 units any more.
+    // MEASURE, don't assume. The first version scaled by a guessed constant and
+    // the sea — which is 2.4x the island's width and 3.4x its depth — ended up
+    // 8.6 x 5.6 m, stretching 1.3 m BEHIND the viewer. You stood inside the sea
+    // with the surface at chest height, which is why the water looked wrong and
+    // why rotating swept the whole plane through you.
+    worldGroup.position.set(0, 0, 0)
+    worldGroup.rotation.set(0, 0, 0)
+    worldGroup.scale.setScalar(1)
+    worldGroup.updateMatrixWorld(true)
+
+    const box = new THREE.Box3().setFromObject(worldGroup)
+    const size = box.getSize(new THREE.Vector3())
+    const centre = box.getCenter(new THREE.Vector3())
+    const span = Math.max(size.x, size.z) || 1
+    const s = DIORAMA_SPAN / span
+
+    // Centre the model ON the pivot's origin, so the pivot's rotation is the
+    // model turning on the spot rather than orbiting some arbitrary point.
+    worldGroup.scale.setScalar(s)
+    worldGroup.position.copy(centre).multiplyScalar(-s)
+    pivot.add(worldGroup)
+
+    zoom = 1
+    pivot.position.set(...DIORAMA_AT)
+    pivot.rotation.set(0, 0, 0)
+    pivot.scale.setScalar(1)
+
+    // Safe now: the whole model is a couple of metres deep, so the depth buffer
+    // is no longer being asked to cover 180 units.
     camera.near = 0.1
     camera.updateProjectionMatrix()
-    scene.fog = null
+
+    // Fog is deliberately LEFT ALONE. fogNear is 260 world units and nothing in
+    // the diorama is further than about three metres from the eye, so it
+    // contributes nothing anyway — while setting `scene.fog = null` changes the
+    // program cache key and forces every material in the scene to recompile,
+    // once on entry and again on exit. That stall is not worth a no-op.
   }
 
   function detach() {
@@ -231,12 +292,15 @@ export function createVR({
     if (saved.parent) saved.parent.add(camera)
     else scene.add(camera)
 
+    if (saved.worldParent) saved.worldParent.add(worldGroup)
+    else scene.add(worldGroup)
+
     worldGroup.scale.copy(saved.scale)
     worldGroup.position.copy(saved.position)
     worldGroup.rotation.copy(saved.rotation)
+    if (backdrop && saved.backdropVisible !== null) backdrop.visible = saved.backdropVisible
     camera.near = saved.near
     camera.updateProjectionMatrix()
-    scene.fog = saved.fog
   }
 
   async function startSession() {

@@ -557,6 +557,7 @@ async function boot() {
     scene: app.scene,
     camera: app.rig.camera,
     worldGroup: app.worldGroup,
+    backdrop: island.backdrop,
     pickTargets: () => map.pickTargets,
     levelFromHit: (hit) => map.levelFromHit(hit),
     playerLevelId: () => player.levelId,
