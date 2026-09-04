@@ -885,3 +885,11 @@ body.map-view {
   text-align: center;
   box-shadow: 0 0 0 3px #0b0f16;
 }
+
+/* Stereo depth toggle, beside the VR button. Mono by default — comfort wins
+   over depth cues on a map you read rather than reach into. */
+.vr-button--stereo {
+  left: auto;
+  right: 1rem;
+  transform: none;
+}

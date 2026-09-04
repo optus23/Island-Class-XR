@@ -46,7 +46,9 @@ import * as THREE from 'three'
  * Fit the box, and everything stays in front of you whatever the map grows to.
  */
 const DIORAMA_SPAN = 2.4
-const DIORAMA_AT = [0, 1.0, -1.8]
+/** Metres in front of the viewer's head, and how far below eye level. */
+const DIORAMA_DISTANCE = 1.8
+const DIORAMA_DROP = -0.55
 
 const PAN_SPEED = 1.1 // metres/second at full stick
 const TURN_SPEED = 1.4 // radians/second
@@ -65,6 +67,7 @@ export function createVR({
   onSelect = () => {},
   onEnter = () => {},
   playerLevelId = () => null,
+  setStereoDepth = () => {},
 }) {
   if (!navigator.xr) {
     return {
@@ -106,17 +109,63 @@ export function createVR({
   }
 
   let zoom = 1
+  /** Set on entry and by the grip button — see recentre(). */
+  let needsRecentre = false
   let session = null
   /** True while requestSession is in flight — see startSession(). */
   let starting = false
   let button = null
+  let stereoButton = null
   let note = null
+
+  /**
+   * Stereo depth options, and MONO IS THE DEFAULT.
+   *
+   * Not a hedge: the tester reported real nausea, and comfort beats depth cues
+   * on a map you read rather than reach into. Full stereo is one press away for
+   * anyone who wants it.
+   */
+  const STEREO_STEPS = [
+    { value: 0, label: 'Mono' },
+    { value: 0.5, label: 'Estéreo ½' },
+    { value: 1, label: 'Estéreo' },
+  ]
+  let stereoStep = 0
 
   // --- controllers ---------------------------------------------------------
 
   const raycaster = new THREE.Raycaster()
   const tmpMatrix = new THREE.Matrix4()
   const controllers = []
+
+  const headPos = new THREE.Vector3()
+  const headFwd = new THREE.Vector3()
+  const headRight = new THREE.Vector3()
+  const UP = new THREE.Vector3(0, 1, 0)
+
+  /**
+   * Where the head actually is, in world space, and which way it faces.
+   *
+   * Read from renderer.xr.getCamera() rather than from the camera object we
+   * hand to render(): the XR camera is the one three fills in from the headset
+   * pose, and it is unambiguously in world space. Deriving a yaw angle from the
+   * other one via Euler decomposition was both indirect and gimbal-prone when
+   * looking steeply up or down.
+   *
+   * @returns {boolean} false before the first pose has arrived.
+   */
+  function readHead() {
+    const xrCam = renderer.xr.getCamera()
+    if (!xrCam) return false
+    xrCam.getWorldPosition(headPos)
+    xrCam.getWorldDirection(headFwd)
+    headFwd.y = 0
+    if (headFwd.lengthSq() < 1e-6) return false // looking straight up or down
+    headFwd.normalize()
+    // For a camera looking along `fwd` with +Y up, right is fwd x up.
+    headRight.crossVectors(headFwd, UP).normalize()
+    return true
+  }
 
   function makeRay() {
     const geo = new THREE.BufferGeometry().setFromPoints([
@@ -137,6 +186,10 @@ export function createVR({
     c.add(makeRay())
     c.userData.hit = null
     c.addEventListener('selectstart', () => onTrigger(c))
+    // Grip re-centres the model in front of you, wherever you have wandered to.
+    c.addEventListener('squeezestart', () => {
+      needsRecentre = true
+    })
     c.addEventListener('connected', (e) => {
       c.userData.handedness = e.data?.handedness ?? (i === 0 ? 'left' : 'right')
       c.userData.gamepad = e.data?.gamepad ?? null
@@ -198,6 +251,7 @@ export function createVR({
    * reaching over and spinning it is what you would actually do.
    */
   function locomotion(dt) {
+    const oriented = readHead()
     for (const c of controllers) {
       const gp = c.userData.gamepad
       if (!gp) continue
@@ -209,10 +263,19 @@ export function createVR({
       if (!x && !y) continue
 
       if (hand === 'left') {
-        // Pan in the viewer's own horizontal frame, so "left" is screen-left.
-        const yaw = new THREE.Euler().setFromQuaternion(camera.quaternion, 'YXZ').y
-        pivot.position.x -= (x * Math.cos(yaw) - y * Math.sin(yaw)) * PAN_SPEED * dt
-        pivot.position.z -= (x * Math.sin(yaw) + y * Math.cos(yaw)) * PAN_SPEED * dt
+        // Move in the direction you are LOOKING, not along the world axes.
+        //
+        // The old version built a yaw angle and rotated the stick vector by it
+        // with the sine terms the wrong way round, so the frame turned opposite
+        // to the head and the whole thing behaved as if it were world-locked.
+        // Composing the head's own right/forward vectors removes the trig, and
+        // the sign question, entirely.
+        //
+        // Stick forward is NEGATIVE y on a Quest, and the model moves opposite
+        // to the viewer's intent — push forward and the map slides toward you.
+        if (!oriented) continue
+        pivot.position.addScaledVector(headRight, -x * PAN_SPEED * dt)
+        pivot.position.addScaledVector(headFwd, y * PAN_SPEED * dt)
       } else {
         // Turns the model about its own centre. Nothing here touches the dolly,
         // so the viewer never moves.
@@ -221,6 +284,31 @@ export function createVR({
         pivot.scale.setScalar(zoom)
       }
     }
+  }
+
+  /**
+   * Put the model in front of the VIEWER, not in front of the origin.
+   *
+   * This is the real reason rotation felt like it swung around some other
+   * point. The diorama was parked at a fixed spot in the reference space, and
+   * with Link that origin is wherever the play space happened to be set up —
+   * so if you are standing a metre to one side of it, the model sits a metre
+   * to your side too. Turning it then sweeps it across your view instead of
+   * spinning it on the spot, which reads exactly as "I am the one moving".
+   *
+   * Anchoring to the head pose means the model is always centred on your line
+   * of sight when you enter, and the grip button brings it back.
+   */
+  function recentre() {
+    if (!readHead()) return false
+    pivot.position
+      .copy(headPos)
+      .addScaledVector(headFwd, DIORAMA_DISTANCE)
+    pivot.position.y = headPos.y + DIORAMA_DROP
+    // Face the model's "north" at the viewer, so entering always looks the same
+    // however the play space happens to be oriented.
+    pivot.rotation.set(0, Math.atan2(headFwd.x, headFwd.z) + Math.PI, 0)
+    return true
   }
 
   // --- session -------------------------------------------------------------
@@ -268,10 +356,15 @@ export function createVR({
     worldGroup.position.copy(centre).multiplyScalar(-s)
     pivot.add(worldGroup)
 
+    applyStereo()
+
     zoom = 1
-    pivot.position.set(...DIORAMA_AT)
-    pivot.rotation.set(0, 0, 0)
     pivot.scale.setScalar(1)
+    // Placed for real on the first frame that has a head pose; there is none
+    // yet at this point in the handshake.
+    pivot.position.set(0, 1.0, -DIORAMA_DISTANCE)
+    pivot.rotation.set(0, 0, 0)
+    needsRecentre = true
 
     // Safe now: the whole model is a couple of metres deep, so the depth buffer
     // is no longer being asked to cover 180 units.
@@ -377,6 +470,12 @@ export function createVR({
     if (button) button.textContent = text
   }
 
+  function applyStereo() {
+    const step = STEREO_STEPS[stereoStep]
+    setStereoDepth(step.value)
+    if (stereoButton) stereoButton.textContent = step.label
+  }
+
   function setNote(text) {
     if (!note) return
     note.textContent = text ?? ''
@@ -403,6 +502,15 @@ export function createVR({
     })
     host.appendChild(button)
 
+    stereoButton = document.createElement('button')
+    stereoButton.className = 'btn btn-sm vr-button vr-button--stereo'
+    stereoButton.addEventListener('click', () => {
+      stereoStep = (stereoStep + 1) % STEREO_STEPS.length
+      applyStereo()
+    })
+    host.appendChild(stereoButton)
+    applyStereo()
+
     note = document.createElement('p')
     note.className = 'vr-note'
     note.hidden = true
@@ -419,6 +527,7 @@ export function createVR({
     },
     update(dt) {
       if (!session) return
+      if (needsRecentre && recentre()) needsRecentre = false
       updateRays()
       locomotion(dt)
     },

@@ -64,11 +64,22 @@ front of you. That is a deliberate design decision, not a shortcut:
 | Head | Look around, stereo, 6DoF — walk around the model |
 | Point + trigger | Ray at a node → **select**, and the avatar walks there |
 | Trigger on the node you are on | **Enter** → ends the session, opens the 2D portal |
-| Left thumbstick | Pan the model |
-| Right thumbstick ← → | Rotate the model |
+| Left thumbstick | Pan the model, **in the direction you are looking** |
+| Right thumbstick ← → | Rotate the model about its own centre |
 | Right thumbstick ↑ ↓ | Zoom (0.4×–3.2×) |
+| **Grip (either hand)** | **Re-centre the model in front of you** |
 
 The ray turns **green** over a node and stays gold otherwise.
+
+**Stereo is off by default.** The button beside *Entrar en VR* cycles
+Mono → Estéreo ½ → Estéreo. Mono gives both eyes the same view and the same
+projection, so there is no binocular parallax at all — it was made the default
+after the first session caused real nausea, and depth cues matter less on a map
+you read than on something you reach into.
+
+**The monitor mirrors the headset** while presenting, on alternate frames.
+Without it the desktop shows only the clear colour, which is why it looked
+like flat sky.
 
 The **model** moves, not the viewer — pushing a standing person around by
 thumbstick is the reliable way to make them sick, and reaching over and spinning

@@ -176,6 +176,88 @@ export function createScene(container) {
   /** Per-frame hook used only while an immersive session is presenting. */
   let vrUpdate = null
 
+  /**
+   * Stereo depth, 0..1. 0 is genuinely MONOSCOPIC: both eyes are given the
+   * same view, so there is no binocular parallax at all.
+   *
+   * Why this exists: a diorama sitting a metre and a half away is exactly the
+   * range where a wrong IPD or a mismatched scale hits hardest, and the tester
+   * reported real nausea. Rather than guess at the cause, make the depth a dial
+   * that can be turned to zero.
+   *
+   * It is applied by moving each eye toward the midpoint between them, which is
+   * what "reduce the IPD" means geometrically.
+   */
+  let stereoDepth = 1
+  const eyeMid = new THREE.Vector3()
+
+  /**
+   * Desktop mirror while presenting.
+   *
+   * With the headset driving the frame, three renders into the XR framebuffer
+   * and the canvas keeps whatever was last in it — which is the clear colour,
+   * so the monitor just shows flat sky. Nobody outside the headset can see what
+   * the wearer is doing, which makes it impossible to help them.
+   *
+   * So after the XR pass, render the scene once more to the canvas from the
+   * head's own pose. It costs a full extra pass, so it runs on alternate frames
+   * and can be switched off.
+   */
+  let mirror = true
+  let mirrorTick = 0
+  const mirrorCamera = new THREE.PerspectiveCamera(70, 1, 0.05, 500)
+
+  function renderMirror() {
+    if (!mirror) return
+    if (++mirrorTick % 2) return // every other frame; the spectator will not mind
+
+    const xrCam = renderer.xr.getCamera()
+    const eye = xrCam?.cameras?.[0]
+    if (!eye) return
+
+    // Borrow the left eye's pose, but use an ordinary symmetric frustum: the
+    // per-eye projection is off-centre and looks visibly skewed on a monitor.
+    eye.getWorldPosition(mirrorCamera.position)
+    eye.getWorldQuaternion(mirrorCamera.quaternion)
+
+    const w = container.clientWidth || window.innerWidth
+    const h = container.clientHeight || window.innerHeight
+    mirrorCamera.aspect = w / h
+    mirrorCamera.updateProjectionMatrix()
+
+    // xr.enabled off for the duration, or three renders into the XR layer again.
+    renderer.xr.enabled = false
+    renderer.setRenderTarget(null)
+    renderer.setViewport(0, 0, w, h)
+    renderer.setScissorTest(false)
+    renderer.render(scene, mirrorCamera)
+    renderer.xr.enabled = true
+  }
+
+  // Three normally refreshes the XR cameras INSIDE render(), after any frame
+  // callback has run — so adjusting them from vrUpdate would be overwritten.
+  // Taking the update over is the supported way to get in between.
+  renderer.xr.cameraAutoUpdate = false
+
+  function applyStereoDepth() {
+    const xrCam = renderer.xr.getCamera()
+    const eyes = xrCam?.cameras
+    if (!eyes || eyes.length < 2) return
+    if (stereoDepth >= 1) return
+
+    eyeMid.set(0, 0, 0)
+    for (const e of eyes) eyeMid.add(e.position)
+    eyeMid.divideScalar(eyes.length)
+
+    for (const e of eyes) {
+      e.position.lerp(eyeMid, 1 - stereoDepth)
+      e.updateMatrixWorld(true)
+      // projectionMatrix carries the per-eye frustum offset, which is the other
+      // half of the parallax. At zero depth both eyes must also share it.
+      if (stereoDepth === 0) e.projectionMatrix.copy(eyes[0].projectionMatrix)
+    }
+  }
+
   function frame(now) {
     if (!running) return
     // Clamp dt so a backgrounded tab or a stall can never teleport animations.
@@ -185,7 +267,9 @@ export function createScene(container) {
 
     if (renderer.xr.isPresenting) {
       // The headset owns the camera pose, so the follow rig must not write to
-      // it. Fog and the parallax tilt are off too — see three/vr.js.
+      // it. The parallax tilt is off too — see three/vr.js.
+      renderer.xr.updateCamera(rig.camera)
+      applyStereoDepth()
       vrUpdate?.(dt)
     } else {
       rig.update(dt, parallaxPointer)
@@ -194,6 +278,7 @@ export function createScene(container) {
       worldGroup.rotation.y = rig.tilt.y
     }
     renderer.render(scene, rig.camera)
+    if (renderer.xr.isPresenting) renderMirror()
   }
 
   // setAnimationLoop, not requestAnimationFrame: WebXR drives frames from the
@@ -224,6 +309,19 @@ export function createScene(container) {
     onUpdate: (fn) => updaters.push(fn),
     setVRUpdate: (fn) => {
       vrUpdate = fn
+    },
+    /** Desktop spectator view while presenting. Costs an extra pass. */
+    setMirror: (on) => {
+      mirror = Boolean(on)
+      return mirror
+    },
+    /** 0 = monoscopic, 1 = the headset's true IPD. */
+    setStereoDepth: (v) => {
+      stereoDepth = Math.max(0, Math.min(1, v))
+      return stereoDepth
+    },
+    get stereoDepth() {
+      return stereoDepth
     },
     updaters,
     start,
