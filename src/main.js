@@ -10,7 +10,12 @@ import { openPortal, closePortal } from './ui/portal.js'
 import { mountNav } from './ui/nav.js'
 import { createTooltip, createCurtain } from './ui/hud.js'
 import { showLevelCard, hideLevelCard } from './ui/levelCard.js'
-import { showNodeLabel, hideNodeLabel, positionNodeLabel } from './ui/nodeLabel.js'
+import {
+  showNodeLabel,
+  hideNodeLabel,
+  positionNodeLabel,
+  onNodeLabelEnter,
+} from './ui/nodeLabel.js'
 import { mountLegend } from './ui/legend.js'
 import { writeProgress } from './lib/githubProgress.js'
 import { nextMarker, START_MARKER } from './lib/levels.js'
@@ -324,7 +329,7 @@ function selectLevel(levelOrId, { open = false, instant = false } = {}) {
       showNodeLabel(level, { markerId })
       return
     }
-    await showLevelCard(level, { markerId })
+    // enterLevel owns the whole entrance now, card included.
     await enterLevel(level)
   }
 
@@ -350,6 +355,13 @@ function selectLevel(levelOrId, { open = false, instant = false } = {}) {
 
   player.travel(buildRoute(player.levelId, level.id, resumeFrom), level.id, arrive)
 }
+
+// The plate over the avatar says "entrar", so tapping it has to enter — the
+// same as clicking the disc underneath. The avatar is already standing there,
+// so this takes selectLevel's "already on it" path straight into the wipe.
+onNodeLabelEnter((levelId) => {
+  if (levelId) selectLevel(levelId, { open: true })
+})
 
 // --- keyboard access -------------------------------------------------------
 
@@ -434,6 +446,12 @@ async function enterLevel(level) {
   // silhouette rather than a plain circle.
   const shape = level.category === 'boss' ? 'boss' : 'circle'
   const iris = await irisClose({ ...at, shape })
+
+  // The card plays HERE, inside the closed iris — never before it. Playing it
+  // first meant the screen faded to black, showed "MUNDO 1-6", faded back, and
+  // only then did the wipe run: two transitions where the exit only ever had
+  // one. Now both directions are the same single gesture.
+  await showLevelCard(level, { markerId })
 
   setLevelInUrl(level.id)
   openPortal(level, {
@@ -522,7 +540,7 @@ async function boot() {
 
   if (deepLinked) {
     setLevelInUrl(deepLinked.id, { replace: true }) // no phantom history entry
-    showLevelCard(deepLinked, { markerId }).then(() => enterLevel(deepLinked))
+    enterLevel(deepLinked)
   }
 
   // Back/Forward moves between the map and an open level.

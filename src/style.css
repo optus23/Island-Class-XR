@@ -247,12 +247,27 @@ body.map-view {
     0 8px 0 -3px rgb(0 0 0 / 0.4),
     0 12px 26px rgb(0 0 0 / 0.4);
   white-space: nowrap;
-  pointer-events: none;
+  /* It is a button that says "entrar". It has to be clickable. */
+  pointer-events: auto;
+  cursor: pointer;
   font-size: 0.84rem;
   font-weight: 500;
 }
 .node-label.is-visible {
   display: inline-flex;
+}
+/* The plate is positioned with `transform`, so a pressed state cannot use one
+   without fighting positionNodeLabel() every frame. Move the shadow instead. */
+.node-label:active {
+  box-shadow:
+    0 0 0 3px #0b0f16,
+    inset 0 0 0 2px rgb(255 255 255 / 0.14),
+    0 4px 0 -3px rgb(0 0 0 / 0.4),
+    0 6px 14px rgb(0 0 0 / 0.4);
+}
+.node-label:focus-visible {
+  outline: 3px solid var(--xri-focus, #ffd166);
+  outline-offset: 3px;
 }
 .node-label__tag {
   padding: 0.14rem 0.45rem;

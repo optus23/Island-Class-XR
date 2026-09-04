@@ -8,18 +8,36 @@ import { sessionNumber, statusFor } from '../lib/levels.js'
  * map. The full-screen level card belongs to actually ENTERING a level, which
  * takes a second click or Enter. This is the "you are standing here, press
  * Enter" affordance in between.
+ *
+ * It is a real <button>, not decoration: it says "entrar", so clicking or
+ * tapping it must enter, exactly like clicking the node disc underneath. It
+ * was previously a div with `aria-hidden` and `pointer-events: none`, which
+ * made it a label that told you to do something it would not let you do.
  */
 
 let el = null
 let shownFor = null
+let enterHandler = null
 
 function ensure() {
   if (el) return el
-  el = document.createElement('div')
+  el = document.createElement('button')
+  el.type = 'button'
   el.className = 'node-label'
-  el.setAttribute('aria-hidden', 'true')
+  // The map's own tap handling lives on the canvas container, so this click
+  // never reaches it — but stop it anyway, so a future listener on #ui cannot
+  // turn one tap into both "enter" and "select".
+  el.addEventListener('click', (e) => {
+    e.stopPropagation()
+    enterHandler?.(shownFor)
+  })
   document.getElementById('ui').appendChild(el)
   return el
+}
+
+/** The map supplies what "entrar" means; this module only owns the plate. */
+export function onNodeLabelEnter(fn) {
+  enterHandler = fn
 }
 
 export function showNodeLabel(level, { markerId = null } = {}) {
@@ -41,6 +59,7 @@ export function showNodeLabel(level, { markerId = null } = {}) {
     </span>
     <span class="node-label__title">${level.title}</span>
     <span class="node-label__hint"><kbd>Enter</kbd> entrar</span>`
+  node.setAttribute('aria-label', `Entrar en ${level.title}`)
   node.classList.add('is-visible')
 }
 
