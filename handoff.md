@@ -1,20 +1,20 @@
 # XR Island — handoff
 
-State as of **3 September 2026**, end of the Blue Goblin content pass (round 6).
+State as of **4 September 2026**, end of round 7 (controls and the entrance).
 Read `CLAUDE.md` first for the durable rules; this file is what was happening.
 
 ---
 
 ## Where things stand
 
-Everything through round 6 is **merged to `main` and live**:
+Everything through round 7 is **merged to `main` and live**:
 <https://optus23.github.io/Island-Class-XR/>
 
 | | |
 | --- | --- |
-| `main` | `2c015fa` — merge of PR #9 |
+| `main` | `064e720` — merge of PR #10 |
 | `develop` | same content |
-| Last deploy | run `33694410152`, success |
+| Last deploy | run `33892056485`, success |
 | Working tree | clean |
 | Performance | ~27 draw calls, ~700k triangles, 0.05 ms/frame CPU |
 
@@ -24,11 +24,12 @@ Shipped rounds: [#3](https://github.com/optus23/Island-Class-XR/pull/3) ·
 [#6](https://github.com/optus23/Island-Class-XR/pull/6) ·
 [#7](https://github.com/optus23/Island-Class-XR/pull/7) ·
 [#8](https://github.com/optus23/Island-Class-XR/pull/8) ·
-[#9](https://github.com/optus23/Island-Class-XR/pull/9)
+[#9](https://github.com/optus23/Island-Class-XR/pull/9) ·
+[#10](https://github.com/optus23/Island-Class-XR/pull/10)
 
-Verified live after the deploy: the assessment strip renders on all three
-blocks, `null` fields read «por decidir», block 1 shows its pending branch, and
-the console is clean.
+Verified live after the deploy, with a real click on the node plate: it enters,
+and the entrance runs iris 995→0 px, card on the black for its beat, then
+0→995 px onto the portal. Console clean.
 
 ---
 
