@@ -26,7 +26,8 @@
     "set the url once it exists. See docs/repo-ejercicios-bloque1.md.",
     "_fixme arrays hold the open decisions carried over from the brief. They are",
     "teacher-facing, never rendered, and printed by `npm run validate`.",
-    "Remaining exercise/answer/slide bodies are PLACEHOLDERS — replace them."
+    "There are NO answers: the todos ARE the instructions. A solved project may",
+    "be shared separately one day, but it is not part of this data model."
   ],
   "levels": [
     {
@@ -42,7 +43,6 @@
         "source": "content/slides/w1-intro-01.pdf"
       },
       "exercises": "content/exercises/w1-intro-01.md",
-      "answers": "content/answers/w1-intro-01.md",
       "todos": []
     },
     {
@@ -59,7 +59,6 @@
         "note": "Usa el enlace público Compartir → Insertar (embed), nunca el de edición."
       },
       "exercises": "content/exercises/w1-intro-02.md",
-      "answers": "content/answers/w1-intro-02.md",
       "todos": []
     },
     {
@@ -75,7 +74,6 @@
         "source": "content/slides/w1-intro-03.pdf"
       },
       "exercises": "content/exercises/w1-intro-03.md",
-      "answers": "content/answers/w1-intro-03.md",
       "todos": []
     },
     {
@@ -91,7 +89,6 @@
         "source": "content/slides/w1-intro-04.pdf"
       },
       "exercises": "content/exercises/w1-intro-04.md",
-      "answers": "content/answers/w1-intro-04.md",
       "todos": []
     },
     {
@@ -108,7 +105,6 @@
         "source": "https://www.canva.com/design/PLACEHOLDER-ID-BONUS/view?embed"
       },
       "exercises": "content/exercises/w1-bonus-01.md",
-      "answers": null,
       "todos": [
         {
           "id": "w1-bonus-01-t1",
@@ -148,7 +144,6 @@
         "branch": "01-plane-detection"
       },
       "exercises": "content/exercises/w1-arf-01.md",
-      "answers": "content/answers/w1-arf-01.md",
       "todos": [
         {
           "id": "w1-arf-01-t1",
@@ -199,7 +194,6 @@
         "branch": "02-image-tracking"
       },
       "exercises": "content/exercises/w1-arf-02.md",
-      "answers": "content/answers/w1-arf-02.md",
       "todos": [
         {
           "id": "w1-arf-02-t1",
@@ -245,7 +239,6 @@
         "branch": "03-libre"
       },
       "exercises": "content/exercises/w1-arf-03.md",
-      "answers": "content/answers/w1-arf-03.md",
       "todos": [
         {
           "id": "w1-arf-03-t1",
@@ -279,7 +272,6 @@
         "source": "content/slides/w2-pre-01.pdf"
       },
       "exercises": "content/exercises/w2-pre-01.md",
-      "answers": "content/answers/w2-pre-01.md",
       "todos": []
     },
     {
@@ -303,7 +295,6 @@
         "exercise": null
       },
       "exercises": "content/exercises/w2-pre-02.md",
-      "answers": "content/answers/w2-pre-02.md",
       "todos": [
         {
           "id": "w2-pre-02-t1",
@@ -348,7 +339,6 @@
         "exercise": null
       },
       "exercises": "content/exercises/w2-pre-03.md",
-      "answers": "content/answers/w2-pre-03.md",
       "todos": [
         {
           "id": "w2-pre-03-t1",
@@ -385,7 +375,6 @@
         "source": "content/slides/w2-pre-04.pdf"
       },
       "exercises": "content/exercises/w2-pre-04.md",
-      "answers": "content/answers/w2-pre-04.md",
       "todos": [
         {
           "id": "w2-pre-04-t1",
@@ -414,7 +403,6 @@
         "source": "content/slides/w2-bonus-01.pdf"
       },
       "exercises": "content/exercises/w2-bonus-01.md",
-      "answers": null,
       "todos": []
     },
     {
@@ -431,7 +419,6 @@
         "source": "content/slides/w2-boss.pdf"
       },
       "exercises": "content/exercises/w2-boss.md",
-      "answers": null,
       "todos": []
     },
     {
@@ -447,7 +434,6 @@
         "source": "content/slides/w2-post-01.pdf"
       },
       "exercises": "content/exercises/w2-post-01.md",
-      "answers": "content/answers/w2-post-01.md",
       "todos": [
         {
           "id": "w2-post-01-t1",
@@ -475,7 +461,6 @@
         "source": "content/slides/w2-post-02.pdf"
       },
       "exercises": "content/exercises/w2-post-02.md",
-      "answers": "content/answers/w2-post-02.md",
       "todos": [
         {
           "id": "w2-post-02-t1",
@@ -512,7 +497,6 @@
         "exercise": null
       },
       "exercises": "content/exercises/w2-post-03.md",
-      "answers": "content/answers/w2-post-03.md",
       "todos": [
         {
           "id": "w2-post-03-t1",
@@ -546,7 +530,6 @@
         "source": "content/slides/w2-post-04.pdf"
       },
       "exercises": "content/exercises/w2-post-04.md",
-      "answers": "content/answers/w2-post-04.md",
       "todos": [
         {
           "id": "w2-post-04-t1",
@@ -574,7 +557,6 @@
         "source": "content/slides/w3-xrit-01.pdf"
       },
       "exercises": "content/exercises/w3-xrit-01.md",
-      "answers": "content/answers/w3-xrit-01.md",
       "todos": [
         {
           "id": "w3-xrit-01-t1",
@@ -610,7 +592,6 @@
         "exercise": null
       },
       "exercises": "content/exercises/w3-xrit-02.md",
-      "answers": "content/answers/w3-xrit-02.md",
       "todos": [
         {
           "id": "w3-xrit-02-t1",
@@ -656,7 +637,6 @@
         "exercise": null
       },
       "exercises": "content/exercises/w3-xrit-03.md",
-      "answers": "content/answers/w3-xrit-03.md",
       "todos": [
         {
           "id": "w3-xrit-03-t1",
@@ -690,7 +670,6 @@
         "source": "content/slides/w3-xrit-04.pdf"
       },
       "exercises": "content/exercises/w3-xrit-04.md",
-      "answers": "content/answers/w3-xrit-04.md",
       "todos": [
         {
           "id": "w3-xrit-04-t1",
@@ -718,7 +697,6 @@
         "source": "content/slides/w3-xrit-05.pdf"
       },
       "exercises": "content/exercises/w3-xrit-05.md",
-      "answers": "content/answers/w3-xrit-05.md",
       "todos": [
         {
           "id": "w3-xrit-05-t1",
@@ -747,7 +725,6 @@
         "source": "https://www.canva.com/design/PLACEHOLDER-ID-SHADERS/view?embed"
       },
       "exercises": "content/exercises/w3-bonus-01.md",
-      "answers": null,
       "todos": []
     },
     {
@@ -763,7 +740,6 @@
         "source": "content/slides/w3-proj-01.pdf"
       },
       "exercises": "content/exercises/w3-proj-01.md",
-      "answers": null,
       "todos": [
         {
           "id": "w3-proj-01-t1",
@@ -792,7 +768,6 @@
         "source": "content/slides/w3-proj-02.pdf"
       },
       "exercises": "content/exercises/w3-proj-02.md",
-      "answers": null,
       "todos": [
         {
           "id": "w3-proj-02-t1",
@@ -820,7 +795,6 @@
         "source": "content/slides/w3-proj-03.pdf"
       },
       "exercises": "content/exercises/w3-proj-03.md",
-      "answers": null,
       "todos": [
         {
           "id": "w3-proj-03-t1",
@@ -848,7 +822,6 @@
         "source": "content/slides/w3-proj-04.pdf"
       },
       "exercises": "content/exercises/w3-proj-04.md",
-      "answers": null,
       "todos": [
         {
           "id": "w3-proj-04-t1",
@@ -876,7 +849,6 @@
         "source": "content/slides/w3-proj-05.pdf"
       },
       "exercises": "content/exercises/w3-proj-05.md",
-      "answers": null,
       "todos": [
         {
           "id": "w3-proj-05-t1",
@@ -905,7 +877,6 @@
         "source": "content/slides/w3-boss.pdf"
       },
       "exercises": "content/exercises/w3-boss.md",
-      "answers": null,
       "todos": []
     }
   ]

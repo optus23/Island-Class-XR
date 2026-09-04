@@ -1,14 +1,22 @@
 import '../style.css'
-import { mainSequence, START_MARKER, nextMarker, levelById, markerProgress } from '../lib/levels.js'
+import { START_MARKER, levelById, markerProgress, sessionNumber } from '../lib/levels.js'
 
 /**
- * Manual progress marker — the ONE explicit exception to "no dates" in this
- * project. Nothing here is automated by clock or calendar: the marker moves
- * only when a human presses a button.
+ * /admin — SIGN IN, and nothing else.
  *
- * Token handling, deliberately:
- *   - the token is typed here and kept in THIS browser's localStorage only
- *   - it is never committed, never bundled, never sent anywhere but api.github.com
+ * This page used to be the whole teacher console: a full-screen form plus the
+ * marker controls. That was the wrong shape. Pressing "Avanzar" here moved the
+ * marker but you were staring at a form, so there was no way to see the avatar
+ * walk or the camera follow — the button appeared to do nothing.
+ *
+ * So the controls moved to where their effect is visible: the **Profesor**
+ * block of the legend, on the map itself. It unlocks as soon as a token is
+ * present in this browser. All this page does now is put one there, confirm it
+ * works, and send you to the map.
+ *
+ * Token handling, unchanged and deliberate:
+ *   - typed here, kept in THIS browser's localStorage only
+ *   - never committed, never bundled, never sent anywhere but api.github.com
  *   - the public map never reads it; students only ever GET progress.json
  * A build-time constant carries the public repo slug; that is not a secret.
  */
@@ -21,86 +29,49 @@ const FILE_PATH = 'public/progress.json'
 // eslint-disable-next-line no-undef
 const BUILD_REPO = typeof __REPO_SLUG__ === 'string' ? __REPO_SLUG__ : ''
 
+const get = (k, fallback = '') => {
+  try {
+    return localStorage.getItem(k) || fallback
+  } catch {
+    return fallback
+  }
+}
+const set = (k, v) => {
+  try {
+    v ? localStorage.setItem(k, v) : localStorage.removeItem(k)
+  } catch {
+    /* storage disabled */
+  }
+}
+
 const store = {
   get token() {
-    try {
-      return localStorage.getItem(TOKEN_KEY) ?? ''
-    } catch {
-      return ''
-    }
+    return get(TOKEN_KEY)
   },
   set token(v) {
-    try {
-      v ? localStorage.setItem(TOKEN_KEY, v) : localStorage.removeItem(TOKEN_KEY)
-    } catch {
-      /* storage disabled */
-    }
+    set(TOKEN_KEY, v)
   },
   get repo() {
-    try {
-      return localStorage.getItem(REPO_KEY) || BUILD_REPO
-    } catch {
-      return BUILD_REPO
-    }
+    return get(REPO_KEY, BUILD_REPO)
   },
   set repo(v) {
-    try {
-      localStorage.setItem(REPO_KEY, v)
-    } catch {
-      /* storage disabled */
-    }
+    set(REPO_KEY, v)
   },
   get branch() {
-    try {
-      return localStorage.getItem(BRANCH_KEY) || 'main'
-    } catch {
-      return 'main'
-    }
+    return get(BRANCH_KEY, 'main')
   },
   set branch(v) {
-    try {
-      localStorage.setItem(BRANCH_KEY, v)
-    } catch {
-      /* storage disabled */
-    }
+    set(BRANCH_KEY, v)
   },
 }
 
 const root = document.getElementById('admin-root')
-let state = {
-  sha: null,
-  currentLevelId: null,
-  answersUnlocked: false,
-  busy: false,
-  message: null,
-  tone: 'info',
-}
+let state = { currentLevelId: null, busy: false, message: null, tone: 'info' }
 
-const encodeBase64 = (text) => {
-  const bytes = new TextEncoder().encode(text)
-  let binary = ''
-  for (const b of bytes) binary += String.fromCharCode(b)
-  return btoa(binary)
-}
-
-const decodeBase64 = (b64) => {
-  const binary = atob(b64.replace(/\s/g, ''))
-  const bytes = Uint8Array.from(binary, (c) => c.charCodeAt(0))
-  return new TextDecoder().decode(bytes)
-}
-
-function api(path, options = {}) {
-  return fetch(`https://api.github.com${path}`, {
-    ...options,
-    headers: {
-      Accept: 'application/vnd.github+json',
-      'X-GitHub-Api-Version': '2022-11-28',
-      Authorization: `Bearer ${store.token}`,
-      ...(options.body ? { 'Content-Type': 'application/json' } : {}),
-      ...options.headers,
-    },
-  })
-}
+const decodeBase64 = (b64) =>
+  new TextDecoder().decode(
+    Uint8Array.from(atob(b64.replace(/\s/g, '')), (c) => c.charCodeAt(0))
+  )
 
 function say(message, tone = 'info') {
   state.message = message
@@ -108,7 +79,11 @@ function say(message, tone = 'info') {
   render()
 }
 
-async function loadCurrent() {
+/**
+ * Verify the credentials by reading the marker. Read-only: this page never
+ * writes, so a mistyped token fails here rather than halfway through a change.
+ */
+async function check() {
   if (!store.token || !store.repo) {
     state.currentLevelId = null
     render()
@@ -117,74 +92,29 @@ async function loadCurrent() {
   state.busy = true
   render()
   try {
-    const res = await api(
-      `/repos/${store.repo}/contents/${FILE_PATH}?ref=${encodeURIComponent(store.branch)}`
+    const res = await fetch(
+      `https://api.github.com/repos/${store.repo}/contents/${FILE_PATH}` +
+        `?ref=${encodeURIComponent(store.branch)}`,
+      {
+        headers: {
+          Accept: 'application/vnd.github+json',
+          'X-GitHub-Api-Version': '2022-11-28',
+          Authorization: `Bearer ${store.token}`,
+        },
+      }
     )
     if (res.status === 401) throw new Error('Token no válido o caducado.')
-    if (res.status === 403) throw new Error('El token no tiene permiso "Contents: Read and write".')
-    if (res.status === 404) {
+    if (res.status === 403)
+      throw new Error('El token no tiene permiso "Contents: Read and write".')
+    if (res.status === 404)
       throw new Error(`No existe ${FILE_PATH} en la rama ${store.branch} de ${store.repo}.`)
-    }
     if (!res.ok) throw new Error(`GitHub respondió ${res.status}.`)
 
     const data = await res.json()
-    state.sha = data.sha
-    const parsed = JSON.parse(decodeBase64(data.content))
-    state.currentLevelId = parsed.currentLevelId ?? START_MARKER
-    state.answersUnlocked = parsed.answersUnlocked === true
-    say(`Leído desde ${store.repo}@${store.branch}.`, 'success')
+    state.currentLevelId = JSON.parse(decodeBase64(data.content)).currentLevelId ?? START_MARKER
+    say('Token correcto. Los controles ya están activos en el mapa.', 'success')
   } catch (e) {
     state.currentLevelId = null
-    say(e.message, 'error')
-  } finally {
-    state.busy = false
-    render()
-  }
-}
-
-/**
- * Writes progress.json as a PATCH over what was last read.
- *
- * The file now carries two independent settings — the marker and the global
- * answer unlock — so a writer that rebuilt the document from one of them would
- * silently reset the other every time a button was pressed.
- */
-async function write(patch, label, message) {
-  if (state.busy) return
-  state.busy = true
-  render()
-  try {
-    const doc = {
-      currentLevelId: patch.currentLevelId ?? state.currentLevelId,
-      answersUnlocked: patch.answersUnlocked ?? state.answersUnlocked,
-      note: 'Moved only by the /admin panel. Students read this; they never write it.',
-    }
-    const body = {
-      message,
-      content: encodeBase64(JSON.stringify(doc, null, 2) + '\n'),
-      branch: store.branch,
-      ...(state.sha ? { sha: state.sha } : {}),
-    }
-    const res = await api(`/repos/${store.repo}/contents/${FILE_PATH}`, {
-      method: 'PUT',
-      body: JSON.stringify(body),
-    })
-    if (res.status === 409) {
-      throw new Error('Conflicto: alguien cambió el archivo. Pulsa "Releer" y repite.')
-    }
-    if (!res.ok) {
-      const detail = await res.json().catch(() => ({}))
-      throw new Error(detail.message ?? `GitHub respondió ${res.status}.`)
-    }
-    const data = await res.json()
-    state.sha = data.content.sha
-    if (patch.currentLevelId != null) state.currentLevelId = patch.currentLevelId
-    if (patch.answersUnlocked != null) state.answersUnlocked = patch.answersUnlocked
-    say(
-      `${label} correcto. GitHub Actions reconstruirá el sitio en 1–2 minutos.`,
-      'success'
-    )
-  } catch (e) {
     say(e.message, 'error')
   } finally {
     state.busy = false
@@ -194,144 +124,77 @@ async function write(patch, label, message) {
 
 function render() {
   const current = state.currentLevelId ? levelById(state.currentLevelId) : null
+  const n = current ? sessionNumber(current) : null
   const { index, total } = markerProgress(state.currentLevelId)
-  const upcoming = state.currentLevelId ? levelById(nextMarker(state.currentLevelId)) : null
-  const atEnd = current && upcoming && upcoming.id === current.id
-
-  const toneClass =
+  const tone =
     state.tone === 'error' ? 'alert-error' : state.tone === 'success' ? 'alert-success' : ''
 
   root.innerHTML = `
-    <main class="min-h-screen p-6 flex justify-center">
-      <div class="w-full max-w-2xl">
-        <header class="mb-6">
-          <h1 class="text-3xl font-bold">XR Island — panel de progreso</h1>
-          <p class="opacity-70 mt-1">
-            Mueve el marcador que ven los estudiantes. Manual y explícito: nunca por fecha.
-          </p>
-        </header>
+    <main class="min-h-screen grid place-items-center p-4">
+      <div class="admin-card pixel-panel rounded-xl bg-base-100 p-5 w-full max-w-md">
+        <h1 class="text-xl font-bold">Acceso de profesor</h1>
+        <p class="opacity-70 text-sm mt-1 mb-4">
+          Solo el acceso. Los controles del curso están en el bloque
+          <strong>Profesor</strong> de la leyenda, dentro del mapa.
+        </p>
 
-        <section class="pixel-panel rounded-xl bg-base-100 p-5 mb-5">
-          <h2 class="font-bold mb-3">Acceso</h2>
+        <label class="form-control mb-3 block">
+          <span class="label-text text-sm">Repositorio (owner/repo)</span>
+          <input id="repo" type="text" class="input input-bordered input-sm w-full"
+                 value="${store.repo}" placeholder="optus23/Island-Class-XR" />
+        </label>
 
-          <label class="form-control mb-3 block">
-            <span class="label-text text-sm">Repositorio (owner/repo)</span>
-            <input id="repo" type="text" class="input input-bordered w-full"
-                   value="${store.repo}" placeholder="optus23/Island-Class-XR" />
-          </label>
+        <label class="form-control mb-3 block">
+          <span class="label-text text-sm">Rama publicada</span>
+          <input id="branch" type="text" class="input input-bordered input-sm w-full"
+                 value="${store.branch}" placeholder="main" />
+        </label>
 
-          <label class="form-control mb-3 block">
-            <span class="label-text text-sm">Rama publicada</span>
-            <input id="branch" type="text" class="input input-bordered w-full"
-                   value="${store.branch}" placeholder="main" />
-          </label>
+        <label class="form-control mb-2 block">
+          <span class="label-text text-sm">GitHub token (Contents: Read and write)</span>
+          <input id="token" type="password" class="input input-bordered input-sm w-full"
+                 value="${store.token}" placeholder="Pega aquí tu token"
+                 autocomplete="off" spellcheck="false" />
+        </label>
 
-          <label class="form-control mb-2 block">
-            <span class="label-text text-sm">GitHub token (Contents: Read and write)</span>
-            <input id="token" type="password" class="input input-bordered w-full"
-                   value="${store.token}" placeholder="Pega aquí tu token"
-                   autocomplete="off" spellcheck="false" />
-          </label>
+        <p class="text-xs opacity-60 mb-4">
+          Se guarda solo en el localStorage de este navegador. No se sube al repositorio,
+          no entra en el build y los estudiantes nunca lo ven.
+        </p>
 
-          <p class="text-xs opacity-60 mb-4">
-            El token se guarda solo en el localStorage de este navegador. No se sube al
-            repositorio, no entra en el build y los estudiantes nunca lo ven. Usa un token
-            con acceso únicamente a este repositorio.
-          </p>
-
-          <div class="flex flex-wrap gap-2">
-            <button id="save" class="btn btn-primary btn-sm">Guardar y releer</button>
-            <button id="reload" class="btn btn-ghost btn-sm" ${store.token ? '' : 'disabled'}>
-              Releer
-            </button>
-            <button id="forget" class="btn btn-ghost btn-sm text-error">Olvidar token</button>
-          </div>
-        </section>
+        <div class="flex flex-wrap gap-2 mb-4">
+          <button id="save" class="btn btn-primary btn-sm" ${state.busy ? 'disabled' : ''}>
+            ${state.busy ? '…' : 'Guardar y comprobar'}
+          </button>
+          <button id="forget" class="btn btn-ghost btn-sm text-error">Olvidar token</button>
+        </div>
 
         ${
           state.message
-            ? `<div class="alert ${toneClass} mb-5 text-sm"><span>${state.message}</span></div>`
+            ? `<div class="alert ${tone} mb-4 text-sm"><span>${state.message}</span></div>`
             : ''
         }
 
-        <section class="pixel-panel rounded-xl bg-base-100 p-5">
-          <h2 class="font-bold mb-3">Posición actual</h2>
+        ${
+          current
+            ? `<div class="rounded-lg bg-base-200 p-3 mb-4 text-sm">
+                 <p class="text-[10px] uppercase tracking-[0.15em] opacity-55 mb-1">
+                   La clase está en
+                 </p>
+                 <p class="font-semibold">${current.title}</p>
+                 <p class="opacity-70">
+                   ${n ? `Mundo ${n.world}-${n.index} · sesión ${n.global} de ${n.total}` : 'Nivel opcional'}
+                 </p>
+                 <progress class="progress progress-success w-full mt-2 h-2"
+                           value="${index}" max="${Math.max(1, total - 1)}"></progress>
+               </div>`
+            : ''
+        }
 
-          ${
-            current
-              ? `
-            <div class="mb-4">
-              <p class="text-2xl font-bold leading-tight">${current.title}</p>
-              <p class="opacity-70 text-sm mt-1">
-                Mundo ${current.world} · ${current.stage} · nivel ${index + 1} de ${total}
-              </p>
-              <progress class="progress progress-success w-full mt-3 h-2"
-                        value="${index}" max="${Math.max(1, total - 1)}"></progress>
-            </div>
-            <p class="text-sm opacity-70 mb-4">
-              ${atEnd ? 'Es el último nivel del curso.' : `Siguiente: <strong>${upcoming.title}</strong>`}
-            </p>`
-              : `<p class="opacity-70 mb-4">
-                   Introduce el repositorio y el token para leer la posición actual.
-                 </p>`
-          }
-
-          <div class="flex flex-wrap gap-2">
-            <button id="advance" class="btn btn-success"
-                    ${!current || state.busy || atEnd ? 'disabled' : ''}>
-              ${state.busy ? '…' : 'Avanzar'}
-            </button>
-            <button id="reset" class="btn btn-outline btn-warning"
-                    ${!current || state.busy ? 'disabled' : ''}>
-              Reiniciar al inicio
-            </button>
-          </div>
-          <p class="text-xs opacity-60 mt-3">
-            Cada pulsación escribe <code>${FILE_PATH}</code> en
-            <code>${store.repo || 'owner/repo'}@${store.branch}</code> y dispara el
-            despliegue. El mapa público lo lee en modo solo lectura.
-          </p>
-        </section>
-
-        <section class="pixel-panel rounded-xl bg-base-100 p-5 mt-5">
-          <h2 class="font-bold mb-3">Respuestas</h2>
-
-          <p class="text-sm opacity-70 mb-4">
-            Las diapositivas marcadas como respuesta se generan aparte y
-            <strong>no se descargan</strong> mientras esto esté bloqueado. Es un
-            único interruptor global: al publicarlas, las ve todo el mundo a la vez.
-          </p>
-
-          ${
-            state.currentLevelId
-              ? `
-            <div class="flex items-center gap-3 mb-4">
-              <span class="badge ${state.answersUnlocked ? 'badge-success' : 'badge-neutral'}">
-                ${state.answersUnlocked ? '🔓 Publicadas' : '🔒 Bloqueadas'}
-              </span>
-              <span class="text-sm opacity-70">
-                ${
-                  state.answersUnlocked
-                    ? 'Los estudiantes ven las diapositivas de respuesta y la pestaña «Respuestas».'
-                    : 'Los estudiantes solo ven el enunciado.'
-                }
-              </span>
-            </div>
-
-            <button id="answers" class="btn ${state.answersUnlocked ? 'btn-outline btn-warning' : 'btn-success'}"
-                    ${state.busy ? 'disabled' : ''}>
-              ${state.answersUnlocked ? 'Volver a bloquear' : 'Publicar respuestas'}
-            </button>`
-              : `<p class="opacity-70">Introduce el repositorio y el token para gestionarlo.</p>`
-          }
-
-          <p class="text-xs opacity-60 mt-3">
-            Aviso honesto: esto es un sitio estático sin servidor. Bloqueado significa
-            que la web no pide el archivo de respuestas, no que sea inaccesible —
-            quien conozca la URL puede pedirlo a mano. Sirve para que no se vean por
-            descuido, no para guardar un secreto.
-          </p>
-        </section>
+        <a class="btn btn-block btn-sm ${current ? 'btn-success' : 'btn-outline'}"
+           href="${import.meta.env.BASE_URL}">
+          ${current ? 'Abrir el mapa →' : 'Volver al mapa'}
+        </a>
       </div>
     </main>`
 
@@ -341,42 +204,14 @@ function render() {
     store.repo = el('repo').value.trim()
     store.branch = el('branch').value.trim() || 'main'
     store.token = el('token').value.trim()
-    loadCurrent()
+    check()
   })
-  el('reload').addEventListener('click', loadCurrent)
   el('forget').addEventListener('click', () => {
     store.token = ''
     state.currentLevelId = null
-    state.sha = null
-    say('Token borrado de este navegador.', 'info')
-  })
-  el('advance')?.addEventListener('click', () => {
-    const next = nextMarker(state.currentLevelId)
-    write({ currentLevelId: next }, 'Avance', `chore(progress): Avance → ${next}`)
-  })
-  el('reset')?.addEventListener('click', () => {
-    if (confirm('¿Devolver el marcador al primer nivel del curso?')) {
-      write({ currentLevelId: START_MARKER }, 'Reinicio', `chore(progress): Reinicio → ${START_MARKER}`)
-    }
-  })
-  el('answers')?.addEventListener('click', () => {
-    const next = !state.answersUnlocked
-    const ask = next
-      ? '¿Publicar las respuestas para TODOS los estudiantes?'
-      : '¿Volver a ocultar las respuestas para todos?'
-    if (!confirm(ask)) return
-    write(
-      { answersUnlocked: next },
-      next ? 'Publicación de respuestas' : 'Bloqueo de respuestas',
-      `chore(answers): ${next ? 'publicar' : 'ocultar'} respuestas`
-    )
+    say('Token borrado de este navegador. Los controles del mapa se ocultan.', 'info')
   })
 }
 
 render()
-if (store.token && store.repo) loadCurrent()
-
-// Sanity: the sequence the admin walks must match the one the map draws.
-if (import.meta.env.DEV) {
-  console.info(`[admin] ${mainSequence.length} main-path levels, start = ${START_MARKER}`)
-}
+if (store.token && store.repo) check()

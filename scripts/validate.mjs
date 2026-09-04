@@ -192,7 +192,6 @@ for (const [id, deck] of Object.entries(decks)) {
         `the deck wins, so the slides block is dead config`
     )
   }
-  if (!deck.answers) warn(`deck "${id}": no slide tagged \`<!-- _class: answer -->\``)
 }
 
 // --- graded practical blocks ----------------------------------------------
@@ -359,7 +358,7 @@ cover(
   'a generated Marp deck',
   Object.keys(decks).length > 0,
   `${Object.keys(decks).length} deck(s), ` +
-    `${Object.values(decks).reduce((n, d) => n + d.answers, 0)} answer slide(s) held back`
+    `${Object.values(decks).reduce((n, d) => n + d.slides, 0)} slide(s) total`
 )
 cover(
   'the 8 graded block exercises',

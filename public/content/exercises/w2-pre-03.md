@@ -64,14 +64,3 @@ no se puede corregir.
 Estabilidad del tracking con la luz normal del aula. Que la lectura narrativa
 funcione sin que nadie la explique.
 
----
-
-<!-- _class: answer -->
-
-## Respuesta
-
-> **Pendiente de escribir.** Marc redacta aquí la solución comentada o los
-> criterios de corrección de este ejercicio.
-
-Esta diapositiva está marcada con `<!-- _class: answer -->`, así que se compila
-a un archivo aparte y no se descarga hasta que el desbloqueo global está activo.

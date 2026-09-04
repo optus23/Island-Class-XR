@@ -97,26 +97,21 @@ let restoreFocusTo = null
 const FOCUSABLE =
   'a[href], button:not([disabled]), input:not([disabled]), select, textarea, iframe, [tabindex]:not([tabindex="-1"])'
 
-function tabsFor(level, answersUnlocked) {
+function tabsFor(level) {
   const slides = { key: 'slides', label: 'Diapositivas' }
   const todos = { key: 'todos', label: 'Actividades' }
   const exercises = { key: 'exercises', label: 'Ejercicios' }
-  const answers = { key: 'answers', label: 'Respuestas' }
+
+  // There is no answers tab. The todos ARE the instructions, and the course
+  // deliberately does not publish worked solutions.
 
   // Practical levels lead with the activities; everything else leads with slides.
   const ordered =
     level.category === 'practical' && level.todos?.length
-      ? [todos, slides, exercises, answers]
-      : [slides, todos, exercises, answers]
+      ? [todos, slides, exercises]
+      : [slides, todos, exercises]
 
-  return ordered.filter((t) => {
-    if (t.key === 'todos') return Boolean(level.todos?.length)
-    // Answers are hidden for EVERYONE until Marc unlocks them from /admin. The
-    // flag is global and public, exactly like the progress marker — there is
-    // deliberately no per-visitor override.
-    if (t.key === 'answers') return Boolean(level.answers) && answersUnlocked
-    return true
-  })
+  return ordered.filter((t) => (t.key === 'todos' ? Boolean(level.todos?.length) : true))
 }
 
 /** Removes the panel without notifying — used when swapping one level for another. */
@@ -154,7 +149,7 @@ export async function closePortal() {
 
 export function openPortal(
   level,
-  { markerId = null, answersUnlocked = false, onClose = null, onBeforeClose = null } = {}
+  { markerId = null, onClose = null, onBeforeClose = null } = {}
 ) {
   // teardown, not closePortal: swapping levels must not fire the previous
   // portal's onClose, which would clear the URL we are about to set.
@@ -176,7 +171,7 @@ export function openPortal(
     ? `Mundo ${n.world}-${n.index} · sesión ${n.global} de ${n.total}`
     : 'Nivel opcional'
 
-  const tabs = tabsFor(level, answersUnlocked)
+  const tabs = tabsFor(level)
   const badges = [
     `<span class="badge badge-sm" style="background:${accent};color:#0b0f14;border:none">
        ${CATEGORY_LABELS[level.category] ?? level.category}</span>`,
@@ -244,23 +239,16 @@ export function openPortal(
 
     if (key === 'slides') {
       panel.innerHTML = '<div class="h-full" data-slot></div>'
-      await renderSlides(panel.querySelector('[data-slot]'), level, { answersUnlocked })
+      await renderSlides(panel.querySelector('[data-slot]'), level)
       return
     }
     if (key === 'todos') {
       renderTodos(panel, level)
       return
     }
-    const path = key === 'exercises' ? level.exercises : level.answers
     panel.innerHTML = '<p class="opacity-60">Cargando…</p>'
-    const result = await loadMarkdown(path)
-    renderMarkdownInto(
-      panel,
-      result,
-      key === 'exercises'
-        ? 'Este nivel no tiene ejercicios.'
-        : 'Todavía no hay respuestas publicadas para este nivel.'
-    )
+    const result = await loadMarkdown(level.exercises)
+    renderMarkdownInto(panel, result, 'Este nivel no tiene ejercicios.')
   }
 
   buttons.forEach((b) => b.addEventListener('click', () => show(b.dataset.tab)))
