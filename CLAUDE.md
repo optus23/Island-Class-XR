@@ -27,7 +27,12 @@ These come from the brief and are not negotiable without the user saying so.
   the `localStorage` of whoever uses `/admin`. The repo-side token lives in the
   gitignored `.env` as `GH_TOKEN` — never `VITE_`-prefixed, because Vite inlines
   `VITE_*` into the public bundle.
-- **No live in-browser AI calls, no API keys on the client.**
+- **No live in-browser AI calls, no API keys on the client.** The slide decks
+  are a Markdown→HTML pipeline run at build time, not generation.
+- **The answer lock is a lock, not a vault.** Answer slides compile to a
+  separate file the site does not fetch while `answersUnlocked` is false, but
+  the site is static: that file answers a direct request with 200. Never
+  describe it to the user as secure, and never let it be relied on for an exam.
 - **Do not authenticate against or embed Atenea Virtual.**
 - The content is public. The README must keep flagging that it needs a
   copyright / student-data review before publishing.
@@ -63,6 +68,15 @@ git -c credential.helper= -c credential.helper='!f(){ echo username=x-access-tok
 
 `npm run validate` runs as part of `npm run build`. It checks the level model,
 path orthogonality, buried nodes, bonus-node clearance and the no-dates rule.
+`npm run decks` runs before it (as `prebuild`) and compiles the Marp decks into
+the gitignored `public/decks/`.
+
+**If the round touches `public/progress.json`, merge `main` back into `develop`
+first.** `/admin` writes that file straight to `main`, so `main` always carries
+commits `develop` has never seen. Eleven PRs merged cleanly only because
+nothing on `develop` had touched it; the first round that did hit a conflict
+mid-ship. Resolve in favour of `develop`'s shape, keeping `main`'s marker value
+— that is the teacher's live position and must not be rolled back.
 
 ---
 
