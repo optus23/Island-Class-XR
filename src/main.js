@@ -572,7 +572,6 @@ async function boot() {
     pickTargets: () => map.pickTargets,
     levelFromHit: (hit) => map.levelFromHit(hit),
     playerLevelId: () => player.levelId,
-    setMono: (on) => app.setMono(on),
     onSelect: (level) => selectLevel(level),
     // The session has already ended by the time this runs: the level portal is
     // a flat 2D surface in this phase, by design.

@@ -73,21 +73,21 @@ front of you. That is a deliberate design decision, not a shortcut:
 | Point + trigger | Ray at a node → **select**, and the avatar walks there |
 | Trigger on the node you are on | **Enter** → ends the session, opens the 2D portal |
 | Left thumbstick | Pan the model, **in the direction you are looking** |
-| Right thumbstick ← → | Rotate the model about its own centre |
+| Right thumbstick ← → | **Turn: the model swings around YOUR vertical axis** |
 | Right thumbstick ↑ ↓ | Zoom (0.4×–3.2×) |
 | **Grip (either hand)** | **Re-centre the model in front of you** |
 
 The ray turns **green** over a node and stays gold otherwise.
 
-**Mono is the default**, and it is a straight on/off — the button beside
-*Entrar en VR* toggles Mono / Estéreo. Mono copies eye 0's view and projection
-onto the other eye, so both see exactly the same image. There is no half
-setting: halving the eye separation properly means rebuilding each eye's
-asymmetric frustum, and the first attempt at a partial version — lerping eye
-positions and calling `updateMatrixWorld()` — produced two eyes with
-inconsistent view matrices that looked like cameras facing different ways.
+**Stereo only. Do not add a mono mode back.** One existed for two rounds and
+was deleted at the user's request: stereo was reported as working perfectly,
+while every attempt at forcing both eyes onto a single view left the right eye
+facing the wrong way and the image distorting on head movement. Two versions
+were tried — lerping eye positions with `updateMatrixWorld()`, then copying
+eye 0's four matrices onto eye 1 — and both failed. `renderer.xr.cameraAutoUpdate`
+is back at its default; three's own per-eye handling is the thing that works.
 
-**The monitor mirrors the headset** while presenting, on alternate frames.
+**The monitor mirrors the headset** while presenting, every third frame.
 Without it the desktop shows only the clear colour, which is why it looked
 like flat sky. The mirror viewport must be the whole DRAWING BUFFER, not the
 CSS box: entering XR resizes the buffer to the headset's framebuffer, so
@@ -156,14 +156,20 @@ Two things were wrong on our side as well, and are fixed:
 
 ## Honest status: what has and has not been run
 
-**Verified on a real Quest 3, over Link, in desktop Chrome:** the button appears
-(so `isSessionSupported('immersive-vr')` is true) and pressing it requests a
-session. That is as far as it got before `InvalidStateError`, which is now
-fixed but **not yet re-tested**.
+**Working on a real Quest 3, over Link, in desktop Chrome:**
 
-**Still unverified:** everything past session start — stereo rendering, the
-diorama framing, the controller rays, the thumbstick locomotion, and entering a
-level from inside the headset.
+- entering VR (after the `xrCompatible` fix below)
+- **stereo rendering** — reported as perfect
+- the **water shader**, once its shore lookup stopped going through world space
+- **controller rays**: pointing at a node and selecting it
+- **left thumbstick** panning, in the direction you are looking
+
+**Fixed but NOT yet re-tested by the user:**
+
+- rotation about the viewer's own axis (three earlier attempts were all judged
+  uncomfortable; this is the fourth)
+- the desktop mirror (it was switched off by default during a hang hunt, which
+  is why the monitor was still showing flat sky; it is back on)
 
 Treat the first headset run as a bring-up, not a demo. In particular:
 

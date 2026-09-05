@@ -207,50 +207,16 @@ export function createScene(container, { xr = false } = {}) {
   let vrUpdate = null
 
   /**
-   * MONOSCOPIC MODE — both eyes shown exactly the same image.
-   *
-   * Done by copying eye 0's view and projection onto every other eye, and
-   * nothing else. The first attempt moved each eye's `position` toward the
-   * midpoint and called updateMatrixWorld(), which was wrong twice over:
-   * three composes an eye's `matrix` from the raw view transform and then sets
-   * `matrixWorld` separately, so updateMatrixWorld() recomputes it from the
-   * wrong basis — and `matrixWorldInverse`, which is what the renderer
-   * actually reads, was never touched at all. The two eyes ended up with
-   * inconsistent view matrices, which is why it looked like two cameras with
-   * an enormous IPD facing different ways.
-   *
-   * Partial IPD is deliberately not offered. Halving the eye separation
-   * properly means rebuilding each eye's asymmetric frustum, not lerping a
-   * position, and a half-correct version of this is worse than none.
-   *
-   * `viewport` is left alone: each eye still draws to its own half of the
-   * framebuffer, it just draws the same picture there.
-   */
-  let mono = true
-
-  function applyMono() {
-    if (!mono) return
-    const eyes = renderer.xr.getCamera()?.cameras
-    if (!eyes || eyes.length < 2) return
-
-    const src = eyes[0]
-    for (let i = 1; i < eyes.length; i++) {
-      const e = eyes[i]
-      e.matrixWorld.copy(src.matrixWorld)
-      e.matrixWorldInverse.copy(src.matrixWorldInverse)
-      e.projectionMatrix.copy(src.projectionMatrix)
-      e.projectionMatrixInverse.copy(src.projectionMatrixInverse)
-    }
-  }
-
-  /**
    * Desktop mirror while presenting.
    *
    * With the headset driving the frame, three renders into the XR framebuffer
    * and the canvas keeps whatever was last in it — which is the clear colour,
    * so the monitor just shows flat sky.
    */
-  let mirror = false
+  // ON by default. It was switched off while hunting a page hang that turned
+  // out to be the dev server exhausting memory, so the mirror was never the
+  // culprit — and without it the monitor shows nothing but the clear colour.
+  let mirror = true
   let mirrorTick = 0
   /**
    * Every Nth frame. The mirror renders the WHOLE scene again at the headset's
@@ -258,7 +224,7 @@ export function createScene(container, { xr = false } = {}) {
    * every other frame that was ~45 extra full renders a second and is the
    * prime suspect for the stall, so it is both off by default and far rarer.
    */
-  const MIRROR_EVERY = 9
+  const MIRROR_EVERY = 3
   const mirrorCamera = new THREE.PerspectiveCamera(70, 1, 0.05, 500)
 
   function renderMirror() {
@@ -301,12 +267,10 @@ export function createScene(container, { xr = false } = {}) {
     renderer.xr.enabled = true
   }
 
-  // Three normally refreshes the XR cameras INSIDE render(), after any frame
-  // callback has run — so adjusting them afterwards would be overwritten.
-  // Taking the update over is the supported way to get in between; frame()
-  // calls updateCamera() itself and then applyMono().
-  renderer.xr.cameraAutoUpdate = false
-
+  // cameraAutoUpdate is left at its default. A monoscopic mode used to take it
+  // over to force both eyes onto one view; it was removed after testing —
+  // stereo was reported as working perfectly and mono as making the right eye
+  // face the wrong way. Three's own per-eye handling is the thing that works.
 
   function frame(now) {
     if (!running) return
@@ -318,8 +282,6 @@ export function createScene(container, { xr = false } = {}) {
     if (renderer.xr.isPresenting) {
       // The headset owns the camera pose, so the follow rig must not write to
       // it. The parallax tilt is off too — see three/vr.js.
-      renderer.xr.updateCamera(rig.camera)
-      applyMono()
       vrUpdate?.(dt)
     } else {
       rig.update(dt, parallaxPointer)
@@ -371,14 +333,7 @@ export function createScene(container, { xr = false } = {}) {
     get xrEnabled() {
       return xr
     },
-    /** true = both eyes see the same image. */
-    setMono: (on) => {
-      mono = Boolean(on)
-      return mono
-    },
-    get mono() {
-      return mono
-    },
+
     updaters,
     start,
     stop,

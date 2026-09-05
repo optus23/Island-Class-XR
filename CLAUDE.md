@@ -126,6 +126,26 @@ Changing any of these is a design decision, not a refactor.
 
 Every one of these was diagnosed the hard way. Do not re-derive them.
 
+**WebXR** (only on the unmerged `webxr-vr-mode` branch)
+
+- **It is gated behind `?vr=1` and must stay that way.** Without the flag the
+  page never touches `navigator.xr`, never builds an `xrCompatible` context and
+  never sets `renderer.xr.enabled`. An `xrCompatible` context can be migrated
+  to another GPU when a headset appears, and three answers each lost context by
+  rebuilding ~14k instanced voxels, the shore DataTexture and every shader.
+- **Stereo only. Never reintroduce a mono mode.** Two implementations were
+  tried and both left the right eye facing the wrong way; stereo works
+  perfectly. Leave `renderer.xr.cameraAutoUpdate` at its default.
+- **Anything measured in world space breaks in VR.** The diorama scales the
+  whole group by ~0.005, so a shader reading `modelMatrix * position` — the
+  water's shore lookup did — falls out of range and goes flat. Derive from
+  local position plus the object's own offset instead.
+- **Size the diorama from a measured `Box3`, never a guessed constant.** The
+  sea is 2.4x the island's width and 3.4x its depth; a scale tuned to the
+  island alone put the viewer *inside* the water, 1.3 m of it behind them.
+- **Rotation turns the viewer, not the model.** Spinning a two-metre model in
+  front of someone reads as self-motion however centred the pivot is.
+
 **Rendering**
 
 - `vertexColors: true` on an `InstancedMesh` that uses `instanceColor` multiplies

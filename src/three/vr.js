@@ -32,6 +32,11 @@ import * as THREE from 'three'
  * a fixed 2D camera and in a headset it reads as the world lurching when you
  * move your head. Fog is left alone on purpose — see attach().
  *
+ * STEREO ONLY. A monoscopic mode existed briefly and was deleted: stereo was
+ * reported as working perfectly, and every attempt at forcing both eyes onto
+ * one view left the right eye facing the wrong way. Three's own per-eye
+ * handling is the thing that works; do not take cameraAutoUpdate away from it.
+ *
  * NOTHING HERE RUNS UNLESS A HEADSET ASKS FOR IT. With no `navigator.xr` the
  * module mounts no button and touches no state.
  */
@@ -67,7 +72,6 @@ export function createVR({
   onSelect = () => {},
   onEnter = () => {},
   playerLevelId = () => null,
-  setMono = () => {},
 }) {
   if (!navigator.xr) {
     return {
@@ -90,9 +94,10 @@ export function createVR({
   dolly.name = 'xr-dolly'
   scene.add(dolly)
 
-  // The diorama hangs off this while presenting. Rotating, zooming and panning
-  // all act on the PIVOT, whose origin is the model's own centre — so a turn is
-  // the model spinning on the spot instead of swinging around some other point.
+  // The diorama hangs off this while presenting. Panning and zooming act on the
+  // PIVOT; rotation swings the pivot around the VIEWER's vertical axis, which
+  // is what "turn me" means when the model is a thing on a table in front of
+  // you rather than something you are inside.
   const pivot = new THREE.Group()
   pivot.name = 'xr-diorama'
   scene.add(pivot)
@@ -115,18 +120,7 @@ export function createVR({
   /** True while requestSession is in flight — see startSession(). */
   let starting = false
   let button = null
-  let stereoButton = null
   let note = null
-
-  /**
-   * MONO IS THE DEFAULT, and it is a straight on/off.
-   *
-   * Not a hedge: the tester reported real nausea, and comfort beats depth cues
-   * on a map you read rather than reach into. There is no half setting because
-   * halving the eye separation properly means rebuilding each eye's asymmetric
-   * frustum — a half-correct version of that is worse than none.
-   */
-  let mono = true
 
   // --- controllers ---------------------------------------------------------
 
@@ -273,9 +267,19 @@ export function createVR({
         pivot.position.addScaledVector(headRight, -x * PAN_SPEED * dt)
         pivot.position.addScaledVector(headFwd, y * PAN_SPEED * dt)
       } else {
-        // Turns the model about its own centre. Nothing here touches the dolly,
-        // so the viewer never moves.
-        pivot.rotation.y += x * TURN_SPEED * dt
+        // ROTATE ABOUT THE VIEWER, not about the model.
+        //
+        // Turning the model on its own centre was tried first and was reported
+        // as uncomfortable every time: a two-metre model spinning in front of
+        // you fills the view with optical flow that reads as self-motion. What
+        // a person actually wants from a right stick is "turn me" — so the
+        // whole diorama is swung around the HEAD's vertical axis instead, which
+        // is geometrically identical to the viewer turning on the spot.
+        if (!oriented) continue
+        const turn = x * TURN_SPEED * dt
+        pivot.position.sub(headPos).applyAxisAngle(UP, turn).add(headPos)
+        pivot.rotation.y += turn
+
         zoom = THREE.MathUtils.clamp(zoom * (1 - y * ZOOM_SPEED * dt), ...ZOOM_RANGE)
         pivot.scale.setScalar(zoom)
       }
@@ -351,8 +355,6 @@ export function createVR({
     worldGroup.scale.setScalar(s)
     worldGroup.position.copy(centre).multiplyScalar(-s)
     pivot.add(worldGroup)
-
-    applyStereo()
 
     zoom = 1
     pivot.scale.setScalar(1)
@@ -466,16 +468,6 @@ export function createVR({
     if (button) button.textContent = text
   }
 
-  function applyStereo() {
-    setMono(mono)
-    if (stereoButton) {
-      stereoButton.textContent = mono ? 'Mono' : 'Estéreo'
-      stereoButton.title = mono
-        ? 'Ambos ojos ven lo mismo. Pulsa para estereoscópico.'
-        : 'Estereoscópico. Pulsa para volver a mono si marea.'
-    }
-  }
-
   function setNote(text) {
     if (!note) return
     note.textContent = text ?? ''
@@ -508,21 +500,12 @@ export function createVR({
     })
     bar.appendChild(button)
 
-    stereoButton = document.createElement('button')
-    stereoButton.className = 'btn btn-sm vr-button'
-    stereoButton.addEventListener('click', () => {
-      mono = !mono
-      applyStereo()
-    })
-    bar.appendChild(stereoButton)
-
     note = document.createElement('p')
     note.className = 'vr-note'
     note.hidden = true
     bar.appendChild(note)
 
     host.appendChild(bar)
-    applyStereo()
     return true
   }
 
