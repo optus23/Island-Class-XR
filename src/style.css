@@ -209,14 +209,22 @@ body.map-view {
 }
 
 /* ---- Full-screen level portal ------------------------------------------- */
+/* THE WHOLE PANEL SCROLLS, header and all.
+   Splitting it into a fixed header plus a scrolling body only works while the
+   header is a small fraction of the screen. On a phone held sideways the
+   title, subtitle and tags ARE the screen, and everything under them was
+   unreachable. One scroll, everything scrolls away, nothing is trapped.
+   The back button stays put on its own: it is position:fixed, above this. */
 .portal-screen {
   position: fixed;
   inset: 0;
   z-index: 50;
-  display: flex;
-  flex-direction: column;
   background: var(--color-base-100, #12161c);
-  overflow: hidden;
+  overflow-y: auto;
+  overflow-x: hidden;
+  /* Do not hand the leftover scroll to the map underneath. */
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* The one control allowed to overlay the full-screen UI. */

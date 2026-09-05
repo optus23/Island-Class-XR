@@ -191,10 +191,9 @@ export function openPortal(
       <span aria-hidden="true">&larr;</span>
     </button>
 
-    <section role="dialog" aria-modal="true" aria-label="${level.title}"
-             class="flex flex-col h-full min-h-0">
+    <section role="dialog" aria-modal="true" aria-label="${level.title}">
 
-      <header class="shrink-0 px-5 sm:px-8 pt-5 pb-4 border-b border-base-content/10"
+      <header class="px-5 sm:px-8 pt-5 pb-4 border-b border-base-content/10"
               style="box-shadow: inset 0 4px 0 0 ${accent}">
         <div class="pl-12 sm:pl-14">
           <p class="text-[11px] uppercase tracking-[0.2em] opacity-55 mb-1">
@@ -207,13 +206,7 @@ export function openPortal(
         </div>
       </header>
 
-      <!-- ONE scroll region for everything below the header.
-           The tabs used to sit outside it and only the panel scrolled, so on a
-           phone in landscape the header ate the screen and what was left was
-           unreachable. Now a finger anywhere below the title moves the lot,
-           and the tabs stay put at the top of it. -->
-      <div class="flex-1 min-h-0 overflow-y-auto" data-scroll>
-      <nav class="sticky top-0 z-10 bg-base-100 px-5 sm:px-8 pt-4 pb-3" role="tablist">
+      <nav class="px-5 sm:px-8 pt-4 pb-3" role="tablist">
         <div class="tabs tabs-box w-fit">
           ${tabs
             .map(
@@ -230,7 +223,6 @@ export function openPortal(
       <!-- pb-10: the last line should not sit flush against the bottom edge,
            which on a phone reads as cut off. -->
       <div class="px-5 sm:px-8 pb-10" data-panel></div>
-      </div>
     </section>`
 
   document.body.appendChild(root)
