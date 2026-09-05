@@ -144,7 +144,7 @@ Changing any of these is a design decision, not a refactor.
 
 Every one of these was diagnosed the hard way. Do not re-derive them.
 
-**WebXR** (only on the unmerged `webxr-vr-mode` branch)
+**WebXR** (merged to `main` in PR #13; live behind `?vr=1`)
 
 - **It is gated behind `?vr=1` and must stay that way.** Without the flag the
   page never touches `navigator.xr`, never builds an `xrCompatible` context and

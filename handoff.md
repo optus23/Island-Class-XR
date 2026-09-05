@@ -7,16 +7,15 @@ Read `CLAUDE.md` first for the durable rules; this file is what was happening.
 
 ## Where things stand
 
-Everything through round 9 is **merged to `main` and live** — except the VR
-branch, which is deliberately not:
+Everything through round 10 is **merged to `main` and live**, VR included:
 <https://optus23.github.io/Island-Class-XR/>
 
 | | |
 | --- | --- |
-| `main` | merge of PR #12 — unchanged by round 10 |
-| `develop` | unchanged by round 10 |
-| `webxr-vr-mode` | **where round 10 lives. Not merged, do not merge without asking.** |
-| Last deploy | run `33922729738`, success |
+| `main` | merge of PR #13 — round 10 (WebXR) is now live |
+| `develop` | level with `main` |
+| `webxr-vr-mode` | merged and finished. Integrated via `feature/26-vr-integration`, a branch off `main`. |
+| Last deploy | run `33957612988`, success |
 | Working tree | clean |
 | Performance | ~27 draw calls, ~700k triangles, 0.05 ms/frame CPU |
 
@@ -49,9 +48,16 @@ the first thing to check next session.
 
 ## Round 10 — WebXR, brought up on real hardware
 
-**All of this is on the unmerged `webxr-vr-mode` branch.** `develop` and `main`
-are untouched and still live at PR #12. That branch now also carries rounds 8
-and 9, which it was missing.
+**Shipped in PR #13.** It was integrated on `feature/26-vr-integration`, a
+branch cut from `main` so the teacher's `progress.json` writes were the base
+rather than a conflict — the merge was clean, no conflicts at all. Verified on
+Pages afterwards: the plain map renders and logs only `[xr] modo 2D`, `?vr=1`
+logs `[xr] modo VR solicitado` and shows the **Entrar en VR** button, no console
+errors in either, the level portal still opens through the iris under
+`setAnimationLoop`, and `progress.json` still reads `w1-intro-02`.
+
+The `optus23.github.io/Island-Class-XR/vr` entry point was **not** built — that
+decision is still open, see below.
 
 ### Where VR actually stands
 
@@ -137,14 +143,12 @@ The design fault it exposed was real, though: the XR path was on for every
 visitor. It is behind `?vr=1` now, so a student opening the map with a headset
 plugged in runs exactly the renderer that existed before any of this.
 
-### One loose end
+### One loose end — closed
 
 The dead `answersUnlocked` plumbing in `src/lib/progress.js` and
-`src/lib/githubProgress.js` was cleaned **on `webxr-vr-mode` only**. `develop`
-and `main` still carry it: nothing reads it, so it is dead rather than broken,
-but CLAUDE.md's "the course publishes no answers" sits above it there. Clean it
-on `develop` next time that branch is touched — it was left alone this round
-rather than switching branches under a running dev server.
+`src/lib/githubProgress.js` had been cleaned **on `webxr-vr-mode` only**. PR #13
+carried that cleanup to `develop` and `main`; `grep -rn answersUnlocked src/`
+now returns nothing.
 
 ### Open, and the first thing to ask him
 
