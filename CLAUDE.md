@@ -144,13 +144,20 @@ Changing any of these is a design decision, not a refactor.
 
 Every one of these was diagnosed the hard way. Do not re-derive them.
 
-**WebXR** (merged to `main` in PR #13; live behind `?vr=1`)
+**WebXR** (live; two opt-in doors, `/vr/` and `?vr=1`)
 
-- **It is gated behind `?vr=1` and must stay that way.** Without the flag the
-  page never touches `navigator.xr`, never builds an `xrCompatible` context and
-  never sets `renderer.xr.enabled`. An `xrCompatible` context can be migrated
-  to another GPU when a headset appears, and three answers each lost context by
-  rebuilding ~14k instanced voxels, the shore DataTexture and every shader.
+- **XR is opt-in and must stay that way. There are exactly two doors and no
+  third:** `?vr=1` on any page, and the dedicated `/vr/` entry, which declares
+  itself with `data-xr="1"` on `<html>`. The plain map at `/` never touches
+  `navigator.xr`, never builds an `xrCompatible` context and never sets
+  `renderer.xr.enabled`. An `xrCompatible` context can be migrated to another
+  GPU when a headset appears, and three answers each lost context by rebuilding
+  ~14k instanced voxels, the shore DataTexture and every shader.
+- **The `/vr/` door is read off the document, never off `location.pathname`.**
+  The deploy base comes from `GITHUB_REPOSITORY` and can be overridden with
+  `BASE_PATH`, so a path-sniffing gate would quietly stop arming XR after a
+  repo rename. `vr/index.html` is a third Vite entry that shares the `main`
+  chunk byte for byte — it is the same map, arriving with XR armed.
 - **Stereo only. Never reintroduce a mono mode.** Two implementations were
   tried and both left the right eye facing the wrong way; stereo works
   perfectly. Leave `renderer.xr.cameraAutoUpdate` at its default.

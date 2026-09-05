@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="es" data-theme="night" data-xr="1">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
+    <title>XR Island — Modo VR</title>
+    <meta
+      name="description"
+      content="Mapa 3D del curso en modo inmersivo — la isla como diorama, para visor WebXR."
+    />
+    <!-- One rounded, heavy display face for the map chrome. `swap` means it
+         never blocks first paint, and the stack below carries the layout on
+         its own if the request is slow or blocked. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2032%2032%22%3E%3Crect%20width%3D%2232%22%20height%3D%2232%22%20rx%3D%227%22%20fill%3D%22%2312161c%22%2F%3E%3Crect%20x%3D%223%22%20y%3D%2211%22%20width%3D%2226%22%20height%3D%2212%22%20rx%3D%224%22%20fill%3D%22%233d4a5c%22%2F%3E%3Crect%20x%3D%225.5%22%20y%3D%2213.5%22%20width%3D%228%22%20height%3D%227%22%20rx%3D%222.5%22%20fill%3D%22%234cc9f0%22%2F%3E%3Crect%20x%3D%2218.5%22%20y%3D%2213.5%22%20width%3D%228%22%20height%3D%227%22%20rx%3D%222.5%22%20fill%3D%22%234cc9f0%22%2F%3E%3Crect%20x%3D%2213.5%22%20y%3D%2215.5%22%20width%3D%225%22%20height%3D%223%22%20rx%3D%221.2%22%20fill%3D%22%23222b36%22%2F%3E%3Crect%20x%3D%221%22%20y%3D%2214%22%20width%3D%223%22%20height%3D%226%22%20rx%3D%221.4%22%20fill%3D%22%236c7a91%22%2F%3E%3Crect%20x%3D%2228%22%20y%3D%2214%22%20width%3D%223%22%20height%3D%226%22%20rx%3D%221.4%22%20fill%3D%22%236c7a91%22%2F%3E%3C%2Fsvg%3E" />
+  </head>
+  <body class="map-view">
+    <!-- Same map, same bundle as `/`. The only difference is `data-xr="1"`
+         above: this entry arms WebXR on arrival so the headset can reach it at
+         a typeable URL, without the plain map ever querying navigator.xr. -->
+    <div id="app"></div>
+    <div class="ui-layer" id="ui"></div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

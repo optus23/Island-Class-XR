@@ -34,12 +34,20 @@ import { createVR } from './three/vr.js'
 const container = document.getElementById('app')
 const curtain = createCurtain()
 /**
- * WebXR is opt-in per URL: only `?vr=1` builds the XR renderer, touches
- * navigator.xr or mounts the button. The plain map must behave identically
- * whether or not a headset is plugged in — it did not, and that is what hung
- * the page the moment Quest Link started.
+ * WebXR is opt-in, and there are exactly two doors: `?vr=1` on any page, or the
+ * dedicated `/vr/` entry, which declares itself with `data-xr="1"` on <html>.
+ * The plain map at `/` must behave identically whether or not a headset is
+ * plugged in — it did not, and that is what hung the page the moment Quest
+ * Link started.
+ *
+ * The `/vr/` door is read off the document, not off `location.pathname`: the
+ * deploy base comes from GITHUB_REPOSITORY and can be overridden with
+ * BASE_PATH, so any path-sniffing gate would silently stop arming XR after a
+ * repo rename.
  */
-const XR_REQUESTED = new URLSearchParams(location.search).has('vr')
+const XR_REQUESTED =
+  new URLSearchParams(location.search).has('vr') ||
+  document.documentElement.dataset.xr === '1'
 const app = createScene(container, { xr: XR_REQUESTED })
 const tooltip = createTooltip()
 
@@ -584,13 +592,14 @@ async function boot() {
   nav.setPlayerLevel(startId)
   app.start()
 
-  // --- immersive VR (experimental, webxr-vr-mode branch) -------------------
-  // Only on ?vr=1. Without it navigator.xr is never even queried.
+  // --- immersive VR --------------------------------------------------------
+  // Only on `?vr=1` or the `/vr/` entry. Otherwise navigator.xr is never even
+  // queried.
   if (!XR_REQUESTED) {
-    console.info('[xr] modo 2D. Abre con ?vr=1 para el modo inmersivo.')
+    console.info('[xr] modo 2D. Abre /vr o añade ?vr=1 para el modo inmersivo.')
     return
   }
-  console.info('[xr] modo VR solicitado (?vr=1)')
+  console.info('[xr] modo VR solicitado')
   vr = createVR({
     renderer: app.renderer,
     scene: app.scene,
