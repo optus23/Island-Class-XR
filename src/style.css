@@ -846,9 +846,13 @@ body.map-view {
    portrait phone — the legend owns the bottom-right corner and the nav the
    top-left, so this is the free one. */
 .vr-bar {
-  position: fixed;
+  /* ABSOLUTE, and the same 0.85rem the legend uses, so the two bottom edges
+     line up. It was `fixed` with a safe-area max(): on a phone that resolves
+     against the visual viewport while the legend's `absolute` resolves against
+     .ui-layer, and the pair drifted apart by a few pixels as the URL bar moved. */
+  position: absolute;
   left: 0.85rem;
-  bottom: max(0.85rem, env(safe-area-inset-bottom));
+  bottom: 0.85rem;
   z-index: 40;
   display: flex;
   flex-wrap: wrap;

@@ -21,7 +21,32 @@ const BRIDGE_PLANK = 0xc08a4a
 const BRIDGE_BEAM = 0x8b5e34
 const BRIDGE_POST = 0x7a4f2c
 const BRIDGE_PIER = 0x6a4325
-const NODE_LIFT = 0.62 // clear of the ground even where the road crosses a step
+const NODE_LIFT = 0.62 // for the off-path bonus nodes, which stand on plain ground
+
+/**
+ * The road, in numbers. Kept here because the node discs have to stand on the
+ * ROAD, and the only way to guarantee that is to use the ribbon's own figures.
+ */
+const ROAD_HALF_WIDTH = 1.2 // the cream surface; the darker border is 1.6
+const ROAD_SURFACE_LIFT = 0.44 // above the ground the ribbon picked
+/**
+ * How far a disc floats above the road surface it sits on.
+ *
+ * Raised from the 0.18 that fell out of the old lift arithmetic. That was
+ * enough on paper and not enough on screen: the road's own depth bias closed it
+ * at grazing angles.
+ */
+const DISC_CLEARANCE = 0.34
+
+/**
+ * Depth bias for the node discs and their rims, stronger than the road's -4/-8
+ * so a disc standing on the road always draws in front of it.
+ */
+const DISC_DEPTH_BIAS = {
+  polygonOffset: true,
+  polygonOffsetFactor: -6,
+  polygonOffsetUnits: -12,
+}
 const UP = new THREE.Vector3(0, 1, 0)
 
 export function createMapObjects() {
@@ -32,7 +57,13 @@ export function createMapObjects() {
   const placed = []
   for (const w of worlds) {
     for (const p of distributeNodes(w, levelsForWorld(w.id))) {
-      p.position.y += NODE_LIFT
+      // On the road: stand on the ROAD's surface, not on the ground beneath it.
+      // Off it: plain ground, because there is no ribbon to stand on.
+      p.position.y = p.onPath
+        ? roadTopAt(p.position.x, p.position.z, p.tangent) +
+          ROAD_SURFACE_LIFT +
+          DISC_CLEARANCE
+        : p.position.y + NODE_LIFT
       placed.push({ ...p, worldId: w.id })
     }
   }
@@ -50,7 +81,14 @@ export function createMapObjects() {
   const nodeGeo = new THREE.CylinderGeometry(NODE_SIZE * 0.46, NODE_SIZE * 0.46, 0.42, 16)
   // See island.js: per-instance colour comes from instanceColor, and turning on
   // vertexColors here would multiply it by a missing attribute and go black.
-  const nodeMat = new THREE.MeshLambertMaterial()
+  //
+  // polygonOffset, and it has to BEAT the road's. The ribbon carries -4/-8 to
+  // stop it z-fighting the terrace it crosses, and that same bias pulls it in
+  // front of anything sitting just above it. Every disc clears the road by only
+  // a fifth of a unit, which the bias eats at a grazing angle — the road was
+  // painting over the rims. Standing on the road is not enough; the disc has to
+  // win the depth test too.
+  const nodeMat = new THREE.MeshLambertMaterial({ ...DISC_DEPTH_BIAS })
   const nodeMesh = new THREE.InstancedMesh(nodeGeo, nodeMat, regular.length)
   nodeMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage) // hover scales instances
   nodeMesh.frustumCulled = false
@@ -62,7 +100,7 @@ export function createMapObjects() {
   const ringGeo = new THREE.CylinderGeometry(NODE_SIZE * 0.62, NODE_SIZE * 0.62, 0.3, 16)
   const rims = new THREE.InstancedMesh(
     ringGeo,
-    new THREE.MeshLambertMaterial({ color: palette.nodeRim }),
+    new THREE.MeshLambertMaterial({ color: palette.nodeRim, ...DISC_DEPTH_BIAS }),
     regular.length
   )
   rims.frustumCulled = false
@@ -281,6 +319,32 @@ function sampleRoad(curve, halfWidth, spacing = 0.5) {
     rows.push(row)
   }
   return rows
+}
+
+/**
+ * The height of the ROAD SURFACE at a point — as the ribbon itself computes it.
+ *
+ * This exists because a node disc is a thing standing ON the road, and the road
+ * is NOT at the ground height of the point underneath it. `sampleRoad` takes
+ * the HIGHEST of five samples spanning the ribbon's whole width, so that a quad
+ * crossing a terrace does not slice through it. A disc placed with a single
+ * `groundHeightAt()` call therefore sank below the road wherever the route ran
+ * beside a step, and the cream surface was drawn straight over it — which is
+ * exactly the "paths on top of the session button" that was reported.
+ *
+ * Same five samples, same order, deliberately: if `sampleRoad` changes, this
+ * has to change with it or discs start sinking again.
+ */
+function roadTopAt(x, z, tangent) {
+  const sx = tangent.z * ROAD_HALF_WIDTH
+  const sz = -tangent.x * ROAD_HALF_WIDTH
+  return Math.max(
+    groundHeightAt(x - sx, z - sz),
+    groundHeightAt(x + sx, z + sz),
+    groundHeightAt(x, z),
+    groundHeightAt(x - sx * 1.35, z - sz * 1.35),
+    groundHeightAt(x + sx * 1.35, z + sz * 1.35)
+  )
 }
 
 function ribbonGeometry(samples, lift) {
