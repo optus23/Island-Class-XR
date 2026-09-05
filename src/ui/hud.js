@@ -6,7 +6,12 @@ import { statusFor } from '../lib/levels.js'
  * Both are pointer-transparent so they never intercept a click meant for the map.
  */
 
-const CATEGORY_LABELS = { theory: 'Teoría', practical: 'Práctica', boss: 'Jefe' }
+const CATEGORY_LABELS = {
+  theory: 'Teoría',
+  practical: 'Práctica',
+  project: 'Proyecto',
+  boss: 'Examen',
+}
 
 export function createTooltip() {
   const el = document.createElement('div')

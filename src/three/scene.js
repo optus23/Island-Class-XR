@@ -78,17 +78,6 @@ export function createScene(container, { xr = false } = {}) {
       powerPreference: 'high-performance',
     })
     renderer.xr.enabled = true
-
-    // Context loss is otherwise silent, and it is the failure mode most likely
-    // to come back here. Count them: a single loss is survivable, a stream of
-    // them is the hang.
-    let losses = 0
-    canvas.addEventListener('webglcontextlost', (e) => {
-      console.error(`[xr] WebGL context LOST (${++losses})`, e)
-    })
-    canvas.addEventListener('webglcontextrestored', () => {
-      console.warn('[xr] WebGL context restored')
-    })
   } else {
     // Exactly what shipped before any WebXR work existed.
     renderer = new THREE.WebGLRenderer({
@@ -96,6 +85,58 @@ export function createScene(container, { xr = false } = {}) {
       powerPreference: 'high-performance',
     })
   }
+  // Context loss is otherwise silent, and it is the failure mode most likely to
+  // come back here. Count them: a single loss is survivable, a stream of them
+  // is the hang. Watched on BOTH paths now, because `armXR()` below can cause
+  // one on purpose and needs to know that it did.
+  let losses = 0
+  let contextLost = false
+  renderer.domElement.addEventListener('webglcontextlost', (e) => {
+    contextLost = true
+    console.error(`[xr] WebGL context LOST (${++losses})`, e)
+  })
+  renderer.domElement.addEventListener('webglcontextrestored', () => {
+    contextLost = false
+    console.warn('[xr] WebGL context restored')
+  })
+
+  /**
+   * Make an already-created context XR-compatible, for the plain map — which
+   * deliberately did NOT create one that way, so that a student with a headset
+   * plugged in pays nothing for VR they never asked for.
+   *
+   * This is the risky half, and it is why it happens on a button press rather
+   * than on load. On a machine whose headset lives on a different GPU than the
+   * one Chrome picked — every Quest Link setup with two adapters —
+   * `makeXRCompatible()` migrates the context to the other adapter and the
+   * WebGL context is LOST. On a standalone headset there is one GPU and it is
+   * a no-op, which is the case that matters: that is where students run this.
+   *
+   * So: try it, and report honestly which of the three things happened. The
+   * caller reloads into `?vr=1` when it goes wrong, and that page builds the
+   * context XR-compatible from the first frame, where no migration is possible.
+   *
+   * @returns {Promise<'ready'|'lost'|'failed'>}
+   */
+  async function armXR() {
+    if (xr) return 'ready' // born compatible; nothing to migrate
+    const gl = renderer.getContext()
+    if (typeof gl.makeXRCompatible !== 'function') return 'failed'
+    contextLost = false
+    try {
+      await gl.makeXRCompatible()
+    } catch (e) {
+      console.error('[xr] makeXRCompatible() rejected', e)
+      return 'failed'
+    }
+    if (contextLost || gl.isContextLost()) return 'lost'
+    // Only now, and never before: with no session this is inert for scheduling
+    // (three swaps setAnimationLoop onto the session's own rAF inside
+    // setSession, not here), but there is no reason for the 2D map to carry it.
+    renderer.xr.enabled = true
+    return 'ready'
+  }
+
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
   renderer.setClearColor(themeWorld.sky)
   renderer.shadowMap.enabled = false
@@ -333,6 +374,11 @@ export function createScene(container, { xr = false } = {}) {
     get xrEnabled() {
       return xr
     },
+    /** True when the context was BORN XR-compatible (`?vr=1` or `/vr/`). */
+    get xrEager() {
+      return xr
+    },
+    armXR,
 
     updaters,
     start,

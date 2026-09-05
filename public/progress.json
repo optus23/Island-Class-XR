@@ -1,4 +1,4 @@
 {
-  "currentLevelId": "w1-intro-02",
-  "note": "Moved only by the teacher controls. Students read this; they never write it."
+  "currentLevelId": "w1-02",
+  "note": "Moved only by the teacher controls. Students read this; they never write it. Round 11 remapped the ids to the calendar: w1-intro-02 was class 2, and w1-02 is class 2 in the new map — the marker did not move, only its id."
 }

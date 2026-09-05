@@ -26,7 +26,23 @@ const STAGE_LABELS = {
   'final-boss-presentation': 'Presentación final',
 }
 
-const CATEGORY_LABELS = { theory: 'Teoría', practical: 'Práctica', boss: 'Jefe' }
+/** Level data is ours, not user input — but it goes in through innerHTML. */
+const esc = (v) =>
+  String(v).replace(/[&<>"']/g, (c) => (
+    { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
+  ))
+
+const BOSS_TIER_LABELS = {
+  mini: 'Jefe intermedio',
+  final: 'Jefe final',
+  extra: 'Extra',
+}
+const CATEGORY_LABELS = {
+  theory: 'Teoría',
+  practical: 'Práctica',
+  project: 'Proyecto',
+  boss: 'Examen',
+}
 
 // The graded practical blocks. `null` means the brief has not decided yet and
 // says so out loud — an empty slot here is a question still open, not an
@@ -178,8 +194,14 @@ export function openPortal(
     `<span class="badge badge-sm badge-ghost">Mundo ${level.world}</span>`,
     `<span class="badge badge-sm badge-ghost">${STAGE_LABELS[level.stage] ?? level.stage}</span>`,
     level.optional ? '<span class="badge badge-sm badge-outline">Opcional</span>' : '',
+    // The voluntary "Actitud 10%" activities. The lilac disc says there is
+    // something different about the day; this says what.
+    level.attitudeGrade
+      ? `<span class="badge badge-sm" style="background:${cssPalette.attitude};color:#0b0f14;border:none">
+           ${esc(level.attitudeGrade)}</span>`
+      : '',
     level.bossTier
-      ? `<span class="badge badge-sm badge-outline">${level.bossTier === 'final' ? 'Jefe final' : 'Jefe intermedio'}</span>`
+      ? `<span class="badge badge-sm badge-outline">${BOSS_TIER_LABELS[level.bossTier]}</span>`
       : '',
     status.completed ? '<span class="badge badge-sm badge-success">Completado</span>' : '',
     status.current ? '<span class="badge badge-sm badge-warning">Aquí estamos</span>' : '',
