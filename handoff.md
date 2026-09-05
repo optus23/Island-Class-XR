@@ -1,6 +1,6 @@
 # XR Island — handoff
 
-State as of **5 September 2026**, end of round 11 (the level card inside the headset).
+State as of **5 September 2026**, end of round 12 (a pass over the site on a phone).
 Read `CLAUDE.md` first for the durable rules; this file is what was happening.
 
 ---
@@ -43,6 +43,44 @@ loss. Everything below about "not verified in a browser" is now superseded.
 unavailable for two rounds, so the deck viewer, the new legend Profesor block
 and the admin card have been built and served but never seen rendered. That is
 the first thing to check next session.
+
+---
+
+## Round 12 — five things found on a phone
+
+PR #18, merged and deployed.
+
+**The slide viewer was black, and had been since round 8.** marp-core scopes its
+whole compiled theme as `.marpit > section`; the build extracts the bare
+`<section>` and the viewer dropped it into a shadow root with no `.marpit`
+parent, so no rule applied and the slide fell back to black text on the near
+black plate. It shipped broken and was never caught, because the deck had only
+ever been verified as data — slide counts and classes — and never looked at.
+**That is the lesson of this round.**
+
+**The Marp front-matter was rendered as prose.** `marked` drew the YAML fences
+as rules and the keys as a paragraph, so every exercise opened with a literal
+`marp: true theme: xr-island paginate: true`. `ui/markdown.js` strips it now.
+The `---` separators further down stay: as prose they read as section rules.
+
+**Zoom goes closer** — `ZOOM_MIN` 0.55 → 0.34 — which needed two supports:
+`near` now follows the camera's actual distance rather than sitting at 12 (what
+that number protected is the far/near RATIO, and this preserves it at every
+zoom), and the camera is kept 6 units above the ground so it cannot end up
+inside a hill.
+
+**The VR button moved to the bottom left.** Centred, it covered the legend's
+toggle on a portrait phone.
+
+**Gaze input, for phones in a Cardboard holder.** They report `immersive-vr`
+with no gamepads at all — no rays, no trigger, no sticks — so look-only was a
+demo nobody could use, and those are the headsets the students will have. A
+reticle sits mid-view and dwelling 1.4 s on a node activates it through the same
+path the trigger uses. The dwell ring is scaled, never rebuilt.
+
+**Still nobody has seen any of it.** The Chrome extension has now dropped in two
+consecutive rounds. The VR level card from round 11 and everything above is
+verified only by build, Node tests and greps against the deployed bundle.
 
 ---
 
