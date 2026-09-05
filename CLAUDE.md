@@ -144,6 +144,26 @@ Changing any of these is a design decision, not a refactor.
 
 Every one of these was diagnosed the hard way. Do not re-derive them.
 
+**WebXR** (only on the unmerged `webxr-vr-mode` branch)
+
+- **It is gated behind `?vr=1` and must stay that way.** Without the flag the
+  page never touches `navigator.xr`, never builds an `xrCompatible` context and
+  never sets `renderer.xr.enabled`. An `xrCompatible` context can be migrated
+  to another GPU when a headset appears, and three answers each lost context by
+  rebuilding ~14k instanced voxels, the shore DataTexture and every shader.
+- **Stereo only. Never reintroduce a mono mode.** Two implementations were
+  tried and both left the right eye facing the wrong way; stereo works
+  perfectly. Leave `renderer.xr.cameraAutoUpdate` at its default.
+- **Anything measured in world space breaks in VR.** The diorama scales the
+  whole group by ~0.005, so a shader reading `modelMatrix * position` — the
+  water's shore lookup did — falls out of range and goes flat. Derive from
+  local position plus the object's own offset instead.
+- **Size the diorama from a measured `Box3`, never a guessed constant.** The
+  sea is 2.4x the island's width and 3.4x its depth; a scale tuned to the
+  island alone put the viewer *inside* the water, 1.3 m of it behind them.
+- **Rotation turns the viewer, not the model.** Spinning a two-metre model in
+  front of someone reads as self-motion however centred the pivot is.
+
 **Rendering**
 
 - `vertexColors: true` on an `InstancedMesh` that uses `instanceColor` multiplies
@@ -195,6 +215,14 @@ Every one of these was diagnosed the hard way. Do not re-derive them.
 - `scripts/validate.mjs` runs under **Node**, so anything it imports must not pull
   in `levels.json` through a plain import — Node needs `with { type: 'json' }`.
   Keep level data out of `paths.js` and `terrain.js`.
+- **A long-lived `npm run dev` leaks badly.** After hours of hot reloads it was
+  at 10.5 GB with 3 GB free on the machine, and the symptom was not an error:
+  page loads stalled, Chrome said "la página no responde", the browser
+  extension dropped its connection and a background task was killed — then the
+  server died outright. It looked exactly like a code bug, and correlated with
+  plugging in a headset only because Quest Link's own footprint was what tipped
+  the machine over. **Check `Get-Process node` memory before believing a hang
+  is yours.** A restart takes 2.5 s.
 - In the in-app browser pane `document.hidden` is `true`, so `requestAnimationFrame`
   is throttled to about 1 fps. Drive the loop with `window.__step(frames)` when
   testing; a walk that "never finishes" is usually just this.

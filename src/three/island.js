@@ -281,6 +281,11 @@ function createWater(minX, maxX, minZ, maxZ) {
         field.bounds.z1 - field.bounds.z0
       ),
     },
+    // Where the water plane sits in ISLAND coordinates. The vertex stage adds
+    // this to the local position instead of going through modelMatrix, so the
+    // shore lookup survives any transform a parent applies to the whole group.
+    // Must stay in step with mesh.position below.
+    uPlaneAt: { value: new THREE.Vector2((minX + maxX) / 2, (minZ + maxZ) / 2) },
   }
 
   // Shared between both stages so the crests line up with the displacement.
@@ -303,6 +308,7 @@ function createWater(minX, maxX, minZ, maxZ) {
 
     shader.vertexShader = shader.vertexShader
       .replace('#include <common>', `#include <common>
+         uniform vec2 uPlaneAt;
 ${WAVE}`)
       .replace(
         '#include <begin_vertex>',
@@ -310,9 +316,20 @@ ${WAVE}`)
          // The plane is rotated -90deg about X, so its LOCAL z is world up.
          transformed.z += waterWave(position.xy, uTime) * 0.55;
          vWave = position.xy;
-         // The plane is rotated -90deg about X, so local (x, y) is world (x, -z).
-         vec4 wp = modelMatrix * vec4(position, 1.0);
-         vWorldXZ = wp.xz;`
+         // ISLAND space, NOT world space.
+         //
+         // This used to be modelMatrix * position, which is the same thing
+         // only while the island sits at the origin unscaled. The moment a
+         // parent transforms the whole group — the VR diorama scales it by
+         // 0.005 and parks it 1.8 m away — those coordinates stop matching
+         // uShoreMin/uShoreSize, which are in island units. The lookup then
+         // clamps to one constant and the whole sea comes out flat white with
+         // the swell still animating, because the wave uses local position.
+         //
+         // The plane is rotated -90deg about X and offset by uPlaneAt, so its
+         // local (x, y) is island (x + at.x, -y + at.y). Deriving it that way
+         // is invariant to whatever any parent does.
+         vWorldXZ = vec2(position.x + uPlaneAt.x, -position.y + uPlaneAt.y);`
       )
 
     shader.fragmentShader = shader.fragmentShader

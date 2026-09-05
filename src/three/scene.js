@@ -14,11 +14,88 @@ import { createCameraRig } from './cameraRig.js'
  *     no visibilitychange handler here — one only breaks embedded/offscreen
  *     contexts that still drive frames while reporting document.hidden
  */
-export function createScene(container) {
-  const renderer = new THREE.WebGLRenderer({
-    antialias: true,
-    powerPreference: 'high-performance',
-  })
+/**
+ * @param {HTMLElement} container
+ * @param {{xr?: boolean}} [options] `xr` opts this page into the WebXR path.
+ *   OFF by default, and that default is load-bearing — see below.
+ */
+export function createScene(container, { xr = false } = {}) {
+  /**
+   * WEBXR IS OPT-IN, AND THE 2D MAP MUST NOT PAY FOR IT.
+   *
+   * With the XR path always on, the map hung — "la página no responde" — from
+   * the moment Quest Link was started, without anyone asking for VR. Both
+   * plausible causes are things the plain map has no business carrying:
+   *
+   *   - the context below is created `xrCompatible`, so when an XR device
+   *     appears AFTER the page has loaded, Chrome may migrate it to the other
+   *     GPU. Every migration is a lost context, and three rebuilds ~14k
+   *     instanced voxels, the shore DataTexture and every shader program on
+   *     each restore. A loss/restore loop pegs the main thread.
+   *   - `renderer.xr.enabled` changes how setAnimationLoop schedules frames.
+   *
+   * So none of it is set up unless this page asked for it. A student opening
+   * the map with a headset plugged in now runs exactly the code that ran before
+   * any of this existed.
+   *
+   * The context is created BY HAND, purely to pass `xrCompatible: true`.
+   *
+   * This is not a style choice. `WebGLRenderer` builds its context attributes
+   * from a fixed list — alpha, depth, stencil, antialias, premultipliedAlpha,
+   * preserveDrawingBuffer, powerPreference, failIfMajorPerformanceCaveat — and
+   * `xrCompatible` is not in it, so passing it to the constructor does nothing.
+   *
+   * Without it, three's `setSession()` hits this:
+   *
+   *     if (attributes.xrCompatible !== true) await gl.makeXRCompatible()
+   *
+   * and on a machine whose headset lives on a different GPU than the one Chrome
+   * picked — every Quest Link setup with two adapters — `makeXRCompatible()`
+   * migrates the context to the other adapter and the WebGL context is LOST.
+   * Three then immediately calls `new XRWebGLBinding(session, gl)` on that dead
+   * context, which throws **InvalidStateError**, and Chrome restores the context
+   * a few seconds later with no session attached. That is exactly the reported
+   * failure: an InvalidStateError, a pause, the page coming back, and no VR.
+   *
+   * Creating the context XR-compatible up front means the adapter is right from
+   * the first frame and `makeXRCompatible()` is never called.
+   */
+  let renderer
+  if (xr) {
+    const canvas = document.createElement('canvas')
+    const gl = canvas.getContext('webgl2', {
+      alpha: true,
+      antialias: true,
+      depth: true,
+      stencil: false,
+      powerPreference: 'high-performance',
+      xrCompatible: true,
+    })
+    renderer = new THREE.WebGLRenderer({
+      canvas,
+      context: gl ?? undefined,
+      antialias: true,
+      powerPreference: 'high-performance',
+    })
+    renderer.xr.enabled = true
+
+    // Context loss is otherwise silent, and it is the failure mode most likely
+    // to come back here. Count them: a single loss is survivable, a stream of
+    // them is the hang.
+    let losses = 0
+    canvas.addEventListener('webglcontextlost', (e) => {
+      console.error(`[xr] WebGL context LOST (${++losses})`, e)
+    })
+    canvas.addEventListener('webglcontextrestored', () => {
+      console.warn('[xr] WebGL context restored')
+    })
+  } else {
+    // Exactly what shipped before any WebXR work existed.
+    renderer = new THREE.WebGLRenderer({
+      antialias: true,
+      powerPreference: 'high-performance',
+    })
+  }
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
   renderer.setClearColor(themeWorld.sky)
   renderer.shadowMap.enabled = false
@@ -102,6 +179,9 @@ export function createScene(container) {
 
   // --- resize --------------------------------------------------------------
   function resize() {
+    // While presenting, the headset owns the framebuffer size and the
+    // projection. Touching either from here fights it.
+    if (renderer.xr.isPresenting) return
     const w = container.clientWidth || window.innerWidth
     const h = container.clientHeight || window.innerHeight
     renderer.setSize(w, h, false)
@@ -123,29 +203,109 @@ export function createScene(container) {
   let running = false
   let lastTime = 0
 
+  /** Per-frame hook used only while an immersive session is presenting. */
+  let vrUpdate = null
+
+  /**
+   * Desktop mirror while presenting.
+   *
+   * With the headset driving the frame, three renders into the XR framebuffer
+   * and the canvas keeps whatever was last in it — which is the clear colour,
+   * so the monitor just shows flat sky.
+   */
+  // ON by default. It was switched off while hunting a page hang that turned
+  // out to be the dev server exhausting memory, so the mirror was never the
+  // culprit — and without it the monitor shows nothing but the clear colour.
+  let mirror = true
+  let mirrorTick = 0
+  /**
+   * Every Nth frame. The mirror renders the WHOLE scene again at the headset's
+   * framebuffer resolution — roughly 4000x2200 — on top of the stereo pass. At
+   * every other frame that was ~45 extra full renders a second and is the
+   * prime suspect for the stall, so it is both off by default and far rarer.
+   */
+  const MIRROR_EVERY = 3
+  const mirrorCamera = new THREE.PerspectiveCamera(70, 1, 0.05, 500)
+
+  function renderMirror() {
+    if (!mirror) return
+    if (++mirrorTick % MIRROR_EVERY) return
+
+    const xrCam = renderer.xr.getCamera()
+    const eye = xrCam?.cameras?.[0]
+    if (!eye) return
+
+    // Borrow the left eye's pose, but use an ordinary symmetric frustum: the
+    // per-eye projection is off-centre and looks visibly skewed on a monitor.
+    eye.getWorldPosition(mirrorCamera.position)
+    eye.getWorldQuaternion(mirrorCamera.quaternion)
+
+    // Entering XR, three calls setPixelRatio(1) and resizes the drawing buffer
+    // to the headset's framebuffer — far larger than the window, and a
+    // different shape. Viewporting by CSS pixels painted a small corner of that
+    // buffer, which the canvas then stretched across the page: about a third of
+    // the screen, cut off. The viewport has to be the WHOLE drawing buffer.
+    const gl2 = renderer.getContext()
+    const bw = gl2.drawingBufferWidth
+    const bh = gl2.drawingBufferHeight
+    if (!bw || !bh) return
+
+    // The buffer is stretched to the canvas's CSS box for display, so the
+    // camera's aspect must be the DISPLAYED one for the result to look right
+    // once that stretch is applied.
+    const cw = container.clientWidth || window.innerWidth
+    const ch = container.clientHeight || window.innerHeight
+    mirrorCamera.aspect = cw / ch
+    mirrorCamera.updateProjectionMatrix()
+
+    // xr.enabled off for the duration, or three renders into the XR layer again.
+    renderer.xr.enabled = false
+    renderer.setRenderTarget(null)
+    renderer.setViewport(0, 0, bw, bh)
+    renderer.setScissorTest(false)
+    renderer.render(scene, mirrorCamera)
+    renderer.xr.enabled = true
+  }
+
+  // cameraAutoUpdate is left at its default. A monoscopic mode used to take it
+  // over to force both eyes onto one view; it was removed after testing —
+  // stereo was reported as working perfectly and mono as making the right eye
+  // face the wrong way. Three's own per-eye handling is the thing that works.
+
   function frame(now) {
     if (!running) return
     // Clamp dt so a backgrounded tab or a stall can never teleport animations.
     const dt = Math.min((now - lastTime) / 1000, 0.05)
     lastTime = now
     for (const fn of updaters) fn(dt)
-    rig.update(dt, parallaxPointer)
-    syncFraming() // worlds differ in camera distance, so the framing can change without a resize
-    worldGroup.rotation.x = rig.tilt.x
-    worldGroup.rotation.y = rig.tilt.y
+
+    if (renderer.xr.isPresenting) {
+      // The headset owns the camera pose, so the follow rig must not write to
+      // it. The parallax tilt is off too — see three/vr.js.
+      vrUpdate?.(dt)
+    } else {
+      rig.update(dt, parallaxPointer)
+      syncFraming() // worlds differ in camera distance, so framing can change without a resize
+      worldGroup.rotation.x = rig.tilt.x
+      worldGroup.rotation.y = rig.tilt.y
+    }
     renderer.render(scene, rig.camera)
-    requestAnimationFrame(frame)
+    if (renderer.xr.isPresenting) renderMirror()
   }
 
+  // setAnimationLoop, not requestAnimationFrame: WebXR drives frames from the
+  // headset's own clock, and rAF is simply never called while presenting.
+  // Outside a session three falls back to rAF, so 2D behaviour is unchanged.
   function start() {
     if (running) return
     running = true
     // Reset the clock so the gap while paused never lands as one huge dt.
     lastTime = performance.now()
-    requestAnimationFrame(frame)
+    renderer.setAnimationLoop(frame)
   }
   function stop() {
     running = false
+    renderer.setAnimationLoop(null)
   }
 
   return {
@@ -159,6 +319,21 @@ export function createScene(container) {
       return pointerInside
     },
     onUpdate: (fn) => updaters.push(fn),
+    setVRUpdate: (fn) => {
+      vrUpdate = fn
+    },
+    /** Desktop spectator view while presenting. Costs an extra pass. */
+    setMirror: (on) => {
+      mirror = Boolean(on)
+      return mirror
+    },
+    get mirror() {
+      return mirror
+    },
+    get xrEnabled() {
+      return xr
+    },
+
     updaters,
     start,
     stop,
