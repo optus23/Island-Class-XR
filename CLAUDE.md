@@ -177,6 +177,14 @@ Every one of these was diagnosed the hard way. Do not re-derive them.
 - `scripts/validate.mjs` runs under **Node**, so anything it imports must not pull
   in `levels.json` through a plain import — Node needs `with { type: 'json' }`.
   Keep level data out of `paths.js` and `terrain.js`.
+- **A long-lived `npm run dev` leaks badly.** After hours of hot reloads it was
+  at 10.5 GB with 3 GB free on the machine, and the symptom was not an error:
+  page loads stalled, Chrome said "la página no responde", the browser
+  extension dropped its connection and a background task was killed — then the
+  server died outright. It looked exactly like a code bug, and correlated with
+  plugging in a headset only because Quest Link's own footprint was what tipped
+  the machine over. **Check `Get-Process node` memory before believing a hang
+  is yours.** A restart takes 2.5 s.
 - In the in-app browser pane `document.hidden` is `true`, so `requestAnimationFrame`
   is throttled to about 1 fps. Drive the loop with `window.__step(frames)` when
   testing; a walk that "never finishes" is usually just this.

@@ -14,8 +14,30 @@ import { createCameraRig } from './cameraRig.js'
  *     no visibilitychange handler here — one only breaks embedded/offscreen
  *     contexts that still drive frames while reporting document.hidden
  */
-export function createScene(container) {
+/**
+ * @param {HTMLElement} container
+ * @param {{xr?: boolean}} [options] `xr` opts this page into the WebXR path.
+ *   OFF by default, and that default is load-bearing — see below.
+ */
+export function createScene(container, { xr = false } = {}) {
   /**
+   * WEBXR IS OPT-IN, AND THE 2D MAP MUST NOT PAY FOR IT.
+   *
+   * With the XR path always on, the map hung — "la página no responde" — from
+   * the moment Quest Link was started, without anyone asking for VR. Both
+   * plausible causes are things the plain map has no business carrying:
+   *
+   *   - the context below is created `xrCompatible`, so when an XR device
+   *     appears AFTER the page has loaded, Chrome may migrate it to the other
+   *     GPU. Every migration is a lost context, and three rebuilds ~14k
+   *     instanced voxels, the shore DataTexture and every shader program on
+   *     each restore. A loss/restore loop pegs the main thread.
+   *   - `renderer.xr.enabled` changes how setAnimationLoop schedules frames.
+   *
+   * So none of it is set up unless this page asked for it. A student opening
+   * the map with a headset plugged in now runs exactly the code that ran before
+   * any of this existed.
+   *
    * The context is created BY HAND, purely to pass `xrCompatible: true`.
    *
    * This is not a style choice. `WebGLRenderer` builds its context attributes
@@ -38,35 +60,43 @@ export function createScene(container) {
    * Creating the context XR-compatible up front means the adapter is right from
    * the first frame and `makeXRCompatible()` is never called.
    */
-  const canvas = document.createElement('canvas')
-  const gl = canvas.getContext('webgl2', {
-    alpha: true,
-    antialias: true,
-    depth: true,
-    stencil: false,
-    powerPreference: 'high-performance',
-    xrCompatible: true,
-  })
+  let renderer
+  if (xr) {
+    const canvas = document.createElement('canvas')
+    const gl = canvas.getContext('webgl2', {
+      alpha: true,
+      antialias: true,
+      depth: true,
+      stencil: false,
+      powerPreference: 'high-performance',
+      xrCompatible: true,
+    })
+    renderer = new THREE.WebGLRenderer({
+      canvas,
+      context: gl ?? undefined,
+      antialias: true,
+      powerPreference: 'high-performance',
+    })
+    renderer.xr.enabled = true
 
-  const renderer = new THREE.WebGLRenderer({
-    canvas,
-    context: gl ?? undefined,
-    antialias: true,
-    powerPreference: 'high-performance',
-  })
+    // Context loss is otherwise silent, and it is the failure mode most likely
+    // to come back here. Count them: a single loss is survivable, a stream of
+    // them is the hang.
+    let losses = 0
+    canvas.addEventListener('webglcontextlost', (e) => {
+      console.error(`[xr] WebGL context LOST (${++losses})`, e)
+    })
+    canvas.addEventListener('webglcontextrestored', () => {
+      console.warn('[xr] WebGL context restored')
+    })
+  } else {
+    // Exactly what shipped before any WebXR work existed.
+    renderer = new THREE.WebGLRenderer({
+      antialias: true,
+      powerPreference: 'high-performance',
+    })
+  }
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
-  // Immersive VR is opt-in per session; enabling the flag alone costs nothing
-  // and changes nothing until something calls renderer.xr.setSession().
-  renderer.xr.enabled = true
-
-  // A lost context is otherwise silent, and it is the failure mode most likely
-  // to come back here. Say so loudly rather than leaving a black canvas.
-  canvas.addEventListener('webglcontextlost', (e) => {
-    console.error('[xr] WebGL context lost', e)
-  })
-  canvas.addEventListener('webglcontextrestored', () => {
-    console.warn('[xr] WebGL context restored')
-  })
   renderer.setClearColor(themeWorld.sky)
   renderer.shadowMap.enabled = false
   container.appendChild(renderer.domElement)
@@ -220,13 +250,20 @@ export function createScene(container) {
    * and the canvas keeps whatever was last in it — which is the clear colour,
    * so the monitor just shows flat sky.
    */
-  let mirror = true
+  let mirror = false
   let mirrorTick = 0
+  /**
+   * Every Nth frame. The mirror renders the WHOLE scene again at the headset's
+   * framebuffer resolution — roughly 4000x2200 — on top of the stereo pass. At
+   * every other frame that was ~45 extra full renders a second and is the
+   * prime suspect for the stall, so it is both off by default and far rarer.
+   */
+  const MIRROR_EVERY = 9
   const mirrorCamera = new THREE.PerspectiveCamera(70, 1, 0.05, 500)
 
   function renderMirror() {
     if (!mirror) return
-    if (++mirrorTick % 2) return // every other frame; the spectator will not mind
+    if (++mirrorTick % MIRROR_EVERY) return
 
     const xrCam = renderer.xr.getCamera()
     const eye = xrCam?.cameras?.[0]
@@ -327,6 +364,12 @@ export function createScene(container) {
     setMirror: (on) => {
       mirror = Boolean(on)
       return mirror
+    },
+    get mirror() {
+      return mirror
+    },
+    get xrEnabled() {
+      return xr
     },
     /** true = both eyes see the same image. */
     setMono: (on) => {

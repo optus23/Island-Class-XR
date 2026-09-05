@@ -36,11 +36,19 @@ npm run dev -- --host
 adb reverse tcp:5173 tcp:5173
 ```
 
-Open `http://localhost:5173` **in the Quest browser** — `localhost` counts as a
-secure origin, so this needs no certificate.
+Open `http://localhost:5173/?vr=1` **in the Quest browser** — `localhost`
+counts as a secure origin, so this needs no certificate.
+
+**`?vr=1` is required.** Without it the page never touches `navigator.xr`,
+never builds an XR-compatible context and never sets `renderer.xr.enabled`.
+That gate exists because the map hung the moment Quest Link started, with
+nobody having asked for VR: an `xrCompatible` context can be migrated to
+another GPU when an XR device appears, and every migration is a lost context
+that three answers by rebuilding ~14k instanced voxels, the shore texture and
+every shader. The plain map has no business carrying that risk.
 
 Either way: a button reading **«Entrar en VR»** appears at the bottom centre
-**only** if the browser reports `immersive-vr` support. If you do not see it,
+**only** on `?vr=1` and only if the browser reports `immersive-vr` support. If you do not see it,
 the browser said no — nothing else on the page changes.
 
 ---

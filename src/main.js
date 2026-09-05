@@ -27,7 +27,14 @@ import { createVR } from './three/vr.js'
 
 const container = document.getElementById('app')
 const curtain = createCurtain()
-const app = createScene(container)
+/**
+ * WebXR is opt-in per URL: only `?vr=1` builds the XR renderer, touches
+ * navigator.xr or mounts the button. The plain map must behave identically
+ * whether or not a headset is plugged in — it did not, and that is what hung
+ * the page the moment Quest Link started.
+ */
+const XR_REQUESTED = new URLSearchParams(location.search).has('vr')
+const app = createScene(container, { xr: XR_REQUESTED })
 const tooltip = createTooltip()
 
 const island = createIsland()
@@ -550,8 +557,12 @@ async function boot() {
   app.start()
 
   // --- immersive VR (experimental, webxr-vr-mode branch) -------------------
-  // Mounts a button only when a headset actually reports immersive-vr support,
-  // so on a phone or a laptop nothing about the page changes.
+  // Only on ?vr=1. Without it navigator.xr is never even queried.
+  if (!XR_REQUESTED) {
+    console.info('[xr] modo 2D. Abre con ?vr=1 para el modo inmersivo.')
+    return
+  }
+  console.info('[xr] modo VR solicitado (?vr=1)')
   vr = createVR({
     renderer: app.renderer,
     scene: app.scene,
