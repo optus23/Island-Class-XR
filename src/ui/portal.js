@@ -219,7 +219,9 @@ export function openPortal(
         </div>
       </nav>
 
-      <div class="flex-1 min-h-0 overflow-auto px-5 sm:px-8 py-5" data-panel></div>
+      <!-- pb-10: the last line of a panel should not sit flush against the
+           bottom edge of the screen, which on a phone reads as cut off. -->
+      <div class="flex-1 min-h-0 overflow-auto px-5 sm:px-8 pt-5 pb-10" data-panel></div>
     </section>`
 
   document.body.appendChild(root)
@@ -229,8 +231,14 @@ export function openPortal(
 
   async function show(key) {
     buttons.forEach((b) => b.classList.toggle('tab-active', b.dataset.tab === key))
-    // Slides need a fixed-height box to fill; text panels should scroll.
-    panel.classList.toggle('overflow-hidden', key === 'slides')
+    // Everything scrolls, slides included.
+    //
+    // The slides panel used to be `overflow-hidden` so an iframe could fill a
+    // fixed-height box. On a phone that meant the deck was squeezed into
+    // whatever was left under the header and its bottom edge was simply cut
+    // off, with no way to reach it. The deck sizes itself from its width now,
+    // so there is nothing left that needs the panel to be a fixed box.
+    panel.classList.remove('overflow-hidden')
 
     if (key === 'slides') {
       panel.innerHTML = '<div class="h-full" data-slot></div>'

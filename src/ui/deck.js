@@ -86,9 +86,12 @@ export async function renderDeck(el, level) {
   let i = 0
 
   el.innerHTML = `
-    <div class="flex flex-col h-full gap-2" data-deck>
-      <div class="flex-1 min-h-0 rounded-lg overflow-hidden bg-[#0a0d12]
-                  border border-base-content/15 grid place-items-center"
+    <div class="flex flex-col gap-2" data-deck>
+      <!-- aspect-video so the height follows the width and nothing has to be
+           measured. max-w caps it by HEIGHT on a wide screen: 16/9 of 68vh, so
+           a desktop deck never grows so tall that it has to be scrolled. -->
+      <div class="w-full max-w-[121vh] mx-auto aspect-video rounded-lg overflow-hidden
+                  bg-[#0a0d12] border border-base-content/15 grid place-items-center"
            data-stage></div>
 
       <div class="shrink-0 flex items-center gap-2 flex-wrap">
@@ -121,10 +124,30 @@ export async function renderDeck(el, level) {
   const scaler = shadow.querySelector('.scaler')
   const fit = shadow.querySelector('.fit')
 
+  /**
+   * Fit the 1280x720 slide to the stage.
+   *
+   * From the WIDTH only. The stage is `aspect-video`, so its height always
+   * follows its width and there is nothing else to measure. The previous
+   * version took `min(width/1280, height/720)` off a `flex-1 min-h-0` box whose
+   * height came from a chain of parents — and on a phone, where the portal
+   * header eats most of the screen, that chain did not resolve. `rescale` then
+   * measured zero, returned without setting a transform, and the slide was left
+   * at its full 1280x720 inside a ~275px window: you saw a hugely magnified
+   * patch of the slide's own dark background, which read as a black panel.
+   *
+   * If the width is still zero the element is not laid out yet, so try again on
+   * the next frame rather than silently leaving no transform at all.
+   */
+  let retry = 0
   const rescale = () => {
-    const r = fit.getBoundingClientRect()
-    if (!r.width || !r.height) return
-    scaler.style.transform = `scale(${Math.min(r.width / 1280, r.height / 720)})`
+    const w = fit.getBoundingClientRect().width
+    if (!w) {
+      if (retry++ < 20) requestAnimationFrame(rescale)
+      return
+    }
+    retry = 0
+    scaler.style.transform = `scale(${w / 1280})`
   }
 
   const show = (n) => {
