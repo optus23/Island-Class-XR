@@ -27,7 +27,7 @@ castillo grande.
 | # | Día del calendario | Nivel | Color |
 | --- | --- | --- | --- |
 | 1 | Lun 14 sept | `w1-01` | azul · teoría |
-| 2 | Mié 16 sept | `w1-02` | **lila · Actitud** (activitat Mono/Stereoscopic) |
+| 2 | Mié 16 sept | `w1-02` | naranja · práctica — le cuelga `w1-att-01`, lila |
 | 3 | Lun 21 sept | `w1-03` | azul · teoría |
 | 4 | Mié 23 sept | `w1-arf-01` | naranja · práctica |
 | 5 | Lun 28 sept | `w1-05` | azul · teoría |
@@ -40,7 +40,7 @@ castillo grande.
 | 11 | Mié 21 oct | `w2-pre-03` | naranja · práctica |
 | 12 | Lun 26 oct | `w2-04` | azul · teoría |
 | 13 | **Mié 28 oct** | `w2-boss` | **rojo · examen parcial (castillo del medio)** |
-| 14 | Lun 2 nov | `w2-05` | **lila · Actitud** (Entrega Presentació) |
+| 14 | Lun 2 nov | `w2-05` | azul · teoría — le cuelga `w2-att-01`, lila |
 | 15 | Mié 4 nov | `w2-post-03` | naranja · práctica |
 | 16 | Lun 9 nov | `w2-07` | naranja · práctica |
 | 17 | Mié 11 nov | `w3-xrit-02` | naranja · práctica |
@@ -71,6 +71,10 @@ castillo grande.
    coinciden con lo que dice el calendario — Concept, Set up, Desenvolupament.
 5. **Los dos exámenes son rojos.**
 6. **La reavaluación** no cuenta como clase.
+7. **Las dos actividades de Actitud 10% son nodos propios**, no un recoloreado
+   del día: cuelgan de su clase por una línea discontinua y son lilas. El día
+   sigue siendo una clase normal y conserva su color. Ahí es donde irá el
+   enunciado de cada actividad cuando Marc lo pase.
 
 ## Por qué los mundos quedan 8 / 11 / 9
 

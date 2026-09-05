@@ -33,7 +33,7 @@ import {
 const CAP_HEIGHT = 1.1 // the walkable top
 const BAND_HEIGHT = 1.4 // bright stripe below the lip
 
-const biomeAt = (x) => biomes[biomeKeyAt(x)] ?? biomes.meadow
+const biomeAt = (x, z) => biomes[biomeKeyAt(x, z)] ?? biomes.meadow
 
 export function createIsland() {
   const group = new THREE.Group()
@@ -51,7 +51,7 @@ export function createIsland() {
         pathDist: nearestPath(x, z).dist,
         shore: Math.min(1, inside / 4),
         inside,
-        biome: biomeAt(x),
+        biome: biomeAt(x, z),
       })
     }
   }

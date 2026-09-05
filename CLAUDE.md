@@ -124,6 +124,23 @@ Changing any of these is a design decision, not a refactor.
   well, warp pipe, cannon, signpost, crates. Close enough that standing on the
   disc feels like arriving somewhere.
 - **Castles**: grey stone, red roofs. The final boss is 2.3× the midterm's.
+  **`palette.boss` IS that stone**, not a marker colour — `nodes.js` repaints
+  every castle part not flagged `keepColor` with `resolveNodeColor()`, so
+  setting it red once turned both castles solid red. The only exam that is red
+  is the re-evaluation, which is `bossTier: 'extra'` and gets `bossAccent`.
+- **The biome seams are interleaved, not cut.** `biomeKeyAt(x, z)` picks per
+  column near a boundary: the seam wanders in Z, a mid-frequency term throws
+  fingers of one biome across it, and a per-column hash salts single voxels at
+  the edges — snow reaching into the desert and sand into the snow. It replaced
+  `worldAtX`, which is nearest-centre and therefore exactly a vertical cut,
+  and made the island read as three slabs. **It must stay deterministic and
+  position-only:** the terrain cells, the props planted on them and the
+  backdrop all call it separately, and the moment it disagrees with itself you
+  get cactus growing on grass.
+- **The voluntary "Actitud" activities are their own nodes**, hanging off the
+  class day on a dashed connector, lilac. The day itself keeps its ordinary
+  theory or practice colour — it is an ordinary class. Do not go back to
+  recolouring the day.
 - **Two round crossings** on the route: one water, one a chasm with a dark
   bottom, each with a small wooden bridge. Different sizes and offsets — they
   must not read as one feature mirrored. The island stays **one landmass**; an

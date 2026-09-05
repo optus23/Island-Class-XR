@@ -22,10 +22,15 @@ export const palette = {
   // Yellow, and it must stay clear of nodeRim (0xf2c14e) below: they were the
   // same value for one build and every project node read as an empty gold ring.
   project: 0xffdd00, // yellow — autonomous team work, teacher on support only
-  boss: 0xd11f2d, // red — the two exams, and the re-evaluation extra
+  // THE CASTLE'S STONE, not a marker colour. nodes.js repaints every castle
+  // part that is not flagged keepColor with resolveNodeColor(), so setting
+  // this red turned both castles solid red. Grey stone, red details.
+  boss: 0x4a5058, // dark stone
 
-  // The two voluntary "Actitud 10%" activities. Overrides the day's own
-  // colour, the way green does — see resolveNodeColor.
+  // The two voluntary "Actitud 10%" activities. They are their OWN nodes now,
+  // hanging off the class day on a dashed connector — not a recolouring of the
+  // day, which is a normal practice/theory class and must look like one. So
+  // this is only the badge colour in the portal; the disc gets `optional`.
   attitude: 0x9d4edd, // lilac
 
   // Optional / bonus levels — must never be green
@@ -156,12 +161,16 @@ export const cssPalette = Object.fromEntries(
 /**
  * The one place node colour is decided. ORDER MATTERS, and this is the order:
  *
- *   completed → locked → attitude → boss → optional → the day's own category
+ *   completed → locked → boss → optional → the day's own category
  *
  * `boss` sits ABOVE `optional` on purpose. The re-evaluation is both: an extra
  * hanging off the final castle on a dashed connector, and an exam. Marc asked
  * for it in red, so being a boss has to win over being optional — flip those
  * two and it silently turns lilac.
+ *
+ * The voluntary "Actitud" activities are NOT here: they are their own optional
+ * nodes and pick up `optional` lilac like any other. The class day they hang
+ * off keeps its own theory/practice colour.
  *
  * @param {{completed?: boolean, optional?: boolean, attitudeGrade?: string,
  *          category?: string}} level
@@ -170,8 +179,12 @@ export const cssPalette = Object.fromEntries(
 export function resolveNodeColor(level, state = {}) {
   if (level.completed) return palette.completed // wins over everything
   if (state.locked) return palette.locked
-  if (level.attitudeGrade) return palette.attitude
-  if (level.category === 'boss') return palette.boss
+  // An 'extra' boss is the re-evaluation: a small outbuilding beside the final
+  // castle, and the one exam Marc asked for in red. The castles themselves stay
+  // grey stone with red details — this function paints their every part.
+  if (level.category === 'boss') {
+    return level.bossTier === 'extra' ? palette.bossAccent : palette.boss
+  }
   if (level.optional) return palette.optional
   return palette[level.category] ?? palette.theory
 }

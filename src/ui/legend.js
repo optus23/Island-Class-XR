@@ -24,12 +24,8 @@ const ROWS = [
   ['theory', 'Teoría'],
   ['practical', 'Práctica'],
   ['project', 'Proyecto en equipo'],
-  ['attitude', 'Actitud (voluntario)'],
   ['boss', 'Examen'],
-  // No 'optional' row: since the map became the calendar, the only optional
-  // node is the re-evaluation, and that resolves to `boss` red. Putting a
-  // lilac "Opcional" swatch here would name a colour nothing on the map uses,
-  // right next to the lilac that DOES mean something.
+  ['optional', 'Actitud / extra'], // voluntary activities and the re-evaluation
 ]
 
 export function hasAdminToken() {

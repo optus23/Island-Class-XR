@@ -353,7 +353,59 @@ export function anchorToGround(v, lift = 0) {
 }
 
 /** Which biome owns a column. Shared by terrain, road and props. */
-export function biomeKeyAt(x) {
+/**
+ * How wide the mixing zone is, in world units, either side of a seam, and how
+ * far the seam itself meanders back and forth along Z.
+ *
+ * A world is 58 units across, so 9 means roughly the last sixth of one biome
+ * interleaves with the first sixth of the next. Wider than about 14 and the
+ * island stops reading as three places.
+ */
+const BLEND_WIDTH = 9
+const BLEND_WOBBLE = 5.5
+
+/** The seams, left to right: the X where one world hands over to the next. */
+const seams = [...worlds]
+  .sort((a, b) => a.center[0] - b.center[0])
+  .slice(0, -1)
+  .map((w, i, all) => {
+    const next = [...worlds].sort((a, b) => a.center[0] - b.center[0])[i + 1]
+    return { x: (w.center[0] + next.center[0]) / 2, left: w.biome, right: next.biome }
+  })
+
+/**
+ * Which biome dresses the ground at (x, z).
+ *
+ * NOT a straight line. `worldAtX` picks by nearest centre, which is exactly a
+ * vertical cut in X, and three of those made the island read as three slabs
+ * stacked side by side. Near a seam the choice is made per column instead, so
+ * snow reaches down into the desert and sand climbs into the snow, and the two
+ * interlock rather than meet.
+ *
+ * Three terms, coarse to fine, and each one is doing a different job:
+ *   - the seam itself wanders in Z, so the join is not straight even before
+ *     anything mixes;
+ *   - a mid-frequency term throws fingers and islands of one biome across it;
+ *   - a per-column hash salts single voxels at the far edges, which is what
+ *     makes it read as interleaved rather than as a wobbly line.
+ *
+ * MUST STAY DETERMINISTIC AND POSITION-ONLY. The terrain cells, the props
+ * planted on them and the backdrop all call this separately; the moment it
+ * disagrees with itself you get cactus growing on grass.
+ */
+export function biomeKeyAt(x, z = 0) {
+  for (let i = 0; i < seams.length; i++) {
+    const seam = seams[i]
+    const wobble = (smoothNoise(z / 27 + i * 13, i * 37.5) - 0.5) * 2 * BLEND_WOBBLE
+    const d = (x - (seam.x + wobble)) / BLEND_WIDTH
+    if (d <= -1.6 || d >= 1.6) continue // clear of this seam
+
+    const mix =
+      (smoothNoise(x / 6.5 + i * 19, z / 6.5 + 3) - 0.5) * 1.5 +
+      (smoothNoise(x / 2.6 + 41, z / 2.6 + 17) - 0.5) * 0.7 +
+      (hash2(x * 1.7 + i, z * 1.9) - 0.5) * 0.35
+    return d + mix > 0 ? seam.right : seam.left
+  }
   return worldAtX(x).biome
 }
 

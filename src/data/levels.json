@@ -40,12 +40,27 @@
         "Feedback Anònim Atenea",
         "Activitat de classe: Mono/Stereoscopic"
       ],
-      "attitudeGrade": "Entrega Mono/Stereoscopic (Actitud 10%)",
       "todos": [],
       "slides": {
         "type": "canva",
         "source": "https://www.canva.com/design/DAHHUlB-9uQ/o6dC6Bsi2EXgyZL3ka5Z4A/view?embed"
       }
+    },
+    {
+      "id": "w1-att-01",
+      "title": "Activitat: Mono/Stereoscopic",
+      "world": 1,
+      "stage": "intro-theory",
+      "category": "practical",
+      "optional": true,
+      "anchorAfter": "w1-02",
+      "attitudeGrade": "Actitud 10% · voluntaria",
+      "summary": "Actividad voluntaria de la sesión práctica de introducción. Cuenta para el 10% de actitud.",
+      "contents": [
+        "Activitat de classe: Mono/Stereoscopic",
+        "Entrega Mono/Stereoscopic (Actitud 10%)"
+      ],
+      "todos": []
     },
     {
       "id": "w1-03",
@@ -447,11 +462,26 @@
         "Mostra d'antics projectes",
         "Activitat a classe: VR Design Slides"
       ],
-      "attitudeGrade": "Entrega Presentació (Actitud 10%)",
       "slidesLink": {
         "label": "Diapositives de la sessió",
         "url": "https://canva.link/jmtzma3p76j9qh5"
       },
+      "todos": []
+    },
+    {
+      "id": "w2-att-01",
+      "title": "Activitat: Presentació",
+      "world": 2,
+      "stage": "meta-post-exam",
+      "category": "practical",
+      "optional": true,
+      "anchorAfter": "w2-05",
+      "attitudeGrade": "Actitud 10% · voluntaria",
+      "summary": "Presentación del análisis, a partir de la sesión de casos de uso y concept design. Cuenta para el 10% de actitud.",
+      "contents": [
+        "Activitat a classe: VR Design Slides",
+        "Entrega Presentació (Actitud 10%)"
+      ],
       "todos": []
     },
     {
