@@ -26,7 +26,8 @@ import { mountLegend } from './ui/legend.js'
 import { writeProgress } from './lib/githubProgress.js'
 import { nextMarker, START_MARKER } from './lib/levels.js'
 import { irisClose, screenPositionOf } from './ui/transition.js'
-import { buildGrandPath, nearestIndexOn } from './three/paths.js'
+import { buildGrandPath, nearestIndexOn, nodeClearings } from './three/paths.js'
+import { clearGroundAround } from './three/terrain.js'
 import { createEnemies } from './three/enemies.js'
 import { readLevelFromUrl, setLevelInUrl, onRouteChange } from './lib/router.js'
 import { createVR } from './three/vr.js'
@@ -64,6 +65,11 @@ const XR_EAGER =
   document.documentElement.dataset.xr === '1'
 const app = createScene(container, { xr: XR_EAGER })
 const tooltip = createTooltip()
+
+// Hold the ground down around every session disc BEFORE the island mesh is
+// built — the mesh is sampled from groundHeightAt, so a pad registered later
+// would flatten the placement logic and leave the geometry untouched.
+clearGroundAround(nodeClearings(allLevels))
 
 const island = createIsland()
 const map = createMapObjects()
