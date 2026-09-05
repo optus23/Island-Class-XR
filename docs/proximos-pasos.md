@@ -9,43 +9,34 @@ El orden **es** el acuerdo. No adelantar una tarea por delante de otra.
 
 ---
 
-## 0. Verificar el modo VR en las gafas — Marc *(en curso)*
+## 0. VR en las gafas — HECHO
 
-<https://optus23.github.io/Island-Class-XR/vr>
+Marc confirmó que entra y funciona. Después se unificó la entrada: VR se ofrece
+desde **cualquier URL** y el botón «Entrar en VR» es el puente; `?vr=1` y `/vr/`
+siguen existiendo como el camino garantizado (contexto XR-compatible desde el
+primer frame). Ver `CLAUDE.md`.
 
-Nada de lo de abajo empieza hasta que esto esté confirmado. Sigue sin probarlo
-nadie: entrar en un nivel desde dentro del visor, el rendimiento con carga, y
-la rotación sobre el propio eje y el mirror (son el cuarto intento y no se han
-vuelto a probar en hardware).
+Sigue sin probarse en hardware: entrar en un nivel desde dentro del visor, el
+rendimiento con carga, la rotación sobre el propio eje y el mirror.
 
 ---
 
-## 1. El prompt maestro — contenido de las clases *(siguiente)*
+## 1. El calendario como mapa de niveles — HECHO
 
-Marc lo envía cuando el punto 0 esté verificado. Traerá, en un solo mensaje:
+28 clases sacadas de la tabla *Fall Semester Schedule* del board de Whimsical.
+La procedencia y el reparto están en [`docs/calendario-origen.md`](calendario-origen.md).
+El semestre de otoño **es** la regla; primavera es solo guía de Marc y no genera
+un segundo mapa: la isla es una plantilla para todas sus asignaturas de RV.
 
-- todas las clases con sus **títulos** explicados,
-- el **orden** de las clases,
-- el **color** de cada una,
-- el **número de sesión**, que es lo que fija dónde cae cada nodo en el modelo
-  3D — o sea que reubica la isla, no solo el texto,
-- enlaces de referencia a **Canva**.
+Lo que queda de contenido, y no es código:
 
-Lo que ya se sabe que hay que arreglar por el camino:
-
-- El enlace de Canva de la sesión 1-2 es **privado** y renderiza «Este diseño es
-  privado». Hacen falta URLs de **Compartir → Insertar**; el validador ya
-  rechaza los `/edit` y los que no llevan `?embed`.
-- Quedan **7 títulos PLACEHOLDER** en `src/data/levels.json` (`w1-intro-04`,
-  `w2-pre-04`, `w2-post-04`, `w3-xrit-04`, `w3-xrit-05`, `w3-proj-04`,
-  `w3-proj-05`).
-- El recuento de 27 sesiones (7 / 9 / 11) está fijado por el calendario y
-  verificado contra su tablero de Whimsical. Si el prompt maestro cambia el
-  número de sesiones, hay que volver a mirar ese tablero **antes** de tocar
-  nada — está en las reglas de `CLAUDE.md`.
-
-Es un cambio de datos, no de geometría: `levels.json`, `worlds.js` y
-`theme.js`. Nada se coloca a mano.
+- **Enlaces de Canva.** Marc los actualiza en Whimsical y se relee el board.
+  Los `canva.com/design/…/view` se convierten en incrustación añadiendo
+  `?embed`; los `canva.link/…` antiguos solo sirven como enlace.
+- **Los TODOs paso a paso** de las sesiones prácticas: desde crear el proyecto
+  de Unity hasta la escena montada, sobre documentación oficial de Unity, AR
+  Foundation, Meta Building Blocks y XRIT, más los trucos de conexión de la
+  Quest. Son 8-10 tutoriales largos; van sesión a sesión, no en una ronda.
 
 ---
 

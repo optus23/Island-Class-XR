@@ -3,146 +3,106 @@
     "title": "XR Island",
     "subtitle": "Realidad Virtual y Realidad Aumentada · Entornos de Realidad Virtual"
   },
-  "_readme": [
-    "ORDER MATTERS: levels appear on the map in the order listed here, per world.",
-    "ONE LEVEL = ONE CLASS SESSION, and the split matches the Whimsical calendar:",
-    "  11 sessions -> midterm (session 12) -> 15 sessions = 27 per semester.",
-    "That lands as world 1 = 7, world 2 = 9 (4 either side of the castle),",
-    "world 3 = 11. Both Fall and Spring have this same shape.",
-    "The path is a curve (config/worlds.js) — nodes are spread along it at runtime,",
-    "so adding or removing a level just re-spaces the others. Never place nodes by hand.",
-    "Optional levels are EXTRA: they sit off the main path, are not sessions, and",
-    "do not count toward the 27.",
-    "NO DATES ANYWHERE: the calendar lives outside this file, by design. Holidays",
-    "shift when a session happens, never whether it exists.",
-    "There is no per-level \"completed\" flag on purpose: completion is derived",
-    "from the progress marker in public/progress.json.",
-    "THE 8 GRADED EXERCISES (30% of the course, 10% per block) carry four extra",
-    "fields: block {number,name,exercise,of}, submissionMethod, groupMode and",
-    "gradeWeight {block, exercise}. gradeWeight.exercise is null on purpose —",
-    "the per-exercise split is an open decision. Do not fill it in with a guess.",
-    "Block 1 nodes also carry starterRepo {url, branch}: a SEPARATE student",
-    "repository, one branch per exercise. Its code never lands in this repo —",
-    "set the url once it exists. See docs/repo-ejercicios-bloque1.md.",
-    "_fixme arrays hold the open decisions carried over from the brief. They are",
-    "teacher-facing, never rendered, and printed by `npm run validate`.",
-    "There are NO answers: the todos ARE the instructions. A solved project may",
-    "be shared separately one day, but it is not part of this data model."
-  ],
+  "_readme": "Order comes from the course calendar (docs/calendario-origen.md); no date is stored here and none may be - see CLAUDE.md. 28 classes: 12, the midterm castle, then 14 of which the last 8 are autonomous project days (yellow). The re-evaluation is an optional extra beside the final castle.",
   "levels": [
     {
-      "id": "w1-intro-01",
-      "title": "Bienvenida y panorama XR",
+      "id": "w1-01",
+      "title": "Introducció a l'assignatura i continu realitat-virtualitat",
       "world": 1,
       "stage": "intro-theory",
       "category": "theory",
       "optional": false,
-      "summary": "PLACEHOLDER — presentación del curso y del ecosistema RV/RA/MR.",
-      "slides": {
-        "type": "pdf",
-        "source": "content/slides/w1-intro-01.pdf"
-      },
-      "exercises": "content/exercises/w1-intro-01.md",
-      "todos": []
-    },
-    {
-      "id": "w1-intro-02",
-      "title": "Fundamentos de percepción y presencia",
-      "world": 1,
-      "stage": "intro-theory",
-      "category": "theory",
-      "optional": false,
-      "summary": "PLACEHOLDER — teoría base: presencia, inmersión, mareo por movimiento.",
+      "summary": "Dinàmica de grup: Presentacions · Introducció Assignatura · Història del Reality-Virtuality Continuum · Immersive virtual environments · Dinàmica de grup: VR Play Session",
+      "contents": [
+        "Dinàmica de grup: Presentacions",
+        "Introducció Assignatura",
+        "Història del Reality-Virtuality Continuum",
+        "Immersive virtual environments",
+        "Dinàmica de grup: VR Play Session"
+      ],
+      "todos": [],
       "slides": {
         "type": "canva",
-        "source": "https://www.canva.com/design/PLACEHOLDER-ID/view?embed",
-        "note": "Usa el enlace público Compartir → Insertar (embed), nunca el de edición."
-      },
-      "exercises": "content/exercises/w1-intro-02.md",
-      "todos": []
+        "source": "https://www.canva.com/design/DAHHUnROmvA/qsYQiDFZd4Kmb9_u6X7bOg/view?embed"
+      }
     },
     {
-      "id": "w1-intro-03",
-      "title": "Hardware y plataformas XR",
+      "id": "w1-02",
+      "title": "Introducció pràctica i activitat Mono/Stereoscopic",
       "world": 1,
       "stage": "intro-theory",
-      "category": "theory",
+      "category": "practical",
       "optional": false,
-      "summary": "PLACEHOLDER — dispositivos, grados de libertad, tracking.",
-      "slides": {
-        "type": "pdf",
-        "source": "content/slides/w1-intro-03.pdf"
-      },
-      "exercises": "content/exercises/w1-intro-03.md",
-      "todos": []
-    },
-    {
-      "id": "w1-intro-04",
-      "title": "PLACEHOLDER — sesión 4 (introducción y teoría)",
-      "world": 1,
-      "stage": "intro-theory",
-      "category": "theory",
-      "optional": false,
-      "summary": "PLACEHOLDER — sesión de intro-theory.",
-      "slides": {
-        "type": "pdf",
-        "source": "content/slides/w1-intro-04.pdf"
-      },
-      "exercises": "content/exercises/w1-intro-04.md",
-      "todos": []
-    },
-    {
-      "id": "w1-bonus-01",
-      "title": "Extra: historia de la RV",
-      "world": 1,
-      "stage": "intro-theory",
-      "category": "theory",
-      "optional": true,
-      "anchorAfter": "w1-intro-02",
-      "summary": "PLACEHOLDER — material opcional para casa. No evaluable.",
+      "summary": "News! Notícies VR/MR · Introducció Assignatura Pràctica · Feedback Anònim Atenea · Activitat de classe: Mono/Stereoscopic",
+      "contents": [
+        "News! Notícies VR/MR",
+        "Introducció Assignatura Pràctica",
+        "Feedback Anònim Atenea",
+        "Activitat de classe: Mono/Stereoscopic"
+      ],
+      "attitudeGrade": "Entrega Mono/Stereoscopic (Actitud 10%)",
+      "todos": [],
       "slides": {
         "type": "canva",
-        "source": "https://www.canva.com/design/PLACEHOLDER-ID-BONUS/view?embed"
-      },
-      "exercises": "content/exercises/w1-bonus-01.md",
-      "todos": [
-        {
-          "id": "w1-bonus-01-t1",
-          "type": "objective-task",
-          "objective": "PLACEHOLDER — objetivo práctico opcional.",
-          "starting_point": "PLACEHOLDER — punto de partida.",
-          "milestones": [
-            "PLACEHOLDER — hito 1",
-            "PLACEHOLDER — hito 2"
-          ],
-          "deliverable": "PLACEHOLDER — qué se entrega."
-        }
-      ]
+        "source": "https://www.canva.com/design/DAHHUlB-9uQ/o6dC6Bsi2EXgyZL3ka5Z4A/view?embed"
+      }
+    },
+    {
+      "id": "w1-03",
+      "title": "Dispositius, tracking i spatial computing",
+      "world": 1,
+      "stage": "intro-theory",
+      "category": "theory",
+      "optional": false,
+      "summary": "Kahoot! Repàs setmana passada · Dispositius per a Entorns Virtuals · Conflicte Vergència Acomodació · Tracking Systems · Spatial Computing & AR Cloud · Dinàmica de grup: VR Play Session",
+      "contents": [
+        "Kahoot! Repàs setmana passada",
+        "Dispositius per a Entorns Virtuals",
+        "Conflicte Vergència Acomodació",
+        "Tracking Systems",
+        "Spatial Computing & AR Cloud",
+        "Dinàmica de grup: VR Play Session"
+      ],
+      "todos": [],
+      "slides": {
+        "type": "canva",
+        "source": "https://www.canva.com/design/DAHHUlB-9uQ/o6dC6Bsi2EXgyZL3ka5Z4A/view?embed"
+      }
     },
     {
       "id": "w1-arf-01",
-      "title": "Ejercicio 1 · Plane Detection",
+      "title": "AR Foundation: pilars i Plane Detection",
       "world": 1,
       "stage": "ar-foundation",
       "category": "practical",
       "optional": false,
-      "summary": "Un goblin azul se ha colado en el despacho del profesor. Replica la mecánica del vídeo de clase: tocar una superficie detectada instancia el objeto 3D con el que tú te enfrentas a Blue Goblin.",
+      "summary": "News! Notícies VR/MR · Presentació Enunciat (1-1) · Pilars AR Foundation · Activitat a classe: 1. AR Foundation — Plane Detection",
+      "contents": [
+        "News! Notícies VR/MR",
+        "Presentació Enunciat (1-1)",
+        "Pilars AR Foundation",
+        "Activitat a classe: 1. AR Foundation — Plane Detection"
+      ],
       "block": {
         "number": 1,
         "name": "AR Foundation",
         "exercise": 1,
         "of": 3
       },
-      "submissionMethod": "build",
-      "groupMode": "individual-within-group",
       "gradeWeight": {
         "block": "10 %",
         "exercise": null
       },
+      "groupMode": "individual-within-group",
+      "submissionMethod": "build",
       "starterRepo": {
         "url": null,
         "branch": "01-plane-detection"
       },
+      "_fixme": [
+        "TODO(decisión abierta a): el reparto de nota entre los tres ejercicios del bloque 1 está sin decidir. gradeWeight.exercise sigue en null a propósito.",
+        "TODO(decisión abierta b): sin decidir si AR Foundation se instala en clase con los alumnos y se les entrega el proyecto ya montado con Blue Goblin, o si lo generan ellos desde cero. starting_point asume lo primero; si cambia, hay que reescribirlo en los tres ejercicios del bloque."
+      ],
       "exercises": "content/exercises/w1-arf-01.md",
       "todos": [
         {
@@ -164,31 +124,61 @@
           "deliverable": "APK, no vídeo: se instala y se corrige en un móvil, por eso tiene que arrancar solo. Nómbralo bloque1-ej1-<apellido>.apk y acompáñalo del enlace a tu rama. En el README de la rama, tres líneas: qué modelo has usado, de dónde sale y con qué licencia, y cómo se enfrenta a Blue Goblin."
         }
       ],
-      "_fixme": [
-        "TODO(decisión abierta a): el reparto de nota entre los tres ejercicios del bloque 1 está sin decidir. gradeWeight.exercise sigue en null a propósito.",
-        "TODO(decisión abierta b): sin decidir si AR Foundation se instala en clase con los alumnos y se les entrega el proyecto ya montado con Blue Goblin, o si lo generan ellos desde cero. starting_point asume lo primero; si cambia, hay que reescribirlo en los tres ejercicios del bloque."
-      ]
+      "slides": {
+        "type": "canva",
+        "source": "https://www.canva.com/design/DAHHUjZ9c_M/XiOaUAsLjsxEj1WQmUHg4Q/view?embed"
+      }
+    },
+    {
+      "id": "w1-05",
+      "title": "Gadgets immersius, software i parallax barrier",
+      "world": 1,
+      "stage": "intro-theory",
+      "category": "theory",
+      "optional": false,
+      "summary": "Kahoot! Repàs setmana passada · Gadgets Immersius · Software per VR · Parallax Barrier",
+      "contents": [
+        "Kahoot! Repàs setmana passada",
+        "Gadgets Immersius",
+        "Software per VR",
+        "Parallax Barrier"
+      ],
+      "todos": [],
+      "slides": {
+        "type": "canva",
+        "source": "https://www.canva.com/design/DAHHUujQkGI/KgmNI3Ld0U4NKiXJMaLPXA/view?embed"
+      }
     },
     {
       "id": "w1-arf-02",
-      "title": "Ejercicio 2 · Image Tracking",
+      "title": "AR Foundation: Image Tracking i introducció a GitHub",
       "world": 1,
       "stage": "ar-foundation",
       "category": "practical",
       "optional": false,
-      "summary": "Blue Goblin se ha multiplicado: sus primos, de color verde, viajan escondidos en imágenes del mundo real. Registra al menos dos marcadores físicos y haz que cada uno invoque el suyo.",
+      "summary": "News! Notícies VR/MR · Presentació Enunciat (1-2) · Introducció a GitHub · Activitat a classe: 2. AR Foundation — Image Tracking",
+      "contents": [
+        "News! Notícies VR/MR",
+        "Presentació Enunciat (1-2)",
+        "Introducció a GitHub",
+        "Activitat a classe: 2. AR Foundation — Image Tracking"
+      ],
+      "slidesLink": {
+        "label": "Diapositives de la sessió",
+        "url": "https://canva.link/hdd9inujtdnynat"
+      },
       "block": {
         "number": 1,
         "name": "AR Foundation",
         "exercise": 2,
         "of": 3
       },
-      "submissionMethod": "build",
-      "groupMode": "individual-within-group",
       "gradeWeight": {
         "block": "10 %",
         "exercise": null
       },
+      "groupMode": "individual-within-group",
+      "submissionMethod": "build",
       "starterRepo": {
         "url": null,
         "branch": "02-image-tracking"
@@ -215,25 +205,56 @@
       ]
     },
     {
+      "id": "w1-07",
+      "title": "Embodiment, presència i plausibilitat",
+      "world": 1,
+      "stage": "intro-theory",
+      "category": "theory",
+      "optional": false,
+      "summary": "Kahoot! Repàs setmana passada · Sense of Embodiment · Tele-Presence and Co-Presence · Plausability · Dinàmica de grup Wooclap: Immersion",
+      "contents": [
+        "Kahoot! Repàs setmana passada",
+        "Sense of Embodiment",
+        "Tele-Presence and Co-Presence",
+        "Plausability",
+        "Dinàmica de grup Wooclap: Immersion"
+      ],
+      "slidesLink": {
+        "label": "Diapositives de la sessió",
+        "url": "https://canva.link/kt9ah4dcspg6jl5"
+      },
+      "todos": []
+    },
+    {
       "id": "w1-arf-03",
-      "title": "Ejercicio 3 · Exploración libre",
+      "title": "AR Foundation: funcionalitats addicionals",
       "world": 1,
       "stage": "ar-foundation",
       "category": "practical",
       "optional": false,
-      "summary": "Aquí cierras tú la historia de Blue Goblin en el móvil: elige una feature nueva de los samples de AR Foundation, intégrala en el proyecto de todo el bloque y cuenta con ella tu propio final.",
+      "summary": "News! Notícies VR/MR · Presentació Enunciat (1-3) · Activitat a classe: 3. AR Foundation — Face Detection, Occlusion, Point Clouds… · Treball en equips: Entrega AR Foundation",
+      "contents": [
+        "News! Notícies VR/MR",
+        "Presentació Enunciat (1-3)",
+        "Activitat a classe: 3. AR Foundation — Face Detection, Occlusion, Point Clouds…",
+        "Treball en equips: Entrega AR Foundation"
+      ],
+      "slidesLink": {
+        "label": "Diapositives de la sessió",
+        "url": "https://canva.link/hdd9inujtdnynat"
+      },
       "block": {
         "number": 1,
         "name": "AR Foundation",
         "exercise": 3,
         "of": 3
       },
-      "submissionMethod": "build",
-      "groupMode": "individual-within-group",
       "gradeWeight": {
         "block": "10 %",
         "exercise": null
       },
+      "groupMode": "individual-within-group",
+      "submissionMethod": "build",
       "starterRepo": {
         "url": null,
         "branch": "03-libre"
@@ -260,40 +281,34 @@
       ]
     },
     {
-      "id": "w2-pre-01",
-      "title": "Cierre de teoría: de AR a MR",
-      "world": 2,
-      "stage": "meta-pre-exam",
-      "category": "theory",
-      "optional": false,
-      "summary": "PLACEHOLDER — passthrough, MR y el salto a Quest 3.",
-      "slides": {
-        "type": "pdf",
-        "source": "content/slides/w2-pre-01.pdf"
-      },
-      "exercises": "content/exercises/w2-pre-01.md",
-      "todos": []
-    },
-    {
       "id": "w2-pre-02",
-      "title": "Ejercicio 1 · Passthrough y planos",
+      "title": "Meta Building Blocks: Passthrough i Grabbable",
       "world": 2,
       "stage": "meta-pre-exam",
       "category": "practical",
       "optional": false,
-      "summary": "Blue Goblin ha encontrado la forma de salir del móvil: monta un mecha que ya se ve en 3D real a través del passthrough. Instáncialo sobre una superficie detectada por la Quest.",
+      "summary": "News! Notícies VR/MR · Presentació Enunciat (2-1) · Pilars Meta All in One SDK · Activitat a classe: 1. Building Blocks — Passthrough and Grabbable Item",
+      "contents": [
+        "News! Notícies VR/MR",
+        "Presentació Enunciat (2-1)",
+        "Pilars Meta All in One SDK",
+        "Activitat a classe: 1. Building Blocks — Passthrough and Grabbable Item"
+      ],
       "block": {
         "number": 2,
         "name": "Meta Building Blocks",
         "exercise": 1,
         "of": 3
       },
-      "submissionMethod": "build",
-      "groupMode": "per-group",
       "gradeWeight": {
         "block": "10 %",
         "exercise": null
       },
+      "groupMode": "per-group",
+      "submissionMethod": "build",
+      "_fixme": [
+        "TODO(decisión abierta a): el reparto de nota entre los tres ejercicios del bloque 2 está sin decidir. gradeWeight.exercise sigue en null a propósito."
+      ],
       "exercises": "content/exercises/w2-pre-02.md",
       "todos": [
         {
@@ -313,31 +328,56 @@
           ],
           "deliverable": "APK por grupo, con el nombre del grupo en el archivo. Se corrige instalándolo en un visor, así que tiene que arrancar solo y sin Space Setup previo por parte de quien corrige."
         }
-      ],
-      "_fixme": [
-        "TODO(decisión abierta a): el reparto de nota entre los tres ejercicios del bloque 2 está sin decidir. gradeWeight.exercise sigue en null a propósito."
       ]
     },
     {
+      "id": "w2-02",
+      "title": "Interacció VR/MR i simulator sickness",
+      "world": 2,
+      "stage": "meta-pre-exam",
+      "category": "theory",
+      "optional": false,
+      "summary": "Kahoot! Repàs setmana passada · Interacció VR/MR · Simulator Sickness · Dinàmica de classe: Pluja d'idees Parcial",
+      "contents": [
+        "Kahoot! Repàs setmana passada",
+        "Interacció VR/MR",
+        "Simulator Sickness",
+        "Dinàmica de classe: Pluja d'idees Parcial"
+      ],
+      "slidesLink": {
+        "label": "Diapositives de la sessió",
+        "url": "https://canva.link/ibsctft9abi9h0q"
+      },
+      "todos": []
+    },
+    {
       "id": "w2-pre-03",
-      "title": "Ejercicio 2 · Image Tracking en MR",
+      "title": "Building Blocks: Hand Tracking",
       "world": 2,
       "stage": "meta-pre-exam",
       "category": "practical",
       "optional": false,
-      "summary": "Blue Goblin cambia de bando. Un único marcador físico lo invoca ya como aliado, en passthrough, listo para plantar cara a una nueva amenaza que aparece en la sala.",
+      "summary": "News! Notícies VR/MR · Presentació Enunciat (2-2) · Activitat a classe: 2. Building Blocks — Hand Tracking",
+      "contents": [
+        "News! Notícies VR/MR",
+        "Presentació Enunciat (2-2)",
+        "Activitat a classe: 2. Building Blocks — Hand Tracking"
+      ],
       "block": {
         "number": 2,
         "name": "Meta Building Blocks",
         "exercise": 2,
         "of": 3
       },
-      "submissionMethod": "build",
-      "groupMode": "per-group",
       "gradeWeight": {
         "block": "10 %",
         "exercise": null
       },
+      "groupMode": "per-group",
+      "submissionMethod": "build",
+      "_fixme": [
+        "TODO(decisión abierta c): la identidad concreta de la \"nueva amenaza\" contra la que Blue Goblin cambia de bando está sin definir. El enunciado la deja abierta a propósito; si se concreta, hay que fijarla aquí y en el ejercicio 3 del bloque, que la hereda."
+      ],
       "exercises": "content/exercises/w2-pre-03.md",
       "todos": [
         {
@@ -357,52 +397,25 @@
           ],
           "deliverable": "APK por grupo más el marcador en PDF listo para imprimir. Sin el marcador el ejercicio no se puede corregir."
         }
-      ],
-      "_fixme": [
-        "TODO(decisión abierta c): la identidad concreta de la \"nueva amenaza\" contra la que Blue Goblin cambia de bando está sin definir. El enunciado la deja abierta a propósito; si se concreta, hay que fijarla aquí y en el ejercicio 3 del bloque, que la hereda."
       ]
     },
     {
-      "id": "w2-pre-04",
-      "title": "PLACEHOLDER — sesión 4 (Building Blocks, antes del parcial)",
-      "world": 2,
-      "stage": "meta-pre-exam",
-      "category": "practical",
-      "optional": false,
-      "summary": "PLACEHOLDER — sesión de meta-pre-exam.",
-      "slides": {
-        "type": "pdf",
-        "source": "content/slides/w2-pre-04.pdf"
-      },
-      "exercises": "content/exercises/w2-pre-04.md",
-      "todos": [
-        {
-          "id": "w2-pre-04-t1",
-          "type": "objective-task",
-          "objective": "PLACEHOLDER — objetivo práctico de la sesión.",
-          "starting_point": "PLACEHOLDER — punto de partida.",
-          "milestones": [
-            "PLACEHOLDER — hito 1",
-            "PLACEHOLDER — hito 2"
-          ],
-          "deliverable": "PLACEHOLDER — qué se entrega."
-        }
-      ]
-    },
-    {
-      "id": "w2-bonus-01",
-      "title": "Extra: comparativa de SDKs XR",
+      "id": "w2-04",
+      "title": "Navegació VR/MR i repàs del parcial",
       "world": 2,
       "stage": "meta-pre-exam",
       "category": "theory",
-      "optional": true,
-      "anchorAfter": "w2-pre-02",
-      "summary": "PLACEHOLDER — lectura opcional para casa. No evaluable.",
-      "slides": {
-        "type": "pdf",
-        "source": "content/slides/w2-bonus-01.pdf"
+      "optional": false,
+      "summary": "Kahoot Final Boss! Repàs Avaluació Parcial · Navegació VR/MR · Gorilla Arm syndrome",
+      "contents": [
+        "Kahoot Final Boss! Repàs Avaluació Parcial",
+        "Navegació VR/MR",
+        "Gorilla Arm syndrome"
+      ],
+      "slidesLink": {
+        "label": "Diapositives de la sessió",
+        "url": "https://canva.link/roxrbc0tpvuzu0e"
       },
-      "exercises": "content/exercises/w2-bonus-01.md",
       "todos": []
     },
     {
@@ -411,91 +424,61 @@
       "world": 2,
       "stage": "mini-boss-midterm",
       "category": "boss",
-      "bossTier": "mini",
       "optional": false,
-      "summary": "PLACEHOLDER — prueba de medio curso. El proyecto final arranca aquí.",
-      "slides": {
-        "type": "pdf",
-        "source": "content/slides/w2-boss.pdf"
-      },
-      "exercises": "content/exercises/w2-boss.md",
+      "summary": "Examen parcial · Entrega Parcial (20%)",
+      "contents": [
+        "Examen parcial",
+        "Entrega Parcial (20%)"
+      ],
+      "bossTier": "mini",
       "todos": []
     },
     {
-      "id": "w2-post-01",
-      "title": "Building Blocks: interacción avanzada",
+      "id": "w2-05",
+      "title": "Casos d'ús, concept design i presentació",
       "world": 2,
       "stage": "meta-post-exam",
-      "category": "practical",
+      "category": "theory",
       "optional": false,
-      "summary": "PLACEHOLDER — se completa el recorrido por Building Blocks.",
-      "slides": {
-        "type": "pdf",
-        "source": "content/slides/w2-post-01.pdf"
+      "summary": "Casos d'ús AR/VR · Concept Design · Mostra d'antics projectes · Activitat a classe: VR Design Slides",
+      "contents": [
+        "Casos d'ús AR/VR",
+        "Concept Design",
+        "Mostra d'antics projectes",
+        "Activitat a classe: VR Design Slides"
+      ],
+      "attitudeGrade": "Entrega Presentació (Actitud 10%)",
+      "slidesLink": {
+        "label": "Diapositives de la sessió",
+        "url": "https://canva.link/jmtzma3p76j9qh5"
       },
-      "exercises": "content/exercises/w2-post-01.md",
-      "todos": [
-        {
-          "id": "w2-post-01-t1",
-          "type": "objective-task",
-          "objective": "PLACEHOLDER — objetivo práctico de interacción.",
-          "starting_point": "PLACEHOLDER — punto de partida.",
-          "milestones": [
-            "PLACEHOLDER — hito 1",
-            "PLACEHOLDER — hito 2"
-          ],
-          "deliverable": "PLACEHOLDER — qué se entrega."
-        }
-      ]
-    },
-    {
-      "id": "w2-post-02",
-      "title": "Manos, gestos y hand tracking",
-      "world": 2,
-      "stage": "meta-post-exam",
-      "category": "practical",
-      "optional": false,
-      "summary": "PLACEHOLDER — hand tracking con el SDK de Meta.",
-      "slides": {
-        "type": "pdf",
-        "source": "content/slides/w2-post-02.pdf"
-      },
-      "exercises": "content/exercises/w2-post-02.md",
-      "todos": [
-        {
-          "id": "w2-post-02-t1",
-          "type": "objective-task",
-          "objective": "PLACEHOLDER — objetivo práctico de hand tracking.",
-          "starting_point": "PLACEHOLDER — punto de partida.",
-          "milestones": [
-            "PLACEHOLDER — hito 1",
-            "PLACEHOLDER — hito 2",
-            "PLACEHOLDER — hito 3"
-          ],
-          "deliverable": "PLACEHOLDER — qué se entrega."
-        }
-      ]
+      "todos": []
     },
     {
       "id": "w2-post-03",
-      "title": "Ejercicio 3 · Mixed reality libre",
+      "title": "Building Blocks: funcionalitats addicionals",
       "world": 2,
       "stage": "meta-post-exam",
       "category": "practical",
       "optional": false,
-      "summary": "Con Blue Goblin de vuestro lado, el escenario es vuestra propia sala: usad la malla de la escena para que la historia ocurra entre los muebles de verdad. Se arranca en clase y se termina en casa.",
+      "summary": "Presentació Enunciat (2-3) · Activitat a classe: 3. Building Blocks Additional Feature — Effect Mesh, Spatial Anchor… · Treball en equips: Entrega Meta All in One SDK",
+      "contents": [
+        "Presentació Enunciat (2-3)",
+        "Activitat a classe: 3. Building Blocks Additional Feature — Effect Mesh, Spatial Anchor…",
+        "Treball en equips: Entrega Meta All in One SDK"
+      ],
       "block": {
         "number": 2,
         "name": "Meta Building Blocks",
         "exercise": 3,
         "of": 3
       },
-      "submissionMethod": "build",
-      "groupMode": "per-group",
       "gradeWeight": {
         "block": "10 %",
         "exercise": null
       },
+      "groupMode": "per-group",
+      "submissionMethod": "build",
       "exercises": "content/exercises/w2-post-03.md",
       "todos": [
         {
@@ -518,79 +501,59 @@
       ]
     },
     {
-      "id": "w2-post-04",
-      "title": "PLACEHOLDER — sesión 4 (Building Blocks, después del parcial)",
+      "id": "w2-07",
+      "title": "Repte XR, OpenXR i Unity/C#",
       "world": 2,
       "stage": "meta-post-exam",
       "category": "practical",
       "optional": false,
-      "summary": "PLACEHOLDER — sesión de meta-post-exam.",
-      "slides": {
-        "type": "pdf",
-        "source": "content/slides/w2-post-04.pdf"
+      "summary": "Explicació Treball Final d'Assignatura: Repte XR · Taller Empresa (?) · Projecte: Resolució de dubtes Concept · Introduction to OpenXR / Unity · Introducció a Unity / C#",
+      "contents": [
+        "Explicació Treball Final d'Assignatura: Repte XR",
+        "Taller Empresa (?)",
+        "Projecte: Resolució de dubtes Concept",
+        "Introduction to OpenXR / Unity",
+        "Introducció a Unity / C#"
+      ],
+      "slidesLink": {
+        "label": "Diapositives de la sessió",
+        "url": "https://canva.link/lefa33o6t14oc8w"
       },
-      "exercises": "content/exercises/w2-post-04.md",
-      "todos": [
-        {
-          "id": "w2-post-04-t1",
-          "type": "objective-task",
-          "objective": "PLACEHOLDER — objetivo práctico de la sesión.",
-          "starting_point": "PLACEHOLDER — punto de partida.",
-          "milestones": [
-            "PLACEHOLDER — hito 1",
-            "PLACEHOLDER — hito 2"
-          ],
-          "deliverable": "PLACEHOLDER — qué se entrega."
-        }
-      ]
-    },
-    {
-      "id": "w3-xrit-01",
-      "title": "XR Interaction Toolkit: setup con OpenXR",
-      "world": 3,
-      "stage": "xr-toolkit",
-      "category": "practical",
-      "optional": false,
-      "summary": "PLACEHOLDER — plantillas y samples oficiales de GitHub como base.",
-      "slides": {
-        "type": "pdf",
-        "source": "content/slides/w3-xrit-01.pdf"
-      },
-      "exercises": "content/exercises/w3-xrit-01.md",
-      "todos": [
-        {
-          "id": "w3-xrit-01-t1",
-          "type": "objective-task",
-          "objective": "PLACEHOLDER — objetivo práctico de setup XRIT.",
-          "starting_point": "PLACEHOLDER — plantilla de GitHub indicada en clase.",
-          "milestones": [
-            "PLACEHOLDER — hito 1",
-            "PLACEHOLDER — hito 2"
-          ],
-          "deliverable": "PLACEHOLDER — qué se entrega."
-        }
-      ]
+      "todos": []
     },
     {
       "id": "w3-xrit-02",
-      "title": "Ejercicio 1 · Locomoción e interacción",
-      "world": 3,
+      "title": "XR Interaction Toolkit: locomoció i interacció",
+      "world": 2,
       "stage": "xr-toolkit",
       "category": "practical",
       "optional": false,
-      "summary": "Ya no hay pantalla ni passthrough: entras en el mundo de Blue Goblin. Aprende a moverte por él y a agarrar lo que hay dentro, con mandos.",
+      "summary": "Presentació Enunciat (3-1) · Activitat a classe: 1. XR Interaction Toolkit — Locomoció i Interacció · Unity VR Template demonstration",
+      "contents": [
+        "Presentació Enunciat (3-1)",
+        "Activitat a classe: 1. XR Interaction Toolkit — Locomoció i Interacció",
+        "Unity VR Template demonstration"
+      ],
+      "slidesLink": {
+        "label": "Diapositives de la sessió",
+        "url": "https://canva.link/lefa33o6t14oc8w"
+      },
       "block": {
         "number": 3,
         "name": "XR Interaction Toolkit",
         "exercise": 1,
         "of": 2
       },
-      "submissionMethod": null,
-      "groupMode": "per-group",
       "gradeWeight": {
         "block": "10 %",
         "exercise": null
       },
+      "groupMode": "per-group",
+      "submissionMethod": null,
+      "_fixme": [
+        "TODO(decisión abierta a): el reparto de nota entre los dos ejercicios del bloque 3 está sin decidir. gradeWeight.exercise sigue en null a propósito.",
+        "TODO(decisión abierta d): el brief no especifica método de entrega para el bloque 3. submissionMethod se deja en null en los dos ejercicios en vez de asumir \"build\" como en los bloques 1 y 2."
+      ],
       "exercises": "content/exercises/w3-xrit-02.md",
       "todos": [
         {
@@ -610,32 +573,55 @@
           ],
           "deliverable": "Método de entrega del bloque 3 pendiente de definir (ver decisiones abiertas): el brief no lo especifica y no se asume el APK de los bloques 1 y 2. Mientras tanto, dejad el proyecto en un repositorio del grupo con un README que explique qué habéis montado y con qué mando se prueba."
         }
-      ],
-      "_fixme": [
-        "TODO(decisión abierta a): el reparto de nota entre los dos ejercicios del bloque 3 está sin decidir. gradeWeight.exercise sigue en null a propósito.",
-        "TODO(decisión abierta d): el brief no especifica método de entrega para el bloque 3. submissionMethod se deja en null en los dos ejercicios en vez de asumir \"build\" como en los bloques 1 y 2."
       ]
     },
     {
-      "id": "w3-xrit-03",
-      "title": "Ejercicio 2 · Hand tracking y gestos",
-      "world": 3,
+      "id": "w2-09",
+      "title": "XRITK Socket XR i concept del projecte",
+      "world": 2,
       "stage": "xr-toolkit",
       "category": "practical",
       "optional": false,
-      "summary": "Sin mandos, solo tus manos: el gesto correcto cierra la historia de Blue Goblin que empezó colándose en el despacho del profesor.",
+      "summary": "XRITK GitHub Examples: Socket XR · Projecte Final d'Assignatura: Concept",
+      "contents": [
+        "XRITK GitHub Examples: Socket XR",
+        "Projecte Final d'Assignatura: Concept"
+      ],
+      "slidesLink": {
+        "label": "Diapositives de la sessió",
+        "url": "https://canva.link/hexv8y331t4u50j"
+      },
+      "todos": []
+    },
+    {
+      "id": "w3-xrit-03",
+      "title": "XR Interaction Toolkit: hand tracking i gestos",
+      "world": 2,
+      "stage": "xr-toolkit",
+      "category": "practical",
+      "optional": false,
+      "summary": "Presentació Enunciat (3-2) · Activitat a classe: 2. XR Interaction Toolkit — Hand Tracking and Gestures · Unity VR Template demonstration",
+      "contents": [
+        "Presentació Enunciat (3-2)",
+        "Activitat a classe: 2. XR Interaction Toolkit — Hand Tracking and Gestures",
+        "Unity VR Template demonstration"
+      ],
+      "slidesLink": {
+        "label": "Diapositives de la sessió",
+        "url": "https://canva.link/hexv8y331t4u50j"
+      },
       "block": {
         "number": 3,
         "name": "XR Interaction Toolkit",
         "exercise": 2,
         "of": 2
       },
-      "submissionMethod": null,
-      "groupMode": "per-group",
       "gradeWeight": {
         "block": "10 %",
         "exercise": null
       },
+      "groupMode": "per-group",
+      "submissionMethod": null,
       "exercises": "content/exercises/w3-xrit-03.md",
       "todos": [
         {
@@ -658,225 +644,140 @@
       ]
     },
     {
-      "id": "w3-xrit-04",
-      "title": "PLACEHOLDER — sesión 4 (XR Interaction Toolkit)",
+      "id": "w3-01",
+      "title": "Projecte: concept",
       "world": 3,
-      "stage": "xr-toolkit",
-      "category": "practical",
+      "stage": "final-project",
+      "category": "project",
       "optional": false,
-      "summary": "PLACEHOLDER — sesión de xr-toolkit.",
-      "slides": {
-        "type": "pdf",
-        "source": "content/slides/w3-xrit-04.pdf"
-      },
-      "exercises": "content/exercises/w3-xrit-04.md",
-      "todos": [
-        {
-          "id": "w3-xrit-04-t1",
-          "type": "objective-task",
-          "objective": "PLACEHOLDER — objetivo práctico de la sesión.",
-          "starting_point": "PLACEHOLDER — punto de partida.",
-          "milestones": [
-            "PLACEHOLDER — hito 1",
-            "PLACEHOLDER — hito 2"
-          ],
-          "deliverable": "PLACEHOLDER — qué se entrega."
-        }
-      ]
-    },
-    {
-      "id": "w3-xrit-05",
-      "title": "PLACEHOLDER — sesión 5 (XR Interaction Toolkit)",
-      "world": 3,
-      "stage": "xr-toolkit",
-      "category": "practical",
-      "optional": false,
-      "summary": "PLACEHOLDER — sesión de xr-toolkit.",
-      "slides": {
-        "type": "pdf",
-        "source": "content/slides/w3-xrit-05.pdf"
-      },
-      "exercises": "content/exercises/w3-xrit-05.md",
-      "todos": [
-        {
-          "id": "w3-xrit-05-t1",
-          "type": "objective-task",
-          "objective": "PLACEHOLDER — objetivo práctico de la sesión.",
-          "starting_point": "PLACEHOLDER — punto de partida.",
-          "milestones": [
-            "PLACEHOLDER — hito 1",
-            "PLACEHOLDER — hito 2"
-          ],
-          "deliverable": "PLACEHOLDER — qué se entrega."
-        }
-      ]
-    },
-    {
-      "id": "w3-bonus-01",
-      "title": "Extra: refuerzo de shaders XR",
-      "world": 3,
-      "stage": "xr-toolkit",
-      "category": "theory",
-      "optional": true,
-      "anchorAfter": "w3-xrit-02",
-      "summary": "PLACEHOLDER — material opcional de refuerzo. No evaluable.",
-      "slides": {
-        "type": "canva",
-        "source": "https://www.canva.com/design/PLACEHOLDER-ID-SHADERS/view?embed"
-      },
-      "exercises": "content/exercises/w3-bonus-01.md",
+      "summary": "Projecte Final d'Assignatura: Concept · Entrega Treball Final d'Assignatura: Concept (10%)",
+      "contents": [
+        "Projecte Final d'Assignatura: Concept",
+        "Entrega Treball Final d'Assignatura: Concept (10%)"
+      ],
       "todos": []
     },
     {
-      "id": "w3-proj-01",
-      "title": "Proyecto final: arranque y alcance",
+      "id": "w3-02",
+      "title": "Projecte: set up de software i hardware",
       "world": 3,
       "stage": "final-project",
-      "category": "practical",
+      "category": "project",
       "optional": false,
-      "summary": "PLACEHOLDER — definición de alcance. Sesión de soporte, sin contenido nuevo.",
-      "slides": {
-        "type": "pdf",
-        "source": "content/slides/w3-proj-01.pdf"
-      },
-      "exercises": "content/exercises/w3-proj-01.md",
-      "todos": [
-        {
-          "id": "w3-proj-01-t1",
-          "type": "objective-task",
-          "objective": "PLACEHOLDER — objetivo del arranque de proyecto.",
-          "starting_point": "PLACEHOLDER — punto de partida.",
-          "milestones": [
-            "PLACEHOLDER — hito 1",
-            "PLACEHOLDER — hito 2",
-            "PLACEHOLDER — hito 3"
-          ],
-          "deliverable": "PLACEHOLDER — qué se entrega."
-        }
-      ]
+      "summary": "Projecte Final d'Assignatura: Set up Software & Hardware",
+      "contents": [
+        "Projecte Final d'Assignatura: Set up Software & Hardware"
+      ],
+      "todos": []
     },
     {
-      "id": "w3-proj-02",
-      "title": "Proyecto final: producción",
+      "id": "w3-03",
+      "title": "Projecte: set up de software i hardware (II)",
       "world": 3,
       "stage": "final-project",
-      "category": "practical",
+      "category": "project",
       "optional": false,
-      "summary": "PLACEHOLDER — días dedicados al proyecto con soporte del profesor.",
-      "slides": {
-        "type": "pdf",
-        "source": "content/slides/w3-proj-02.pdf"
-      },
-      "exercises": "content/exercises/w3-proj-02.md",
-      "todos": [
-        {
-          "id": "w3-proj-02-t1",
-          "type": "objective-task",
-          "objective": "PLACEHOLDER — objetivo de la fase de producción.",
-          "starting_point": "PLACEHOLDER — punto de partida.",
-          "milestones": [
-            "PLACEHOLDER — hito 1",
-            "PLACEHOLDER — hito 2"
-          ],
-          "deliverable": "PLACEHOLDER — qué se entrega."
-        }
-      ]
+      "summary": "Projecte Final d'Assignatura: Set up Software & Hardware",
+      "contents": [
+        "Projecte Final d'Assignatura: Set up Software & Hardware"
+      ],
+      "todos": []
     },
     {
-      "id": "w3-proj-03",
-      "title": "Proyecto final: pulido y ensayo",
+      "id": "w3-04",
+      "title": "Projecte: entrega del set up",
       "world": 3,
       "stage": "final-project",
-      "category": "practical",
+      "category": "project",
       "optional": false,
-      "summary": "PLACEHOLDER — última sesión de soporte antes de la presentación.",
-      "slides": {
-        "type": "pdf",
-        "source": "content/slides/w3-proj-03.pdf"
-      },
-      "exercises": "content/exercises/w3-proj-03.md",
-      "todos": [
-        {
-          "id": "w3-proj-03-t1",
-          "type": "objective-task",
-          "objective": "PLACEHOLDER — objetivo del pulido final.",
-          "starting_point": "PLACEHOLDER — punto de partida.",
-          "milestones": [
-            "PLACEHOLDER — hito 1",
-            "PLACEHOLDER — hito 2"
-          ],
-          "deliverable": "PLACEHOLDER — qué se entrega."
-        }
-      ]
+      "summary": "Projecte Final d'Assignatura: Set up Software & Hardware · Entrega Treball Final d'Assignatura: Set Up (10%)",
+      "contents": [
+        "Projecte Final d'Assignatura: Set up Software & Hardware",
+        "Entrega Treball Final d'Assignatura: Set Up (10%)"
+      ],
+      "todos": []
     },
     {
-      "id": "w3-proj-04",
-      "title": "PLACEHOLDER — sesión 4 (proyecto final)",
+      "id": "w3-05",
+      "title": "Projecte: desenvolupament",
       "world": 3,
       "stage": "final-project",
-      "category": "practical",
+      "category": "project",
       "optional": false,
-      "summary": "PLACEHOLDER — sesión de final-project.",
-      "slides": {
-        "type": "pdf",
-        "source": "content/slides/w3-proj-04.pdf"
-      },
-      "exercises": "content/exercises/w3-proj-04.md",
-      "todos": [
-        {
-          "id": "w3-proj-04-t1",
-          "type": "objective-task",
-          "objective": "PLACEHOLDER — objetivo práctico de la sesión.",
-          "starting_point": "PLACEHOLDER — punto de partida.",
-          "milestones": [
-            "PLACEHOLDER — hito 1",
-            "PLACEHOLDER — hito 2"
-          ],
-          "deliverable": "PLACEHOLDER — qué se entrega."
-        }
-      ]
+      "summary": "Projecte: Desenvolupament",
+      "contents": [
+        "Projecte: Desenvolupament"
+      ],
+      "todos": []
     },
     {
-      "id": "w3-proj-05",
-      "title": "PLACEHOLDER — sesión 5 (proyecto final)",
+      "id": "w3-06",
+      "title": "Projecte: desenvolupament (II)",
       "world": 3,
       "stage": "final-project",
-      "category": "practical",
+      "category": "project",
       "optional": false,
-      "summary": "PLACEHOLDER — sesión de final-project.",
-      "slides": {
-        "type": "pdf",
-        "source": "content/slides/w3-proj-05.pdf"
-      },
-      "exercises": "content/exercises/w3-proj-05.md",
-      "todos": [
-        {
-          "id": "w3-proj-05-t1",
-          "type": "objective-task",
-          "objective": "PLACEHOLDER — objetivo práctico de la sesión.",
-          "starting_point": "PLACEHOLDER — punto de partida.",
-          "milestones": [
-            "PLACEHOLDER — hito 1",
-            "PLACEHOLDER — hito 2"
-          ],
-          "deliverable": "PLACEHOLDER — qué se entrega."
-        }
-      ]
+      "summary": "Projecte: Desenvolupament",
+      "contents": [
+        "Projecte: Desenvolupament"
+      ],
+      "todos": []
+    },
+    {
+      "id": "w3-07",
+      "title": "Projecte: desenvolupament (III)",
+      "world": 3,
+      "stage": "final-project",
+      "category": "project",
+      "optional": false,
+      "summary": "Projecte: Desenvolupament",
+      "contents": [
+        "Projecte: Desenvolupament"
+      ],
+      "todos": []
+    },
+    {
+      "id": "w3-08",
+      "title": "Projecte: desenvolupament (IV)",
+      "world": 3,
+      "stage": "final-project",
+      "category": "project",
+      "optional": false,
+      "summary": "Projecte: Desenvolupament",
+      "contents": [
+        "Projecte: Desenvolupament"
+      ],
+      "todos": []
     },
     {
       "id": "w3-boss",
-      "title": "Presentación del proyecto final",
+      "title": "Presentació del treball final",
       "world": 3,
       "stage": "final-boss-presentation",
       "category": "boss",
-      "bossTier": "final",
       "optional": false,
-      "summary": "PLACEHOLDER — examen final: defensa del proyecto.",
-      "slides": {
-        "type": "pdf",
-        "source": "content/slides/w3-boss.pdf"
-      },
-      "exercises": "content/exercises/w3-boss.md",
+      "summary": "Presentacions: Treball Final d'Assignatura VR/MR · Entrega Treball Final d'Assignatura (30%)",
+      "contents": [
+        "Presentacions: Treball Final d'Assignatura VR/MR",
+        "Entrega Treball Final d'Assignatura (30%)"
+      ],
+      "bossTier": "final",
+      "todos": []
+    },
+    {
+      "id": "w3-reeval",
+      "title": "Reavaluació",
+      "world": 3,
+      "stage": "final-boss-presentation",
+      "category": "boss",
+      "bossTier": "extra",
+      "optional": true,
+      "anchorAfter": "w3-boss",
+      "summary": "Exàmens de reavaluació · Entrega Re-avaluacions (+20% Parcial)",
+      "contents": [
+        "Exàmens de reavaluació",
+        "Entrega Re-avaluacions (+20% Parcial)"
+      ],
       "todos": []
     }
   ]
