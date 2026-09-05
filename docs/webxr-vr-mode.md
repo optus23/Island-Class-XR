@@ -96,6 +96,21 @@ front of you. That is a deliberate design decision, not a shortcut:
 
 The ray turns **green** over a node and stays gold otherwise.
 
+**The level card floats above the model.** Point at any node and it shows that
+session: world and session number, title, category and stage, the summary, and —
+for the eight graded block exercises — bloque, entrega and trabajo. Point at
+nothing and it falls back to the session the avatar is standing on, so the map
+always says where the class is rather than going blank.
+
+It is a canvas painted to a texture on one plane, because **there is no DOM
+inside an immersive session** — the page's HTML is not composited into the
+headset, so anything the wearer reads has to be geometry. It repaints only when
+the level under the ray actually changes; sweeping along a road of 28 nodes
+would otherwise upload a megabyte a frame. One extra draw call in total.
+
+The words come from `lib/labels.js`, shared with the 2D portal, so a renamed
+stage cannot say one thing on screen and another in the headset.
+
 **Stereo only. Do not add a mono mode back.** One existed for two rounds and
 was deleted at the user's request: stereo was reported as working perfectly,
 while every attempt at forcing both eyes onto a single view left the right eye
@@ -123,10 +138,13 @@ length and the second as the world lurching when you move your head.
 
 ## What is NOT done
 
-- **No slides in the headset.** Out of scope this phase, by instruction. The
-  pipeline was built to allow it later: `scripts/build-decks.mjs` emits each
-  slide as `{ html, classes }` data, and `src/ui/deck.js` is the only file that
-  assumes a DOM. An in-world panel would be a sibling of that file.
+- **No slides in the headset.** The level card shows a session's *description*,
+  not its deck. The pipeline still allows it: `scripts/build-decks.mjs` emits
+  each slide as `{ html, classes }` data, and rendering those to a canvas is the
+  same technique `three/vrPanel.js` already uses — but HTML has to be laid out
+  by hand there, which is a real piece of work rather than a hookup.
+- **No todos in the headset**, for the same reason: the milestone checklist is
+  interactive, and this card is a readout.
 - **No hand tracking.** `hand-tracking` is requested as an optional feature, but
   nothing consumes the joint data. Controllers only.
 - **No teleport locomotion.** Not needed at diorama scale, where panning the
