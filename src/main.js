@@ -483,6 +483,8 @@ function applyMarker(id, { walk = false, instant = false } = {}) {
   map.refresh(id)
   nav?.setMarker(id)
   legend?.setMarker(markerReadout(id))
+  // The VR card shows "aquí estamos" for the marker level, so it restyles too.
+  vr?.refreshPanel?.()
   if (walk) selectLevel(id, { open: false, instant })
 }
 
@@ -624,6 +626,8 @@ async function boot() {
     pickTargets: () => map.pickTargets,
     levelFromHit: (hit) => map.levelFromHit(hit),
     playerLevelId: () => player.levelId,
+    levelById: (id) => levelById(id),
+    markerId: () => markerId,
     onSelect: (level) => selectLevel(level),
     // The session has already ended by the time this runs: the level portal is
     // a flat 2D surface in this phase, by design.
