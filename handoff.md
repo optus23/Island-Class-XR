@@ -1,557 +1,129 @@
 # XR Island — handoff
 
-State as of **5 September 2026**, end of round 12 (a pass over the site on a phone).
-Read `CLAUDE.md` first for the durable rules; this file is what was happening.
+State as of **6 September 2026**.
+
+`CLAUDE.md` holds the durable rules and the traps — **read it first**. This file
+is the shorter question: where things stand right now, what has never been
+looked at, and what is waiting on Marc.
 
 ---
 
 ## Where things stand
 
-Everything through round 10 is **merged to `main` and live**, VR included:
-<https://optus23.github.io/Island-Class-XR/>
+Everything is merged and live: <https://optus23.github.io/Island-Class-XR/>
 
 | | |
 | --- | --- |
-| `main` | merge of PR #13 — round 10 (WebXR) is now live |
-| `develop` | level with `main` |
-| `webxr-vr-mode` | merged and finished. Integrated via `feature/26-vr-integration`, a branch off `main`. |
-| Last deploy | run `33957612988`, success |
+| `main` | `e980b7e` — merge of PR #25 |
+| `develop` | same content |
+| Last deploy | run `33991251554`, success |
 | Working tree | clean |
-| Performance | ~27 draw calls, ~700k triangles, 0.05 ms/frame CPU |
+| VR | live on every page; `/vr` and `?vr=1` arm the XR context eagerly |
 
-Shipped rounds: [#3](https://github.com/optus23/Island-Class-XR/pull/3) ·
-[#4](https://github.com/optus23/Island-Class-XR/pull/4) ·
-[#5](https://github.com/optus23/Island-Class-XR/pull/5) ·
-[#6](https://github.com/optus23/Island-Class-XR/pull/6) ·
-[#7](https://github.com/optus23/Island-Class-XR/pull/7) ·
-[#8](https://github.com/optus23/Island-Class-XR/pull/8) ·
-[#9](https://github.com/optus23/Island-Class-XR/pull/9) ·
-[#10](https://github.com/optus23/Island-Class-XR/pull/10) ·
-[#11](https://github.com/optus23/Island-Class-XR/pull/11) ·
-[#12](https://github.com/optus23/Island-Class-XR/pull/12)
-
-Verified live after the deploy: `progress.json` has no `answersUnlocked` and
-keeps the teacher's own marker (`w1-intro-02`), the deck manifest carries no
-`answers` key, `decks/*.answers.json` and `content/answers/*.md` are real 404s,
-and `/admin/` serves.
-
-**Round 10 note:** the browser tooling came back and both modes were verified
-in Chrome — the 2D map and `?vr=1` load clean, no console errors, no context
-loss. Everything below about "not verified in a browser" is now superseded.
-
-**Previously not verified:** anything requiring a browser. The tooling has been
-unavailable for two rounds, so the deck viewer, the new legend Profesor block
-and the admin card have been built and served but never seen rendered. That is
-the first thing to check next session.
+**Check the build id before believing any bug report.** The legend's bottom line
+reads `build <sha>`. A phone holding a cached `index.html` loads the previous
+hashed bundle, which is still on Pages and still works — so a shipped fix and a
+stale page look identical. That cost a full round; do not repeat it.
 
 ---
 
-## Round 12 — five things found on a phone
+## What is actually verified
 
-PR #18, merged and deployed.
+Seen working in a browser, on the deployed site:
 
-**The slide viewer was black, and had been since round 8.** marp-core scopes its
-whole compiled theme as `.marpit > section`; the build extracts the bare
-`<section>` and the viewer dropped it into a shadow root with no `.marpit`
-parent, so no rule applied and the slide fell back to black text on the near
-black plate. It shipped broken and was never caught, because the deck had only
-ever been verified as data — slide counts and classes — and never looked at.
-**That is the lesson of this round.**
+- The map, the level portal, the teacher controls in the legend.
+- **The Marp deck viewer** — renders with its full theme, at desktop width and
+  at a 441 px stage. It was black for four rounds and nobody had looked at it.
+- **The Ejercicios tab** opens on the title, not on the Marp front-matter.
+- **Session discs sit clear of the terrain**; `w1-03` photographed on a clean pad.
+- **The portal scrolls as one page** — measured at a simulated 880x390 landscape:
+  919 px of content in a 390 px window, header scrolling away, back button
+  staying put.
 
-**The Marp front-matter was rendered as prose.** `marked` drew the YAML fences
-as rules and the keys as a paragraph, so every exercise opened with a literal
-`marp: true theme: xr-island paginate: true`. `ui/markdown.js` strips it now.
-The `---` separators further down stay: as prose they read as section rules.
+Seen working on a real Quest 3, over Link, by Marc:
 
-**Zoom goes closer** — `ZOOM_MIN` 0.55 → 0.34 — which needed two supports:
-`near` now follows the camera's actual distance rather than sitting at 12 (what
-that number protected is the far/near RATIO, and this preserves it at every
-zoom), and the camera is kept 6 units above the ground so it cannot end up
-inside a hill.
-
-**The VR button moved to the bottom left.** Centred, it covered the legend's
-toggle on a portrait phone.
-
-**Gaze input, for phones in a Cardboard holder.** They report `immersive-vr`
-with no gamepads at all — no rays, no trigger, no sticks — so look-only was a
-demo nobody could use, and those are the headsets the students will have. A
-reticle sits mid-view and dwelling 1.4 s on a node activates it through the same
-path the trigger uses. The dwell ring is scaled, never rebuilt.
-
-**Still nobody has seen any of it.** The Chrome extension has now dropped in two
-consecutive rounds. The VR level card from round 11 and everything above is
-verified only by build, Node tests and greps against the deployed bundle.
+- Entering VR, stereo rendering ("funciona a la perfección"), the water shader,
+  controller rays selecting nodes, left-stick panning.
 
 ---
 
-## Round 11 — the level card inside the headset
+## What has NEVER been looked at
 
-Shipped through the normal flow: PR #17, merged, deployed, live.
+Be honest about this list rather than assuming it works.
 
-Point at a node in VR and a panel above the model shows that session — world
-and session number, title, category and stage, the summary, and for the eight
-graded exercises the bloque / entrega / trabajo rows. Point at nothing and it
-falls back to the session the avatar stands on, so it is never blank.
-
-**Canvas, not DOM.** There is no DOM inside an immersive session — the page's
-HTML is not composited into the headset — so anything the wearer reads has to
-be geometry. `src/three/vrPanel.js` paints with the 2D canvas API onto a texture
-on one plane, and repaints only when the level under the ray changes. Sweeping
-along 28 nodes would otherwise upload a megabyte a frame. One draw call, +2 kB
-on the bundle.
-
-It sits in world space, not on the pivot: the diorama is scaled to ~0.005, so a
-panel parented to it would be two millimetres tall.
-
-**`src/lib/labels.js` is new and worth knowing about.** The stage, category,
-submission and group names, plus `assessmentRows()`, moved out of
-`ui/portal.js` so both surfaces share one copy. Plain strings, no markup — the
-portal wraps them in HTML, the panel paints them on a canvas where a `<span>`
-would be drawn literally. Add new label maps there, not in a view.
-
-**NOT SEEN BY ANYONE YET.** The Chrome extension dropped mid-round and did not
-come back after three attempts, so the panel has never been rendered — not in a
-headset, not in a browser. What is verified: build and validate pass,
-`lib/labels.js` exercised under Node, and the deployed bundle contains the panel
-and the shared strings. **First job next session: look at it.** Both the VR card
-and the 2D portal header, since the label extraction touched the latter.
-
-Likely first adjustments, if it looks wrong: `PANEL_W/PANEL_H` and the `+0.42`
-vertical offset in `vrPanel.js` are eyeballed, and the font sizes assume the
-Fredoka webfont has loaded by the time the canvas is painted — if the text
-looks like a fallback face, that is why.
+- **The VR level card** (`src/three/vrPanel.js`). Built, deployed, never
+  rendered — not in a headset, not in a browser. If it looks wrong, the first
+  suspects are `PANEL_W/PANEL_H` and the `+0.42` vertical offset, both eyeballed,
+  and whether the Fredoka webfont had loaded when the canvas was painted.
+- **Gaze input** for phones in a Cardboard holder (reticle + 1.4 s dwell).
+- **Rotation about the viewer's own axis** in VR — the fourth attempt at making
+  turning comfortable; the previous three were all rejected as nauseating.
+- **The desktop mirror** while presenting.
+- **The PDF slide branch.** No level uses a PDF today; every deck is Marp or a
+  Canva embed, so the `h-[78vh] min-h-[24rem]` box there is untested.
+- **Entering a level from inside the headset**, and VR performance under load.
 
 ---
 
-## Round 10 — WebXR, brought up on real hardware
+## Open, and waiting on Marc
 
-**Shipped in PR #13.** It was integrated on `feature/26-vr-integration`, a
-branch cut from `main` so the teacher's `progress.json` writes were the base
-rather than a conflict — the merge was clean, no conflicts at all. Verified on
-Pages afterwards: the plain map renders and logs only `[xr] modo 2D`, `?vr=1`
-logs `[xr] modo VR solicitado` and shows the **Entrar en VR** button, no console
-errors in either, the level portal still opens through the iris under
-`setAnimationLoop`, and `progress.json` still reads `w1-intro-02`.
-
-The `optus23.github.io/Island-Class-XR/vr` entry point was **not** built — that
-decision is still open, see below.
-
-### Where VR actually stands
-
-Marc ran it on a Quest 3 over Link, in desktop Chrome.
-
-**Working, confirmed by him:** entering VR, **stereo rendering** ("funciona a
-la perfección"), the water shader, controller rays selecting nodes, and
-left-stick panning in the direction he is looking.
-
-**Changed but NOT yet re-tested by him:** rotation about his own axis (the
-fourth attempt) and the desktop mirror.
-
-**Never tested at all:** entering a level from inside the headset, and
-performance under load.
-
-### How to run it
-
-```bash
-npm run dev
-```
-
-Then in the Quest browser open **`http://localhost:5173/?vr=1`**, with the port
-forwarded. `adb` is not on PATH — it lives under:
-
-```
-C:/Program Files/Unity/Hub/Editor/6000.0.23f1/Editor/Data/PlaybackEngines/AndroidPlayer/SDK/platform-tools/
-```
-
-```powershell
-& "<that path>adb.exe" reverse tcp:5173 tcp:5173
-```
-
-**The forward dies whenever the cable is touched or the headset sleeps.** Re-run
-it; a dead forward looks exactly like a dead server. Alternatively run Quest
-Link and open the same URL in desktop Chrome — no adb needed, same code path.
-
-`?vr=1` is required and must stay required. See CLAUDE.md.
-
-### The bugs worth remembering
-
-**The water and "rotation moves me" were one bug.** The diorama scale was
-picked by hand against the island's width, and the sea is 2.4x that width and
-3.4x its depth: the water came out 8.6 x 5.6 m and reached 1.3 m *behind* the
-viewer, surface at chest height. He was standing inside the sea. The scale is
-now derived from a measured `Box3`.
-
-**The water still came out flat white after that**, because its shore lookup
-went through `modelMatrix` — world space — while `uShoreMin/uShoreSize` are in
-island units. At 0.005 scale the lookup clamped to a constant and flooded
-everything with foam, while the swell kept animating because that uses local
-`position`. Now derived from local position plus the plane's own offset.
-
-**Mono is deleted and must not come back.** Two implementations, both leaving
-the right eye facing the wrong way. Stereo is perfect.
-
-**`InvalidStateError` on entry** was `WebGLRenderer` not forwarding
-`xrCompatible` to `getContext` — its attribute list is fixed and does not
-include it. The context is built by hand now. Full chain in
-[`docs/webxr-vr-mode.md`](docs/webxr-vr-mode.md).
-
-### Rotation: three attempts rejected, a fourth shipped
-
-Rotating the model about its own centre was called uncomfortable every time,
-even once the pivot was provably centred. The reading that finally fits: a
-two-metre model spinning in front of someone fills the view with optical flow
-that reads as self-motion wherever the pivot is. It now swings the diorama
-around **the viewer's own vertical axis** — geometrically, the viewer turning
-on the spot. Untested.
-
-### The lesson that cost the most: it was not the code
-
-For three rounds the page "did not respond" and every diagnosis went hunting
-for a bug. **The dev server had leaked to 10.5 GB with 3 GB free on the
-machine**, and eventually died on its own, freeing 15 GB. Page loads stalled,
-the browser extension dropped its connection, background tasks were killed. It
-correlated with plugging in the headset only because Quest Link's own footprint
-was what tipped the machine over — which made it look causal, and I chased that
-correlation instead of checking memory.
-
-**Check `Get-Process node` before believing a hang is yours.**
-
-The design fault it exposed was real, though: the XR path was on for every
-visitor. It is behind `?vr=1` now, so a student opening the map with a headset
-plugged in runs exactly the renderer that existed before any of this.
-
-### One loose end — closed
-
-The dead `answersUnlocked` plumbing in `src/lib/progress.js` and
-`src/lib/githubProgress.js` had been cleaned **on `webxr-vr-mode` only**. PR #13
-carried that cleanup to `develop` and `main`; `grep -rn answersUnlocked src/`
-now returns nothing.
-
-### Decided and built: `/vr`
-
-**Deployment is settled — one repo, with a `/vr` entry point.** He chose it
-outright, so the second-repo option is dead. It is live:
-
-```
-https://optus23.github.io/Island-Class-XR/vr
-```
-
-`vr/index.html` is a third Vite entry sharing the `main` chunk byte for byte;
-it carries `data-xr="1"` on `<html>` and that is the second of exactly two
-doors into XR. The gate reads the document, not `location.pathname`, because
-the base comes from `GITHUB_REPOSITORY` and a path sniff would die on a rename.
-
-### Still open
-
-- The mirror costs a full extra scene render at headset resolution every third
-  frame. If VR performance is poor, look there first.
-- The agreed queue of work is in
-  [`docs/proximos-pasos.md`](docs/proximos-pasos.md): his master content prompt
-  first, then the in-VR UI, then blending the biome seams. **That order is the
-  agreement — do not reorder it.**
+- **Four decisions from the exercise brief** are deliberately unresolved: flagged
+  in `_fixme` on the relevant nodes, printed by every `npm run validate`, and
+  written up in [`docs/decisiones-abiertas.md`](docs/decisiones-abiertas.md).
+  Do not fill any of them in with a plausible guess.
+- **The block-1 starter repository does not exist yet.** `starterRepo.url` is
+  `null` and the portal says "pendiente de publicar". Creating it is one repo
+  plus a one-line edit in three nodes —
+  [`docs/repo-ejercicios-bloque1.md`](docs/repo-ejercicios-bloque1.md).
+- **Content.** 8 of 32 exercise files are Marp decks; the rest are placeholders.
+  Five levels have real Canva embeds, ten have a `slidesLink` to a shortlink that
+  cannot be embedded. `public/content/slides/` is still placeholder PDFs.
+- **In-VR slides** were explicitly out of scope. The pipeline allows it —
+  `build-decks.mjs` emits each slide as `{ html, classes }`, and `vrPanel.js`
+  already paints to a canvas — but laying out real slide markup by hand on a
+  canvas is a genuine piece of work, not a hookup.
 
 ---
 
-## What round 9 changed — teacher controls, and no answers
+## The pattern this project keeps repeating
 
-### The advance bug
+Worth reading before the next round, because it has now cost several.
 
-`applyMarker()` recoloured the node and updated the index, and nothing else. It
-never touched the avatar or the camera, so pressing **Completar y avanzar**
-wrote the marker to GitHub and looked, on screen, like a dead button. The
-writes had always worked — `main` carries seven `chore(progress)` commits from
-the user testing it. It now walks the avatar to the new marker; reset
-teleports, because from session 27 the walk home crosses the island.
+**A layout that works on a desktop tells you nothing about a phone.** Three
+consecutive rounds shipped a fix that was sound in reasoning and wrong on a
+390 px screen: a height chain that never resolved, a centred grid that does not
+centre an overflowing item, an iframe that lost the box it was sizing against.
+Every one of them was invisible at 1569 px wide.
 
-**The lesson is the old one.** "El botón no funciona" was a rendering gap, not
-a write failure. Reproduce before believing the stated cause.
+**Verifying data is not verifying a view.** The deck was checked for slide counts
+and class names, and shipped black for four rounds. If the deliverable is
+something a person looks at, look at it.
 
-### /admin is sign-in only now
-
-The full-screen console was the wrong shape: you pressed *Avanzar* while
-looking at a form, so there was nothing to see. `/admin` is now a small
-floating card — token in, verified read-only, shows where the class is. The
-controls live in the legend's **Profesor** block, on the map, together with the
-marker readout that used to be on the admin page. Admin bundle halved.
-
-### No answers, at all
-
-The user's decision, and the right one: *"la asignatura no ha de contener
-respuestas — los todos son las instrucciones. Te envío el mueble desmontado con
-un papel de instrucciones; las respuestas serían enviarte el mueble montado."*
-
-This also dissolves what round 8 only papered over. He asked whether answers
-could be moved between folders to hide them; they cannot — the repo is public
-and `git log` keeps whatever was ever committed. The global unlock was removed
-rather than hardened. 854 lines deleted.
-
-Nothing was ever exposed: the answer slides only held a placeholder.
-
-**Do not reintroduce an answers surface** — it is now a hard constraint in
-`CLAUDE.md`. A solved Unity project may be shared one day, as a separate repo,
-discussed first.
-
-### The progress.json conflict, again
-
-Exactly as the rule written last round predicted. `main` had seven marker
-writes `develop` had never seen. Merged `main` back, kept **his** value
-(`w1-intro-02`) — resetting it would have silently undone his last press.
+**Measure before theorising.** The good rounds all started with a number: 1.82
+units of sinking, +2.0 of overhang, `914px · x0.714`. The bad ones started with a
+plausible story. `?debug=1` puts the deck's own measurements on screen for
+exactly this reason.
 
 ---
 
-## What round 8 changed — Marp slides, and a VR branch
-
-Two independent pieces. **Only the first one shipped.**
-
-### Slides generate themselves now
-
-`marp: true` in a level's exercise Markdown is the whole opt-in: a themed deck
-appears in that level's *Diapositivas* tab, with no entry in `levels.json`.
-Conversion runs under Node in `scripts/build-decks.mjs`, wired as `prebuild`.
-Marp is a devDependency and **nothing of it ships** — the client gets small
-JSON with the slides already rendered plus one stylesheet. `main.js` grew
-3.8 kB, which is the viewer.
-
-Answer slides (`<!-- _class: answer -->`) compile into a **separate file** the
-site does not fetch while locked. Hiding them with CSS inside the same payload
-would have handed every answer to anyone with devtools.
-
-**Read the caveat and repeat it to Marc if it comes up:** the site is static,
-so "locked" means the page never asks for that file — not that it is
-unreachable. `curl …/decks/w1-arf-01.answers.json` returns 200 today. It stops
-answers being seen in passing; it is not a vault and must not be used as one
-for an exam.
-
-The unlock is global and public, on the progress-marker mechanism:
-`answersUnlocked` in `progress.json`, flipped from `/admin` → **Respuestas**.
-It gates the answer slides *and* the Respuestas tab.
-
-`progress.json` now carries two independent settings, so **both writers were
-changed to patch the document rather than rebuild it**. The old code would have
-reset one field every time the other was saved.
-
-### The first merge conflict in eleven PRs
-
-`/admin` writes `progress.json` straight to `main`, so `main` carried commits
-`develop` had never seen. Ten PRs merged cleanly because nothing on `develop`
-had touched that file. This round did. Resolved by merging `main` back into
-`develop`, keeping the teacher's marker value. **Expect this again** any time a
-round edits `progress.json` — merge `main` back first.
-
-### WebXR: on `webxr-vr-mode`, NOT merged
-
-Immersive VR entry for the Quest 3, scoped to map navigation. The island is
-presented as a **tabletop diorama** rather than a world you stand in, because
-at 1 unit = 1 m the near plane would have to drop to ~0.1 over a 180 m field —
-straight back into the depth-precision hole that caused the road artefacts.
-
-**None of the VR path has been run.** No headset, and the browser tooling was
-unavailable that session. It compiles and is inert without `navigator.xr`; that
-is all that is verified. The render loop also moved from `requestAnimationFrame`
-to `setAnimationLoop` on that branch, which WebXR requires but which changes the
-shared 2D path unwatched — reason enough on its own to keep it out of `develop`.
-
-[`docs/webxr-vr-mode.md`](docs/webxr-vr-mode.md) has the bring-up notes: how to
-reach it from the headset, what is implemented, and the five things most likely
-to be wrong on the first run.
-
----
-
-## What round 7 changed — controls and the entrance
-
-**Orbit horizontal was inverted; vertical was not.** Measured in the running
-scene rather than argued from the code: dragging right moved the camera +24.4
-units along its own right vector, which is Unity's Alt+left-drag backwards.
-Both signs in `rig.orbit()` are now negative — the camera moves opposite the
-pointer on both axes, so it feels like grabbing the island and turning it.
-
-The user reported the vertical as inverted too, hedged ("creo que también").
-It was not: drag down already moved the camera up (+15), which is what Unity
-does. It was left alone and the measurement was reported back. If it still
-reads wrong to them, it is one sign flip in one line — but flipping it would
-then be Unity-wrong, so don't do it on a hunch.
-
-**The node plate is a real button now.** It says "entrar" and had
-`pointer-events: none` plus `aria-hidden="true"` — a label telling you to do
-something it would not let you do. It is a `<button>` with an `aria-label`, and
-clicking or tapping it enters, exactly like clicking the disc underneath.
-
-**The entrance no longer fades.** It used to be: fade to black → "MUNDO 1-6" →
-fade out → *then* the iris wipe. Two transitions stacked, where leaving only
-ever had one. The card now plays INSIDE the closed iris, so both directions are
-the same single gesture: circle in → card → circle out. Verified frame by frame
-— iris 935→11px, then 0px with the card on top for its beat, then 227→938px
-onto the portal.
-
-That meant moving the card above the iris: `#ui` carries `z-index: 10` and so
-opens its own stacking context, which trapped the card under the wipe however
-high its own z-index went. It is appended to `body` at `z-index: 80` instead.
-`showLevelCard` also lost its `requestAnimationFrame` fade-in, which was one
-more instance of the hidden-tab rAF trap waiting to happen.
-
----
-
-## What round 6 changed — the practical blocks
-
-The first round that is **content, not engineering**. Marc's finalised exercise
-brief (three graded blocks, 30 % of the course, sharing a Blue Goblin narrative)
-is now in the level model. Nothing about the map, the camera, the paths or the
-interaction systems was touched.
-
-**Where the eight exercises landed.**
-
-| Block | Nodes | Entrega | Trabajo |
-| --- | --- | --- | --- |
-| 1 · AR Foundation | `w1-arf-01/02/03` | build (APK) | individual, dentro del grupo |
-| 2 · Meta Building Blocks | `w2-pre-02`, `w2-pre-03`, `w2-post-03` | build (APK) | por grupo |
-| 3 · XR Interaction Toolkit | `w3-xrit-02`, `w3-xrit-03` | *sin decidir* | por grupo |
-
-Block 2 straddles the midterm castle **on purpose**, and this was the one real
-judgement call of the round: exercises 1 and 2 are the short in-class ones and
-go before the exam, exercise 3 is the heavy free one that finishes at home and
-closes the block after it. If that ordering is wrong, it is a data move, not a
-rewrite.
-
-**Each node** got a drafted `objective-task` with 8–9 real technical
-checkpoints, written from the brief rather than pasted out of it, plus a
-student-facing statement in `public/content/exercises/`. The Blue Goblin beat
-lives in the `objective` and the `summary`, not in a separate story field, so a
-student who reads only the objective still gets the thread.
-
-**New level fields**, validated in `validate.mjs` and rendered by the portal's
-`assessmentStrip()`: `block`, `submissionMethod`, `groupMode`, `gradeWeight`,
-and `starterRepo` on block 1. `null` means *not decided yet* and renders as
-«por decidir»; the field being **absent** is an error. That distinction is the
-whole point — see below.
-
-**Four open decisions were carried forward, not resolved.** They live in
-`_fixme` on the relevant nodes, print at the end of every `npm run validate`,
-and are written up in [`docs/decisiones-abiertas.md`](docs/decisiones-abiertas.md).
-Do not fill any of them in with a plausible guess:
-
-1. the per-exercise grade split inside each block (`gradeWeight.exercise`),
-2. block 1's starting point — project handed over vs. built from scratch,
-3. the identity of block 2's "new threat",
-4. block 3's submission method — the brief simply does not say, and it is
-   deliberately **not** assumed to be the APK of blocks 1 and 2.
-
-**The block 1 starter repository does not exist yet.** It is a separate repo,
-one branch per exercise, accumulating so `03-libre` holds the full set;
-`starterRepo.url` is `null` until it does, and the portal says «pendiente de
-publicar». Its Unity project must never be merged into this repo —
-[`docs/repo-ejercicios-bloque1.md`](docs/repo-ejercicios-bloque1.md) has the
-layout and the one-line edit that publishes the link.
-
----
-
-## What round 5 changed
-
-All of it verified on the live site.
-
-**Controls.** The drag was inverted on both axes — harmless while the orbit
-clamps were tiny, obvious once they opened up. Tilting toward straight down
-flipped the island 180° in a single frame. Selecting a different session
-mid-walk now takes effect from wherever the avatar has got to, instead of
-walking backwards to the last node first.
-
-**The road overlap, finally.** The user reported this four rounds running and
-called it z-fighting; it was never z-fighting. Two real causes, both fixed:
-
-1. Ground followed the height of the *nearest* piece of road. At a 90° corner
-   the points nearest each arm meet along the bisector — a diagonal across the
-   bend — and where the arms sat on different plateaus that diagonal became a
-   two-unit wall through the road and through the node standing on it. The
-   shelf now comes from the **lowest** road height within 5.5 units.
-2. The ribbon was one strip for the whole path, so each corner got a single
-   quad joining a sideways vector along X to one along Z. That quad is twisted;
-   half its surface ends up under the ground, and the terrain showed through as
-   the jagged green wedge in the user's screenshots. Each straight run is now
-   its own rectangular strip, extended past both ends so runs overlap and
-   square off the bend.
-
-**Crossings.** Two small round pools on the route — one water, one a chasm with
-a dark bottom — each with a little wooden bridge, at different sizes and offsets.
-An earlier attempt in this same round ran a river bank to bank and split the map
-into three separate islands; the user rejected that outright ("hace un rewind"),
-so the island is one landmass again. Keep it that way.
-
-**Placement.** The prop planner and the node planner previously knew nothing
-about each other — hence a tree growing through a bonus level and a signpost on
-a session. They now share a keep-out. Bonus nodes are scored on level ground and
-how far inland they sit, not on distance from the road alone. Landmarks stand
-beside the session they belong to. There is a lilac toad house to go with the
-red one. Patrolling creatures keep off the discs.
-
-**Bosses.** The screen closes through a horned silhouette instead of a circle.
-
----
-
-## Content the user still owes
-
-This is the main thing standing between the site and real use.
-
-- **7 placeholder titles** in `src/data/levels.json`: `w1-intro-04`, `w2-pre-04`,
-  `w2-post-04`, `w3-xrit-04`, `w3-xrit-05`, `w3-proj-04`, `w3-proj-05` show as
-  `PLACEHOLDER — sesión N (…)`. These are the slots the calendar recount opened,
-  and round 6 did not touch them — none of them is one of the eight graded
-  exercises.
-- **The sample Canva link is private**, so session 1-2's slides render
-  "Este diseño es privado". Replace it with a public Share → Embed URL. The
-  validator already rejects `/edit` links and links without `?embed`.
-- **Slides are still all placeholders** (`public/content/slides/*.pdf`), for the
-  eight exercise sessions too.
-- **Answers are still all placeholders** (`public/content/answers/*.md`),
-  including the eight exercises — though for open-ended creative work a
-  "solución" may not be the right shape; worth asking.
-- Exercises (`public/content/exercises/*.md`): the **eight graded ones are
-  written**; the rest are still placeholders.
-
----
-
-## Known open items
-
-Nothing here is blocking; none of it has been asked for yet.
-
-- **iOS Safari PDF fallback.** Slides use `<object>`; iOS Safari does not render
-  inline PDFs well. Flagged rounds ago, never implemented.
-- **`prefers-reduced-motion` is honoured in code but has never been verified at
-  runtime.**
-- **Node 20 deprecation warning** on the Actions runners — the workflow's actions
-  target Node 20 and are being forced onto 24. Harmless today.
-- The main bundle is ~650 kB (170 kB gzipped) and trips Vite's chunk-size
-  warning. It is almost entirely Three.js; splitting it would not help a page
-  that needs Three.js immediately.
-- Draw calls rise to ~77 when a castle is in frame — each castle is built from
-  individual meshes rather than instanced. Cheap enough that it has not mattered.
-
----
-
-## Things to be careful about next time
-
-- **The user's diagnosis is a symptom report.** Four separate causes have now
-  been reported as "z-fighting on the path". Reproduce and identify before
-  changing anything — toggling meshes in the running scene (`window.__app`) is
-  the fastest way.
-- **Test with `window.__step(n)`, not wall-clock waits.** The in-app browser pane
-  reports `document.hidden === true`, so rAF runs at about 1 fps and animations
-  appear frozen or "broken" when they are fine.
-- **Verify on Pages, not localhost.** The user has asked twice whether the latest
-  version was actually deployed. It is the last step of every round.
-- **Don't widen scope into the island's silhouette.** Two attempts at making it
-  less rectangular have landed well (organic coastline, rounded corners), but the
-  three-island split was a step too far. Local features on one landmass is the
-  established direction.
-
----
-
-## Quick start for the next session
+## Quick start
 
 ```bash
 cd C:/DATA/02_WORK/05_TeacherCITM/XRIsland/Island-Class-XR
 npm install
-npm run dev        # or use the preview tool with .claude/launch.json name "xr-island-dev"
+npm run dev        # predev compiles the Marp decks into public/decks/
 npm run validate   # data + map sanity; also runs inside npm run build
 ```
 
-`.env` holds `GH_TOKEN` and is gitignored — it is what `gh` and `git push` use.
-Never print it, never copy it into a remote URL or `.git/config`.
+`.env` holds `GH_TOKEN`, gitignored — it is what `gh` and `git push` use. Never
+print it, never copy it into a remote URL or `.git/config`.
+
+**To try VR on the Quest**: open `https://optus23.github.io/Island-Class-XR/vr`
+in the headset browser — nothing to forward, no tunnel. For unshipped work,
+`npm run dev` plus `adb reverse tcp:5173 tcp:5173` and
+`http://localhost:5173/?vr=1`. `adb` is not on PATH; it lives under Unity's
+`.../PlaybackEngines/AndroidPlayer/SDK/platform-tools/`, and the forward dies
+whenever the cable is touched or the headset sleeps.
+
+**Restart the dev server between long sessions.** It leaks — 10.5 GB after a few
+hours — and the symptoms look exactly like a code bug. See `CLAUDE.md`.
