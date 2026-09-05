@@ -835,6 +835,62 @@ body.map-view {
   margin: 0 0.7rem 0.55rem;
 }
 
+/* --------------------------------------------------------------------------
+   Immersive VR entry (experimental — webxr-vr-mode branch).
+
+   The button only ever exists when navigator.xr reports immersive-vr support,
+   so this block is dead weight on a phone or a laptop. Bottom-centre, clear of
+   the nav (top-left) and the legend.
+   -------------------------------------------------------------------------- */
+.vr-bar {
+  position: fixed;
+  left: 50%;
+  bottom: max(1rem, env(safe-area-inset-bottom));
+  transform: translateX(-50%);
+  z-index: 40;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.vr-button {
+  font-family: var(--xri-font);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  background: var(--xri-plate);
+  color: var(--xri-ink);
+  border: 0;
+  box-shadow:
+    0 0 0 3px #0b0f16,
+    inset 0 0 0 2px rgb(255 255 255 / 0.14),
+    0 8px 0 -3px rgb(0 0 0 / 0.4);
+}
+.vr-button:active {
+  box-shadow:
+    0 0 0 3px #0b0f16,
+    inset 0 0 0 2px rgb(255 255 255 / 0.14),
+    0 4px 0 -3px rgb(0 0 0 / 0.4);
+}
+
+/* Why entering VR failed, said on screen. Whoever hits it is in a headset or
+   at a laptop with no devtools open — a console line reaches nobody. */
+.vr-note {
+  flex-basis: 100%;
+  order: -1;
+  max-width: min(90vw, 34rem);
+  margin: 0;
+  padding: 0.4rem 0.7rem;
+  border-radius: 0.5rem;
+  background: #7f1d1d;
+  color: #fff;
+  font-family: var(--xri-font);
+  font-size: 0.78rem;
+  text-align: center;
+  box-shadow: 0 0 0 3px #0b0f16;
+}
+
 /* The marker readout inside the legend's Profesor block — the old /admin
    "Posición actual", moved to where pressing the buttons is visible. */
 .legend-admin__marker {
