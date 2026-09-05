@@ -14,10 +14,19 @@ import { renderDeck } from './deck.js'
  * still rejects edit links so a private deck cannot reach the published site.
  */
 
+/**
+ * The embed box.
+ *
+ * `aspect-video` and NOT `h-full`. The panel used to be a fixed-height box, so
+ * 100% resolved against it; now the whole portal scrolls and its height is
+ * auto, which collapsed the iframe to a strip. Sizing from the width — the one
+ * dimension that is always known — is the same rule the Marp viewer follows,
+ * and `max-w` caps it by height so a slide never grows taller than the screen.
+ */
 function frame(src, title) {
   return `
     <iframe
-      class="w-full h-full rounded-lg border border-base-content/15 bg-base-200"
+      class="w-full aspect-video rounded-lg border border-base-content/15 bg-base-200"
       src="${src}"
       title="${title}"
       loading="lazy"
@@ -88,7 +97,7 @@ export async function renderSlides(el, level) {
   //    block, and loses this one, once a public Share → Embed URL exists.
   if (!slides?.source && level.slidesLink?.url) {
     el.innerHTML = `
-      <div class="h-full overflow-y-auto p-1">
+      <div class="p-1">
         ${contentsList(level)}
         <a class="btn btn-primary" href="${level.slidesLink.url}"
            target="_blank" rel="noopener noreferrer">
@@ -104,7 +113,7 @@ export async function renderSlides(el, level) {
 
   if (!slides?.source) {
     el.innerHTML = `
-      <div class="h-full overflow-y-auto p-1">
+      <div class="p-1">
         ${contentsList(level)}
         <p class="opacity-70 text-sm">
           Esta sesión todavía no tiene diapositivas enlazadas.
@@ -117,8 +126,8 @@ export async function renderSlides(el, level) {
 
   if (slides.type === 'canva') {
     el.innerHTML = `
-      <div class="flex flex-col h-full gap-2">
-        <div class="flex-1 min-h-0">${frame(slides.source, title)}</div>
+      <div class="flex flex-col gap-2">
+        <div class="w-full max-w-[121vh] mx-auto">${frame(slides.source, title)}</div>
         <a class="btn btn-sm btn-ghost self-start" href="${slides.source}"
            target="_blank" rel="noopener noreferrer">Abrir en Canva ↗</a>
       </div>`
@@ -128,8 +137,11 @@ export async function renderSlides(el, level) {
   // PDF: served straight from the repo, so it works offline in class too.
   const url = `${import.meta.env.BASE_URL}${slides.source.replace(/^\//, '')}`
   el.innerHTML = `
-    <div class="flex flex-col h-full gap-2">
-      <div class="flex-1 min-h-0">
+    <div class="flex flex-col gap-2">
+      <!-- A PDF page is portrait, so height comes from the viewport rather
+           than from a 16/9 ratio. Explicit either way: h-full has nothing to
+           resolve against now that the portal scrolls. -->
+      <div class="w-full h-[78vh] min-h-[24rem]">
         <object data="${url}" type="application/pdf" class="w-full h-full rounded-lg">
           <div class="h-full grid place-items-center text-center p-6">
             <div>
