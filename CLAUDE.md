@@ -60,6 +60,13 @@ gh run watch <id> --exit-status
 Then **verify on https://optus23.github.io/Island-Class-XR/, not on localhost.**
 The user checks the deployed site. Work sitting in the working tree is not done.
 
+**The legend shows the commit the page is running** (`build <sha>`, dim, at the
+bottom). Use it before believing a bug report about a fix you just shipped: JS
+filenames are content-hashed, so a phone holding a cached `index.html` loads the
+OLD bundle, which is still on Pages and still works. A shipped fix and a stale
+page look identical from the outside. One round was spent re-diagnosing
+something that was already fixed. Ask for the build id first.
+
 Merge-to-main permission runs until **14 September 2026**; after that, commits go
 to `develop` and the user merges.
 
@@ -149,6 +156,11 @@ Changing any of these is a design decision, not a refactor.
   bars, gold level tiles, Fredoka. Dark, but in the same language as the island.
   The full-screen level portal is a separate, calmer design and is approved as-is.
 - **Bosses** close the screen through a horned silhouette instead of a circle.
+- **The level portal is ONE scrolling page.** Header, tags, tabs and content all
+  scroll away together; only the back button stays (it is `position: fixed`, and
+  without it a phone user has no way out — there is no Escape key). Three
+  attempts at a fixed header over a scrolling body all failed, because on a
+  phone held sideways the header IS the screen: 273 px of 390.
 - **The iris is the only transition, in both directions.** Entering a level is
   circle in → the "MUNDO 1-6" card on the black → circle out onto the portal;
   leaving reverses it. The card must never fade: it lives above the iris
@@ -219,6 +231,25 @@ Every one of these was diagnosed the hard way. Do not re-derive them.
   across every corner, which cuts the road and the node in half.
 - Backdrop markings must be projected onto the mound's ellipsoid surface, or they
   float in front of it like balloons.
+- **A node disc stands on the ROAD, and the road is not at ground height.**
+  `sampleRoad` takes the HIGHEST of five samples across the ribbon's width so a
+  quad crossing a terrace does not slice through it, so beside a step the road
+  rides up to 2 units above the terrain under its own centre line. A disc placed
+  from a single `groundHeightAt()` sank under it and the ribbon was drawn over
+  the node. On-path discs use `roadTopAt() + ROAD_SURFACE_LIFT + DISC_CLEARANCE`;
+  off-path bonus nodes keep the plain ground lift.
+- **Clearance is not only geometry.** The road carries `polygonOffset -4/-8`
+  against the terrain, and that bias also pulls it in front of anything just
+  above it — 0.18 of a unit vanished at a grazing angle. Discs and rims carry a
+  STRONGER bias (`-6/-12`) so they always win against the road they stand on.
+- **Nothing may stand above a session disc.** On a switchback the cell beside a
+  node belongs to a different run of the route, one plateau higher, and its
+  column leans over the circle. `terrain.js` keeps a registry of clearings —
+  `clearGroundAround()` — that clamps the ground within four units of each
+  on-path node to that node's own shelf, downward only. **Register them before
+  building the island mesh**: the mesh is sampled from `groundHeightAt`, so a
+  pad registered afterwards moves the placement logic and leaves the geometry
+  untouched. `validate` registers the same ones and asserts the invariant.
 
 **Input**
 
@@ -235,6 +266,31 @@ Every one of these was diagnosed the hard way. Do not re-derive them.
   axis is inverted. This has now been reported twice; don't re-derive it on
   paper, measure it: `rig.orbit(100, 0)` then compare `camera.position` against
   the camera's own right vector from `matrixWorld.extractBasis`.
+
+**Layout** — every one of these was found on a phone, none on a desktop
+
+- **Size from the WIDTH. Never `h-full`.** The portal is one scrolling page, so
+  its height is auto and `100%` of it is nothing. This broke three separate
+  things in three consecutive rounds: the Marp viewer, then the Canva iframe,
+  then the contents lists. Anything that needs a box uses `aspect-video`
+  (16/9 content) or an explicit `h-[Nvh]` (a PDF page is portrait), capped by
+  `max-w-[121vh]` so it never grows taller than the screen.
+- **`place-items: center` does not centre an item that OVERFLOWS.** The browser
+  falls back to start alignment to avoid losing content. A 1280 px slide in a
+  914 px stage therefore sat at `left: 0`, and scaling from its centre pushed it
+  183 px right and off the edge — while working perfectly on a desktop, where
+  nothing overflows. Pin at `0,0` and scale from `0,0`: the arithmetic is then
+  the same at every width.
+- **Marp scopes its whole compiled theme as `div.marpit > section`.** The build
+  step emits bare `<section>` elements, so the viewer MUST wrap them in a
+  `.marpit` parent or not one rule applies — the slide falls back to black text
+  on the near-black plate and reads as a blank panel. It shipped that way and
+  went unnoticed for four rounds because the deck was only ever verified as
+  data: slide counts and class names, never looked at.
+- **Strip the Marp front-matter before the prose renderer.** The exercise files
+  are decks now; `marked` has no idea the YAML block is metadata and drew it as
+  a rule plus a paragraph, so every exercise opened with a literal
+  `marp: true theme: xr-island paginate: true`.
 
 **CSS**
 
@@ -263,7 +319,14 @@ Every one of these was diagnosed the hard way. Do not re-derive them.
   is yours.** A restart takes 2.5 s.
 - In the in-app browser pane `document.hidden` is `true`, so `requestAnimationFrame`
   is throttled to about 1 fps. Drive the loop with `window.__step(frames)` when
-  testing; a walk that "never finishes" is usually just this.
+  testing; a walk that "never finishes" is usually just this. **The same window
+  never runs the rendering steps, so NO `ResizeObserver` fires in it either** —
+  not even a fresh one made for the test. Anything that reacts to a size change
+  is unobservable there; measure it by re-rendering at the new size instead.
+- **Backticks inside a template literal end it.** Writing a CSS or HTML comment
+  with `` `place-items` `` inside a `` ` `` string is a parse error several lines
+  later, and the message points at the wrong place. This cost time three times
+  in one round. Grep for backticks in generated markup before building.
 - Debug globals (`__app`, `__map`, `__player`, `__selectLevel`, `__setOverview`,
   `__step`) exist in **dev only**. They are absent on Pages, by design.
 
