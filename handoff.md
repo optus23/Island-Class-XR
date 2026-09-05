@@ -1,6 +1,6 @@
 # XR Island — handoff
 
-State as of **5 September 2026**, end of round 10 (WebXR brought up on a real Quest 3).
+State as of **5 September 2026**, end of round 11 (the level card inside the headset).
 Read `CLAUDE.md` first for the durable rules; this file is what was happening.
 
 ---
@@ -43,6 +43,45 @@ loss. Everything below about "not verified in a browser" is now superseded.
 unavailable for two rounds, so the deck viewer, the new legend Profesor block
 and the admin card have been built and served but never seen rendered. That is
 the first thing to check next session.
+
+---
+
+## Round 11 — the level card inside the headset
+
+Shipped through the normal flow: PR #17, merged, deployed, live.
+
+Point at a node in VR and a panel above the model shows that session — world
+and session number, title, category and stage, the summary, and for the eight
+graded exercises the bloque / entrega / trabajo rows. Point at nothing and it
+falls back to the session the avatar stands on, so it is never blank.
+
+**Canvas, not DOM.** There is no DOM inside an immersive session — the page's
+HTML is not composited into the headset — so anything the wearer reads has to
+be geometry. `src/three/vrPanel.js` paints with the 2D canvas API onto a texture
+on one plane, and repaints only when the level under the ray changes. Sweeping
+along 28 nodes would otherwise upload a megabyte a frame. One draw call, +2 kB
+on the bundle.
+
+It sits in world space, not on the pivot: the diorama is scaled to ~0.005, so a
+panel parented to it would be two millimetres tall.
+
+**`src/lib/labels.js` is new and worth knowing about.** The stage, category,
+submission and group names, plus `assessmentRows()`, moved out of
+`ui/portal.js` so both surfaces share one copy. Plain strings, no markup — the
+portal wraps them in HTML, the panel paints them on a canvas where a `<span>`
+would be drawn literally. Add new label maps there, not in a view.
+
+**NOT SEEN BY ANYONE YET.** The Chrome extension dropped mid-round and did not
+come back after three attempts, so the panel has never been rendered — not in a
+headset, not in a browser. What is verified: build and validate pass,
+`lib/labels.js` exercised under Node, and the deployed bundle contains the panel
+and the shared strings. **First job next session: look at it.** Both the VR card
+and the 2D portal header, since the label extraction touched the latter.
+
+Likely first adjustments, if it looks wrong: `PANEL_W/PANEL_H` and the `+0.42`
+vertical offset in `vrPanel.js` are eyeballed, and the font sizes assume the
+Fredoka webfont has loaded by the time the canvas is painted — if the text
+looks like a fallback face, that is why.
 
 ---
 

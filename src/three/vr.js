@@ -213,7 +213,11 @@ export function createVR({
    * ENDS the session — the level portal is a 2D surface in this phase.
    */
   function onTrigger(controller) {
-    const level = controller.userData.hit
+    activate(controller.userData.hit)
+  }
+
+  /** Selecting a node, from whichever input found it. */
+  function activate(level) {
     if (!level) return
     if (level.id === playerLevelId()) {
       endSession() // exit first, so the portal opens on a flat screen
@@ -221,6 +225,89 @@ export function createVR({
       return
     }
     onSelect(level)
+  }
+
+  // --- gaze, for headsets with no controllers ------------------------------
+  //
+  // A phone in a Cardboard-style holder reports immersive-vr but has no
+  // gamepads at all: no rays, no trigger, no sticks. Look-only is a demo you
+  // cannot use, and these are the headsets the STUDENTS will have.
+  //
+  // So when no controller is connected, the head becomes the pointer: a
+  // reticle sits in the middle of the view, and holding a node in it for
+  // GAZE_MS activates it — the same activate() the trigger calls. Dwell is the
+  // standard answer here because a phone in a holder has no button to press.
+
+  const GAZE_MS = 1400
+  const gazeRay = new THREE.Raycaster()
+  let gazeLevel = null
+  let gazeHeld = 0
+
+  const reticle = new THREE.Mesh(
+    new THREE.RingGeometry(0.006, 0.010, 24),
+    new THREE.MeshBasicMaterial({ color: 0xf2c14e, transparent: true, opacity: 0.85, depthTest: false })
+  )
+  reticle.name = 'xr-reticle'
+  reticle.renderOrder = 11
+  reticle.visible = false
+  // A ring that grows as the dwell completes, so the wait is legible.
+  //
+  // SCALED, not rebuilt. The obvious version sweeps a RingGeometry's thetaLength
+  // and disposes the old buffers every frame — 72 allocations a second and a
+  // GPU upload each time, for a 4 mm ring. Scaling one static ring says the
+  // same thing for nothing.
+  const gazeFill = new THREE.Mesh(
+    new THREE.RingGeometry(0.011, 0.016, 24),
+    new THREE.MeshBasicMaterial({ color: 0x38b000, transparent: true, depthTest: false })
+  )
+  gazeFill.renderOrder = 11
+  reticle.add(gazeFill)
+  scene.add(reticle)
+
+  const hasControllers = () => controllers.some((c) => c.userData.gamepad)
+
+  const gazeOrigin = new THREE.Vector3()
+  const gazeDir = new THREE.Vector3()
+
+  function updateGaze(dt) {
+    const xrCam = renderer.xr.getCamera()
+    if (!xrCam) return null
+
+    const origin = gazeOrigin
+    const dir = gazeDir
+    xrCam.getWorldPosition(origin)
+    xrCam.getWorldDirection(dir)
+
+    // Park the reticle a fixed distance ahead so it stays a constant size.
+    reticle.position.copy(origin).addScaledVector(dir, 0.9)
+    reticle.quaternion.copy(xrCam.quaternion)
+    reticle.visible = true
+
+    gazeRay.ray.origin.copy(origin)
+    gazeRay.ray.direction.copy(dir)
+    const targets = pickTargets()
+    const hit = targets.length ? gazeRay.intersectObjects(targets, false)[0] : null
+    const level = hit ? levelFromHit(hit) : null
+
+    if (!level || level !== gazeLevel) {
+      gazeLevel = level
+      gazeHeld = 0
+    } else {
+      gazeHeld += dt * 1000
+    }
+
+    const t = level ? Math.min(1, gazeHeld / GAZE_MS) : 0
+    gazeFill.visible = t > 0
+    gazeFill.scale.setScalar(0.4 + t * 0.6)
+    gazeFill.material.opacity = t
+    reticle.material.color.setHex(level ? 0x38b000 : 0xf2c14e)
+
+    if (level && gazeHeld >= GAZE_MS) {
+      gazeHeld = 0
+      gazeLevel = null
+      activate(level)
+    }
+    return level
   }
 
   function updateRays() {
@@ -244,9 +331,7 @@ export function createVR({
       }
     }
 
-    // Pointing at nothing falls back to the session the avatar is standing on,
-    // so the card is never blank — the map always says where the class is.
-    panel.show(hovered ?? levelById(playerLevelId()), markerId())
+    return hovered
   }
 
   // --- locomotion ----------------------------------------------------------
@@ -416,6 +501,9 @@ export function createVR({
     if (backdrop && saved.backdropVisible !== null) backdrop.visible = saved.backdropVisible
     panel.show(null)
     panel.mesh.visible = false
+    reticle.visible = false
+    gazeLevel = null
+    gazeHeld = 0
     camera.near = saved.near
     camera.updateProjectionMatrix()
   }
@@ -589,9 +677,19 @@ export function createVR({
     update(dt) {
       if (!session) return
       if (needsRecentre && recentre()) needsRecentre = false
-      updateRays()
-      locomotion(dt)
-      // readHead() has already run inside locomotion(); headPos is current.
+
+      // Controllers when there are any, the head when there are not.
+      let hovered
+      if (hasControllers()) {
+        reticle.visible = false
+        hovered = updateRays()
+        locomotion(dt)
+      } else {
+        hovered = updateGaze(dt)
+        readHead()
+      }
+
+      panel.show(hovered ?? levelById(playerLevelId()), markerId())
       panel.update(dt, pivot.position, headPos)
     },
 

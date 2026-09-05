@@ -1,6 +1,7 @@
 import * as THREE from 'three'
 import { worlds, CAMERA_FOV, parallax, WORLD_CAMERA_HALF_SPAN } from '../config/worlds.js'
 import { prefersReducedMotion } from '../lib/motion.js'
+import { groundHeightAt } from './terrain.js'
 
 /**
  * Bounded per-world follow camera.
@@ -42,7 +43,14 @@ const TOP_DOWN_OFFSET = [0, 96, 26]
 // side, so the camera may never swing behind the island.
 const ORBIT_YAW_MAX = 0.95 // ~54 degrees either way
 const ORBIT_PITCH_MAX = 0.46 // ~26 degrees
-const ZOOM_MIN = 0.55
+/**
+ * Closest the viewer may pull in. Was 0.55, which on a phone left the map
+ * further away than anyone wanted. Going closer is only safe because `near` is
+ * now derived from the actual camera distance and the camera is kept above the
+ * ground — see update(). Without those two, zooming in either clipped the
+ * terrain open or buried the camera inside a hill.
+ */
+const ZOOM_MIN = 0.34
 // Deliberately modest. Pulling right back defeats the point of a Mario
 // overworld - the whole island should be a reveal, not the default view - and
 // the overview button is the sanctioned way to see all three worlds at once.
@@ -62,6 +70,11 @@ const ZOOM_DEFAULT = 0.9
  * down the camera is always kept. sin(8 degrees) is about 0.14.
  */
 const MIN_HORIZONTAL = 0.14
+
+/** Units of air kept between the camera and the ground under it. */
+const GROUND_CLEARANCE = 6
+/** `near` as a fraction of the camera's distance to what it is looking at. */
+const NEAR_RATIO = 0.18
 
 export function createCameraRig() {
   // near is deliberately far out. Nothing is ever closer than the camera's own
@@ -246,6 +259,26 @@ export function createCameraRig() {
     const userZoom = zoomMul + (1 - zoomMul) * o
     basePos.copy(centre).add(shaped.multiplyScalar(scale * userZoom))
     baseTarget.set(centre.x, centre.y + lookY, centre.z)
+
+    // Never let the camera sink into the island. Pulling in shortens the offset
+    // toward a focus point that sits ON the ground, so past a certain zoom the
+    // camera enters a hill and you see straight through the terrain.
+    const floor = groundHeightAt(basePos.x, basePos.z) + GROUND_CLEARANCE
+    if (basePos.y < floor) basePos.y = floor
+
+    // `near` follows the distance instead of being fixed at 12.
+    //
+    // 12 was picked for a camera standing ~90 units out, where a near of 0.5
+    // spent the whole depth buffer on empty space. Zoomed in, that same 12
+    // starts slicing the foreground open. Keeping it a constant FRACTION of the
+    // distance preserves exactly what that number was protecting — the far/near
+    // ratio — at every zoom level.
+    const dist = basePos.distanceTo(baseTarget)
+    const near = clamp(dist * NEAR_RATIO, 1.5, 12)
+    if (Math.abs(near - camera.near) > 0.25) {
+      camera.near = near
+      camera.updateProjectionMatrix()
+    }
 
     // Horizontal only: vertical drift fights the raised, near-overhead angle.
     if (prefersReducedMotion()) driftTarget.set(0, 0)

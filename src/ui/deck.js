@@ -108,11 +108,15 @@ export async function renderDeck(el, level) {
     <style>
       :host { display: block; width: 100%; height: 100%; }
       .fit { width: 100%; height: 100%; display: grid; place-items: center; overflow: hidden; }
+      /* .marpit is not decoration: marp-core scopes its ENTIRE theme as
+         '.marpit > section'. Extracting the bare <section> and dropping this
+         wrapper left every slide unstyled — default black text on the viewer's
+         near-black plate, which read as a blank black panel. */
       .scaler { width: 1280px; height: 720px; transform-origin: center center; }
       ${css}
       section { margin: 0; position: relative; overflow: hidden; }
     </style>
-    <div class="fit"><div class="scaler"></div></div>`
+    <div class="fit"><div class="scaler marpit"></div></div>`
 
   const scaler = shadow.querySelector('.scaler')
   const fit = shadow.querySelector('.fit')
