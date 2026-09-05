@@ -842,11 +842,13 @@ body.map-view {
    so this block is dead weight on a phone or a laptop. Bottom-centre, clear of
    the nav (top-left) and the legend.
    -------------------------------------------------------------------------- */
+/* Bottom LEFT, not centre. Centred, it sat on top of the legend's toggle on a
+   portrait phone — the legend owns the bottom-right corner and the nav the
+   top-left, so this is the free one. */
 .vr-bar {
   position: fixed;
-  left: 50%;
-  bottom: max(1rem, env(safe-area-inset-bottom));
-  transform: translateX(-50%);
+  left: 0.85rem;
+  bottom: max(0.85rem, env(safe-area-inset-bottom));
   z-index: 40;
   display: flex;
   flex-wrap: wrap;

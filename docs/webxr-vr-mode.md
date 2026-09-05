@@ -94,6 +94,13 @@ front of you. That is a deliberate design decision, not a shortcut:
 | Right thumbstick ↑ ↓ | Zoom (0.4×–3.2×) |
 | **Grip (either hand)** | **Re-centre the model in front of you** |
 
+**With no controllers — a phone in a Cardboard holder — the head is the
+pointer.** A reticle sits in the middle of the view; hold a node in it for about
+1.4 s and the ring fills and activates it, exactly as the trigger would. Dwell
+is the standard answer because a phone in a holder has no button to press, and
+these are the headsets the students will actually have. Look-only would have
+been a demo nobody could use.
+
 The ray turns **green** over a node and stays gold otherwise.
 
 **The level card floats above the model.** Point at any node and it shows that
@@ -146,7 +153,10 @@ length and the second as the world lurching when you move your head.
 - **No todos in the headset**, for the same reason: the milestone checklist is
   interactive, and this card is a readout.
 - **No hand tracking.** `hand-tracking` is requested as an optional feature, but
-  nothing consumes the joint data. Controllers only.
+  nothing consumes the joint data. Controllers, or gaze.
+- **No locomotion without controllers.** Gaze selects a node and the avatar
+  walks there, which moves you through the course; panning, turning and zooming
+  the diorama still need thumbsticks.
 - **No teleport locomotion.** Not needed at diorama scale, where panning the
   model is the navigation.
 - **No AR / passthrough mode.** `immersive-vr` only.

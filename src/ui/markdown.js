@@ -10,6 +10,23 @@ import { marked } from 'marked'
 
 marked.setOptions({ gfm: true, breaks: false })
 
+/**
+ * Strips the Marp front-matter before the prose renderer sees it.
+ *
+ * The exercise files are Marp decks now, so they open with a YAML block:
+ *
+ *     ---
+ *     marp: true
+ *     theme: xr-island
+ *     ---
+ *
+ * `marked` has no idea that is metadata. It rendered the fences as horizontal
+ * rules and the keys as a paragraph, so every exercise began with a literal
+ * "marp: true theme: xr-island paginate: true". The slide separators further
+ * down stay: as prose they read as section rules, which is what they are.
+ */
+const stripFrontMatter = (text) => text.replace(/^\uFEFF?---\r?\n[\s\S]*?\r?\n---\r?\n/, '')
+
 const cache = new Map()
 
 export async function loadMarkdown(path) {
@@ -26,7 +43,7 @@ export async function loadMarkdown(path) {
       result = { ok: false, reason: 'error', path, detail: `HTTP ${res.status}` }
     } else {
       const text = await res.text()
-      result = { ok: true, html: marked.parse(text), path }
+      result = { ok: true, html: marked.parse(stripFrontMatter(text)), path }
     }
   } catch (e) {
     result = { ok: false, reason: 'error', path, detail: e.message }
