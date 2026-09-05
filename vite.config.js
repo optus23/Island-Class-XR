@@ -27,6 +27,10 @@ export default defineConfig({
       input: {
         main: resolve(import.meta.dirname, 'index.html'),
         admin: resolve(import.meta.dirname, 'admin/index.html'),
+        // Same bundle as `main` — Rollup emits one shared chunk. This entry
+        // exists only so the headset has a typeable URL (`/vr`) that arrives
+        // with WebXR already armed.
+        vr: resolve(import.meta.dirname, 'vr/index.html'),
       },
     },
   },

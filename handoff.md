@@ -150,18 +150,28 @@ The dead `answersUnlocked` plumbing in `src/lib/progress.js` and
 carried that cleanup to `develop` and `main`; `grep -rn answersUnlocked src/`
 now returns nothing.
 
-### Open, and the first thing to ask him
+### Decided and built: `/vr`
 
-- **Deployment.** He wants `optus23.github.io/Island-Class-XR/vr`. Pages serves
-  one site per repo, so that exact URL means merging into `main` and adding a
-  `/vr/` entry point; the alternative is a second repo at `…-vr`. **He has not
-  chosen. Ask before building either.**
-- **In-VR UI** — level titles and info panels inside the headset — is what he
-  asked for after deployment. `scripts/build-decks.mjs` already emits slides as
-  `{ html, classes }` data and `src/ui/deck.js` is the only file that assumes a
-  DOM, so an in-world panel is a sibling of that file, not a rewrite.
+**Deployment is settled — one repo, with a `/vr` entry point.** He chose it
+outright, so the second-repo option is dead. It is live:
+
+```
+https://optus23.github.io/Island-Class-XR/vr
+```
+
+`vr/index.html` is a third Vite entry sharing the `main` chunk byte for byte;
+it carries `data-xr="1"` on `<html>` and that is the second of exactly two
+doors into XR. The gate reads the document, not `location.pathname`, because
+the base comes from `GITHUB_REPOSITORY` and a path sniff would die on a rename.
+
+### Still open
+
 - The mirror costs a full extra scene render at headset resolution every third
   frame. If VR performance is poor, look there first.
+- The agreed queue of work is in
+  [`docs/proximos-pasos.md`](docs/proximos-pasos.md): his master content prompt
+  first, then the in-VR UI, then blending the biome seams. **That order is the
+  agreement — do not reorder it.**
 
 ---
 
