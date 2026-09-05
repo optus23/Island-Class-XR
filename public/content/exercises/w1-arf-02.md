@@ -61,14 +61,3 @@ Rama `02-image-tracking`. En el `README`, qué imagen invoca a qué goblin.
 Estabilidad del seguimiento con luz de aula. Que la escala salga de la medida
 real y no de un número puesto a ojo. Que los dos marcadores funcionen juntos.
 
----
-
-<!-- _class: answer -->
-
-## Respuesta
-
-> **Pendiente de escribir.** Marc redacta aquí la solución comentada o los
-> criterios de corrección de este ejercicio.
-
-Esta diapositiva está marcada con `<!-- _class: answer -->`, así que se compila
-a un archivo aparte y no se descarga hasta que el desbloqueo global está activo.

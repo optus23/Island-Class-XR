@@ -2,7 +2,7 @@
 
 A gamified 3D course portal: a voxel island world map, in the spirit of the Super
 Mario World overworld, where every node is a portal to that level's slides,
-activities, exercises and answers.
+activities and exercises.
 
 Built to be reused indefinitely, for any subject. It currently backs *Realidad
 Virtual y Realidad Aumentada* and *Entornos de Realidad Virtual*, whose content
@@ -22,7 +22,8 @@ npm install
 npm run dev
 ```
 
-Then open the URL Vite prints. The admin panel is at `/admin/`.
+Then open the URL Vite prints. Teacher sign-in is at `/admin/`; the controls
+themselves are in the map's legend.
 
 | Script | What it does |
 | --- | --- |
@@ -142,7 +143,6 @@ Everything a session shows lives in **one entry** in
 | **Canva** deck | `slides: { "type": "canva", "source": "<embed URL>" }` | Must be the **Share → Embed** link and contain `?embed`. `npm run validate` rejects edit links |
 | **PDF** deck | `slides: { "type": "pdf", "source": "content/slides/<id>.pdf" }` | Drop the file at `public/content/slides/<id>.pdf` |
 | **Exercises** | `exercises: "content/exercises/<id>.md"` | Plain Markdown at `public/content/exercises/<id>.md` |
-| **Answers** | `answers: "content/answers/<id>.md"` | `null` hides the tab entirely |
 | **Activities** | `todos: [ … ]` | `objective-task` objects — objective, starting point, milestones, deliverable |
 | **Generated deck** | `marp: true` in the exercise Markdown | Slides built from that Markdown at build time — see below. Beats a `slides` block |
 | **Graded exercise** | `block`, `submissionMethod`, `groupMode`, `gradeWeight` | Only on the 8 exercises of the three practical blocks — see below |
@@ -181,7 +181,6 @@ just re-spaces its neighbours.
   "summary": "Una línea que se ve en el portal.",
   "slides": { "type": "pdf", "source": "content/slides/w1-arf-04.pdf" },
   "exercises": "content/exercises/w1-arf-04.md",
-  "answers": "content/answers/w1-arf-04.md",   // null hides the tab
   "todos": [ /* see below */ ]
 }
 ```
@@ -294,11 +293,6 @@ Un goblin azul se ha colado en el despacho del profesor…
 
 ---
 
-<!-- _class: answer -->
-
-## Respuesta
-
-La solución comentada va aquí.
 ```
 
 The rules, in full:
@@ -308,7 +302,6 @@ The rules, in full:
 | Opt in | `marp: true` in the front-matter. Without it the file stays plain prose in the *Ejercicios* tab. |
 | New slide | a line with `---` between slides. |
 | Title slide | `<!-- _class: lead -->` — centred, larger, with a glow. |
-| **Answer slide** | `<!-- _class: answer -->` — green, badged `RESPUESTA`, **and held back until unlocked**. |
 | Theme | `xr-island`, in [`scripts/marp-theme.css`](scripts/marp-theme.css). One theme for every deck; don't set another. |
 
 The conversion happens **at build time**, under Node. Marp is a
@@ -323,23 +316,6 @@ npm run decks      # regenerate; build and dev both do this for you
 Output lands in `public/decks/` (gitignored, rebuilt every time). A generated
 deck **wins over** a `slides` PDF/Canva block on the same level, and `validate`
 warns if you leave one underneath where it can never be seen.
-
-### Publishing the answers — one global switch
-
-Answer slides are compiled into a **separate file** and the site does not fetch
-it while answers are locked. Flip it in `/admin` → **Respuestas** →
-*Publicar respuestas*. That writes `answersUnlocked` into
-[`public/progress.json`](public/progress.json), the same file and the same
-GitHub Contents API path as the progress marker, and every visitor picks it up
-on their next load. There is no per-student setting and no local override —
-one switch, everybody, at once. It also gates the *Respuestas* tab.
-
-> **Be honest with yourself about what this is.** The site is static and has no
-> backend, so "locked" means the page never requests the answers file — not that
-> the file is unreachable. Anyone who guesses
-> `decks/<level-id>.answers.json` can fetch it directly. It stops answers being
-> seen by accident or in passing; it is not a vault, and it should not be
-> treated as one for anything that actually matters, like an exam.
 
 ### Boss and optional nodes
 
@@ -391,24 +367,32 @@ rules — `/level/w2-boss` would 404.
 
 ---
 
-## Progress marker (`/admin`)
+## Progress marker — sign in at `/admin`, drive it from the map
 
 The one manual, explicit exception to "no dates".
 
 1. Create a **fine-grained personal access token** at
    [github.com/settings/personal-access-tokens](https://github.com/settings/personal-access-tokens).
 2. Give it access to **only this repository**, with **Contents: Read and write**.
-3. Open `/admin/` on the published site, paste the token, press **Guardar y releer**.
-4. Use **Avanzar** to move the marker to the next level, **Reiniciar** at the end
-   of the semester.
+3. Open `/admin/`, paste the token, press **Guardar y comprobar**. That page is
+   a small sign-in card and does nothing else — it only checks the token works
+   and shows where the class currently is.
+4. Go to the map. The legend now has a **Profesor** block with the marker
+   readout and three buttons: **Completar y avanzar**, **Retroceder**,
+   **Reiniciar curso**.
+
+The controls live on the map on purpose. Pressing *Avanzar* on the old
+full-screen admin page moved the marker with nothing on screen to show for it,
+so the button read as broken. On the map you watch the avatar walk to the next
+session and the camera follow it.
 
 Each press writes `public/progress.json` through the GitHub Contents API, which
 triggers the normal Actions deploy — the map updates in a minute or two.
 
 **The token is never in the source code or the build.** It is stored only in the
 `localStorage` of the browser you typed it into, and is sent only to
-`api.github.com`. Use **Olvidar token** to clear it. Students only ever *read*
-`progress.json`; the map has no admin controls in it.
+`api.github.com`. Use **Olvidar token** to clear it, and the Profesor block
+disappears. Students only ever *read* `progress.json`.
 
 Completion is derived from this single marker — there is deliberately no
 per-level `completed` flag, because two sources of truth would drift.
@@ -444,7 +428,7 @@ login. Before you commit real material, check:
   openly on the web.
 - **Student data.** No names, marks, emails, submissions or recordings of
   identifiable students. Nothing in this repo needs them.
-- **Exam material.** Answers are published too. Anything you would not want
+- **Exam material.** Anything you would not want
   visible before an exam should not be committed until after it.
 
 If something cannot be published openly, keep it out of this repo and link to it
@@ -480,7 +464,7 @@ src/
   lib/       levels (sequence + status) · progress (reads progress.json)
   admin/     the progress panel
 public/
-  content/   slides (PDF) · exercises (md) · answers (md)
+  content/   slides (PDF) · exercises (md, Marp)
   models/    glTF/GLB assets
   progress.json
 scripts/     validate.mjs · make-placeholders.mjs

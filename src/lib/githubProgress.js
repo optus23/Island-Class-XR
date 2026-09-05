@@ -95,9 +95,8 @@ function explain(status) {
 /**
  * The whole document plus its sha.
  *
- * Returns everything, not just the marker: progress.json now carries
- * `answersUnlocked` as well, and a writer that only knew about one field would
- * silently reset the other every time it saved.
+ * Returns the document rather than one field, so a writer that only cares about
+ * the marker still preserves anything else the file grows later.
  *
  * @returns {Promise<{doc:object, sha:string}>}
  */
@@ -138,22 +137,9 @@ async function patchProgress(patch, message) {
   return next
 }
 
-/**
- * Moves the marker, leaving the answer-unlock flag exactly as it was.
- */
+/** Moves the marker. */
 export async function writeProgress(levelId, label = 'Actualización') {
   await patchProgress({ currentLevelId: levelId }, `chore(progress): ${label} → ${levelId}`)
   return levelId
 }
 
-/**
- * Publishes or hides the answer slides for EVERY visitor at once.
- * There is deliberately no per-student variant of this.
- */
-export async function writeAnswersUnlocked(unlocked) {
-  await patchProgress(
-    { answersUnlocked: Boolean(unlocked) },
-    `chore(answers): ${unlocked ? 'publicar' : 'ocultar'} respuestas`
-  )
-  return Boolean(unlocked)
-}

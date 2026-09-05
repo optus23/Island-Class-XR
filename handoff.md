@@ -1,20 +1,21 @@
 # XR Island — handoff
 
-State as of **4 September 2026**, end of round 7 (controls and the entrance).
+State as of **4 September 2026**, end of round 9 (teacher controls, no answers).
 Read `CLAUDE.md` first for the durable rules; this file is what was happening.
 
 ---
 
 ## Where things stand
 
-Everything through round 7 is **merged to `main` and live**:
+Everything through round 9 is **merged to `main` and live** — except the VR
+branch, which is deliberately not:
 <https://optus23.github.io/Island-Class-XR/>
 
 | | |
 | --- | --- |
-| `main` | `064e720` — merge of PR #10 |
+| `main` | merge of PR #12 |
 | `develop` | same content |
-| Last deploy | run `33892056485`, success |
+| Last deploy | run `33922729738`, success |
 | Working tree | clean |
 | Performance | ~27 draw calls, ~700k triangles, 0.05 ms/frame CPU |
 
@@ -25,11 +26,124 @@ Shipped rounds: [#3](https://github.com/optus23/Island-Class-XR/pull/3) ·
 [#7](https://github.com/optus23/Island-Class-XR/pull/7) ·
 [#8](https://github.com/optus23/Island-Class-XR/pull/8) ·
 [#9](https://github.com/optus23/Island-Class-XR/pull/9) ·
-[#10](https://github.com/optus23/Island-Class-XR/pull/10)
+[#10](https://github.com/optus23/Island-Class-XR/pull/10) ·
+[#11](https://github.com/optus23/Island-Class-XR/pull/11) ·
+[#12](https://github.com/optus23/Island-Class-XR/pull/12)
 
-Verified live after the deploy, with a real click on the node plate: it enters,
-and the entrance runs iris 995→0 px, card on the black for its beat, then
-0→995 px onto the portal. Console clean.
+Verified live after the deploy: `progress.json` has no `answersUnlocked` and
+keeps the teacher's own marker (`w1-intro-02`), the deck manifest carries no
+`answers` key, `decks/*.answers.json` and `content/answers/*.md` are real 404s,
+and `/admin/` serves.
+
+**Still not verified:** anything requiring a browser. The tooling has been
+unavailable for two rounds, so the deck viewer, the new legend Profesor block
+and the admin card have been built and served but never seen rendered. That is
+the first thing to check next session.
+
+---
+
+## What round 9 changed — teacher controls, and no answers
+
+### The advance bug
+
+`applyMarker()` recoloured the node and updated the index, and nothing else. It
+never touched the avatar or the camera, so pressing **Completar y avanzar**
+wrote the marker to GitHub and looked, on screen, like a dead button. The
+writes had always worked — `main` carries seven `chore(progress)` commits from
+the user testing it. It now walks the avatar to the new marker; reset
+teleports, because from session 27 the walk home crosses the island.
+
+**The lesson is the old one.** "El botón no funciona" was a rendering gap, not
+a write failure. Reproduce before believing the stated cause.
+
+### /admin is sign-in only now
+
+The full-screen console was the wrong shape: you pressed *Avanzar* while
+looking at a form, so there was nothing to see. `/admin` is now a small
+floating card — token in, verified read-only, shows where the class is. The
+controls live in the legend's **Profesor** block, on the map, together with the
+marker readout that used to be on the admin page. Admin bundle halved.
+
+### No answers, at all
+
+The user's decision, and the right one: *"la asignatura no ha de contener
+respuestas — los todos son las instrucciones. Te envío el mueble desmontado con
+un papel de instrucciones; las respuestas serían enviarte el mueble montado."*
+
+This also dissolves what round 8 only papered over. He asked whether answers
+could be moved between folders to hide them; they cannot — the repo is public
+and `git log` keeps whatever was ever committed. The global unlock was removed
+rather than hardened. 854 lines deleted.
+
+Nothing was ever exposed: the answer slides only held a placeholder.
+
+**Do not reintroduce an answers surface** — it is now a hard constraint in
+`CLAUDE.md`. A solved Unity project may be shared one day, as a separate repo,
+discussed first.
+
+### The progress.json conflict, again
+
+Exactly as the rule written last round predicted. `main` had seven marker
+writes `develop` had never seen. Merged `main` back, kept **his** value
+(`w1-intro-02`) — resetting it would have silently undone his last press.
+
+---
+
+## What round 8 changed — Marp slides, and a VR branch
+
+Two independent pieces. **Only the first one shipped.**
+
+### Slides generate themselves now
+
+`marp: true` in a level's exercise Markdown is the whole opt-in: a themed deck
+appears in that level's *Diapositivas* tab, with no entry in `levels.json`.
+Conversion runs under Node in `scripts/build-decks.mjs`, wired as `prebuild`.
+Marp is a devDependency and **nothing of it ships** — the client gets small
+JSON with the slides already rendered plus one stylesheet. `main.js` grew
+3.8 kB, which is the viewer.
+
+Answer slides (`<!-- _class: answer -->`) compile into a **separate file** the
+site does not fetch while locked. Hiding them with CSS inside the same payload
+would have handed every answer to anyone with devtools.
+
+**Read the caveat and repeat it to Marc if it comes up:** the site is static,
+so "locked" means the page never asks for that file — not that it is
+unreachable. `curl …/decks/w1-arf-01.answers.json` returns 200 today. It stops
+answers being seen in passing; it is not a vault and must not be used as one
+for an exam.
+
+The unlock is global and public, on the progress-marker mechanism:
+`answersUnlocked` in `progress.json`, flipped from `/admin` → **Respuestas**.
+It gates the answer slides *and* the Respuestas tab.
+
+`progress.json` now carries two independent settings, so **both writers were
+changed to patch the document rather than rebuild it**. The old code would have
+reset one field every time the other was saved.
+
+### The first merge conflict in eleven PRs
+
+`/admin` writes `progress.json` straight to `main`, so `main` carried commits
+`develop` had never seen. Ten PRs merged cleanly because nothing on `develop`
+had touched that file. This round did. Resolved by merging `main` back into
+`develop`, keeping the teacher's marker value. **Expect this again** any time a
+round edits `progress.json` — merge `main` back first.
+
+### WebXR: on `webxr-vr-mode`, NOT merged
+
+Immersive VR entry for the Quest 3, scoped to map navigation. The island is
+presented as a **tabletop diorama** rather than a world you stand in, because
+at 1 unit = 1 m the near plane would have to drop to ~0.1 over a 180 m field —
+straight back into the depth-precision hole that caused the road artefacts.
+
+**None of the VR path has been run.** No headset, and the browser tooling was
+unavailable that session. It compiles and is inert without `navigator.xr`; that
+is all that is verified. The render loop also moved from `requestAnimationFrame`
+to `setAnimationLoop` on that branch, which WebXR requires but which changes the
+shared 2D path unwatched — reason enough on its own to keep it out of `develop`.
+
+[`docs/webxr-vr-mode.md`](docs/webxr-vr-mode.md) has the bring-up notes: how to
+reach it from the headset, what is implemented, and the five things most likely
+to be wrong on the first run.
 
 ---
 

@@ -11,21 +11,17 @@
  * `marp: true`. That is the whole opt-in: no entry in levels.json, no build
  * flag. Marc writes Markdown; a deck appears.
  *
- * ANSWERS ARE A SEPARATE FILE, NOT A HIDDEN DIV
- * Slides tagged `<!-- _class: answer -->` are compiled into a SIBLING file that
- * the site only fetches once the global unlock flag is on. Emitting them into
- * the same payload and hiding them with CSS would ship the answers to every
- * student with devtools.
- *
- * That said — this is a static site with no backend, so a locked answers file
- * is still a public URL to anyone who guesses it. It is a lock on a door, not
- * a safe. See the README.
+ * THERE ARE NO ANSWER DECKS
+ * The todos are the instructions, and a course that hands out instructions
+ * does not also hand out the assembled result. An earlier version split each
+ * deck into statement and answer files behind a global unlock; the whole
+ * mechanism was removed rather than hardened, because the honest fix for
+ * "answers must not leak from a public repo" is not to put them in one.
  *
  * OUTPUT (public/decks/, gitignored, regenerated every build)
  *   theme.css            the compiled Marp theme, shared by every deck
  *   index.json           manifest: which levels have a deck, and slide counts
- *   <level-id>.json      the statement slides
- *   <level-id>.answers.json   the answer slides, if any
+ *   <level-id>.json      the slides
  *
  * Each slide is handed over as `{ html, classes }` rather than as one blob of
  * deck HTML, so the runtime decides the surface. Today that surface is DOM; a
@@ -42,13 +38,10 @@ const SRC_DIR = resolve(root, 'public/content/exercises')
 const OUT_DIR = resolve(root, 'public/decks')
 const THEME = resolve(here, 'marp-theme.css')
 
-/** The per-slide Marp class that marks a slide as an answer. */
-const SLIDE_ANSWER_CLASS = 'answer'
-
 const marp = new Marp({
   // Plain <section> elements instead of Marp's inline-SVG scaffold. The runtime
-  // scales them itself, and flat sections are what makes splitting a deck into
-  // statement and answer files a string operation rather than an SVG surgery.
+  // scales them itself, and flat sections make slicing a deck into per-slide
+  // payloads a string operation rather than SVG surgery.
   inlineSVG: false,
   html: false, // Markdown is authored content, but not a licence to inject
   math: false, // nothing in this course needs KaTeX; it is a big payload
@@ -125,33 +118,16 @@ for (const file of files) {
     continue
   }
 
-  const statement = slides.filter((s) => !s.classes.includes(SLIDE_ANSWER_CLASS))
-  const answers = slides.filter((s) => s.classes.includes(SLIDE_ANSWER_CLASS))
-
-  if (!statement.length) {
-    console.warn(`  ! ${file}: every slide is an answer slide — nothing would be visible`)
-  }
-
-  const title = fm.title || headingOf(statement[0]?.html ?? '') || id
+  const title = fm.title || headingOf(slides[0]?.html ?? '') || id
 
   writeFileSync(
     resolve(OUT_DIR, `${id}.json`),
-    JSON.stringify({ id, title, slides: statement }, null, 0) + '\n',
+    JSON.stringify({ id, title, slides }, null, 0) + '\n',
     'utf8'
   )
-  if (answers.length) {
-    writeFileSync(
-      resolve(OUT_DIR, `${id}.answers.json`),
-      JSON.stringify({ id, slides: answers }, null, 0) + '\n',
-      'utf8'
-    )
-  }
 
-  manifest[id] = { title, slides: statement.length, answers: answers.length }
-  console.log(
-    `  ✓ ${id} — ${statement.length} slide(s)` +
-      (answers.length ? ` + ${answers.length} answer slide(s)` : '')
-  )
+  manifest[id] = { title, slides: slides.length }
+  console.log(`  ✓ ${id} — ${slides.length} slide(s)`)
 }
 
 if (themeCss) writeFileSync(resolve(OUT_DIR, 'theme.css'), themeCss, 'utf8')

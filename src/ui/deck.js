@@ -13,9 +13,6 @@
  * A shadow root gives the deck its own stylesheet scope in both directions with
  * no CSS rewriting and no parser.
  *
- * ANSWERS
- * The answer slides live in a separate file that is only fetched when the
- * global unlock flag is on. Locked decks never download them.
  */
 
 const cache = new Map()
@@ -50,35 +47,19 @@ async function getTheme() {
 }
 
 /**
- * Statement slides, plus the answer slides when unlocked.
- * @returns {Promise<{title:string, slides:Array<{html:string,classes:string[]}>, locked:number}>}
+ * @returns {Promise<{title:string, slides:Array<{html:string,classes:string[]}>}|null>}
  */
-async function loadDeck(levelId, unlocked) {
-  const key = `${levelId}:${unlocked ? 'open' : 'locked'}`
-  if (cache.has(key)) return cache.get(key)
+async function loadDeck(levelId) {
+  if (cache.has(levelId)) return cache.get(levelId)
 
   const p = (async () => {
     const index = await loadDeckIndex()
-    const meta = index[levelId]
-    if (!meta) return null
-
+    if (!index[levelId]) return null
     const deck = await getJSON(`decks/${levelId}.json`)
-    const slides = [...deck.slides]
-    let locked = meta.answers ?? 0
-
-    if (unlocked && locked) {
-      try {
-        const answers = await getJSON(`decks/${levelId}.answers.json`)
-        slides.push(...answers.slides)
-        locked = 0
-      } catch {
-        /* leave the deck locked rather than breaking it */
-      }
-    }
-    return { title: deck.title, slides, locked }
+    return { title: deck.title, slides: deck.slides }
   })()
 
-  cache.set(key, p)
+  cache.set(levelId, p)
   return p
 }
 
@@ -97,8 +78,8 @@ const esc = (s) =>
  * @returns {Promise<boolean>} false when this level has no generated deck, so
  *   the caller can fall back to the PDF/Canva viewer.
  */
-export async function renderDeck(el, level, { answersUnlocked = false } = {}) {
-  const deck = await loadDeck(level.id, answersUnlocked)
+export async function renderDeck(el, level) {
+  const deck = await loadDeck(level.id)
   if (!deck) return false
 
   const css = await getTheme()
@@ -114,15 +95,6 @@ export async function renderDeck(el, level, { answersUnlocked = false } = {}) {
         <button class="btn btn-sm" data-prev aria-label="Diapositiva anterior">←</button>
         <button class="btn btn-sm" data-next aria-label="Diapositiva siguiente">→</button>
         <span class="text-sm tabular-nums opacity-70" data-count></span>
-        ${
-          deck.locked
-            ? `<span class="badge badge-sm badge-outline gap-1" title="Las respuestas se publican desde /admin y se ven para todo el mundo a la vez">
-                 🔒 ${deck.locked} diapositiva${deck.locked > 1 ? 's' : ''} de respuesta bloqueada${deck.locked > 1 ? 's' : ''}
-               </span>`
-            : answersUnlocked
-              ? '<span class="badge badge-sm badge-success">Respuestas publicadas</span>'
-              : ''
-        }
         <span class="text-xs opacity-50 ml-auto">Generado desde Markdown (Marp)</span>
       </div>
     </div>`

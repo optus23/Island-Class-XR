@@ -65,14 +65,3 @@ blocks usados.
 El uso real de la malla —no basta con dibujarla—, que aguante en una sala que no
 es la vuestra, y la narrativa. Es el ejercicio de mayor peso del bloque.
 
----
-
-<!-- _class: answer -->
-
-## Respuesta
-
-> **Pendiente de escribir.** Marc redacta aquí la solución comentada o los
-> criterios de corrección de este ejercicio.
-
-Esta diapositiva está marcada con `<!-- _class: answer -->`, así que se compila
-a un archivo aparte y no se descarga hasta que el desbloqueo global está activo.
