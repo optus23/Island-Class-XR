@@ -68,9 +68,9 @@ export async function renderSlides(el, level) {
         ${escapeHtml(level.slidesLink?.label ?? 'Diapositivas de la sesión')} ↗
       </a>`
     const slot = document.createElement('div')
-    slot.className = 'flex-1 min-h-0'
+    slot.className = ''
     const wrap = document.createElement('div')
-    wrap.className = 'flex flex-col h-full'
+    wrap.className = 'flex flex-col'
     wrap.append(bar, slot)
     el.replaceChildren(wrap)
     if (await renderDeck(slot, level)) return
