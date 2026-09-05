@@ -1,21 +1,22 @@
 # XR Island — handoff
 
-State as of **4 September 2026**, end of round 8 (Marp slides + the VR branch).
+State as of **5 September 2026**, end of round 10 (WebXR brought up on a real Quest 3).
 Read `CLAUDE.md` first for the durable rules; this file is what was happening.
 
 ---
 
 ## Where things stand
 
-Everything through round 8 is **merged to `main` and live** — except the VR
+Everything through round 9 is **merged to `main` and live** — except the VR
 branch, which is deliberately not:
 <https://optus23.github.io/Island-Class-XR/>
 
 | | |
 | --- | --- |
-| `main` | `6746ffb` — merge of PR #11 |
-| `develop` | same content |
-| Last deploy | run `33917815677`, success |
+| `main` | merge of PR #12 — unchanged by round 10 |
+| `develop` | unchanged by round 10 |
+| `webxr-vr-mode` | **where round 10 lives. Not merged, do not merge without asking.** |
+| Last deploy | run `33922729738`, success |
 | Working tree | clean |
 | Performance | ~27 draw calls, ~700k triangles, 0.05 ms/frame CPU |
 
@@ -27,16 +28,183 @@ Shipped rounds: [#3](https://github.com/optus23/Island-Class-XR/pull/3) ·
 [#8](https://github.com/optus23/Island-Class-XR/pull/8) ·
 [#9](https://github.com/optus23/Island-Class-XR/pull/9) ·
 [#10](https://github.com/optus23/Island-Class-XR/pull/10) ·
-[#11](https://github.com/optus23/Island-Class-XR/pull/11)
+[#11](https://github.com/optus23/Island-Class-XR/pull/11) ·
+[#12](https://github.com/optus23/Island-Class-XR/pull/12)
 
-Verified live after the deploy by fetching the deployed files: `progress.json`
-carries `answersUnlocked`, the manifest lists 8 decks with 8 answer slides held
-back, a statement deck serves 6 slides with no `answer` class in it, and
-`theme.css` is 200.
+Verified live after the deploy: `progress.json` has no `answersUnlocked` and
+keeps the teacher's own marker (`w1-intro-02`), the deck manifest carries no
+`answers` key, `decks/*.answers.json` and `content/answers/*.md` are real 404s,
+and `/admin/` serves.
 
-**Not verified in round 8:** anything requiring a browser. The browser tooling
-was disconnected for that session, so the deck viewer has been exercised only
-at the data and routing level, never rendered.
+**Round 10 note:** the browser tooling came back and both modes were verified
+in Chrome — the 2D map and `?vr=1` load clean, no console errors, no context
+loss. Everything below about "not verified in a browser" is now superseded.
+
+**Previously not verified:** anything requiring a browser. The tooling has been
+unavailable for two rounds, so the deck viewer, the new legend Profesor block
+and the admin card have been built and served but never seen rendered. That is
+the first thing to check next session.
+
+---
+
+## Round 10 — WebXR, brought up on real hardware
+
+**All of this is on the unmerged `webxr-vr-mode` branch.** `develop` and `main`
+are untouched and still live at PR #12. That branch now also carries rounds 8
+and 9, which it was missing.
+
+### Where VR actually stands
+
+Marc ran it on a Quest 3 over Link, in desktop Chrome.
+
+**Working, confirmed by him:** entering VR, **stereo rendering** ("funciona a
+la perfección"), the water shader, controller rays selecting nodes, and
+left-stick panning in the direction he is looking.
+
+**Changed but NOT yet re-tested by him:** rotation about his own axis (the
+fourth attempt) and the desktop mirror.
+
+**Never tested at all:** entering a level from inside the headset, and
+performance under load.
+
+### How to run it
+
+```bash
+npm run dev
+```
+
+Then in the Quest browser open **`http://localhost:5173/?vr=1`**, with the port
+forwarded. `adb` is not on PATH — it lives under:
+
+```
+C:/Program Files/Unity/Hub/Editor/6000.0.23f1/Editor/Data/PlaybackEngines/AndroidPlayer/SDK/platform-tools/
+```
+
+```powershell
+& "<that path>adb.exe" reverse tcp:5173 tcp:5173
+```
+
+**The forward dies whenever the cable is touched or the headset sleeps.** Re-run
+it; a dead forward looks exactly like a dead server. Alternatively run Quest
+Link and open the same URL in desktop Chrome — no adb needed, same code path.
+
+`?vr=1` is required and must stay required. See CLAUDE.md.
+
+### The bugs worth remembering
+
+**The water and "rotation moves me" were one bug.** The diorama scale was
+picked by hand against the island's width, and the sea is 2.4x that width and
+3.4x its depth: the water came out 8.6 x 5.6 m and reached 1.3 m *behind* the
+viewer, surface at chest height. He was standing inside the sea. The scale is
+now derived from a measured `Box3`.
+
+**The water still came out flat white after that**, because its shore lookup
+went through `modelMatrix` — world space — while `uShoreMin/uShoreSize` are in
+island units. At 0.005 scale the lookup clamped to a constant and flooded
+everything with foam, while the swell kept animating because that uses local
+`position`. Now derived from local position plus the plane's own offset.
+
+**Mono is deleted and must not come back.** Two implementations, both leaving
+the right eye facing the wrong way. Stereo is perfect.
+
+**`InvalidStateError` on entry** was `WebGLRenderer` not forwarding
+`xrCompatible` to `getContext` — its attribute list is fixed and does not
+include it. The context is built by hand now. Full chain in
+[`docs/webxr-vr-mode.md`](docs/webxr-vr-mode.md).
+
+### Rotation: three attempts rejected, a fourth shipped
+
+Rotating the model about its own centre was called uncomfortable every time,
+even once the pivot was provably centred. The reading that finally fits: a
+two-metre model spinning in front of someone fills the view with optical flow
+that reads as self-motion wherever the pivot is. It now swings the diorama
+around **the viewer's own vertical axis** — geometrically, the viewer turning
+on the spot. Untested.
+
+### The lesson that cost the most: it was not the code
+
+For three rounds the page "did not respond" and every diagnosis went hunting
+for a bug. **The dev server had leaked to 10.5 GB with 3 GB free on the
+machine**, and eventually died on its own, freeing 15 GB. Page loads stalled,
+the browser extension dropped its connection, background tasks were killed. It
+correlated with plugging in the headset only because Quest Link's own footprint
+was what tipped the machine over — which made it look causal, and I chased that
+correlation instead of checking memory.
+
+**Check `Get-Process node` before believing a hang is yours.**
+
+The design fault it exposed was real, though: the XR path was on for every
+visitor. It is behind `?vr=1` now, so a student opening the map with a headset
+plugged in runs exactly the renderer that existed before any of this.
+
+### One loose end
+
+The dead `answersUnlocked` plumbing in `src/lib/progress.js` and
+`src/lib/githubProgress.js` was cleaned **on `webxr-vr-mode` only**. `develop`
+and `main` still carry it: nothing reads it, so it is dead rather than broken,
+but CLAUDE.md's "the course publishes no answers" sits above it there. Clean it
+on `develop` next time that branch is touched — it was left alone this round
+rather than switching branches under a running dev server.
+
+### Open, and the first thing to ask him
+
+- **Deployment.** He wants `optus23.github.io/Island-Class-XR/vr`. Pages serves
+  one site per repo, so that exact URL means merging into `main` and adding a
+  `/vr/` entry point; the alternative is a second repo at `…-vr`. **He has not
+  chosen. Ask before building either.**
+- **In-VR UI** — level titles and info panels inside the headset — is what he
+  asked for after deployment. `scripts/build-decks.mjs` already emits slides as
+  `{ html, classes }` data and `src/ui/deck.js` is the only file that assumes a
+  DOM, so an in-world panel is a sibling of that file, not a rewrite.
+- The mirror costs a full extra scene render at headset resolution every third
+  frame. If VR performance is poor, look there first.
+
+---
+
+## What round 9 changed — teacher controls, and no answers
+
+### The advance bug
+
+`applyMarker()` recoloured the node and updated the index, and nothing else. It
+never touched the avatar or the camera, so pressing **Completar y avanzar**
+wrote the marker to GitHub and looked, on screen, like a dead button. The
+writes had always worked — `main` carries seven `chore(progress)` commits from
+the user testing it. It now walks the avatar to the new marker; reset
+teleports, because from session 27 the walk home crosses the island.
+
+**The lesson is the old one.** "El botón no funciona" was a rendering gap, not
+a write failure. Reproduce before believing the stated cause.
+
+### /admin is sign-in only now
+
+The full-screen console was the wrong shape: you pressed *Avanzar* while
+looking at a form, so there was nothing to see. `/admin` is now a small
+floating card — token in, verified read-only, shows where the class is. The
+controls live in the legend's **Profesor** block, on the map, together with the
+marker readout that used to be on the admin page. Admin bundle halved.
+
+### No answers, at all
+
+The user's decision, and the right one: *"la asignatura no ha de contener
+respuestas — los todos son las instrucciones. Te envío el mueble desmontado con
+un papel de instrucciones; las respuestas serían enviarte el mueble montado."*
+
+This also dissolves what round 8 only papered over. He asked whether answers
+could be moved between folders to hide them; they cannot — the repo is public
+and `git log` keeps whatever was ever committed. The global unlock was removed
+rather than hardened. 854 lines deleted.
+
+Nothing was ever exposed: the answer slides only held a placeholder.
+
+**Do not reintroduce an answers surface** — it is now a hard constraint in
+`CLAUDE.md`. A solved Unity project may be shared one day, as a separate repo,
+discussed first.
+
+### The progress.json conflict, again
+
+Exactly as the rule written last round predicted. `main` had seven marker
+writes `develop` had never seen. Merged `main` back, kept **his** value
+(`w1-intro-02`) — resetting it would have silently undone his last press.
 
 ---
 
