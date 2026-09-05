@@ -137,6 +137,15 @@ The design fault it exposed was real, though: the XR path was on for every
 visitor. It is behind `?vr=1` now, so a student opening the map with a headset
 plugged in runs exactly the renderer that existed before any of this.
 
+### One loose end
+
+The dead `answersUnlocked` plumbing in `src/lib/progress.js` and
+`src/lib/githubProgress.js` was cleaned **on `webxr-vr-mode` only**. `develop`
+and `main` still carry it: nothing reads it, so it is dead rather than broken,
+but CLAUDE.md's "the course publishes no answers" sits above it there. Clean it
+on `develop` next time that branch is touched — it was left alone this round
+rather than switching branches under a running dev server.
+
 ### Open, and the first thing to ask him
 
 - **Deployment.** He wants `optus23.github.io/Island-Class-XR/vr`. Pages serves
