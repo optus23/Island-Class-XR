@@ -1,4 +1,5 @@
 import * as THREE from 'three'
+import { createVRPanel } from './vrPanel.js'
 
 /**
  * Immersive VR entry — EXPERIMENTAL, lives only on the `webxr-vr-mode` branch.
@@ -72,6 +73,8 @@ export function createVR({
   onSelect = () => {},
   onEnter = () => {},
   playerLevelId = () => null,
+  levelById = () => null,
+  markerId = () => null,
   /**
    * Makes the renderer's context XR-compatible when the page did not create it
    * that way. Resolves 'ready' | 'lost' | 'failed' — see scene.js.
@@ -106,6 +109,14 @@ export function createVR({
   const pivot = new THREE.Group()
   pivot.name = 'xr-diorama'
   scene.add(pivot)
+
+  // The level card, as geometry. There is no DOM inside an immersive session,
+  // so everything the wearer reads has to be a texture on a plane. It lives in
+  // world space rather than on the pivot: the diorama is scaled to ~0.005, and
+  // a panel parented to it would come out two millimetres tall.
+  const panel = createVRPanel()
+  panel.mesh.visible = false
+  scene.add(panel.mesh)
 
   let attached = false
   const saved = {
@@ -214,6 +225,7 @@ export function createVR({
 
   function updateRays() {
     const targets = pickTargets()
+    let hovered = null
     for (const c of controllers) {
       tmpMatrix.identity().extractRotation(c.matrixWorld)
       raycaster.ray.origin.setFromMatrixPosition(c.matrixWorld)
@@ -223,12 +235,18 @@ export function createVR({
       const level = hit ? levelFromHit(hit) : null
       c.userData.hit = level
 
+      if (level && !hovered) hovered = level
+
       const ray = c.getObjectByName('ray')
       if (ray) {
         ray.scale.z = hit ? hit.distance : 3
         ray.material.color.setHex(level ? 0x38b000 : 0xf2c14e)
       }
     }
+
+    // Pointing at nothing falls back to the session the avatar is standing on,
+    // so the card is never blank — the map always says where the class is.
+    panel.show(hovered ?? levelById(playerLevelId()), markerId())
   }
 
   // --- locomotion ----------------------------------------------------------
@@ -338,6 +356,7 @@ export function createVR({
     // as a painted flat. It is also the widest thing in the scene, so leaving
     // it in would shrink everything else to fit it.
     if (backdrop) backdrop.visible = false
+    panel.mesh.visible = false
 
     // MEASURE, don't assume. The first version scaled by a guessed constant and
     // the sea — which is 2.4x the island's width and 3.4x its depth — ended up
@@ -395,6 +414,8 @@ export function createVR({
     worldGroup.position.copy(saved.position)
     worldGroup.rotation.copy(saved.rotation)
     if (backdrop && saved.backdropVisible !== null) backdrop.visible = saved.backdropVisible
+    panel.show(null)
+    panel.mesh.visible = false
     camera.near = saved.near
     camera.updateProjectionMatrix()
   }
@@ -570,6 +591,13 @@ export function createVR({
       if (needsRecentre && recentre()) needsRecentre = false
       updateRays()
       locomotion(dt)
+      // readHead() has already run inside locomotion(); headPos is current.
+      panel.update(dt, pivot.position, headPos)
+    },
+
+    /** The marker moved, so whatever the card is showing may have restyled. */
+    refreshPanel() {
+      panel.refresh(levelById(playerLevelId()), markerId())
     },
   }
 }

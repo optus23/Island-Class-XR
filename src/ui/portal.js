@@ -3,6 +3,17 @@ import { statusFor, sessionNumber } from '../lib/levels.js'
 import { renderSlides } from './slides.js'
 import { renderTodos } from './todos.js'
 import { loadMarkdown, renderMarkdownInto } from './markdown.js'
+import {
+  STAGE_LABELS,
+  CATEGORY_LABELS,
+  BOSS_TIER_LABELS,
+  SUBMISSION_LABELS,
+  GROUP_LABELS,
+  UNDECIDED_TEXT,
+} from '../lib/labels.js'
+
+/** The portal styles the undecided marker; the shared module keeps it plain. */
+const UNDECIDED = `<span class="opacity-60 italic">${UNDECIDED_TEXT}</span>`
 
 /**
  * The level portal.
@@ -15,49 +26,11 @@ import { loadMarkdown, renderMarkdownInto } from './markdown.js'
  * informative, never decorative.
  */
 
-const STAGE_LABELS = {
-  'intro-theory': 'Introducción y teoría',
-  'ar-foundation': 'AR Foundation',
-  'meta-pre-exam': 'Meta Building Blocks (antes del parcial)',
-  'mini-boss-midterm': 'Examen parcial',
-  'meta-post-exam': 'Meta Building Blocks (después del parcial)',
-  'xr-toolkit': 'XR Interaction Toolkit',
-  'final-project': 'Proyecto final',
-  'final-boss-presentation': 'Presentación final',
-}
-
 /** Level data is ours, not user input — but it goes in through innerHTML. */
 const esc = (v) =>
   String(v).replace(/[&<>"']/g, (c) => (
     { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
   ))
-
-const BOSS_TIER_LABELS = {
-  mini: 'Jefe intermedio',
-  final: 'Jefe final',
-  extra: 'Extra',
-}
-const CATEGORY_LABELS = {
-  theory: 'Teoría',
-  practical: 'Práctica',
-  project: 'Proyecto',
-  boss: 'Examen',
-}
-
-// The graded practical blocks. `null` means the brief has not decided yet and
-// says so out loud — an empty slot here is a question still open, not an
-// oversight, so it must never render as blank.
-const SUBMISSION_LABELS = {
-  build: 'Build (APK), no vídeo',
-  video: 'Vídeo',
-  repo: 'Repositorio',
-}
-const GROUP_LABELS = {
-  individual: 'Individual',
-  'individual-within-group': 'Individual, dentro del grupo',
-  'per-group': 'Por grupo',
-}
-const UNDECIDED = '<span class="opacity-60 italic">por decidir</span>'
 
 /**
  * The assessment strip: how this exercise is handed in, who hands it in, and
