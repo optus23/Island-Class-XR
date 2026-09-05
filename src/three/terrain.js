@@ -275,6 +275,36 @@ export function isLand(x, z) {
  * surrounds the route; further out it drops toward a coastal shelf and steps
  * into coarse plateaus.
  */
+/**
+ * Flat pads carved around the session discs.
+ *
+ * A node stands on the road, and inside PATH_FLATTEN_RADIUS the ground is the
+ * shelf of the LOWEST road nearby — but on a switchback the cell beside a node
+ * can belong to a DIFFERENT run of the route, one plateau higher. Its column
+ * then rises a couple of units right at the disc's edge and leans over it, and
+ * you get a lump of ground floating above the session circle. Seven nodes were
+ * doing it.
+ *
+ * So each on-path node clamps the ground around itself to its own shelf. Only
+ * ever downward: a pad, never a pedestal.
+ *
+ * Registered before the island mesh is built, by whoever knows where the nodes
+ * are — terrain must not import level data, so it cannot work them out itself.
+ */
+const clearings = []
+
+/**
+ * @param {Array<{x:number, z:number, r:number}>} points
+ */
+export function clearGroundAround(points) {
+  clearings.length = 0
+  for (const p of points) {
+    // Height sampled with the registry EMPTY, so a pad can never be defined in
+    // terms of another pad.
+    clearings.push({ x: p.x, z: p.z, r2: p.r * p.r, y: groundHeightAt(p.x, p.z) })
+  }
+}
+
 export function groundHeightAt(x, z) {
   const inside = landInset(x, z)
   if (inside <= 0) {
@@ -311,7 +341,15 @@ export function groundHeightAt(x, z) {
   // coarse one further out put a seam wherever the two grids disagreed, on top
   // of the contour fan the fine step created in the first place.
   const step = away > 0.8 ? TIER : PLATEAU
-  return Math.round(raw / step) * step
+  const height = Math.round(raw / step) * step
+
+  // Nothing may stand above a session disc. Downward only.
+  for (const c of clearings) {
+    const dx = x - c.x
+    const dz = z - c.z
+    if (dx * dx + dz * dz <= c.r2 && height > c.y) return c.y
+  }
+  return height
 }
 
 /** How far the road's surface floats above the ground it covers. */

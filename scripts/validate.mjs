@@ -9,8 +9,14 @@ import { readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { dirname, resolve } from 'node:path'
 import { worlds } from '../src/config/worlds.js'
-import { distributeNodes, buildWorldCurves, buildConnectors, assertOrthogonal } from '../src/three/paths.js'
-import { groundHeightAt, nearestPath } from '../src/three/terrain.js'
+import {
+  distributeNodes,
+  buildWorldCurves,
+  buildConnectors,
+  assertOrthogonal,
+  nodeClearings,
+} from '../src/three/paths.js'
+import { groundHeightAt, nearestPath, clearGroundAround } from '../src/three/terrain.js'
 
 const here = dirname(fileURLToPath(import.meta.url))
 const data = JSON.parse(readFileSync(resolve(here, '../src/data/levels.json'), 'utf8'))
@@ -37,6 +43,11 @@ const SLIDE_TYPES = ['pdf', 'canva']
 // "not decided yet". It is NOT the same as the field being absent.
 const SUBMISSION_METHODS = ['build', 'video', 'repo']
 const GROUP_MODES = ['individual', 'individual-within-group', 'per-group']
+
+// The runtime holds the ground down around every session disc before it builds
+// the island. Validation samples the same terrain, so it has to do the same or
+// it is checking a different island from the one that ships.
+clearGroundAround(nodeClearings(levels))
 
 const errors = []
 const warnings = []
@@ -332,6 +343,28 @@ for (const w of worlds) {
       warn(
         `world ${w.id}: the road at "${pl.level.id}" rides ${gap.toFixed(2)} above the ` +
           `ground under it — its disc MUST be placed on the road surface, not the ground`
+      )
+    }
+  }
+
+  // Nothing may stand above a session disc. This is what the pads are for, and
+  // it is the check that would have caught the seven nodes with a slab of
+  // terrain leaning over them.
+  for (const pl of placed.filter((x) => x.onPath)) {
+    const here = groundHeightAt(pl.position.x, pl.position.z)
+    let highest = here
+    for (let a = 0; a < Math.PI * 2; a += Math.PI / 12) {
+      for (const r of [1.6, 2.2, 3]) {
+        highest = Math.max(
+          highest,
+          groundHeightAt(pl.position.x + Math.cos(a) * r, pl.position.z + Math.sin(a) * r)
+        )
+      }
+    }
+    if (highest > here) {
+      err(
+        `world ${w.id}: ground around "${pl.level.id}" rises ${(highest - here).toFixed(1)} ` +
+          `above the disc — it will hang over the session circle`
       )
     }
   }

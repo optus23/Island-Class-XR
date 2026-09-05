@@ -362,3 +362,34 @@ export function nearestIndexOn(points, position) {
   }
   return best
 }
+
+
+/**
+ * Where the ground has to be held down so nothing overhangs a session disc.
+ *
+ * Takes the levels as an ARGUMENT rather than importing them: level data must
+ * stay out of paths.js and terrain.js so `scripts/validate.mjs` can run both
+ * under Node without a JSON import assertion.
+ *
+ * Off-path bonus nodes are excluded — they sit out in open country, where a
+ * flat pad would read as a scar rather than a clearing.
+ *
+ * @param {Array<object>} levels every level, as levels.json holds them
+ * @param {number} radius world units of flat ground around each disc
+ */
+export function nodeClearings(levels, radius = NODE_CLEAR_RADIUS) {
+  const out = []
+  for (const w of worlds) {
+    for (const p of distributeNodes(w, levels.filter((l) => l.world === w.id))) {
+      if (p.onPath) out.push({ x: p.position.x, z: p.position.z, r: radius })
+    }
+  }
+  return out
+}
+
+/**
+ * The disc is 2.4 across and its gold rim a little wider; this leaves a ring of
+ * flat ground around it so the pad reads as deliberate rather than as the
+ * terrain just failing to reach.
+ */
+export const NODE_CLEAR_RADIUS = 4
