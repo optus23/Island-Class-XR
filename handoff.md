@@ -14,8 +14,8 @@ Everything is merged and live: <https://optus23.github.io/Island-Class-XR/>
 
 | | |
 | --- | --- |
-| `main` | `e980b7e` — merge of PR #25 |
-| `develop` | same content |
+| Last code change | PR #25, `e980b7e` — anything on `main` after it is documentation |
+| `develop` | same content as `main` |
 | Last deploy | run `33991251554`, success |
 | Working tree | clean |
 | VR | live on every page; `/vr` and `?vr=1` arm the XR context eagerly |
