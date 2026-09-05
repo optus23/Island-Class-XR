@@ -113,12 +113,26 @@ export async function renderDeck(el, level) {
   shadow.innerHTML = `
     <style>
       :host { display: block; width: 100%; height: 100%; }
-      .fit { width: 100%; height: 100%; display: grid; place-items: center; overflow: hidden; }
+      /* NOT a centred grid. place-items:center only centres an item that
+         FITS: when the 1280px slide is wider than the stage — every phone —
+         the browser falls back to start alignment to avoid losing content.
+         Scaling from the centre then pushed the slide 183px right and cut it
+         off, which is why it worked in desktop mode and broke in mobile mode.
+         Pinned at 0,0 and scaled from 0,0, the arithmetic is the same at
+         every width. */
+      .fit { width: 100%; height: 100%; overflow: hidden; position: relative; }
       /* .marpit is not decoration: marp-core scopes its ENTIRE theme as
          '.marpit > section'. Extracting the bare <section> and dropping this
          wrapper left every slide unstyled — default black text on the viewer's
          near-black plate, which read as a blank black panel. */
-      .scaler { width: 1280px; height: 720px; transform-origin: center center; }
+      .scaler {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 1280px;
+        height: 720px;
+        transform-origin: 0 0;
+      }
       ${css}
       section { margin: 0; position: relative; overflow: hidden; }
     </style>
@@ -188,6 +202,27 @@ export async function renderDeck(el, level) {
 
   const ro = new ResizeObserver(rescale)
   ro.observe(stage)
+  // Hold the reference. An observer whose only reference is a closure nobody
+  // retains may be collected, and then nothing rescales again — the first
+  // scale would stick and a rotated phone would keep the old size.
+  //
+  // Defensive, not a diagnosed fix: the failure could not be reproduced here,
+  // because the automation window reports document.hidden and never runs the
+  // rendering steps, so NO ResizeObserver fires in it at all (see CLAUDE.md on
+  // rAF in that pane). Cheap insurance either way.
+  stage.__deckObserver = ro
+
+  // The window's own resize event, as a second path to the same call. It
+  // removes itself once the panel is gone, the way the key handler does.
+  const onResize = () => {
+    if (!el.isConnected) {
+      window.removeEventListener('resize', onResize)
+      ro.disconnect()
+      return
+    }
+    rescale()
+  }
+  window.addEventListener('resize', onResize)
 
   show(0)
   el.setAttribute('aria-label', `Presentación: ${esc(deck.title)}`)

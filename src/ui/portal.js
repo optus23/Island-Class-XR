@@ -207,7 +207,13 @@ export function openPortal(
         </div>
       </header>
 
-      <nav class="shrink-0 px-5 sm:px-8 pt-4" role="tablist">
+      <!-- ONE scroll region for everything below the header.
+           The tabs used to sit outside it and only the panel scrolled, so on a
+           phone in landscape the header ate the screen and what was left was
+           unreachable. Now a finger anywhere below the title moves the lot,
+           and the tabs stay put at the top of it. -->
+      <div class="flex-1 min-h-0 overflow-y-auto" data-scroll>
+      <nav class="sticky top-0 z-10 bg-base-100 px-5 sm:px-8 pt-4 pb-3" role="tablist">
         <div class="tabs tabs-box w-fit">
           ${tabs
             .map(
@@ -221,7 +227,10 @@ export function openPortal(
 
       <!-- pb-10: the last line of a panel should not sit flush against the
            bottom edge of the screen, which on a phone reads as cut off. -->
-      <div class="flex-1 min-h-0 overflow-auto px-5 sm:px-8 pt-5 pb-10" data-panel></div>
+      <!-- pb-10: the last line should not sit flush against the bottom edge,
+           which on a phone reads as cut off. -->
+      <div class="px-5 sm:px-8 pb-10" data-panel></div>
+      </div>
     </section>`
 
   document.body.appendChild(root)
