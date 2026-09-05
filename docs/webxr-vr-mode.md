@@ -56,10 +56,13 @@ another GPU when an XR device appears, and every migration is a lost context
 that three answers by rebuilding ~14k instanced voxels, the shore texture and
 every shader. The plain map has no business carrying that risk.
 
-The two doors are equivalent: `/vr/` is a third Vite entry carrying
-`data-xr="1"` on `<html>`, and it loads the same `main` chunk as `/`. It exists
-because a URL you can type into a headset beats a query string. `?vr=1` still
-works on any page and is what a deep link should use.
+**Any URL will do now.** The button appears wherever a browser reports
+`immersive-vr` support, including the plain map. `/vr/` and `?vr=1` are no
+longer about *reaching* VR — they build the context XR-compatible from the
+first frame, which is the path that cannot fail. Everywhere else the context is
+migrated lazily on the button press, and if that migration loses the context
+(two-adapter desktops only) the page reloads itself into `?vr=1` and asks for
+one more press.
 
 Either way: a button reading **«Entrar en VR»** appears at the bottom centre
 **only** with XR armed, and only if the browser reports `immersive-vr` support. If you do not see it,

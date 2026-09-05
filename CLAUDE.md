@@ -144,20 +144,34 @@ Changing any of these is a design decision, not a refactor.
 
 Every one of these was diagnosed the hard way. Do not re-derive them.
 
-**WebXR** (live; two opt-in doors, `/vr/` and `?vr=1`)
+**WebXR** (live on every page; the button is the bridge)
 
-- **XR is opt-in and must stay that way. There are exactly two doors and no
-  third:** `?vr=1` on any page, and the dedicated `/vr/` entry, which declares
-  itself with `data-xr="1"` on `<html>`. The plain map at `/` never touches
-  `navigator.xr`, never builds an `xrCompatible` context and never sets
-  `renderer.xr.enabled`. An `xrCompatible` context can be migrated to another
-  GPU when a headset appears, and three answers each lost context by rebuilding
-  ~14k instanced voxels, the shore DataTexture and every shader.
+- **VR is reachable from every URL. What `?vr=1` and `/vr/` still control is
+  when the WebGL context is made XR-compatible, and that is the whole safety
+  property — do not collapse the two paths into one.**
+  - Without them, the context is created exactly as it was before any WebXR
+    work existed. The only addition is one `isSessionSupported()` call — a
+    capability query that creates and migrates nothing — and a button if it
+    says yes. `renderer.xr.enabled` stays off until entry.
+  - With them, the context is XR-compatible from the first frame, so entry can
+    never hit a GPU migration. This is the guaranteed path.
+- **`makeXRCompatible()` on a live context can lose that context**, on any
+  machine whose headset is on a different GPU than the one Chrome picked —
+  every Quest Link setup with two adapters. Three then calls
+  `new XRWebGLBinding` on a dead context and throws `InvalidStateError`. So the
+  lazy arming in `scene.js` reports `'ready' | 'lost' | 'failed'`, and `vr.js`
+  reloads into `?vr=1` on anything but `ready`. A standalone headset has one
+  GPU and never takes that path — which is the case that matters, because that
+  is where students run it.
+- **Never make the plain map create an `xrCompatible` context on load.** That
+  is what put every visitor one GPU migration away from a lost context, and
+  three answers each one by rebuilding ~14k instanced voxels, the shore
+  DataTexture and every shader.
 - **The `/vr/` door is read off the document, never off `location.pathname`.**
   The deploy base comes from `GITHUB_REPOSITORY` and can be overridden with
   `BASE_PATH`, so a path-sniffing gate would quietly stop arming XR after a
   repo rename. `vr/index.html` is a third Vite entry that shares the `main`
-  chunk byte for byte — it is the same map, arriving with XR armed.
+  chunk byte for byte.
 - **Stereo only. Never reintroduce a mono mode.** Two implementations were
   tried and both left the right eye facing the wrong way; stereo works
   perfectly. Leave `renderer.xr.cameraAutoUpdate` at its default.

@@ -15,10 +15,18 @@ export const palette = {
   completed: 0x38b000, // green — reserved, never reuse for anything else
   current: 0xffd166, // the manual progress marker (see admin module)
 
-  // Categories (not completed) — PLACEHOLDERS, tune freely
-  theory: 0x4cc9f0, // cyan
-  practical: 0xf77f00, // orange
-  boss: 0x4a5058, // dark stone — the red is an accent, not the whole castle
+  // Categories (not completed). Marc's scheme, round 11 — these are no longer
+  // placeholders, they are what the map means:
+  theory: 0x4cc9f0, // blue — a taught theory day
+  practical: 0xf77f00, // orange — a taught practice day, with exercises
+  // Yellow, and it must stay clear of nodeRim (0xf2c14e) below: they were the
+  // same value for one build and every project node read as an empty gold ring.
+  project: 0xffdd00, // yellow — autonomous team work, teacher on support only
+  boss: 0xd11f2d, // red — the two exams, and the re-evaluation extra
+
+  // The two voluntary "Actitud 10%" activities. Overrides the day's own
+  // colour, the way green does — see resolveNodeColor.
+  attitude: 0x9d4edd, // lilac
 
   // Optional / bonus levels — must never be green
   optional: 0x9d4edd, // purple / lilac
@@ -146,13 +154,24 @@ export const cssPalette = Object.fromEntries(
 )
 
 /**
- * The one place node colour is decided. Order matters.
- * @param {{completed?: boolean, optional?: boolean, category?: string}} level
+ * The one place node colour is decided. ORDER MATTERS, and this is the order:
+ *
+ *   completed → locked → attitude → boss → optional → the day's own category
+ *
+ * `boss` sits ABOVE `optional` on purpose. The re-evaluation is both: an extra
+ * hanging off the final castle on a dashed connector, and an exam. Marc asked
+ * for it in red, so being a boss has to win over being optional — flip those
+ * two and it silently turns lilac.
+ *
+ * @param {{completed?: boolean, optional?: boolean, attitudeGrade?: string,
+ *          category?: string}} level
  * @param {{locked?: boolean}} [state]
  */
 export function resolveNodeColor(level, state = {}) {
   if (level.completed) return palette.completed // wins over everything
   if (state.locked) return palette.locked
+  if (level.attitudeGrade) return palette.attitude
+  if (level.category === 'boss') return palette.boss
   if (level.optional) return palette.optional
   return palette[level.category] ?? palette.theory
 }

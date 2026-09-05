@@ -26,8 +26,10 @@ const STAGES = [
   'final-project',
   'final-boss-presentation',
 ]
-const CATEGORIES = ['theory', 'practical', 'boss']
-const BOSS_TIERS = ['mini', 'final']
+const CATEGORIES = ['theory', 'practical', 'project', 'boss']
+// 'extra' is the re-evaluation: an exam that is not a class, hanging off the
+// final castle on a dashed connector. It is the ONLY boss that may be optional.
+const BOSS_TIERS = ['mini', 'final', 'extra']
 const SLIDE_TYPES = ['pdf', 'canva']
 
 // The graded practical blocks — 30% of the course, 10% per block.
@@ -57,8 +59,17 @@ for (const l of levels) {
   if (typeof l.optional !== 'boolean') err(`${at}: "optional" must be a boolean`)
 
   if (l.category === 'boss') {
-    if (!BOSS_TIERS.includes(l.bossTier)) err(`${at}: boss needs bossTier "mini" or "final"`)
-    if (l.optional) err(`${at}: a boss can never be optional`)
+    if (!BOSS_TIERS.includes(l.bossTier)) {
+      err(`${at}: boss needs bossTier "mini", "final" or "extra"`)
+    }
+    // A boss ON THE PATH can never be optional — the route has to run through
+    // it. An 'extra' boss is off the path by definition and must be optional.
+    if (l.optional && l.bossTier !== 'extra') {
+      err(`${at}: only an "extra" boss may be optional`)
+    }
+    if (!l.optional && l.bossTier === 'extra') {
+      err(`${at}: an "extra" boss hangs off the path, so it must be optional`)
+    }
   } else if (l.bossTier) {
     err(`${at}: bossTier is only valid when category is "boss"`)
   }
@@ -106,6 +117,27 @@ for (const l of levels) {
 
   for (const note of l._fixme ?? []) fixmes.push(`${l.id}: ${note}`)
 
+  if (l.contents !== undefined) {
+    if (!Array.isArray(l.contents) || l.contents.some((c) => typeof c !== 'string')) {
+      err(`${at}: "contents" must be an array of strings`)
+    }
+  }
+  if (l.attitudeGrade !== undefined && typeof l.attitudeGrade !== 'string') {
+    err(`${at}: "attitudeGrade" must be the deliverable's name, as a string`)
+  }
+  // The slide deck link from the calendar's Classes column. A LINK, not an
+  // embed: these are canva.link shortlinks, which are neither "?embed" URLs
+  // nor "/edit" ones, so they cannot go through the `slides` block without
+  // failing its Canva rule. When public embed URLs arrive they become real
+  // `slides` entries and this field goes away for that level.
+  if (l.slidesLink) {
+    if (!l.slidesLink.url) err(`${at}: slidesLink.url is empty`)
+    else if (!/^https?:\/\//.test(l.slidesLink.url)) {
+      err(`${at}: slidesLink.url must be absolute (got "${l.slidesLink.url}")`)
+    }
+    if (!l.slidesLink.label) err(`${at}: slidesLink.label is empty`)
+    if (l.slides) err(`${at}: has both "slides" and "slidesLink" — pick one`)
+  }
   if (l.slides) {
     if (!SLIDE_TYPES.includes(l.slides.type)) err(`${at}: slides.type must be pdf or canva`)
     if (!l.slides.source) err(`${at}: slides.source is empty`)
@@ -115,7 +147,7 @@ for (const l of levels) {
     if (l.slides.type === 'canva' && /\/edit\b/.test(l.slides.source ?? '')) {
       err(`${at}: Canva link is an EDIT link — never publish that`)
     }
-  } else if (l.category === 'theory') {
+  } else if (l.category === 'theory' && !l.slidesLink) {
     warn(`${at}: theory level with no slides — the portal opens slides first`)
   }
 
@@ -150,7 +182,9 @@ for (const l of levels.filter((x) => x.optional && x.anchorAfter)) {
 // --- per-world structure ---------------------------------------------------
 for (const w of worlds) {
   const mine = levels.filter((l) => l.world === w.id)
-  const bosses = mine.filter((l) => l.category === 'boss')
+  // Only bosses ON THE PATH count towards the world's structure; an 'extra'
+  // hangs off it and is placed through anchorAfter like any bonus node.
+  const bosses = mine.filter((l) => l.category === 'boss' && !l.optional)
   const hasSlot = w.path.bossSlotIndex != null
 
   if (mine.length === 0) err(`world ${w.id}: has no levels`)
@@ -186,10 +220,14 @@ for (const [id, deck] of Object.entries(decks)) {
   }
   // The generated deck wins in the viewer, so a slides block underneath it is
   // config that can never take effect.
-  if (level.slides) {
+  // Both is legal and normal: the calendar's Classes column carries the lecture
+  // deck and "+ TODO's (Marp)" for the same day, and they are different
+  // documents. The viewer shows the generated deck with a link to the other
+  // above it. Only flag the combination the viewer cannot show.
+  if (level.slides && level.slides.type === 'pdf') {
     warn(
-      `level "${id}": has a generated Marp deck AND a "${level.slides.type}" slides block — ` +
-        `the deck wins, so the slides block is dead config`
+      `level "${id}": has a generated Marp deck AND a PDF slides block — ` +
+        `the deck fills the panel, so only the PDF's link survives`
     )
   }
 }
@@ -351,8 +389,21 @@ cover(
 )
 cover('at least one optional node', levels.some((l) => l.optional),
   levels.filter((l) => l.optional).map((l) => l.id).join(', '))
-cover('a PDF slide example', levels.some((l) => l.slides?.type === 'pdf'))
-cover('a Canva slide example', levels.some((l) => l.slides?.type === 'canva'))
+// Slides now arrive as links off the calendar's Classes column. The `slides`
+// block (pdf / canva embed) is still supported and is what a level gets once a
+// public Share → Embed URL exists for it — it is just no longer required.
+cover(
+  'slide links from the calendar',
+  levels.some((l) => l.slidesLink),
+  `${levels.filter((l) => l.slidesLink).length} of ${levels.length} levels`
+)
+{
+  const embeds = levels.filter((l) => l.slides).length
+  console.log(
+    `  ${embeds ? '✓' : '·'} embedded decks (pdf/canva) — ${embeds || 'none yet; ' +
+      'waiting on public Share → Embed URLs'}`
+  )
+}
 cover('an objective-task todo', levels.some((l) => l.todos?.some((t) => t.type === 'objective-task')))
 cover(
   'a generated Marp deck',
