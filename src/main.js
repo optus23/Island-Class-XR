@@ -34,21 +34,35 @@ import { createVR } from './three/vr.js'
 const container = document.getElementById('app')
 const curtain = createCurtain()
 /**
- * WebXR is opt-in, and there are exactly two doors: `?vr=1` on any page, or the
- * dedicated `/vr/` entry, which declares itself with `data-xr="1"` on <html>.
- * The plain map at `/` must behave identically whether or not a headset is
- * plugged in — it did not, and that is what hung the page the moment Quest
- * Link started.
+ * ONE URL FOR EVERYTHING, AND THE BUTTON IS THE BRIDGE.
+ *
+ * `?vr=1` and the `/vr/` entry no longer decide whether VR is *reachable* —
+ * every page offers it. What they still decide is whether the WebGL context is
+ * born XR-compatible, and that distinction is the whole safety property:
+ *
+ *   - Off (the plain map): the context is created exactly as it was before any
+ *     WebXR work existed. All that happens extra is one
+ *     `navigator.xr.isSessionSupported()` call — a capability query that
+ *     creates nothing and migrates nothing — and a button if it says yes.
+ *     Pressing the button is what migrates the context, at a moment the user
+ *     asked for and can be told about.
+ *   - On: the context is XR-compatible from the first frame, so entry can never
+ *     hit a GPU migration. This is the guaranteed path, and where a failed
+ *     lazy arming reloads to.
+ *
+ * That keeps the thing that actually mattered: a student opening the map with
+ * a headset plugged in still runs the renderer that shipped before any of this.
+ * What it drops is the pretence that they should have to know a URL to get in.
  *
  * The `/vr/` door is read off the document, not off `location.pathname`: the
  * deploy base comes from GITHUB_REPOSITORY and can be overridden with
  * BASE_PATH, so any path-sniffing gate would silently stop arming XR after a
  * repo rename.
  */
-const XR_REQUESTED =
+const XR_EAGER =
   new URLSearchParams(location.search).has('vr') ||
   document.documentElement.dataset.xr === '1'
-const app = createScene(container, { xr: XR_REQUESTED })
+const app = createScene(container, { xr: XR_EAGER })
 const tooltip = createTooltip()
 
 const island = createIsland()
@@ -593,14 +607,15 @@ async function boot() {
   app.start()
 
   // --- immersive VR --------------------------------------------------------
-  // Only on `?vr=1` or the `/vr/` entry. Otherwise navigator.xr is never even
-  // queried.
-  if (!XR_REQUESTED) {
-    console.info('[xr] modo 2D. Abre /vr o añade ?vr=1 para el modo inmersivo.')
-    return
-  }
-  console.info('[xr] modo VR solicitado')
+  // Offered on every page. The cost on the plain map is one capability query;
+  // the context is only migrated if someone presses the button. See XR_EAGER.
+  console.info(
+    XR_EAGER
+      ? '[xr] contexto XR-compatible desde el primer frame'
+      : '[xr] mapa 2D; el contexto se prepara al pulsar «Entrar en VR»'
+  )
   vr = createVR({
+    armXR: () => app.armXR(),
     renderer: app.renderer,
     scene: app.scene,
     camera: app.rig.camera,

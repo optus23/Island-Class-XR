@@ -72,6 +72,11 @@ export function createVR({
   onSelect = () => {},
   onEnter = () => {},
   playerLevelId = () => null,
+  /**
+   * Makes the renderer's context XR-compatible when the page did not create it
+   * that way. Resolves 'ready' | 'lost' | 'failed' — see scene.js.
+   */
+  armXR = async () => 'ready',
 }) {
   if (!navigator.xr) {
     return {
@@ -394,6 +399,26 @@ export function createVR({
     camera.updateProjectionMatrix()
   }
 
+  /**
+   * Reload onto the guaranteed path, keeping whatever else is in the URL (a
+   * `?level=` deep link, above all). `replace` so Back does not bounce the
+   * user through a page that was only ever a stepping stone.
+   *
+   * A session cannot be requested without a user gesture, and a reload spends
+   * the one we had, so the button has to be pressed once more on the other
+   * side. `sessionStorage` is what tells that page to say so out loud.
+   */
+  function reloadArmed() {
+    const url = new URL(location.href)
+    url.searchParams.set('vr', '1')
+    try {
+      sessionStorage.setItem('xr-retry', '1')
+    } catch {
+      /* private mode: the note is a nicety, the reload is the point */
+    }
+    location.replace(url)
+  }
+
   async function startSession() {
     // `session` is only assigned once setSession() has succeeded, so it does
     // not guard the window while requestSession is still in flight. Without a
@@ -402,6 +427,20 @@ export function createVR({
     // XRSession" — leaving one session alive that nothing owns.
     if (session || starting) return
     starting = true
+
+    // THE CONTEXT COMES FIRST. On the plain map it was created without
+    // `xrCompatible`, so it has to be migrated now — and on a two-adapter
+    // desktop that migration loses the context. When it does, there is a page
+    // that cannot hit this at all: `?vr=1` builds the context compatible from
+    // the first frame. Send them there rather than failing.
+    setLabel('Preparando…')
+    const armed = await armXR()
+    if (armed !== 'ready') {
+      console.warn(`[xr] lazy arming came back "${armed}" — reloading with ?vr=1`)
+      starting = false
+      reloadArmed()
+      return
+    }
 
     // ONE try around both halves. setSession() used to be awaited outside it,
     // so when it threw — which is what InvalidStateError does here — the
@@ -506,6 +545,16 @@ export function createVR({
     bar.appendChild(note)
 
     host.appendChild(bar)
+
+    // Arrived here from a failed lazy arming — say why there is a second press.
+    try {
+      if (sessionStorage.getItem('xr-retry')) {
+        sessionStorage.removeItem('xr-retry')
+        setNote('Listo para VR. Pulsa «Entrar en VR» otra vez.')
+      }
+    } catch {
+      /* ignore */
+    }
     return true
   }
 
