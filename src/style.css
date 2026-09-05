@@ -932,3 +932,15 @@ body.map-view {
     inset 0 0 0 2px rgb(255 255 255 / 0.1),
     0 18px 50px rgb(0 0 0 / 0.55);
 }
+
+/* Which build the page is running. Deliberately dim and out of the way, but
+   present: a cached index.html loads an old hashed bundle that still works, so
+   without this a shipped fix and a stale page look identical. */
+.legend-build {
+  margin: 0.5rem 0 0;
+  font-size: 0.58rem;
+  letter-spacing: 0.08em;
+  text-align: center;
+  opacity: 0.35;
+  font-variant-numeric: tabular-nums;
+}

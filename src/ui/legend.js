@@ -17,6 +17,9 @@ import { cssPalette } from '../config/theme.js'
 
 const ADMIN_TOKEN_KEY = 'xrisland:gh-token'
 
+// eslint-disable-next-line no-undef
+const BUILD_ID = typeof __BUILD_ID__ === 'string' ? __BUILD_ID__ : 'dev'
+
 // Same order as resolveNodeColor resolves them, so the legend reads as the
 // rule it describes rather than as an arbitrary list.
 const ROWS = [
@@ -105,6 +108,11 @@ export function mountLegend(actions = {}) {
                  </div>`
               : ''
           }
+
+          <!-- Which build this is. A phone holding a cached index.html loads
+               the old hashed bundle, which still works — so a fix can be live
+               and invisible. This makes that answerable in one glance. -->
+          <p class="legend-build">build ${BUILD_ID}</p>
         </div>
       </div>`
 

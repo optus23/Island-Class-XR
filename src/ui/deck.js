@@ -20,6 +20,9 @@ let indexPromise = null
 
 const base = () => import.meta.env.BASE_URL
 
+/** `?debug=1` turns the viewer's measurements into on-screen text. */
+const DEBUG = new URLSearchParams(location.search).has('debug')
+
 async function getJSON(path) {
   const res = await fetch(`${base()}${path}`, { cache: 'no-cache' })
   if (!res.ok) throw new Error(`HTTP ${res.status}`)
@@ -98,7 +101,7 @@ export async function renderDeck(el, level) {
         <button class="btn btn-sm" data-prev aria-label="Diapositiva anterior">←</button>
         <button class="btn btn-sm" data-next aria-label="Diapositiva siguiente">→</button>
         <span class="text-sm tabular-nums opacity-70" data-count></span>
-        <span class="text-xs opacity-50 ml-auto">Generado desde Markdown (Marp)</span>
+        <span class="text-xs opacity-50 ml-auto" data-note>Generado desde Markdown (Marp)</span>
       </div>
     </div>`
 
@@ -147,7 +150,14 @@ export async function renderDeck(el, level) {
       return
     }
     retry = 0
-    scaler.style.transform = `scale(${w / 1280})`
+    const k = w / 1280
+    scaler.style.transform = `scale(${k})`
+    // ?debug=1 puts the measured numbers on screen. Reading them back beats
+    // another round of reasoning about a layout nobody can inspect.
+    if (DEBUG) {
+      const note = el.querySelector('[data-note]')
+      if (note) note.textContent = `Marp · ${Math.round(w)}px · x${k.toFixed(3)}`
+    }
   }
 
   const show = (n) => {
