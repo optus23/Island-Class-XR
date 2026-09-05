@@ -1,6 +1,6 @@
 # XR Island — handoff
 
-State as of **4 September 2026**, end of round 9 (teacher controls, no answers).
+State as of **5 September 2026**, end of round 10 (WebXR brought up on a real Quest 3).
 Read `CLAUDE.md` first for the durable rules; this file is what was happening.
 
 ---
@@ -13,8 +13,9 @@ branch, which is deliberately not:
 
 | | |
 | --- | --- |
-| `main` | merge of PR #12 |
-| `develop` | same content |
+| `main` | merge of PR #12 — unchanged by round 10 |
+| `develop` | unchanged by round 10 |
+| `webxr-vr-mode` | **where round 10 lives. Not merged, do not merge without asking.** |
 | Last deploy | run `33922729738`, success |
 | Working tree | clean |
 | Performance | ~27 draw calls, ~700k triangles, 0.05 ms/frame CPU |
@@ -35,10 +36,119 @@ keeps the teacher's own marker (`w1-intro-02`), the deck manifest carries no
 `answers` key, `decks/*.answers.json` and `content/answers/*.md` are real 404s,
 and `/admin/` serves.
 
-**Still not verified:** anything requiring a browser. The tooling has been
+**Round 10 note:** the browser tooling came back and both modes were verified
+in Chrome — the 2D map and `?vr=1` load clean, no console errors, no context
+loss. Everything below about "not verified in a browser" is now superseded.
+
+**Previously not verified:** anything requiring a browser. The tooling has been
 unavailable for two rounds, so the deck viewer, the new legend Profesor block
 and the admin card have been built and served but never seen rendered. That is
 the first thing to check next session.
+
+---
+
+## Round 10 — WebXR, brought up on real hardware
+
+**All of this is on the unmerged `webxr-vr-mode` branch.** `develop` and `main`
+are untouched and still live at PR #12. That branch now also carries rounds 8
+and 9, which it was missing.
+
+### Where VR actually stands
+
+Marc ran it on a Quest 3 over Link, in desktop Chrome.
+
+**Working, confirmed by him:** entering VR, **stereo rendering** ("funciona a
+la perfección"), the water shader, controller rays selecting nodes, and
+left-stick panning in the direction he is looking.
+
+**Changed but NOT yet re-tested by him:** rotation about his own axis (the
+fourth attempt) and the desktop mirror.
+
+**Never tested at all:** entering a level from inside the headset, and
+performance under load.
+
+### How to run it
+
+```bash
+npm run dev
+```
+
+Then in the Quest browser open **`http://localhost:5173/?vr=1`**, with the port
+forwarded. `adb` is not on PATH — it lives under:
+
+```
+C:/Program Files/Unity/Hub/Editor/6000.0.23f1/Editor/Data/PlaybackEngines/AndroidPlayer/SDK/platform-tools/
+```
+
+```powershell
+& "<that path>adb.exe" reverse tcp:5173 tcp:5173
+```
+
+**The forward dies whenever the cable is touched or the headset sleeps.** Re-run
+it; a dead forward looks exactly like a dead server. Alternatively run Quest
+Link and open the same URL in desktop Chrome — no adb needed, same code path.
+
+`?vr=1` is required and must stay required. See CLAUDE.md.
+
+### The bugs worth remembering
+
+**The water and "rotation moves me" were one bug.** The diorama scale was
+picked by hand against the island's width, and the sea is 2.4x that width and
+3.4x its depth: the water came out 8.6 x 5.6 m and reached 1.3 m *behind* the
+viewer, surface at chest height. He was standing inside the sea. The scale is
+now derived from a measured `Box3`.
+
+**The water still came out flat white after that**, because its shore lookup
+went through `modelMatrix` — world space — while `uShoreMin/uShoreSize` are in
+island units. At 0.005 scale the lookup clamped to a constant and flooded
+everything with foam, while the swell kept animating because that uses local
+`position`. Now derived from local position plus the plane's own offset.
+
+**Mono is deleted and must not come back.** Two implementations, both leaving
+the right eye facing the wrong way. Stereo is perfect.
+
+**`InvalidStateError` on entry** was `WebGLRenderer` not forwarding
+`xrCompatible` to `getContext` — its attribute list is fixed and does not
+include it. The context is built by hand now. Full chain in
+[`docs/webxr-vr-mode.md`](docs/webxr-vr-mode.md).
+
+### Rotation: three attempts rejected, a fourth shipped
+
+Rotating the model about its own centre was called uncomfortable every time,
+even once the pivot was provably centred. The reading that finally fits: a
+two-metre model spinning in front of someone fills the view with optical flow
+that reads as self-motion wherever the pivot is. It now swings the diorama
+around **the viewer's own vertical axis** — geometrically, the viewer turning
+on the spot. Untested.
+
+### The lesson that cost the most: it was not the code
+
+For three rounds the page "did not respond" and every diagnosis went hunting
+for a bug. **The dev server had leaked to 10.5 GB with 3 GB free on the
+machine**, and eventually died on its own, freeing 15 GB. Page loads stalled,
+the browser extension dropped its connection, background tasks were killed. It
+correlated with plugging in the headset only because Quest Link's own footprint
+was what tipped the machine over — which made it look causal, and I chased that
+correlation instead of checking memory.
+
+**Check `Get-Process node` before believing a hang is yours.**
+
+The design fault it exposed was real, though: the XR path was on for every
+visitor. It is behind `?vr=1` now, so a student opening the map with a headset
+plugged in runs exactly the renderer that existed before any of this.
+
+### Open, and the first thing to ask him
+
+- **Deployment.** He wants `optus23.github.io/Island-Class-XR/vr`. Pages serves
+  one site per repo, so that exact URL means merging into `main` and adding a
+  `/vr/` entry point; the alternative is a second repo at `…-vr`. **He has not
+  chosen. Ask before building either.**
+- **In-VR UI** — level titles and info panels inside the headset — is what he
+  asked for after deployment. `scripts/build-decks.mjs` already emits slides as
+  `{ html, classes }` data and `src/ui/deck.js` is the only file that assumes a
+  DOM, so an in-world panel is a sibling of that file, not a rewrite.
+- The mirror costs a full extra scene render at headset resolution every third
+  frame. If VR performance is poor, look there first.
 
 ---
 
