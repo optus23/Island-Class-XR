@@ -301,6 +301,41 @@ for (const w of worlds) {
     }
   }
 
+  // Where the ROAD rides well above the ground beneath it.
+  //
+  // The ribbon takes the HIGHEST of five samples across its width, so beside a
+  // terrace step it sits a long way above the terrain at its centre line. A
+  // node disc placed off a single groundHeightAt() then sank underneath it and
+  // the cream surface was drawn over the disc — reported as "paths on top of
+  // the session button". nodes.js now stands on-path discs on the ROAD's
+  // surface (roadTopAt + ROAD_SURFACE_LIFT + DISC_CLEARANCE), which fixes it.
+  //
+  // This is a WARNING, not an error: those nodes are legal and now render
+  // correctly. It flags them because their placement is the fragile case, and
+  // anyone going back to a plain ground sample will re-break exactly these.
+  const ROAD_HALF = 1.2
+  const roadTopAt = (x, z, t) => {
+    const sx = t.z * ROAD_HALF
+    const sz = -t.x * ROAD_HALF
+    return Math.max(
+      groundHeightAt(x - sx, z - sz),
+      groundHeightAt(x + sx, z + sz),
+      groundHeightAt(x, z),
+      groundHeightAt(x - sx * 1.35, z - sz * 1.35),
+      groundHeightAt(x + sx * 1.35, z + sz * 1.35)
+    )
+  }
+  for (const pl of placed.filter((x) => x.onPath)) {
+    const gap = roadTopAt(pl.position.x, pl.position.z, pl.tangent) -
+      groundHeightAt(pl.position.x, pl.position.z)
+    if (gap > 1) {
+      warn(
+        `world ${w.id}: the road at "${pl.level.id}" rides ${gap.toFixed(2)} above the ` +
+          `ground under it — its disc MUST be placed on the road surface, not the ground`
+      )
+    }
+  }
+
   // An optional branch must genuinely leave the road, not hug it.
   const MIN_BRANCH_CLEARANCE = 4.5
   for (const pl of placed.filter((x) => !x.onPath)) {
