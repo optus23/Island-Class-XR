@@ -399,6 +399,40 @@ per-level `completed` flag, because two sources of truth would drift.
 
 ---
 
+## Alumnos en la isla — `/admin`
+
+El sistema de motivación: cuando alguien gana puntos positivos (participación,
+un Kahoot del lunes…), su nombre puede aparecer paseando por el mapa.
+
+1. Entra en `/admin/` con el token (arriba).
+2. En **Alumnos en la isla**, escribe un **nombre o nickname**, elige la
+   **sesión** junto a la que quieres que pasee y pulsa **Añadir**.
+3. Repite con quien quieras. Los cambios se quedan en el navegador hasta que
+   pulsas **Guardar en el mapa**: cada guardado es un commit y un despliegue, así
+   que se guarda todo de una vez, no de uno en uno.
+4. Abre el mapa. Aparece un personaje voxel dando vueltas muy despacio alrededor
+   de esa sesión, con el nombre sobre la cabeza.
+
+Para quitar a alguien, pulsa la ✕ de su fila y guarda.
+
+Detalles que conviene saber:
+
+- **24 plazas.** Más que eso deja de leerse como «mira quién ha llegado al mapa»
+  y pasa a leerse como una multitud.
+- **Las sesiones son las 25 clases normales.** Los dos castillos (exámenes) no
+  admiten a nadie: el edificio ocupa todo el espacio junto al nodo, y de todas
+  formas nadie gana puntos de participación en un examen.
+- **Es decoración.** No se puede pulsar, no tapa el disco de la sesión y no
+  cambia nada del curso ni del marcador.
+- El personaje es aleatorio pero estable: el mismo nombre sale siempre con la
+  misma ropa y el mismo pelo.
+
+Se guarda en `public/npcs.json`, que solo contiene **un nombre visible y un id de
+sesión** — ni notas, ni puntos, ni correos, ni fechas. `npm run validate` falla si
+aparece cualquiera de esas cosas.
+
+---
+
 ## 3D assets
 
 The island is generated from code today, so the project runs with no asset
@@ -426,8 +460,15 @@ login. Before you commit real material, check:
   papers, vendor decks or other courses may not be redistributable. Material that
   was fine to show inside a private LMS is not automatically fine to publish
   openly on the web.
-- **Student data.** No names, marks, emails, submissions or recordings of
-  identifiable students. Nothing in this repo needs them.
+- **Student data.** No marks, emails, submissions or recordings of identifiable
+  students. Nothing in this repo needs them.
+
+  The **one deliberate exception** is `public/npcs.json`, the roster of students
+  honoured on the map (see above). It is still public: anyone can read the file
+  and anyone can see the names walking the island. So put a **nickname**, or a
+  first name plus an initial, rather than a full legal name — especially for
+  anyone under 18 — ask before putting someone on the map, and take a name off
+  when asked. A display name and a session id is all the file may ever hold.
 - **Exam material.** Anything you would not want
   visible before an exam should not be committed until after it.
 
@@ -459,14 +500,15 @@ git checkout -b feature/my-change develop
 src/
   config/    theme.js (all colours) · worlds.js (camera anchors + path splines)
   data/      levels.json — the course content
-  three/     scene · cameraRig · paths · island · nodes · player
+  three/     scene · cameraRig · paths · island · nodes · player · villagers
   ui/        nav · portal · slides · todos · markdown · hud
-  lib/       levels (sequence + status) · progress (reads progress.json)
-  admin/     the progress panel
+  lib/       levels (sequence + status) · progress · roster · githubData (writes)
+  admin/     sign-in, and the roster of students on the island
 public/
   content/   slides (PDF) · exercises (md, Marp)
   models/    glTF/GLB assets
-  progress.json
+  progress.json   where the class is
+  npcs.json       who is walking the island
 scripts/     validate.mjs · make-placeholders.mjs
 ```
 

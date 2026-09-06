@@ -1,77 +1,70 @@
 import '../style.css'
-import { START_MARKER, levelById, markerProgress, sessionNumber } from '../lib/levels.js'
+import { START_MARKER, levelById, mainSequence, markerProgress, sessionNumber } from '../lib/levels.js'
+import {
+  PROGRESS_PATH,
+  readJsonFile,
+  readRoster,
+  settings,
+  writeRoster,
+} from '../lib/githubData.js'
+import { MAX_NAME, MAX_NPCS, cleanName, makeNpcId } from '../lib/roster.js'
 
 /**
- * /admin — SIGN IN, and nothing else.
+ * /admin — sign in, and edit the roster of honoured students.
  *
- * This page used to be the whole teacher console: a full-screen form plus the
- * marker controls. That was the wrong shape. Pressing "Avanzar" here moved the
- * marker but you were staring at a form, so there was no way to see the avatar
- * walk or the camera follow — the button appeared to do nothing.
+ * WHY THE MARKER CONTROLS ARE NOT HERE AND THE ROSTER IS
+ * This page used to be the whole teacher console, marker buttons included. That
+ * was the wrong shape: pressing "Avanzar" here moved the marker while you stared
+ * at a form, with no avatar walking and no camera following, so the button read
+ * as dead. Those controls now live in the **Profesor** block of the legend, on
+ * the map, where their effect is the thing you are looking at.
  *
- * So the controls moved to where their effect is visible: the **Profesor**
- * block of the legend, on the map itself. It unlocks as soon as a token is
- * present in this browser. All this page does now is put one there, confirm it
- * works, and send you to the map.
+ * The roster is the opposite case and belongs here. It is data entry — type a
+ * name, pick a session, repeat — and there is nothing to watch while you type;
+ * what you would want to see (a little classmate pacing around the disc) only
+ * exists after the file is committed and Pages has rebuilt. A form is the right
+ * surface for it, and the "Abrir el mapa" button at the bottom is how you go and
+ * look.
+ *
+ * Edits are STAGED and saved in one go. Every save is a commit and a deploy, so
+ * adding five students one commit at a time would be five deploys.
  *
  * Token handling, unchanged and deliberate:
  *   - typed here, kept in THIS browser's localStorage only
  *   - never committed, never bundled, never sent anywhere but api.github.com
- *   - the public map never reads it; students only ever GET progress.json
+ *   - the public map never reads it; students only ever GET the two data files
  * A build-time constant carries the public repo slug; that is not a secret.
  */
 
-const TOKEN_KEY = 'xrisland:gh-token'
-const REPO_KEY = 'xrisland:gh-repo'
-const BRANCH_KEY = 'xrisland:gh-branch'
-const FILE_PATH = 'public/progress.json'
-
-// eslint-disable-next-line no-undef
-const BUILD_REPO = typeof __REPO_SLUG__ === 'string' ? __REPO_SLUG__ : ''
-
-const get = (k, fallback = '') => {
-  try {
-    return localStorage.getItem(k) || fallback
-  } catch {
-    return fallback
-  }
-}
-const set = (k, v) => {
-  try {
-    v ? localStorage.setItem(k, v) : localStorage.removeItem(k)
-  } catch {
-    /* storage disabled */
-  }
-}
-
-const store = {
-  get token() {
-    return get(TOKEN_KEY)
-  },
-  set token(v) {
-    set(TOKEN_KEY, v)
-  },
-  get repo() {
-    return get(REPO_KEY, BUILD_REPO)
-  },
-  set repo(v) {
-    set(REPO_KEY, v)
-  },
-  get branch() {
-    return get(BRANCH_KEY, 'main')
-  },
-  set branch(v) {
-    set(BRANCH_KEY, v)
-  },
-}
-
 const root = document.getElementById('admin-root')
-let state = { currentLevelId: null, busy: false, message: null, tone: 'info' }
 
-const decodeBase64 = (b64) =>
-  new TextDecoder().decode(
-    Uint8Array.from(atob(b64.replace(/\s/g, '')), (c) => c.charCodeAt(0))
+let state = {
+  currentLevelId: null,
+  busy: false,
+  message: null,
+  tone: 'info',
+  /** null until a token checks out; an array once the roster has been read. */
+  roster: null,
+  rosterDirty: false,
+  rosterNote: null,
+  rosterTone: 'info',
+  /** The session a new name is filed under. Defaults to where the class is. */
+  levelId: null,
+  focusName: false,
+}
+
+/** Names come from a human and land in `innerHTML` below. */
+const esc = (s) =>
+  String(s).replace(
+    /[&<>"']/g,
+    (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]
   )
+
+/** "Mundo 1-3 · sesión 3" — the same wording the map and the legend use. */
+function sessionLabel(level) {
+  const n = sessionNumber(level)
+  return n ? `Mundo ${n.world}-${n.index} · sesión ${n.global}` : 'Nivel opcional'
+}
 
 function say(message, tone = 'info') {
   state.message = message
@@ -79,42 +72,43 @@ function say(message, tone = 'info') {
   render()
 }
 
+function sayRoster(note, tone = 'info') {
+  state.rosterNote = note
+  state.rosterTone = tone
+  render()
+}
+
 /**
- * Verify the credentials by reading the marker. Read-only: this page never
- * writes, so a mistyped token fails here rather than halfway through a change.
+ * Verify the credentials by reading both public files. Read-only: a mistyped
+ * token fails here rather than halfway through a change.
  */
 async function check() {
-  if (!store.token || !store.repo) {
+  if (!settings.token || !settings.repo) {
     state.currentLevelId = null
+    state.roster = null
     render()
     return
   }
   state.busy = true
   render()
   try {
-    const res = await fetch(
-      `https://api.github.com/repos/${store.repo}/contents/${FILE_PATH}` +
-        `?ref=${encodeURIComponent(store.branch)}`,
-      {
-        headers: {
-          Accept: 'application/vnd.github+json',
-          'X-GitHub-Api-Version': '2022-11-28',
-          Authorization: `Bearer ${store.token}`,
-        },
-      }
-    )
-    if (res.status === 401) throw new Error('Token no válido o caducado.')
-    if (res.status === 403)
-      throw new Error('El token no tiene permiso "Contents: Read and write".')
-    if (res.status === 404)
-      throw new Error(`No existe ${FILE_PATH} en la rama ${store.branch} de ${store.repo}.`)
-    if (!res.ok) throw new Error(`GitHub respondió ${res.status}.`)
-
-    const data = await res.json()
-    state.currentLevelId = JSON.parse(decodeBase64(data.content)).currentLevelId ?? START_MARKER
-    say('Token correcto. Los controles ya están activos en el mapa.', 'success')
+    const { doc } = await readJsonFile(PROGRESS_PATH)
+    if (!doc) throw new Error(`No existe ${PROGRESS_PATH} en la rama ${settings.branch}.`)
+    state.currentLevelId = doc.currentLevelId ?? START_MARKER
+    state.levelId = state.levelId ?? state.currentLevelId
+    // A roster that will not load must not make the token look invalid.
+    try {
+      state.roster = await readRoster()
+      state.rosterDirty = false
+      state.rosterNote = null
+    } catch (e) {
+      state.roster = []
+      sayRoster(`No se pudo leer la lista de alumnos: ${e.message}`, 'error')
+    }
+    say('Token correcto. Los controles del curso ya están activos en el mapa.', 'success')
   } catch (e) {
     state.currentLevelId = null
+    state.roster = null
     say(e.message, 'error')
   } finally {
     state.busy = false
@@ -122,96 +116,304 @@ async function check() {
   }
 }
 
-function render() {
+// --- roster actions ---------------------------------------------------------
+
+function addStudent(rawName, levelId) {
+  const name = cleanName(rawName)
+  if (!name) {
+    sayRoster('Escribe un nombre o un nickname.', 'error')
+    return
+  }
+  if (!levelById(levelId)) {
+    sayRoster('Elige la sesión junto a la que quieres que pasee.', 'error')
+    return
+  }
+  if (state.roster.length >= MAX_NPCS) {
+    sayRoster(
+      `La isla admite ${MAX_NPCS} alumnos a la vez. Quita alguno antes de añadir otro.`,
+      'error'
+    )
+    return
+  }
+  if (state.roster.some((n) => n.name.toLowerCase() === name.toLowerCase() && n.levelId === levelId)) {
+    sayRoster(`"${name}" ya pasea por esa sesión.`, 'error')
+    return
+  }
+  state.roster.push({ id: makeNpcId(), name, levelId })
+  state.rosterDirty = true
+  state.focusName = true
+  sayRoster(`"${name}" añadido. Pulsa «Guardar en el mapa» cuando acabes.`, 'info')
+}
+
+function removeStudent(id) {
+  const gone = state.roster.find((n) => n.id === id)
+  state.roster = state.roster.filter((n) => n.id !== id)
+  state.rosterDirty = true
+  sayRoster(
+    gone
+      ? `"${gone.name}" quitado. Pulsa «Guardar en el mapa» para confirmarlo.`
+      : 'Quitado.',
+    'info'
+  )
+}
+
+async function saveRoster() {
+  state.busy = true
+  sayRoster('Guardando…', 'info')
+  try {
+    state.roster = await writeRoster(state.roster)
+    state.rosterDirty = false
+    sayRoster(
+      `Guardado: ${state.roster.length} alumno(s). El mapa se reconstruye en 1–2 min.`,
+      'success'
+    )
+  } catch (e) {
+    sayRoster(e.message, 'error')
+  } finally {
+    state.busy = false
+    render()
+  }
+}
+
+// --- render -----------------------------------------------------------------
+
+function signInCard() {
   const current = state.currentLevelId ? levelById(state.currentLevelId) : null
-  const n = current ? sessionNumber(current) : null
   const { index, total } = markerProgress(state.currentLevelId)
   const tone =
     state.tone === 'error' ? 'alert-error' : state.tone === 'success' ? 'alert-success' : ''
 
-  root.innerHTML = `
-    <main class="min-h-screen grid place-items-center p-4">
-      <div class="admin-card pixel-panel rounded-xl bg-base-100 p-5 w-full max-w-md">
-        <h1 class="text-xl font-bold">Acceso de profesor</h1>
-        <p class="opacity-70 text-sm mt-1 mb-4">
-          Solo el acceso. Los controles del curso están en el bloque
-          <strong>Profesor</strong> de la leyenda, dentro del mapa.
-        </p>
+  return `
+    <div class="admin-card pixel-panel rounded-xl bg-base-100 p-5 w-full">
+      <h1 class="text-xl font-bold">Acceso de profesor</h1>
+      <p class="opacity-70 text-sm mt-1 mb-4">
+        Los controles del curso (avanzar, retroceder, reiniciar) están en el bloque
+        <strong>Profesor</strong> de la leyenda, dentro del mapa.
+      </p>
 
-        <label class="form-control mb-3 block">
-          <span class="label-text text-sm">Repositorio (owner/repo)</span>
-          <input id="repo" type="text" class="input input-bordered input-sm w-full"
-                 value="${store.repo}" placeholder="optus23/Island-Class-XR" />
-        </label>
+      <label class="form-control mb-3 block">
+        <span class="label-text text-sm">Repositorio (owner/repo)</span>
+        <input id="repo" type="text" class="input input-bordered input-sm w-full"
+               value="${esc(settings.repo)}" placeholder="optus23/Island-Class-XR" />
+      </label>
 
-        <label class="form-control mb-3 block">
-          <span class="label-text text-sm">Rama publicada</span>
-          <input id="branch" type="text" class="input input-bordered input-sm w-full"
-                 value="${store.branch}" placeholder="main" />
-        </label>
+      <label class="form-control mb-3 block">
+        <span class="label-text text-sm">Rama publicada</span>
+        <input id="branch" type="text" class="input input-bordered input-sm w-full"
+               value="${esc(settings.branch)}" placeholder="main" />
+      </label>
 
-        <label class="form-control mb-2 block">
-          <span class="label-text text-sm">GitHub token (Contents: Read and write)</span>
-          <input id="token" type="password" class="input input-bordered input-sm w-full"
-                 value="${store.token}" placeholder="Pega aquí tu token"
+      <label class="form-control mb-2 block">
+        <span class="label-text text-sm">GitHub token (Contents: Read and write)</span>
+        <input id="token" type="password" class="input input-bordered input-sm w-full"
+               value="${esc(settings.token)}" placeholder="Pega aquí tu token"
+               autocomplete="off" spellcheck="false" />
+      </label>
+
+      <p class="text-xs opacity-60 mb-4">
+        Se guarda solo en el localStorage de este navegador. No se sube al repositorio,
+        no entra en el build y los estudiantes nunca lo ven.
+      </p>
+
+      <div class="flex flex-wrap gap-2 mb-4">
+        <button id="save" class="btn btn-primary btn-sm" ${state.busy ? 'disabled' : ''}>
+          ${state.busy ? '…' : 'Guardar y comprobar'}
+        </button>
+        <button id="forget" class="btn btn-ghost btn-sm text-error">Olvidar token</button>
+      </div>
+
+      ${
+        state.message
+          ? `<div class="alert ${tone} mb-4 text-sm"><span>${esc(state.message)}</span></div>`
+          : ''
+      }
+
+      ${
+        current
+          ? `<div class="rounded-lg bg-base-200 p-3 mb-4 text-sm">
+               <p class="text-[10px] uppercase tracking-[0.15em] opacity-55 mb-1">
+                 La clase está en
+               </p>
+               <p class="font-semibold">${esc(current.title)}</p>
+               <p class="opacity-70">${esc(sessionLabel(current))}</p>
+               <progress class="progress progress-success w-full mt-2 h-2"
+                         value="${index}" max="${Math.max(1, total - 1)}"></progress>
+             </div>`
+          : ''
+      }
+
+      <a class="btn btn-block btn-sm ${current ? 'btn-success' : 'btn-outline'}"
+         href="${import.meta.env.BASE_URL}">
+        ${current ? 'Abrir el mapa →' : 'Volver al mapa'}
+      </a>
+    </div>`
+}
+
+/**
+ * The roster editor. Only rendered once a token has checked out — without one
+ * there is nothing to save to, and an editor that cannot commit is a trap.
+ */
+function rosterCard() {
+  if (!state.roster) return ''
+
+  const options = mainSequence
+    .map(
+      (l) =>
+        `<option value="${esc(l.id)}" ${l.id === state.levelId ? 'selected' : ''}>
+           ${esc(sessionLabel(l))} — ${esc(l.title)}
+         </option>`
+    )
+    .join('')
+
+  // Grouped by session, in map order, so the list reads the way the island does.
+  const order = new Map(mainSequence.map((l, i) => [l.id, i]))
+  const rows = [...state.roster]
+    .sort((a, b) => (order.get(a.levelId) ?? 99) - (order.get(b.levelId) ?? 99))
+    .map((n) => {
+      const level = levelById(n.levelId)
+      return `
+        <li class="flex items-center gap-2 rounded-lg bg-base-200 px-3 py-2">
+          <span class="flex-1 min-w-0">
+            <span class="font-semibold block truncate">${esc(n.name)}</span>
+            <span class="text-xs opacity-60 block truncate">
+              ${esc(level ? sessionLabel(level) : n.levelId)}${level ? ` — ${esc(level.title)}` : ''}
+            </span>
+          </span>
+          <button class="btn btn-ghost btn-xs text-error shrink-0"
+                  data-remove="${esc(n.id)}" aria-label="Quitar a ${esc(n.name)}"
+                  ${state.busy ? 'disabled' : ''}>✕</button>
+        </li>`
+    })
+    .join('')
+
+  const tone =
+    state.rosterTone === 'error'
+      ? 'alert-error'
+      : state.rosterTone === 'success'
+        ? 'alert-success'
+        : ''
+
+  return `
+    <div class="admin-card pixel-panel rounded-xl bg-base-100 p-5 w-full">
+      <h2 class="text-xl font-bold">Alumnos en la isla</h2>
+      <p class="opacity-70 text-sm mt-1 mb-4">
+        Cada nombre aparece como un personaje que pasea muy despacio alrededor de la
+        sesión que elijas, con su nombre sobre la cabeza. Es solo decoración: no se
+        puede pulsar y no cambia nada del curso.
+      </p>
+
+      <div class="alert alert-warning text-xs mb-4">
+        <span>
+          <strong>Este repositorio es público.</strong> Cualquiera puede leer
+          <code>public/npcs.json</code>, así que usa un <strong>nickname</strong> o
+          nombre + inicial, no el nombre completo de un menor ni ningún otro dato.
+          Aquí no van notas, ni puntos, ni correos.
+        </span>
+      </div>
+
+      <div class="flex flex-col gap-2 mb-3">
+        <label class="form-control block">
+          <span class="label-text text-sm">Nombre o nickname</span>
+          <input id="npc-name" type="text" class="input input-bordered input-sm w-full"
+                 maxlength="${MAX_NAME}" placeholder="p. ej. Ada L."
                  autocomplete="off" spellcheck="false" />
         </label>
+        <label class="form-control block">
+          <span class="label-text text-sm">Sesión junto a la que pasea</span>
+          <select id="npc-level" class="select select-bordered select-sm w-full">${options}</select>
+        </label>
+        <button id="npc-add" class="btn btn-primary btn-sm self-start"
+                ${state.busy ? 'disabled' : ''}>Añadir</button>
+      </div>
 
-        <p class="text-xs opacity-60 mb-4">
-          Se guarda solo en el localStorage de este navegador. No se sube al repositorio,
-          no entra en el build y los estudiantes nunca lo ven.
-        </p>
+      ${
+        rows
+          ? `<ul class="flex flex-col gap-2 mb-3">${rows}</ul>`
+          : `<p class="text-sm opacity-60 mb-3">
+               Todavía no pasea nadie por la isla.
+             </p>`
+      }
 
-        <div class="flex flex-wrap gap-2 mb-4">
-          <button id="save" class="btn btn-primary btn-sm" ${state.busy ? 'disabled' : ''}>
-            ${state.busy ? '…' : 'Guardar y comprobar'}
-          </button>
-          <button id="forget" class="btn btn-ghost btn-sm text-error">Olvidar token</button>
-        </div>
+      <p class="text-xs opacity-55 mb-3">
+        ${state.roster.length} de ${MAX_NPCS} plazas.
+        ${state.rosterDirty ? '<strong class="text-warning">Hay cambios sin guardar.</strong>' : ''}
+      </p>
 
-        ${
-          state.message
-            ? `<div class="alert ${tone} mb-4 text-sm"><span>${state.message}</span></div>`
-            : ''
-        }
+      ${
+        state.rosterNote
+          ? `<div class="alert ${tone} mb-3 text-sm"><span>${esc(state.rosterNote)}</span></div>`
+          : ''
+      }
 
-        ${
-          current
-            ? `<div class="rounded-lg bg-base-200 p-3 mb-4 text-sm">
-                 <p class="text-[10px] uppercase tracking-[0.15em] opacity-55 mb-1">
-                   La clase está en
-                 </p>
-                 <p class="font-semibold">${current.title}</p>
-                 <p class="opacity-70">
-                   ${n ? `Mundo ${n.world}-${n.index} · sesión ${n.global} de ${n.total}` : 'Nivel opcional'}
-                 </p>
-                 <progress class="progress progress-success w-full mt-2 h-2"
-                           value="${index}" max="${Math.max(1, total - 1)}"></progress>
-               </div>`
-            : ''
-        }
+      <button id="npc-save"
+              class="btn btn-block btn-sm ${state.rosterDirty ? 'btn-warning' : 'btn-outline'}"
+              ${state.busy || !state.rosterDirty ? 'disabled' : ''}>
+        ${state.busy ? '…' : 'Guardar en el mapa'}
+      </button>
+    </div>`
+}
 
-        <a class="btn btn-block btn-sm ${current ? 'btn-success' : 'btn-outline'}"
-           href="${import.meta.env.BASE_URL}">
-          ${current ? 'Abrir el mapa →' : 'Volver al mapa'}
-        </a>
+function render() {
+  // A column, not `place-items: center`. The page can now be taller than the
+  // viewport, and centring an item that overflows falls back to start alignment
+  // in one axis and clips in the other — the trap that cost this project three
+  // rounds on the level portal.
+  root.innerHTML = `
+    <main class="min-h-screen flex flex-col items-center gap-4 p-4 py-6">
+      <div class="w-full max-w-md flex flex-col gap-4">
+        ${signInCard()}
+        ${rosterCard()}
       </div>
     </main>`
 
   const el = (id) => root.querySelector('#' + id)
 
   el('save').addEventListener('click', () => {
-    store.repo = el('repo').value.trim()
-    store.branch = el('branch').value.trim() || 'main'
-    store.token = el('token').value.trim()
+    settings.repo = el('repo').value.trim()
+    settings.branch = el('branch').value.trim() || 'main'
+    settings.token = el('token').value.trim()
     check()
   })
   el('forget').addEventListener('click', () => {
-    store.token = ''
+    settings.token = ''
     state.currentLevelId = null
+    state.roster = null
     say('Token borrado de este navegador. Los controles del mapa se ocultan.', 'info')
   })
+
+  if (!state.roster) return
+
+  const nameInput = el('npc-name')
+  const levelSelect = el('npc-level')
+
+  // Remembered without a re-render, so the picker keeps its place while several
+  // students from the same class are typed in one after another.
+  levelSelect.addEventListener('change', () => {
+    state.levelId = levelSelect.value
+  })
+
+  const submit = () => {
+    addStudent(nameInput.value, levelSelect.value)
+  }
+  el('npc-add').addEventListener('click', submit)
+  nameInput.addEventListener('keydown', (e) => {
+    if (e.key !== 'Enter') return
+    e.preventDefault()
+    submit()
+  })
+
+  root.querySelectorAll('[data-remove]').forEach((b) =>
+    b.addEventListener('click', () => removeStudent(b.dataset.remove))
+  )
+  el('npc-save').addEventListener('click', saveRoster)
+
+  // Straight back to the name field after an add, so a list of students is typed
+  // without reaching for the mouse between each one.
+  if (state.focusName) {
+    state.focusName = false
+    nameInput.focus()
+  }
 }
 
 render()
-if (store.token && store.repo) check()
+if (settings.token && settings.repo) check()
