@@ -49,6 +49,12 @@ Seen working in a browser, on the deployed site:
   frames across every session and all three rings: never more than 0.12 off the
   ground away from the road, never more than 0.77 off the road's surface on it,
   and 73 ms to build a full 24-student roster.
+- **The teacher's writes surviving a stale sha** — driven against a stubbed API
+  that moves the file under the write: every GET goes out `no-store` and
+  cache-busted, a 409 is retried once against a fresh sha and succeeds, and a
+  409 that will not clear reports in Spanish instead of GitHub's sentence about
+  a hash. **The real `api.github.com` write is still only exercised by the
+  teacher**; the stub is the shape, not the proof.
 - **The plate over the avatar dismissing itself** — driven with real pointer
   events: tap the map or the course list and it goes, touch the plate itself and
   it stays, hover the avatar's own node on a desktop and it comes back, drag from

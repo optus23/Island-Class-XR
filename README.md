@@ -394,6 +394,27 @@ triggers the normal Actions deploy — the map updates in a minute or two.
 `api.github.com`. Use **Olvidar token** to clear it, and the Profesor block
 disappears. Students only ever *read* `progress.json`.
 
+### ¿Dónde va el token, y dónde está el panel?
+
+Las tres dudas que salen siempre, juntas:
+
+- **El token va en `/admin/`, en el navegador. No en `.env`.** El `GH_TOKEN` del
+  `.env` es otra cosa: lo usan `git` y `gh` desde tu máquina para publicar. El de
+  `/admin` vive solo en el `localStorage` de ese navegador y no se sube a ningún
+  sitio.
+- **Funciona igual en GitHub Pages que en localhost**, porque escribe contra
+  `api.github.com` desde el navegador. No hace falta servidor: por eso el token
+  lo pones tú, en tu navegador, y no está en el repositorio.
+- **El panel se abre desde el mapa.** En el bloque **Profesor** de la leyenda,
+  abajo del todo: *Panel de profesor · alumnos y token →*. O directamente en
+  <https://optus23.github.io/Island-Class-XR/admin/>. Si ya ves ese bloque en la
+  leyenda, es que ese navegador ya tiene un token guardado de antes.
+
+Los botones del marcador (**Completar y avanzar**, **Retroceder**, **Reiniciar
+curso**) están en la leyenda a propósito, no en `/admin`: ahí se ve al personaje
+caminar y a la cámara seguirlo. La lista de alumnos está en `/admin` porque es
+teclear nombres y no hay nada que mirar mientras lo haces.
+
 Completion is derived from this single marker — there is deliberately no
 per-level `completed` flag, because two sources of truth would drift.
 
