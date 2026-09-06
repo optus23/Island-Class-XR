@@ -306,7 +306,12 @@ Every one of these was diagnosed the hard way. Do not re-derive them.
   `villagers.js` and those radii have to follow.
 - **Castles have no room beside them.** Villagers placed at a boss node were
   swallowed by the building, with only the edge of a name plate showing past the
-  wall. `/admin` offers the 25 ordinary sessions, not the 27.
+  wall. So `/admin` offers 26 of the 28 main-path sessions — every one except the
+  two castles. That list exists THREE times: the picker in `admin.js`,
+  `VILLAGER_SESSIONS` in `main.js`, and the roster check in `validate.mjs`. They
+  have to agree, and the picker is the one that matters: offering a castle there
+  lets the teacher save a roster that FAILS THE BUILD, which takes the site down
+  until someone edits the file by hand. It shipped that way for one deploy.
 
 **Input**
 
