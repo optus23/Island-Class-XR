@@ -17,6 +17,7 @@ import {
   nodeClearings,
 } from '../src/three/paths.js'
 import { groundHeightAt, nearestPath, clearGroundAround } from '../src/three/terrain.js'
+import { MAX_NAME, MAX_NPCS, cleanName } from '../src/lib/roster.js'
 
 const here = dirname(fileURLToPath(import.meta.url))
 const data = JSON.parse(readFileSync(resolve(here, '../src/data/levels.json'), 'utf8'))
@@ -273,6 +274,8 @@ for (const [number, mine] of [...blocks].sort((a, b) => a[0] - b[0])) {
 // --- exercise the distribution algorithm ----------------------------------
 console.log('\n--- node distribution ---')
 let totalNodes = 0
+/** Sessions a villager may pace around — see the roster check further down. */
+const onPathIds = new Set()
 for (const w of worlds) {
   const mine = levels.filter((l) => l.world === w.id)
   let placed
@@ -283,6 +286,9 @@ for (const w of worlds) {
     continue
   }
   totalNodes += placed.length
+  // Not the castles: the building fills the pad, so a villager placed at one is
+  // swallowed by it. See VILLAGER_SESSIONS in main.js.
+  for (const p of placed) if (p.onPath && p.level.category !== 'boss') onPathIds.add(p.level.id)
 
   if (placed.length !== mine.length) {
     err(`world ${w.id}: placed ${placed.length} nodes for ${mine.length} levels`)
@@ -354,7 +360,10 @@ for (const w of worlds) {
     const here = groundHeightAt(pl.position.x, pl.position.z)
     let highest = here
     for (let a = 0; a < Math.PI * 2; a += Math.PI / 12) {
-      for (const r of [1.6, 2.2, 3]) {
+      // 2.8 and 3.4 cover the band the villagers pace in — see RING in
+      // three/villagers.js. Nothing may rise inside that either, or one of them
+      // ends up walking through a step of terrain.
+      for (const r of [1.6, 2.2, 2.8, 3, 3.4]) {
         highest = Math.max(
           highest,
           groundHeightAt(pl.position.x + Math.cos(a) * r, pl.position.z + Math.sin(a) * r)
@@ -441,6 +450,61 @@ for (const w of worlds) {
 
 const connectors = buildConnectors()
 console.log(`  ${connectors.length} inter-world connectors built`)
+
+// --- the roster of honoured students --------------------------------------
+// public/npcs.json is written from /admin, not by hand, but it is a committed
+// file like any other: a bad entry has to fail here rather than at runtime, and
+// the no-calendar rule applies to it exactly as it does to the level data.
+console.log('\n--- alumnos en la isla ---')
+let roster = null
+try {
+  roster = JSON.parse(readFileSync(resolve(here, '../public/npcs.json'), 'utf8'))
+} catch {
+  warn('no public/npcs.json — nobody walks the island (fine, but /admin needs the file)')
+}
+if (roster) {
+  const list = roster.npcs
+  if (!Array.isArray(list)) {
+    err('npcs.json: "npcs" must be an array')
+  } else {
+    if (list.length > MAX_NPCS) {
+      err(`npcs.json: ${list.length} entries, the island renders ${MAX_NPCS} — the rest are dropped`)
+    }
+    const ids = new Set()
+    for (const [i, n] of list.entries()) {
+      const at = `npcs.json[${i}]`
+      const name = cleanName(n?.name)
+      if (!name) err(`${at}: empty name`)
+      if (String(n?.name ?? '') !== name) {
+        warn(`${at}: name "${n?.name}" will be shown as "${name}" (trimmed to ${MAX_NAME})`)
+      }
+      if (!n?.id) err(`${at}: missing id`)
+      else if (ids.has(n.id)) err(`${at}: duplicate id "${n.id}"`)
+      else ids.add(n.id)
+      // A villager's circuit needs the flat pad that only on-path sessions get.
+      if (!levels.some((l) => l.id === n?.levelId)) {
+        err(`${at}: levelId "${n?.levelId}" is not a level`)
+      } else if (!onPathIds.has(n.levelId)) {
+        err(`${at}: "${n.levelId}" is not a session a villager fits at (off-path, or a castle)`)
+      }
+      for (const banned of ['date', 'week', 'points', 'score', 'grade', 'email']) {
+        if (banned in (n ?? {})) {
+          err(`${at}: "${banned}" is not allowed — the roster holds a name and a session, nothing else`)
+        }
+      }
+    }
+    const perSession = new Map()
+    for (const n of list) perSession.set(n?.levelId, (perSession.get(n?.levelId) ?? 0) + 1)
+    const crowded = [...perSession].filter(([, c]) => c > 4)
+    for (const [id, c] of crowded) {
+      warn(`npcs.json: ${c} alumnos alrededor de "${id}" — se pisan; el disco admite 3 con holgura`)
+    }
+    console.log(
+      `  ${list.length} alumno(s) en ${perSession.size} sesión(es), ` +
+        `${MAX_NPCS - list.length} plaza(s) libre(s)`
+    )
+  }
+}
 
 // --- coverage the brief asks for ------------------------------------------
 console.log('\n--- coverage ---')

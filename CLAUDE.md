@@ -24,10 +24,20 @@ These come from the brief and are not negotiable without the user saying so.
 - **No backend, no database.** Everything is static files plus the GitHub
   Contents API for the one marker write.
 - **The admin GitHub token never touches source or the build.** It lives only in
-  the `localStorage` of whoever uses `/admin`. `/admin` is sign-in ONLY — the
-  marker controls live in the map's legend, where their effect is visible.
-  The repo-side token lives in the gitignored `.env` as `GH_TOKEN` — never
-  `VITE_`-prefixed, because Vite inlines `VITE_*` into the public bundle.
+  the `localStorage` of whoever uses `/admin`. The repo-side token lives in the
+  gitignored `.env` as `GH_TOKEN` — never `VITE_`-prefixed, because Vite inlines
+  `VITE_*` into the public bundle.
+- **There are exactly two hand-moved data files, and `/admin` is where you sign
+  in for both**: `public/progress.json` (where the class is) and
+  `public/npcs.json` (which students walk the island). The MARKER controls are
+  not on `/admin` — they live in the map's legend, because pressing "Avanzar"
+  while staring at a form read as a dead button. The ROSTER editor is on
+  `/admin`, because it is data entry with nothing to watch while you type. That
+  split is the rule; do not move either one back.
+- **The roster holds a display name and a session id. Nothing else.** No marks,
+  no points, no counters, no emails, no dates — the no-calendar rule covers it
+  and `validate` enforces both. The repository is public, so `/admin` says in as
+  many words to use a nickname or a first name plus an initial.
 - **No live in-browser AI calls, no API keys on the client.** The slide decks
   are a Markdown→HTML pipeline run at build time, not generation.
 - **The course publishes no answers.** The todos are the instructions and that
@@ -82,12 +92,14 @@ path orthogonality, buried nodes, bonus-node clearance and the no-dates rule.
 `npm run decks` runs before it (as `prebuild`) and compiles the Marp decks into
 the gitignored `public/decks/`.
 
-**If the round touches `public/progress.json`, merge `main` back into `develop`
-first.** `/admin` writes that file straight to `main`, so `main` always carries
-commits `develop` has never seen. Eleven PRs merged cleanly only because
-nothing on `develop` had touched it; the first round that did hit a conflict
-mid-ship. Resolve in favour of `develop`'s shape, keeping `main`'s marker value
-— that is the teacher's live position and must not be rolled back.
+**If the round touches `public/progress.json` or `public/npcs.json`, merge
+`main` back into `develop` first.** `/admin` and the legend write both files
+straight to `main`, so `main` always carries commits `develop` has never seen.
+Eleven PRs merged cleanly only because nothing on `develop` had touched
+`progress.json`; the first round that did hit a conflict mid-ship. Resolve in
+favour of `develop`'s shape, keeping `main`'s values — the marker is the
+teacher's live position and the roster is the students actually on the island,
+and neither may be rolled back.
 
 ---
 
@@ -105,6 +117,7 @@ Nothing is hardcoded per node. Reshape a world by editing data, not geometry.
 | `src/three/nodes.js` | Road ribbon, stairs, node discs, castles, bridges. |
 | `src/three/props.js` | Prop recipes and placement. All props bake into ONE InstancedMesh. |
 | `src/three/island.js` | Terrain cap/band/body, water shader, backdrop, void pits. |
+| `src/three/villagers.js` | The honoured students: bodies, circuits, name plates. |
 | `src/three/cameraRig.js` | Bounded per-world follow camera. |
 
 **Session count is fixed by the calendar**, verified against the user's Whimsical
@@ -155,6 +168,13 @@ Changing any of these is a design decision, not a refactor.
 - **UI chrome**: solid plates, hard black outline, bright inner rim, plated title
   bars, gold level tiles, Fredoka. Dark, but in the same language as the island.
   The full-screen level portal is a separate, calmer design and is approved as-is.
+- **The honoured students are villagers, not a second avatar.** A voxel
+  classmate pacing a slow, lopsided circuit beside the session they earned, with
+  a name plate over their head. They must never be mistaken for the AVATAR, which
+  is the one figure the viewer drives: no red shirt and no cyan visor in the
+  recipe, and their walk is a stroll that keeps drifting to a near-standstill
+  rather than the avatar's bouncing march. They are decoration — never clickable,
+  never on the disc, never carrying course meaning.
 - **Bosses** close the screen through a horned silhouette instead of a circle.
 - **The level portal is ONE scrolling page.** Header, tags, tabs and content all
   scroll away together; only the back button stays (it is `position: fixed`, and
@@ -250,6 +270,43 @@ Every one of these was diagnosed the hard way. Do not re-derive them.
   building the island mesh**: the mesh is sampled from `groundHeightAt`, so a
   pad registered afterwards moves the placement logic and leaves the geometry
   untouched. `validate` registers the same ones and asserts the invariant.
+
+**Villagers, and anything else that walks off the road**
+
+- **A dynamic `import()` in the console is a SECOND copy of the module, and
+  `terrain.js`'s clearing registry is module state.** The copy's registry is
+  EMPTY, so `groundHeightAt` reports the unclamped ground — every pad looks like
+  it has a two-unit lump leaning over it, which is precisely the bug
+  `clearGroundAround` exists to fix. Three rounds of measurement in one session
+  said the villagers were walking through terrain; they never were. When probing
+  terrain from the console, call
+  `clearGroundAround(nodeClearings(allLevels))` on the copy FIRST, or compare
+  against Node instead.
+- **The road's surface is its CENTRE LINE height, at every point across its
+  width.** `nodes.js` gives both edges of every ribbon quad the same `top`, so a
+  figure standing at the road's edge belongs at the centre-line height —
+  `terrain.js`'s `roadTopAt` evaluated at the figure's own off-centre position is
+  a different and wrong number. Read it off `buildGrandPath()`, which is the
+  polyline the avatar already walks.
+- **Never smooth a finished walk height.** Averaging the heights around a
+  villager's loop to soften a terrace step also averages the ramp where the loop
+  climbs onto the road, and the road rides up to 2.44 units above the ground
+  beside it: it sank a villager 1.37 units INTO the ribbon at one session and
+  floated it half a unit over it at another. Sample the ground and blend the road
+  on top; do not smooth the sum.
+- **Terrain sampling has a price list, and page load pays it.** `groundHeightAt`
+  is 37 microseconds (it scans every road polyline), `roadTopAt` is 190 because
+  it is five of those. Sampling `roadTopAt` 144 times per villager put a full
+  SECOND of blocked main thread in front of the map. Count the calls before
+  adding anything that samples terrain per object.
+- **The flat pad is four units wide but only guaranteed to 3.4.** Pads overlap,
+  `groundHeightAt` returns the FIRST clearing containing a point, so a
+  neighbour's pad one plateau higher can win. `validate` asserts nothing rises
+  within 1.6, 2.2, 2.8, 3 and 3.4 of every on-path node — widen `RING` in
+  `villagers.js` and those radii have to follow.
+- **Castles have no room beside them.** Villagers placed at a boss node were
+  swallowed by the building, with only the edge of a name plate showing past the
+  wall. `/admin` offers the 25 ordinary sessions, not the 27.
 
 **Input**
 

@@ -14,11 +14,15 @@ Everything is merged and live: <https://optus23.github.io/Island-Class-XR/>
 
 | | |
 | --- | --- |
-| Last code change | PR #25, `e980b7e` — anything on `main` after it is documentation |
+| Last code change | the roster of honoured students — `/admin` writes it, the map walks it |
 | `develop` | same content as `main` |
-| Last deploy | run `33991251554`, success |
 | Working tree | clean |
 | VR | live on every page; `/vr` and `?vr=1` arm the XR context eagerly |
+
+**Two files are now written from the browser, not one.** `public/progress.json`
+(the marker, from the legend) and `public/npcs.json` (the roster, from `/admin`).
+Both go straight to `main`, so merge `main` into `develop` before any round that
+touches either — see `CLAUDE.md`.
 
 **Check the build id before believing any bug report.** The legend's bottom line
 reads `build <sha>`. A phone holding a cached `index.html` loads the previous
@@ -39,6 +43,17 @@ Seen working in a browser, on the deployed site:
 - **The portal scrolls as one page** — measured at a simulated 880x390 landscape:
   919 px of content in a 390 px window, header scrolling away, back button
   staying put.
+- **The students walking the island**, at four sessions, photographed at the
+  follow camera's own distance and zoomed right in. Names legible, figures
+  planted on the ground and on the road, discs never covered. Measured over 900
+  frames across every session and all three rings: never more than 0.12 off the
+  ground away from the road, never more than 0.77 off the road's surface on it,
+  and 73 ms to build a full 24-student roster.
+- **The `/admin` roster editor** — add, duplicate guard, empty-name guard,
+  remove, and one save producing exactly one commit with the right payload and a
+  fresh sha. Driven against a stubbed `api.github.com`, so **the real GitHub
+  write has not been exercised end to end**: the first real save is the test.
+  Nothing on the page fits worse than 358 px, so it is phone-safe.
 
 Seen working on a real Quest 3, over Link, by Marc:
 
@@ -51,6 +66,12 @@ Seen working on a real Quest 3, over Link, by Marc:
 
 Be honest about this list rather than assuming it works.
 
+- **The name plates in VR.** They are painted onto one canvas atlas and
+  billboarded by rewriting four vertices each, in the mesh's OWN space, which is
+  the part that should survive the diorama's 0.005 scale — but nobody has put a
+  headset on and looked. If they come out wrong, the suspects are
+  `PLATE_PER_UNIT` (they size themselves against the camera's distance, measured
+  in local units) and its `PLATE_MIN_W` / `PLATE_MAX_W` clamps.
 - **The VR level card** (`src/three/vrPanel.js`). Built, deployed, never
   rendered — not in a headset, not in a browser. If it looks wrong, the first
   suspects are `PANEL_W/PANEL_H` and the `+0.42` vertical offset, both eyeballed,
@@ -103,6 +124,14 @@ something a person looks at, look at it.
 units of sinking, +2.0 of overhang, `914px · x0.714`. The bad ones started with a
 plausible story. `?debug=1` puts the deck's own measurements on screen for
 exactly this reason.
+
+**And then check what you are measuring AGAINST.** The villagers round spent
+three passes fixing a two-unit hole in the ground that did not exist: a dynamic
+`import()` from the console is a second copy of `terrain.js`, its clearing
+registry is empty, and `groundHeightAt` therefore reported the unclamped terrain
+every pad exists to hide. Two "fixes" were shipped into the working tree against
+that phantom before the probe itself was tested. A measurement is a piece of code
+and it can be the thing that is broken.
 
 ---
 

@@ -23,12 +23,14 @@ import {
   onNodeLabelEnter,
 } from './ui/nodeLabel.js'
 import { mountLegend } from './ui/legend.js'
-import { writeProgress } from './lib/githubProgress.js'
+import { writeProgress } from './lib/githubData.js'
 import { nextMarker, START_MARKER } from './lib/levels.js'
 import { irisClose, screenPositionOf } from './ui/transition.js'
 import { buildGrandPath, nearestIndexOn, nodeClearings } from './three/paths.js'
 import { clearGroundAround } from './three/terrain.js'
 import { createEnemies } from './three/enemies.js'
+import { createVillagers } from './three/villagers.js'
+import { loadRoster } from './lib/roster.js'
 import { readLevelFromUrl, setLevelInUrl, onRouteChange } from './lib/router.js'
 import { createVR } from './three/vr.js'
 
@@ -85,6 +87,7 @@ const BACKDROP_PARALLAX = 0.28
 app.onUpdate((dt) => {
   island.update(dt)
   enemies.update(dt)
+  villagers?.update(dt, app.rig.camera)
   island.backdrop.position.x = app.rig.focusX * BACKDROP_PARALLAX
   map.update(dt)
   player.update(dt)
@@ -110,6 +113,55 @@ for (const p of map.placed) {
 // they are given the node positions so they stay off the level discs.
 const enemies = createEnemies(grandPath, 4, [...nodeIndexOnPath.values()])
 app.worldGroup.add(enemies.group)
+
+/**
+ * The honoured students, built in boot() once `npcs.json` has arrived — so this
+ * is null for the first few frames and the update loop asks with `?.`.
+ */
+let villagers = null
+
+/**
+ * Sessions a villager may pace around: on the path, and not a castle.
+ *
+ * ON THE PATH, because the circuit relies on the flat pad `clearGroundAround`
+ * holds down within four units of every on-path node. An off-path bonus node has
+ * no pad by design — a flat disc out in open country reads as a scar — so a loop
+ * there would climb terraces and walk through the scattered props.
+ *
+ * NOT A CASTLE, because the castle IS the node: it fills the pad, and villagers
+ * placed at one were simply swallowed by the building with only the edge of a
+ * name plate showing past the wall. The two exams are also the two sessions
+ * nobody earns participation points in.
+ */
+const VILLAGER_SESSIONS = new Set(
+  map.placed.filter((p) => p.onPath && p.level.category !== 'boss').map((p) => p.level.id)
+)
+
+/**
+ * Turn roster entries into places to pace around.
+ *
+ * /admin only offers the sessions above; this is the guard for a hand-edited
+ * file that says otherwise. `slot` counts how many are already at that session,
+ * which is what spreads them around the disc rather than stacking them in one
+ * spot.
+ */
+function villagerSpots(roster) {
+  const taken = new Map()
+  const out = []
+  for (const entry of roster) {
+    const centre = map.positionById.get(entry.levelId)
+    if (!centre || !VILLAGER_SESSIONS.has(entry.levelId)) {
+      console.warn(
+        `[npcs] "${entry.name}" apunta a "${entry.levelId}", donde no cabe un alumno paseando`
+      )
+      continue
+    }
+    const slot = taken.get(entry.levelId) ?? 0
+    taken.set(entry.levelId, slot + 1)
+    out.push({ id: entry.id, name: entry.name, centre, slot })
+  }
+  return out
+}
 
 function anchorOf(levelId) {
   return map.placed.find((p) => p.level.id === levelId)?.anchorId ?? null
@@ -559,9 +611,22 @@ function setOverview(on) {
 // --- boot ------------------------------------------------------------------
 
 async function boot() {
-  const progress = await loadProgress()
+  // Both public data files, in parallel: neither depends on the other and both
+  // are a network round trip against a Pages host that is deliberately not
+  // cached.
+  const [progress, roster] = await Promise.all([
+    loadProgress(),
+    loadRoster({ validLevelIds: new Set(mainSequence.map((l) => l.id)) }),
+  ])
   markerId = progress.currentLevelId
   map.refresh(markerId)
+
+  // The honoured students. Nothing to draw is the normal state on a fresh term.
+  villagers = createVillagers(villagerSpots(roster), grandPath)
+  if (villagers.count) {
+    app.worldGroup.add(villagers.group)
+    console.info(`[npcs] ${villagers.count} alumno(s) paseando por la isla`)
+  }
 
   // A shared ?level=... link wins over the progress marker: whoever followed
   // the link came for that level, so place the avatar there directly rather
@@ -680,6 +745,7 @@ async function boot() {
     window.__app = app
     window.__map = map
     window.__player = player
+    window.__villagers = villagers
     window.__selectLevel = selectLevel
     window.__setOverview = setOverview
     // Drives frames by hand — the only way to exercise animation in embedded
