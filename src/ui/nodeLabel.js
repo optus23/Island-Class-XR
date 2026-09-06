@@ -13,11 +13,35 @@ import { sessionNumber, statusFor } from '../lib/levels.js'
  * tapping it must enter, exactly like clicking the node disc underneath. It
  * was previously a div with `aria-hidden` and `pointer-events: none`, which
  * made it a label that told you to do something it would not let you do.
+ *
+ * IT DISMISSES ITSELF, AND IT GETS OUT OF THE WAY
+ * Two rules, both from the same report: touch anything that is not this plate
+ * and it goes away, and while it is up it never sits on top of another panel.
+ * Without the first it stayed on screen through everything — you opened the
+ * course list and read one UI through the other. Without the second, picking a
+ * session FROM that list put the plate straight back over the open panel, so
+ * dismissing alone would have fixed only half of it.
  */
+
+/** Distance from the avatar's screen point to the plate, above and below. */
+const ABOVE = 96
+const BELOW = 34
+
+/**
+ * Panels the plate must not cover. Their rects are re-read on a timer rather
+ * than every frame: `positionNodeLabel` runs in the render loop and reading a
+ * rect right after writing a transform forces a synchronous layout. They only
+ * change when someone collapses a panel or turns the phone, so a fifth of a
+ * second of staleness is invisible.
+ */
+const PANELS = '.nav-panel, .legend-panel'
+const PANEL_REFRESH_MS = 200
 
 let el = null
 let shownFor = null
 let enterHandler = null
+let panels = []
+let panelsAt = 0
 
 function ensure() {
   if (el) return el
@@ -32,6 +56,20 @@ function ensure() {
     enterHandler?.(shownFor)
   })
   document.getElementById('ui').appendChild(el)
+
+  // Anything else you touch dismisses it. On `document`, in the CAPTURE phase,
+  // so it cannot be swallowed by a handler that stops propagation — the map's
+  // canvas, the course list, the legend's teacher buttons and the VR button are
+  // all different listeners and none of them should have to know this plate
+  // exists.
+  document.addEventListener(
+    'pointerdown',
+    (e) => {
+      if (!shownFor || el.contains(e.target)) return
+      hideNodeLabel()
+    },
+    true
+  )
   return el
 }
 
@@ -40,10 +78,16 @@ export function onNodeLabelEnter(fn) {
   enterHandler = fn
 }
 
+/** Which level the plate is showing, or null. */
+export function nodeLabelFor() {
+  return shownFor
+}
+
 export function showNodeLabel(level, { markerId = null } = {}) {
   const node = ensure()
   if (shownFor === level.id) return
   shownFor = level.id
+  panelsAt = 0 // re-read the panels: one of them may have just opened
 
   const st = statusFor(level, markerId)
   const accent = level.optional
@@ -68,11 +112,37 @@ export function hideNodeLabel() {
   el?.classList.remove('is-visible')
 }
 
+const overlaps = (a, b) =>
+  a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top
+
 /** Keep the plate pinned above the avatar. Called every frame. */
 export function positionNodeLabel(screenX, screenY) {
   if (!el || !el.classList.contains('is-visible')) return
   const w = el.offsetWidth
+  const h = el.offsetHeight
   const x = Math.max(8, Math.min(screenX - w / 2, window.innerWidth - w - 8))
-  const y = Math.max(8, screenY - 96)
+
+  const now = performance.now()
+  if (now - panelsAt > PANEL_REFRESH_MS) {
+    panelsAt = now
+    panels = [...document.querySelectorAll(PANELS)]
+      .map((p) => p.getBoundingClientRect())
+      .filter((r) => r.width > 0 && r.height > 0)
+  }
+
+  // Above the avatar by preference, below it if that would land on a panel.
+  // If both collide — a phone where the open course list is most of the
+  // screen — stay above and let the plate win; it is on top and readable, and
+  // the next thing the reader touches dismisses it anyway.
+  const clamp = (y) => Math.max(8, Math.min(y, window.innerHeight - h - 8))
+  let y = clamp(screenY - ABOVE)
+  if (panels.length) {
+    const hits = (top) => panels.some((p) => overlaps({ left: x, right: x + w, top, bottom: top + h }, p))
+    if (hits(y)) {
+      const below = clamp(screenY + BELOW)
+      if (!hits(below)) y = below
+    }
+  }
+
   el.style.transform = `translate(${x}px, ${y}px)`
 }

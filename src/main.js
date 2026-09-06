@@ -20,6 +20,7 @@ import {
   showNodeLabel,
   hideNodeLabel,
   positionNodeLabel,
+  nodeLabelFor,
   onNodeLabelEnter,
 } from './ui/nodeLabel.js'
 import { mountLegend } from './ui/legend.js'
@@ -249,8 +250,28 @@ container.addEventListener('pointermove', (e) => {
   hoveredLevel = level
   map.setHovered(level?.id ?? null)
   container.classList.toggle('is-hovering-node', Boolean(level))
-  if (level) tooltip.show(level, e.clientX, e.clientY, markerId)
-  else tooltip.hide()
+
+  // Hovering the node the avatar is STANDING on brings its plate back. The
+  // plate dismisses itself the moment you touch anything else, which is what it
+  // has to do on a phone; on a desktop that would otherwise mean a dismissed
+  // plate could only be recovered by entering the level. It is deliberately
+  // only this node: the plate hangs over the avatar and offers "entrar", so
+  // raising it while the pointer is somewhere else on the map would point at
+  // the wrong thing.
+  //
+  // Not while a pointer is down: dragging the camera from over the node would
+  // otherwise put the plate straight back after the drag had dismissed it.
+  const standingHere = Boolean(level) && level.id === player.levelId && !player.isMoving
+  if (standingHere && !pointers.size) showNodeLabel(level, { markerId })
+
+  // One node, one label. The plate already carries the title and the way in,
+  // and the tooltip would land on top of it — the pointer is over the avatar's
+  // own node, which is exactly where the plate is.
+  if (level && !(standingHere && nodeLabelFor() === level.id)) {
+    tooltip.show(level, e.clientX, e.clientY, markerId)
+  } else {
+    tooltip.hide()
+  }
 })
 
 container.addEventListener('pointerleave', () => {
