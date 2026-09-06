@@ -49,6 +49,11 @@ Seen working in a browser, on the deployed site:
   frames across every session and all three rings: never more than 0.12 off the
   ground away from the road, never more than 0.77 off the road's surface on it,
   and 73 ms to build a full 24-student roster.
+- **The opening flight**, replayed frame by frame and photographed at four
+  points: the title card in the clouds, the cloud run, the tilt bringing the
+  island up, and the landing. The last frames step 0.125 units and then 0, and
+  the camera ends on the rig's exact resting pose. Skipping lands in 188 ms.
+  A `?level=` link skips it entirely.
 - **The teacher's writes surviving a stale sha** — driven against a stubbed API
   that moves the file under the write: every GET goes out `no-store` and
   cache-busted, a 409 is retried once against a fresh sha and succeeds, and a

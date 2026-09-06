@@ -1,7 +1,8 @@
 {
   "course": {
     "title": "XR Island",
-    "subtitle": "Realidad Virtual y Realidad Aumentada · Entornos de Realidad Virtual"
+    "subtitle": "Realidad Virtual y Realidad Aumentada · Entornos de Realidad Virtual",
+    "tagline": "Realidad Virtual y Aumentada"
   },
   "_readme": "Order comes from the course calendar (docs/calendario-origen.md); no date is stored here and none may be - see CLAUDE.md. 28 classes: 12, the midterm castle, then 14 of which the last 8 are autonomous project days (yellow). The re-evaluation is an optional extra beside the final castle.",
   "levels": [

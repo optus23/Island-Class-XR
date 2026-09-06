@@ -34,6 +34,7 @@ import { createVillagers } from './three/villagers.js'
 import { loadRoster } from './lib/roster.js'
 import { readLevelFromUrl, setLevelInUrl, onRouteChange } from './lib/router.js'
 import { createVR } from './three/vr.js'
+import { createIntro, introWanted } from './three/intro.js'
 
 const container = document.getElementById('app')
 const curtain = createCurtain()
@@ -698,6 +699,20 @@ async function boot() {
   })
   legend.setMarker(markerReadout(markerId))
   nav.setPlayerLevel(startId)
+
+  // The opening flight. Set up BEFORE app.start(), because the hook has to run
+  // on the very first frame — one frame of the ordinary map before the sky
+  // appears is a visible flash of the ending.
+  if (introWanted({ deepLinked: Boolean(deepLinked), xrEager: XR_EAGER })) {
+    document.getElementById('ui').classList.add('is-intro')
+    const intro = createIntro({
+      camera: app.rig.camera,
+      scene: app.scene,
+      avatar: player.group.position.clone(),
+    })
+    app.setAfterCamera((dt) => intro.update(dt))
+  }
+
   app.start()
 
   // --- immersive VR --------------------------------------------------------
@@ -775,6 +790,7 @@ async function boot() {
       for (let i = 0; i < frames; i++) {
         for (const fn of app.updaters) fn(dt)
         app.rig.update(dt, { x: 0, y: 0 })
+        app.tickAfterCamera(dt)
       }
       app.renderer.render(app.scene, app.rig.camera)
     }

@@ -118,6 +118,8 @@ Nothing is hardcoded per node. Reshape a world by editing data, not geometry.
 | `src/three/props.js` | Prop recipes and placement. All props bake into ONE InstancedMesh. |
 | `src/three/island.js` | Terrain cap/band/body, water shader, backdrop, void pits. |
 | `src/three/villagers.js` | The honoured students: bodies, circuits, name plates. |
+| `src/three/intro.js` | The opening flight, its title plate and its pacing. |
+| `src/three/clouds.js` | Voxel clouds. Intro-only, by design. |
 | `src/three/cameraRig.js` | Bounded per-world follow camera. |
 
 **Session count is fixed by the calendar**, verified against the user's Whimsical
@@ -186,6 +188,11 @@ Changing any of these is a design decision, not a refactor.
 - **One node, one label.** The hover tooltip is suppressed for the node the
   avatar is standing on, because the plate is already there, says the same
   thing, and is in the same place.
+- **The site opens with a flight, not with the map.** Blue sky, voxel cloud, the
+  title, and a fall onto the island that ends exactly where the follow camera
+  already sits — Marc's reference is the Simpsons title sequence. It plays on
+  every visit, and it is skipped for reduced motion, for a shared `?level=` link
+  and for `?vr=1` / `/vr/`.
 - **Bosses** close the screen through a horned silhouette instead of a circle.
 - **The level portal is ONE scrolling page.** Header, tags, tabs and content all
   scroll away together; only the back button stays (it is `position: fixed`, and
@@ -348,6 +355,37 @@ Every one of these was diagnosed the hard way. Do not re-derive them.
   students lives there. That was reported as "no recuerdo cómo entrar como
   administrador" one round after the roster shipped.
 
+**The opening flight**
+
+- **It blends toward the RIG's live pose, it does not animate to a remembered
+  one.** Every frame the hook runs after `rig.update`, so the camera already
+  holds this frame's resting pose; the intro lerps from a sky pose toward that.
+  At t = 1 it is writing the rig's own numbers back, so the hand-over cannot
+  mismatch and there is nothing to cut. Measured across the last frames: 0.125
+  units of camera travel, then 0. Keep it that way — an intro that animates to a
+  pose captured at load will drift the moment anything about the rig changes.
+- **The camera opens LEVEL, not looking down.** The first cut opened 290 units
+  up looking at the island, and from there the whole cloud band is below the
+  camera against the sea: a voxel cloud seen from above is a white slab floating
+  on the water. Level, the island is 60 degrees below a 40-degree frame and the
+  shot is sky. The island is revealed by the TILT, which is what Marc asked for.
+- **The clouds are UNLIT.** The scene's ambient is a HemisphereLight whose
+  ground colour is `world.terrainEdge`, dark green — good for cubes standing on
+  grass, wrong two hundred units up. Lit, they came out grey with a green rim
+  along every underside and read as rock. They are also seen from below for half
+  the flight, which is the side lighting leaves darkest.
+- **Position and aim are eased separately.** One easing for both gives one long
+  slide: front-loaded travel threw the title out of frame before it could be
+  read, and a single spread-out tilt left the island hidden until the last
+  second with an empty middle. Travel is ease-in-out with a slow linear creep
+  under it; the aim holds the opening framing to t = 0.28 and lands at 0.86.
+- **The title plate ignores depth.** Clouds are scattered from a hash and one
+  will sometimes park itself between the camera and the title on the opening
+  frame — the one frame that has to read.
+- **The clouds do not survive the intro.** The overview camera pulls back a
+  couple of hundred units and looks almost straight down, so a permanent cloud
+  layer would put a lid on the one shot meant to show the whole map.
+
 **Input**
 
 - `touch-action: none` on the canvas is what lets touch gestures reach the page at
@@ -414,6 +452,12 @@ Every one of these was diagnosed the hard way. Do not re-derive them.
   plugging in a headset only because Quest Link's own footprint was what tipped
   the machine over. **Check `Get-Process node` memory before believing a hang
   is yours.** A restart takes 2.5 s.
+- **A window Chrome opened normally runs rAF at full speed, so anything that
+  plays once on load is over before a tool call can look at it.** The opening
+  flight had to be examined by calling `app.stop()` and replaying a fresh
+  `createIntro` frame by frame through `rig.update` + `intro.update` + `render`.
+  `__step` drives the after-camera hook (`app.tickAfterCamera`) for the same
+  reason — without it the flight is unobservable in the embedded pane too.
 - In the in-app browser pane `document.hidden` is `true`, so `requestAnimationFrame`
   is throttled to about 1 fps. Drive the loop with `window.__step(frames)` when
   testing; a walk that "never finishes" is usually just this. **The same window
