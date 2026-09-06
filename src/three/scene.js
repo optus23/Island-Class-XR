@@ -60,6 +60,14 @@ export function createScene(container, { xr = false } = {}) {
    * Creating the context XR-compatible up front means the adapter is right from
    * the first frame and `makeXRCompatible()` is never called.
    */
+  /**
+   * Runs once per frame AFTER the rig has positioned the camera, and may move
+   * it. The opening flight is the only user: it blends from a pose high in the
+   * sky toward whatever the rig has just written, so it has to see that number.
+   * Returning false retires the hook.
+   */
+  let afterCamera = null
+
   let renderer
   if (xr) {
     const canvas = document.createElement('canvas')
@@ -329,6 +337,7 @@ export function createScene(container, { xr = false } = {}) {
       syncFraming() // worlds differ in camera distance, so framing can change without a resize
       worldGroup.rotation.x = rig.tilt.x
       worldGroup.rotation.y = rig.tilt.y
+      if (afterCamera && afterCamera(dt) === false) afterCamera = null
     }
     renderer.render(scene, rig.camera)
     if (renderer.xr.isPresenting) renderMirror()
@@ -362,6 +371,19 @@ export function createScene(container, { xr = false } = {}) {
     onUpdate: (fn) => updaters.push(fn),
     setVRUpdate: (fn) => {
       vrUpdate = fn
+    },
+    /** See `afterCamera` above. Pass null to clear it. */
+    setAfterCamera: (fn) => {
+      afterCamera = fn
+    },
+    /**
+     * Run that hook by hand. Only `__step` uses this, and it has to: in an
+     * embedded browser pane `document.hidden` stays true and rAF never fires,
+     * so the opening flight is otherwise unobservable — which is precisely the
+     * thing that must be looked at rather than reasoned about.
+     */
+    tickAfterCamera: (dt) => {
+      if (afterCamera && afterCamera(dt) === false) afterCamera = null
     },
     /** Desktop spectator view while presenting. Costs an extra pass. */
     setMirror: (on) => {
