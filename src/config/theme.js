@@ -114,6 +114,32 @@ export const backdrop = {
 /** Flower colours scattered over the ground caps. */
 export const flowers = [0xffffff, 0xff8fab, 0xffd166, 0xef476f, 0xf7a8d8]
 
+/**
+ * The honoured students who pace around a session disc — see
+ * `three/villagers.js`. One set is picked per villager by hashing its id, so a
+ * name keeps the same look every time the page loads without storing anything
+ * about appearance in `npcs.json`.
+ *
+ * They must never be mistaken for the AVATAR, which is the one figure the
+ * viewer controls: the avatar has `world.player` red plus the cyan visor, and no
+ * villager may wear either. Hence no red shirt and no visor in the recipe — a
+ * second red-and-cyan figure standing next to the disc reads as "why are there
+ * two of me".
+ */
+export const villagers = {
+  shirt: [0x4cc9f0, 0xffd166, 0x9d4edd, 0x38b000, 0xf77f00, 0x4361ee, 0xe0e1dd, 0x2ec4b6],
+  trousers: [0x3a4a5c, 0x2b3440, 0x5b4636, 0x44506b],
+  skin: [0xffd9b3, 0xf1c27d, 0xc68642, 0x8d5524],
+  hair: [0x2b2118, 0x5b3a29, 0x8b5e34, 0xd9b26f, 0x3d4a57],
+  shoe: 0x2b2118,
+  ink: 0x22272e, // eyes
+  /** The name plate above their head, in the UI chrome's language. */
+  plate: '#161d29',
+  plateEdge: '#0b0e13',
+  plateRim: 'rgba(242,193,78,0.8)', // palette.nodeRim, as the gold level tiles use
+  plateInk: '#f7f3ea',
+}
+
 export const world = {
   sky: 0x9bd4e4,
   fog: 0x9bd4e4,
