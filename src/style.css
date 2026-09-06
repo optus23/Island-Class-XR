@@ -56,6 +56,27 @@ body.map-view {
   pointer-events: auto;
 }
 
+/* The opening flight owns the screen. The panels fade in as the camera lands,
+   so the first thing anyone sees is sky rather than a map with furniture on it.
+   `.intro-catch` is what makes a tap skip the flight instead of picking a node
+   through it. */
+.ui-layer.is-intro {
+  opacity: 0;
+}
+.ui-layer {
+  transition: opacity 700ms ease-out;
+}
+.intro-catch {
+  position: fixed;
+  inset: 0;
+  z-index: 55;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
+  touch-action: none;
+}
+
 /* Pixel-art flavoured chrome for the 2D layer. */
 .pixel-panel {
   border: 3px solid rgb(0 0 0 / 0.55);

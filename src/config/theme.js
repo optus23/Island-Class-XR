@@ -140,6 +140,22 @@ export const villagers = {
   plateInk: '#f7f3ea',
 }
 
+/**
+ * The opening flight: voxel clouds in the sky and the title plate hanging in
+ * them. See `three/intro.js` — they exist only for those few seconds and are
+ * disposed once the camera has landed.
+ *
+ * Two whites, not one, and they are all the shading there is: the clouds are
+ * drawn UNLIT (see `three/clouds.js` for why), so the crown and the body have to
+ * carry the form by themselves. Keep both of them bright — the second tone is a
+ * cool white, not a grey. Anything darker stops reading as cloud against
+ * `world.sky` and starts reading as rock.
+ */
+export const clouds = {
+  light: 0xffffff,
+  shade: 0xdcebf7,
+}
+
 export const world = {
   sky: 0x9bd4e4,
   fog: 0x9bd4e4,

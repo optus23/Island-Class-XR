@@ -454,6 +454,26 @@ aparece cualquiera de esas cosas.
 
 ---
 
+## La entrada a la isla
+
+Cada visita empieza con un vuelo de unos cinco segundos: cielo azul, nubes
+voxel, el título **XR Island**, y la cámara inclinándose hacia abajo hasta
+posarse exactamente donde se queda la cámara normal del mapa. Se salta tocando
+la pantalla o pulsando cualquier tecla.
+
+- El texto sale de `course` en `src/data/levels.json`: `title` y **`tagline`**
+  (la versión corta). El `subtitle` largo se sigue usando en el panel del mapa.
+- No se reproduce si el sistema pide *reduced motion*, si se entra por un enlace
+  a un nivel concreto (`?level=…`) o si se entra por `/vr`.
+- Las nubes existen solo durante el vuelo y se destruyen al aterrizar: la vista
+  cenital sube mucho, y una capa de nubes permanente taparía el mapa entero.
+
+Los números del plano (altura de salida, ritmo, cuándo empieza la inclinación)
+están todos arriba de `src/three/intro.js`, cada uno con el motivo por el que
+vale lo que vale.
+
+---
+
 ## 3D assets
 
 The island is generated from code today, so the project runs with no asset
