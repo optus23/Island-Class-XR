@@ -13,6 +13,12 @@ import { cssPalette } from '../config/theme.js'
  * The block only appears when an admin token is present in THIS browser's
  * localStorage. Students never see it, and it is not a second source of truth:
  * every button writes through the same progress marker.
+ *
+ * It also carries the ONLY link to /admin. The teacher who has a token in this
+ * browser has no other way of finding that page — the marker controls being
+ * here is exactly what makes it invisible, and the round that added the roster
+ * of honoured students put a second thing on /admin that nobody could reach.
+ * Students never see the link, because they never see this block.
  */
 
 const ADMIN_TOKEN_KEY = 'xrisland:gh-token'
@@ -104,6 +110,10 @@ export function mountLegend(actions = {}) {
                        Reiniciar curso
                      </button>
                    </div>
+                   <a class="legend-btn legend-admin__link"
+                      href="${import.meta.env.BASE_URL}admin/">
+                     Panel de profesor · alumnos y token →
+                   </a>
                    ${note ? `<p class="legend-admin__note">${note}</p>` : ''}
                  </div>`
               : ''

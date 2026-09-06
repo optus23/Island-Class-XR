@@ -324,6 +324,30 @@ Every one of these was diagnosed the hard way. Do not re-derive them.
   lets the teacher save a roster that FAILS THE BUILD, which takes the site down
   until someone edits the file by hand. It shipped that way for one deploy.
 
+**The teacher's writes (the GitHub Contents API)**
+
+- **Every API GET must be `cache: 'no-store'` AND cache-busted.** The Contents
+  API answers with `Cache-Control: public, max-age=60, s-maxage=60`, so a plain
+  `fetch` reads the file's sha out of the browser cache — the sha from before
+  the last press wrote a commit — and the PUT comes back
+  `409 <path> does not match <sha>`. "Completar y avanzar" followed by
+  "Retroceder" reproduced it every time, and the teacher saw GitHub's own
+  English sentence about a hash. `no-store` handles the browser; the `_` stamp
+  handles the shared cache in front of the API. `public/progress.json` is
+  fetched by the map with the same pair of precautions.
+- **A 409 is retried once against a freshly read sha**, because GitHub's own
+  read-after-write is eventually consistent. Safe here only because both files
+  are whole documents written from state the caller is holding, not patches
+  applied to whatever happens to be there. Do not copy the retry onto anything
+  that merges.
+- **`explain()` wins over GitHub's `message`** for statuses we know. The raw
+  message for a sha clash names a hash and nothing else.
+- **The legend's Profesor block carries the only link to /admin**, and it has to
+  keep carrying it. With the marker controls on the map, a teacher who already
+  has a token has no way of discovering that page — and the roster of honoured
+  students lives there. That was reported as "no recuerdo cómo entrar como
+  administrador" one round after the roster shipped.
+
 **Input**
 
 - `touch-action: none` on the canvas is what lets touch gestures reach the page at

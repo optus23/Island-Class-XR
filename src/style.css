@@ -704,6 +704,17 @@ body.map-view {
   color: #ff8fab;
   border-color: rgb(255 143 171 / 0.4);
 }
+.legend-admin__link {
+  display: block;
+  margin-top: 0.3rem;
+  text-align: center;
+  text-decoration: none;
+  color: inherit;
+  opacity: 0.85;
+}
+.legend-admin__link:hover {
+  opacity: 1;
+}
 .legend-admin__note {
   margin-top: 0.4rem;
   font-size: 0.64rem;

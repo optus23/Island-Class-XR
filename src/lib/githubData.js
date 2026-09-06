@@ -76,9 +76,27 @@ const decodeBase64 = (b64) => {
   return new TextDecoder().decode(Uint8Array.from(binary, (c) => c.charCodeAt(0)))
 }
 
+/**
+ * One request to the GitHub API, and it must NEVER come out of a cache.
+ *
+ * The Contents API answers a GET with `Cache-Control: public, max-age=60,
+ * s-maxage=60`. A plain `fetch` honours that, so the second teacher control
+ * pressed inside a minute read the file's sha from the browser's cache — the
+ * sha from BEFORE the first press wrote a new commit — and the PUT came back
+ * `409 public/progress.json does not match <sha>`. Pressing "Completar y
+ * avanzar" and then "Retroceder" was enough to produce it every time.
+ *
+ * Both halves are needed: `no-store` keeps the browser out of it, and the
+ * `_` stamp gives the shared cache in front of the API a URL it has never seen.
+ * `public/progress.json` is fetched by the map with exactly the same pair of
+ * precautions, for exactly the same reason.
+ */
 function api(path, options = {}) {
-  return fetch(`https://api.github.com${path}`, {
+  const url = new URL(`https://api.github.com${path}`)
+  if (!options.method || options.method === 'GET') url.searchParams.set('_', Date.now())
+  return fetch(url, {
     ...options,
+    cache: 'no-store',
     headers: {
       Accept: 'application/vnd.github+json',
       'X-GitHub-Api-Version': '2022-11-28',
@@ -89,14 +107,20 @@ function api(path, options = {}) {
   })
 }
 
-function explain(status, path) {
+function explain(status, path, githubSays = '') {
   if (status === 401)
     return 'Token no válido o caducado. Pégalo de nuevo en /admin (Configuración → Developer settings → Fine-grained tokens).'
   if (status === 403)
     return 'El token no tiene permiso "Contents: Read and write" sobre este repositorio.'
   if (status === 404) return `No existe ${path} en la rama ${settings.branch} de ${settings.repo}.`
-  if (status === 409) return 'Conflicto: el archivo cambió. Vuelve a leerlo.'
-  return `GitHub respondió ${status}.`
+  if (status === 409)
+    return (
+      `Otro cambio llegó antes que éste a ${path}. Vuelve a pulsar el botón: ` +
+      'se lee el archivo de nuevo y se reintenta.'
+    )
+  // Anything unexpected keeps GitHub's own words: they are in English and
+  // usually unhelpful, but they are the only clue left.
+  return `GitHub respondió ${status}.${githubSays ? ` ${githubSays}` : ''}`
 }
 
 /**
@@ -124,22 +148,42 @@ export async function readJsonFile(path) {
 /**
  * Commit a JSON document, creating the file if it does not exist yet.
  *
- * Always re-reads for a fresh sha first, so a second click never 409s.
+ * `knownSha` is the sha the caller has already read, so a read-modify-write is
+ * one round trip rather than two.
+ *
+ * A 409 is retried ONCE against a freshly read sha. With the cache defeated
+ * above that should not happen any more, but GitHub's own read-after-write is
+ * eventually consistent, and a teacher pressing two controls in a row is
+ * exactly the case that would find it. Retrying is safe here: both files are
+ * whole documents written from state the caller is holding, not patches applied
+ * to whatever happens to be there.
  */
-export async function writeJsonFile(path, doc, message) {
-  const { sha } = await readJsonFile(path)
-  const res = await api(`/repos/${settings.repo}/contents/${path}`, {
-    method: 'PUT',
-    body: JSON.stringify({
+export async function writeJsonFile(path, doc, message, { knownSha } = {}) {
+  const body = (sha) =>
+    JSON.stringify({
       message,
       content: encodeBase64(JSON.stringify(doc, null, 2) + '\n'),
       branch: settings.branch,
       ...(sha ? { sha } : {}),
-    }),
+    })
+
+  let sha = knownSha ?? (await readJsonFile(path)).sha
+  let res = await api(`/repos/${settings.repo}/contents/${path}`, {
+    method: 'PUT',
+    body: body(sha),
   })
+  if (res.status === 409) {
+    sha = (await readJsonFile(path)).sha
+    res = await api(`/repos/${settings.repo}/contents/${path}`, {
+      method: 'PUT',
+      body: body(sha),
+    })
+  }
   if (!res.ok) {
+    // `explain` first: GitHub's own message for a sha clash is
+    // "<path> does not match <sha>", which told the teacher nothing.
     const detail = await res.json().catch(() => ({}))
-    throw new Error(detail.message ?? explain(res.status, path))
+    throw new Error(explain(res.status, path, detail.message))
   }
   return doc
 }
@@ -167,8 +211,10 @@ const NOTE = 'Moved only by the teacher controls. Students read this; they never
  * collide with a 409 — and so that a patch to one field preserves the other.
  */
 async function patchProgress(patch, message) {
-  const { doc } = await readProgress()
-  return writeJsonFile(PROGRESS_PATH, { ...doc, ...patch, note: NOTE }, message)
+  const { doc, sha } = await readProgress()
+  return writeJsonFile(PROGRESS_PATH, { ...doc, ...patch, note: NOTE }, message, {
+    knownSha: sha,
+  })
 }
 
 /** Moves the marker. */
