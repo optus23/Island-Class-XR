@@ -419,9 +419,9 @@ Detalles que conviene saber:
 
 - **24 plazas.** Más que eso deja de leerse como «mira quién ha llegado al mapa»
   y pasa a leerse como una multitud.
-- **Las sesiones son las 25 clases normales.** Los dos castillos (exámenes) no
-  admiten a nadie: el edificio ocupa todo el espacio junto al nodo, y de todas
-  formas nadie gana puntos de participación en un examen.
+- **Se ofrecen todas las sesiones menos los dos castillos.** Un examen no admite
+  a nadie: el edificio ocupa todo el espacio junto al nodo, y de todas formas
+  nadie gana puntos de participación en un examen.
 - **Es decoración.** No se puede pulsar, no tapa el disco de la sesión y no
   cambia nada del curso ni del marcador.
 - El personaje es aleatorio pero estable: el mismo nombre sale siempre con la

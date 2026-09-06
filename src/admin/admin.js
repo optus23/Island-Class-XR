@@ -38,6 +38,17 @@ import { MAX_NAME, MAX_NPCS, cleanName, makeNpcId } from '../lib/roster.js'
 
 const root = document.getElementById('admin-root')
 
+/**
+ * The sessions a villager actually fits at: every main-path level except the two
+ * castles, whose building fills the pad and swallows anyone standing there.
+ *
+ * This list has to agree with VILLAGER_SESSIONS in main.js and with the roster
+ * check in scripts/validate.mjs. Offering a castle here would let the teacher
+ * save a roster that FAILS THE BUILD, which takes the whole site down with it
+ * until someone edits the file by hand.
+ */
+const VILLAGER_SESSIONS = mainSequence.filter((l) => l.category !== 'boss')
+
 let state = {
   currentLevelId: null,
   busy: false,
@@ -95,7 +106,13 @@ async function check() {
     const { doc } = await readJsonFile(PROGRESS_PATH)
     if (!doc) throw new Error(`No existe ${PROGRESS_PATH} en la rama ${settings.branch}.`)
     state.currentLevelId = doc.currentLevelId ?? START_MARKER
-    state.levelId = state.levelId ?? state.currentLevelId
+    // Default the picker to where the class is — the teacher is awarding points
+    // for today's session — unless today is an exam, which takes no villagers.
+    if (!VILLAGER_SESSIONS.some((l) => l.id === state.levelId)) {
+      state.levelId = VILLAGER_SESSIONS.some((l) => l.id === state.currentLevelId)
+        ? state.currentLevelId
+        : VILLAGER_SESSIONS[0]?.id
+    }
     // A roster that will not load must not make the token look invalid.
     try {
       state.roster = await readRoster()
@@ -124,7 +141,7 @@ function addStudent(rawName, levelId) {
     sayRoster('Escribe un nombre o un nickname.', 'error')
     return
   }
-  if (!levelById(levelId)) {
+  if (!VILLAGER_SESSIONS.some((l) => l.id === levelId)) {
     sayRoster('Elige la sesión junto a la que quieres que pasee.', 'error')
     return
   }
@@ -256,7 +273,7 @@ function signInCard() {
 function rosterCard() {
   if (!state.roster) return ''
 
-  const options = mainSequence
+  const options = VILLAGER_SESSIONS
     .map(
       (l) =>
         `<option value="${esc(l.id)}" ${l.id === state.levelId ? 'selected' : ''}>
@@ -266,7 +283,7 @@ function rosterCard() {
     .join('')
 
   // Grouped by session, in map order, so the list reads the way the island does.
-  const order = new Map(mainSequence.map((l, i) => [l.id, i]))
+  const order = new Map(VILLAGER_SESSIONS.map((l, i) => [l.id, i]))
   const rows = [...state.roster]
     .sort((a, b) => (order.get(a.levelId) ?? 99) - (order.get(b.levelId) ?? 99))
     .map((n) => {
