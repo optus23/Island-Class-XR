@@ -175,6 +175,17 @@ Changing any of these is a design decision, not a refactor.
   recipe, and their walk is a stroll that keeps drifting to a near-standstill
   rather than the avatar's bouncing march. They are decoration — never clickable,
   never on the disc, never carrying course meaning.
+- **The plate over the avatar dismisses itself, and never covers a panel.**
+  Touch anything that is not the plate — the map, the course list, the legend,
+  the VR button — and it goes. On a desktop, hovering the node the avatar is
+  standing on brings it back; on a phone the way back is tapping that node,
+  which enters the level, and that is fine. It also refuses to sit on an open
+  panel: if the space above the avatar is taken it drops below instead. Before
+  this it stayed up through everything, so opening the course list left you
+  reading one UI through the other.
+- **One node, one label.** The hover tooltip is suppressed for the node the
+  avatar is standing on, because the plate is already there, says the same
+  thing, and is in the same place.
 - **Bosses** close the screen through a horned silhouette instead of a circle.
 - **The level portal is ONE scrolling page.** Header, tags, tabs and content all
   scroll away together; only the back button stays (it is `position: fixed`, and

@@ -49,6 +49,12 @@ Seen working in a browser, on the deployed site:
   frames across every session and all three rings: never more than 0.12 off the
   ground away from the road, never more than 0.77 off the road's surface on it,
   and 73 ms to build a full 24-student roster.
+- **The plate over the avatar dismissing itself** — driven with real pointer
+  events: tap the map or the course list and it goes, touch the plate itself and
+  it stays, hover the avatar's own node on a desktop and it comes back, drag from
+  over that node and it does NOT come back mid-drag, and with the course list
+  grown over its usual spot it moves below the avatar and back again. Clicking
+  the plate still opens the level.
 - **The `/admin` roster editor** — add, duplicate guard, empty-name guard,
   remove, and one save producing exactly one commit with the right payload and a
   fresh sha. Driven against a stubbed `api.github.com`, so **the real GitHub
