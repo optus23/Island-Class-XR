@@ -14,7 +14,7 @@ Everything is merged and live: <https://optus23.github.io/Island-Class-XR/>
 
 | | |
 | --- | --- |
-| Live build | `27c8824` |
+| Last code change | the road skirt and the background-tab failsafe — anything on `main` after it is documentation |
 | `develop` | same content as `main` |
 | Working tree | clean |
 | Marker | session 1, and **`lockAhead` is ON** — students see one session |
