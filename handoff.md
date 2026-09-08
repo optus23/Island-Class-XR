@@ -52,6 +52,16 @@ Everything here has a number or a photograph behind it.
 **The map and its feedback**
 
 - Session discs sit clear of the terrain; `w1-03` photographed on a clean pad.
+- **The dark outline no longer floats over its own road.** The two ribbons
+  sampled their height across their own widths, so the border could sit a full
+  plateau above the cream — 2.0 units beside w1-05, which is the brown box that
+  was reported. Both now probe across 1.6. Verified by raycasting down at the
+  corner: six samples that answered "border" now answer "road", all at one
+  height.
+- **Nothing stands on a session disc.** Raycast straight down at all 26 ordinary
+  sessions: the disc is the top surface at every one. That check caught a
+  regression from the height change — a new step at w3-03 put a wooden tread on
+  the circle — and it is worth re-running after anything that moves the road.
 - **The road no longer floats, on either kind of edge.** Sides: 89 border edge
   vertices floating by the full 2-plateau gap at 61 of 953 cross-sections, all 89
   now covered. Ends: a run is padded half a road's width past each end, and the
