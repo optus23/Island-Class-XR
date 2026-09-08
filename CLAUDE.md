@@ -150,6 +150,10 @@ Changing any of these is a design decision, not a refactor.
   every castle part not flagged `keepColor` with `resolveNodeColor()`, so
   setting it red once turned both castles solid red. The only exam that is red
   is the re-evaluation, which is `bossTier: 'extra'` and gets `bossAccent`.
+  **A locked castle keeps that stone**: `resolveNodeColor` checks `boss` BEFORE
+  `locked`, because `palette.locked` is a lighter grey and a castle wearing it
+  read as a different building. The padlock and the hidden title are what say a
+  session is closed; the stone is the material.
 - **The biome seams are interleaved, not cut.** `biomeKeyAt(x, z)` picks per
   column near a boundary: the seam wanders in Z, a mid-frequency term throws
   fingers of one biome across it, and a per-column hash salts single voxels at
@@ -292,6 +296,21 @@ Every one of these was diagnosed the hard way. Do not re-derive them.
   across every corner, which cuts the road and the node in half.
 - Backdrop markings must be projected onto the mound's ellipsoid surface, or they
   float in front of it like balloons.
+- **The road hangs in the air at 61 of its 953 cross-sections, and that is the
+  terrain rules agreeing to disagree.** `sampleRoad` takes the HIGHEST ground
+  across the ribbon's width so a quad cannot slice into a terrace; the ground
+  beside the route settles on the LOWEST road height nearby so a plateau
+  boundary cannot cut the road at a corner. Both are load-bearing. Where they
+  differ the ribbon stands a full plateau proud of the grass — 28 sections
+  floating on BOTH sides, worst 2.34 units — and from above it reads as a brown
+  slab hanging in the sky. `createRoadSkirt` fills it. **Do not "fix" it by
+  changing either height rule**; that is how the green wedge and the sliced
+  discs come back.
+- **The skirt is coloured as TERRAIN, not as road.** One flat brown wall turned
+  the floating slab into a slab on a plinth. Painted in the local biome's `band`
+  over `rock` — the same stack every terrace uses — it stops being a wall and
+  reads as the ground coming up to meet the road. It is therefore the one part
+  of the road that changes colour per biome.
 - **A node disc stands on the ROAD, and the road is not at ground height.**
   `sampleRoad` takes the HIGHEST of five samples across the ribbon's width so a
   quad crossing a terrace does not slice through it, so beside a step the road
