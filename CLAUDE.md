@@ -424,6 +424,15 @@ Every one of these was diagnosed the hard way. Do not re-derive them.
 - **The title plate ignores depth.** Clouds are scattered from a hash and one
   will sometimes park itself between the camera and the title on the opening
   frame — the one frame that has to read.
+- **ANYTHING THAT ONLY ENDS ON A FRAME NEEDS A WALL-CLOCK FAILSAFE.**
+  `setAnimationLoop` does not fire at all in a hidden tab — measured, zero
+  callbacks in three seconds, not "throttled to 1 fps". A page opened in a
+  background tab therefore had a flight that could not advance, holding `#ui` at
+  opacity 0 with a full-screen catcher over the map: it looked broken until the
+  tab was brought forward. A `setTimeout` finishes it regardless, because
+  timers DO fire in background tabs. This is the same lesson the curtain in
+  `ui/hud.js` already carried — "a curtain that outlives the page it hides is
+  worse than no curtain" — and it was learned twice.
 - **The clouds do not survive the intro.** The overview camera pulls back a
   couple of hundred units and looks almost straight down, so a permanent cloud
   layer would put a lid on the one shot meant to show the whole map.
