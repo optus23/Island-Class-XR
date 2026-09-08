@@ -4,6 +4,7 @@ import {
   course,
   levelsForWorld,
   statusFor,
+  safeTitle,
   markerProgress,
   sessionNumber,
 } from '../lib/levels.js'
@@ -58,15 +59,22 @@ export function mountNav({ markerId, onSelect, onSelectWorld, onToggleOverview }
             const st = statusFor(l, currentMarker)
             const here = l.id === playerLevelId
             const n = sessionNumber(l)
+            // A locked row keeps its place in the list — the shape of the
+            // course is not the secret — but shows a number instead of a name
+            // and cannot be opened.
             return `
               <li>
-                <button data-level="${l.id}"
-                  class="nav-item ${here ? 'is-here' : ''} ${st.completed ? 'is-done' : ''}">
+                <button data-level="${l.id}" ${st.locked ? 'disabled' : ''}
+                  title="${st.locked ? 'Se abre cuando la clase llegue aquí' : ''}"
+                  class="nav-item ${here ? 'is-here' : ''} ${st.completed ? 'is-done' : ''} ${
+                    st.locked ? 'is-locked' : ''
+                  }">
                   ${swatch(l, st)}
                   <span class="nav-item__num">${n ? `${n.world}-${n.index}` : '·'}</span>
-                  <span class="nav-item__title">${l.title}</span>
+                  <span class="nav-item__title">${safeTitle(l, currentMarker)}</span>
+                  ${st.locked ? '<span class="nav-item__lock" aria-label="Bloqueado">🔒</span>' : ''}
                   ${st.current ? '<span class="nav-item__pin" title="Aquí está la clase">📍</span>' : ''}
-                  ${l.optional ? '<span class="nav-item__extra">extra</span>' : ''}
+                  ${l.optional && !st.locked ? '<span class="nav-item__extra">extra</span>' : ''}
                 </button>
               </li>`
           })
@@ -135,6 +143,10 @@ export function mountNav({ markerId, onSelect, onSelectWorld, onToggleOverview }
     },
     setOverview(on) {
       overview = on
+      render()
+    },
+    /** The lock rule changed under us — every row's title depends on it. */
+    refreshLocks() {
       render()
     },
   }

@@ -14,9 +14,14 @@ export async function loadProgress() {
     const res = await fetch(url, { cache: 'no-store' })
     if (!res.ok) throw new Error(`HTTP ${res.status}`)
     const data = await res.json()
-    return { currentLevelId: data.currentLevelId ?? START_MARKER }
+    return {
+      currentLevelId: data.currentLevelId ?? START_MARKER,
+      // Absent means OFF. A course that has been running with everything
+      // visible must not have half of it disappear because a new field shipped.
+      lockAhead: data.lockAhead === true,
+    }
   } catch (e) {
     console.warn('progress.json unavailable, starting at the first level:', e.message)
-    return { currentLevelId: START_MARKER }
+    return { currentLevelId: START_MARKER, lockAhead: false }
   }
 }

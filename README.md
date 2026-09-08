@@ -518,6 +518,15 @@ from the private platform instead.
 
 ---
 
+## ¿Otro profesor quiere usar esto?
+
+Hay una guía entera para eso:
+**[docs/adaptar-a-tu-asignatura.md](docs/adaptar-a-tu-asignatura.md)** — fork,
+publicar la web, su propio token, cambiar sesiones, contenidos, colores y la
+forma de la isla. Escrita para hacerlo a mano, sin conocer Three.js.
+
+---
+
 ## Branch workflow
 
 | Branch | Purpose |

@@ -217,6 +217,20 @@ async function patchProgress(patch, message) {
   })
 }
 
+/**
+ * Turns the "hide the sessions ahead" rule on or off for the whole course.
+ *
+ * The same read-modify-write as the marker, so one field cannot clobber the
+ * other — which is exactly why `patchProgress` merges rather than replaces.
+ */
+export async function writeLockAhead(on) {
+  await patchProgress(
+    { lockAhead: Boolean(on) },
+    `chore(progress): sesiones futuras ${on ? 'ocultas' : 'visibles'}`
+  )
+  return Boolean(on)
+}
+
 /** Moves the marker. */
 export async function writeProgress(levelId, label = 'Actualización') {
   await patchProgress({ currentLevelId: levelId }, `chore(progress): ${label} → ${levelId}`)

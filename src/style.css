@@ -725,6 +725,17 @@ body.map-view {
   color: #ff8fab;
   border-color: rgb(255 143 171 / 0.4);
 }
+.nav-item.is-locked {
+  opacity: 0.55;
+  cursor: default;
+}
+.nav-item.is-locked .nav-item__title {
+  font-style: italic;
+}
+.nav-item__lock {
+  font-size: 0.72rem;
+  opacity: 0.75;
+}
 .legend-admin__link {
   display: block;
   margin-top: 0.3rem;
@@ -735,6 +746,24 @@ body.map-view {
 }
 .legend-admin__link:hover {
   opacity: 1;
+}
+.legend-switch {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin-top: 0.35rem;
+  font-size: 0.72rem;
+  cursor: pointer;
+}
+.legend-switch input {
+  accent-color: var(--xri-grass, #4caf50);
+  width: 0.9rem;
+  height: 0.9rem;
+  cursor: pointer;
+}
+.legend-switch.is-muted {
+  opacity: 0.45;
+  cursor: default;
 }
 .legend-admin__note {
   margin-top: 0.4rem;

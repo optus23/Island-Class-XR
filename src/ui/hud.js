@@ -1,5 +1,5 @@
 import { cssPalette } from '../config/theme.js'
-import { statusFor } from '../lib/levels.js'
+import { safeTitle, statusFor } from '../lib/levels.js'
 
 /**
  * Small screen-space extras: the hover tooltip and the first-load curtain.
@@ -27,23 +27,31 @@ export function createTooltip() {
       if (level.id !== shownFor) {
         shownFor = level.id
         const st = statusFor(level, markerId)
-        const accent = level.optional
-          ? cssPalette.optional
-          : st.completed
-            ? cssPalette.completed
-            : cssPalette[level.category] ?? cssPalette.theory
-        const tags = [
-          CATEGORY_LABELS[level.category] ?? level.category,
-          level.optional ? 'opcional' : null,
-          st.completed ? 'completado' : null,
-          st.current ? 'aquí estamos' : null,
-        ].filter(Boolean)
+        const accent = st.locked
+          ? cssPalette.locked
+          : level.optional
+            ? cssPalette.optional
+            : st.completed
+              ? cssPalette.completed
+              : cssPalette[level.category] ?? cssPalette.theory
+        // A locked session gives away nothing — not even what KIND of session it
+        // is, since "examen" on a date nobody has reached is its own spoiler.
+        const tags = st.locked
+          ? ['se abre cuando la clase llegue aquí']
+          : [
+              CATEGORY_LABELS[level.category] ?? level.category,
+              level.optional ? 'opcional' : null,
+              st.completed ? 'completado' : null,
+              st.current ? 'aquí estamos' : null,
+            ].filter(Boolean)
 
         el.innerHTML = `
           <span class="flex items-center gap-2">
             <span class="inline-block w-2.5 h-2.5 rounded-[3px] shrink-0"
                   style="background:${accent}"></span>
-            <span class="font-semibold leading-tight">${level.title}</span>
+            <span class="font-semibold leading-tight">
+              ${st.locked ? '🔒 ' : ''}${safeTitle(level, markerId)}
+            </span>
           </span>
           <span class="block text-[11px] opacity-70 mt-0.5">${tags.join(' · ')}</span>`
       }

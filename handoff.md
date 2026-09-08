@@ -49,6 +49,16 @@ Seen working in a browser, on the deployed site:
   frames across every session and all three rings: never more than 0.12 off the
   ground away from the road, never more than 0.77 off the road's surface on it,
   and 73 ms to build a full 24-student roster.
+- **Locking the sessions ahead**, in all three states: as a student (28 of 31
+  locked with the marker on session 2, titles masked, discs grey), as the teacher
+  (0 locked), and through "Ver como alumno" and back. The gate holds against a
+  disc tap, a course-list row, a `?level=` link to a locked session (the param is
+  stripped and the map opens at the marker) and a direct `__selectLevel` call,
+  while an unlocked level still opens normally.
+- **The amber trail**, counted rather than eyeballed: 0 amber vertices with no
+  marker, 6 of 1838 on session 1, 828 on session 12 of 28, 1834 on the last one.
+  Photographed in the overview — the trail runs from world 1 to the marker and
+  the road ahead stays cream.
 - **The opening flight**, replayed frame by frame and photographed at four
   points: the title card in the clouds, the cloud run, the tilt bringing the
   island up, and the landing. The last frames step 0.125 units and then 0, and

@@ -34,15 +34,71 @@ export function levelById(id) {
 }
 
 /**
+ * WHAT IS HIDDEN FROM STUDENTS, AND WHO DECIDES.
+ *
+ * A session past the marker is LOCKED: its title, its slides and its exercises
+ * are not shown, because several of them are plot points — the story a class
+ * builds toward is spoiled by a session list read on day one.
+ *
+ * Two switches, and they are different things:
+ *
+ *   `lockAhead`  the COURSE setting, from `public/progress.json`. The teacher
+ *                flips it from the map's legend and every student gets it.
+ *   `seeAll`     THIS BROWSER ignores the lock. Set for whoever holds an admin
+ *                token, so the teacher always sees the whole course, and
+ *                cleared by "Ver como alumno" so they can check what the class
+ *                sees without signing out.
+ *
+ * Both live here rather than being threaded through every call, because the
+ * answer has to be identical on the map, in the course list, in the tooltip, in
+ * the portal, in the VR card and on a shared link. Nine surfaces, one rule.
+ */
+let lockAhead = false
+let seeAll = false
+
+/** The course-wide setting, read from progress.json. */
+export function setLockAhead(on) {
+  lockAhead = Boolean(on)
+}
+
+/** This browser sees everything regardless — the teacher's. */
+export function setSeeAll(on) {
+  seeAll = Boolean(on)
+}
+
+export function locksActive() {
+  return lockAhead && !seeAll
+}
+
+export function lockAheadSetting() {
+  return lockAhead
+}
+
+export function seeAllSetting() {
+  return seeAll
+}
+
+/**
  * Status for one level given the current marker.
  *
  * Optional levels never turn green: they are take-home extras that the linear
  * marker does not walk through, so they keep their own colour at all times.
+ * They CAN be locked, though — an "Actitud" activity hanging off session 9 is
+ * as much of a spoiler as session 9 — so they inherit the lock from the day
+ * they hang off. `validate` guarantees that anchor is a main-path level, which
+ * is what stops this recursing.
  *
  * @returns {{completed: boolean, current: boolean, locked: boolean}}
  */
 export function statusFor(level, markerId) {
-  if (level.optional) return { completed: false, current: false, locked: false }
+  if (level.optional) {
+    const anchor = level.anchorAfter ? levelById(level.anchorAfter) : null
+    return {
+      completed: false,
+      current: false,
+      locked: anchor ? statusFor(anchor, markerId).locked : false,
+    }
+  }
 
   const markerIndex = mainSequence.findIndex((l) => l.id === markerId)
   const myIndex = mainSequence.findIndex((l) => l.id === level.id)
@@ -52,8 +108,29 @@ export function statusFor(level, markerId) {
   return {
     completed: myIndex < markerIndex,
     current: myIndex === markerIndex,
-    locked: false, // nothing is hidden from students; ahead-of-marker is just "not done"
+    // Everything past where the class has got to. The marker session itself is
+    // always open: "cero completadas, la primera; una completada, la segunda".
+    locked: locksActive() && myIndex > markerIndex,
   }
+}
+
+/** Shorthand — the same rule, when only the yes/no is wanted. */
+export function isLocked(level, markerId) {
+  return statusFor(level, markerId).locked
+}
+
+/**
+ * The title, or a spoiler-free stand-in when the level is locked.
+ *
+ * EVERY surface that prints a level's name goes through here. The session
+ * number is not a spoiler and keeps the map legible — you can still see that
+ * you are on 3 of 28 — but the words are what give the story away.
+ */
+export function safeTitle(level, markerId) {
+  if (!level) return ''
+  if (!isLocked(level, markerId)) return level.title
+  const n = sessionNumber(level)
+  return n ? `Sesión ${n.global}` : 'Actividad extra'
 }
 
 /** Step the marker forward one main-path level. Returns the new id. */

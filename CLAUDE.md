@@ -193,6 +193,16 @@ Changing any of these is a design decision, not a refactor.
   already sits — Marc's reference is the Simpsons title sequence. It plays on
   every visit, and it is skipped for reduced motion, for a shared `?level=` link
   and for `?vr=1` / `/vr/`.
+- **The road behind the class is amber, the road ahead is cream.** A green disc
+  on its own was not enough feedback — the ring changed and the road it stood on
+  did not — so `world.pathDone` paints the route already walked, up to the
+  marker. Amber and NOT green: green is the completed node, and reusing it makes
+  the whole route read as one enormous completed thing.
+- **A session past the marker is LOCKED, and locked means its NAME is hidden.**
+  Grey disc, padlock in the course list, "Sesión 7" instead of the title.
+  Several titles are plot points, so the list read on day one is the spoiler.
+  Course-wide switch in the legend, written to `progress.json`; anyone holding
+  an admin token is exempt, and "Ver como alumno" drops that exemption locally.
 - **Bosses** close the screen through a horned silhouette instead of a circle.
 - **The level portal is ONE scrolling page.** Header, tags, tabs and content all
   scroll away together; only the back button stays (it is `position: fixed`, and
@@ -256,6 +266,19 @@ Every one of these was diagnosed the hard way. Do not re-derive them.
 
 - `vertexColors: true` on an `InstancedMesh` that uses `instanceColor` multiplies
   by a missing per-vertex attribute and renders **everything black**. Don't set it.
+  It IS the right tool on a plain Mesh with no instanceColor — that is how the
+  road ribbon carries the amber trail on one draw call. The road stairs are an
+  InstancedMesh and use `setColorAt` instead. Two meshes, two mechanisms, and
+  swapping them breaks one of them.
+- **Every road sample carries its arc length along the WHOLE route**, which is
+  only true because `createPathRibbon` assembles the curves in route order —
+  world, bridge, world, bridge, world — rather than all worlds then all
+  connectors. Colouring the finished stretch is then a comparison against one
+  number per vertex. Break that ordering and the trail paints the wrong half.
+- **Colour buffers are LINEAR, the hex you wrote is sRGB.** `new THREE.Color(hex)`
+  converts on construction, so a test that compares a colour attribute against
+  the raw hex components reports nonsense — cream came back as "amber" for a
+  whole round of checking. Build the reference through `THREE.Color` too.
 - Camera `near` matters more than `far`. At `0.5` with the camera ~90 units out,
   almost the whole depth buffer is spent on empty space. It is `12`.
 - `lookAt()` has no defined roll when forward is parallel to up: crossing the pole
@@ -385,6 +408,26 @@ Every one of these was diagnosed the hard way. Do not re-derive them.
 - **The clouds do not survive the intro.** The overview camera pulls back a
   couple of hundred units and looks almost straight down, so a permanent cloud
   layer would put a lid on the one shot meant to show the whole map.
+
+**Locking the sessions ahead**
+
+- **`statusFor` is the only place the rule lives, and `safeTitle` is the only
+  place a title is masked.** Nine surfaces print a level's name — map, course
+  list, tooltip, avatar plate, portal, level card, VR card, screen reader,
+  shared link — and a lock that is enforced in eight of them is not a lock.
+- **`selectLevel` is the single gate.** Disc tap, course-list row, arrow key, VR
+  controller ray and deep link all pass through it, so the guard sits there once
+  rather than at each door. The two that do NOT pass through it are the load-time
+  `?level=` read and `onRouteChange` (Back/Forward restoring an older URL); both
+  carry their own check for exactly that reason.
+- **Locked is silent otherwise, so say something.** A tap on a grey disc that
+  does nothing reads as a broken button; it raises the tooltip at the last
+  pointer position for a couple of seconds instead.
+- **Optional nodes inherit the lock from their anchor**, or an "Actitud" hanging
+  off session 9 gives away session 9. `validate` guarantees the anchor is a
+  main-path level, which is what stops `statusFor` recursing.
+- **`lockAhead` absent means OFF.** A course already running with everything
+  visible must not have half of it vanish because a new field shipped.
 
 **Input**
 

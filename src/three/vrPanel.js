@@ -1,5 +1,5 @@
 import * as THREE from 'three'
-import { sessionNumber, statusFor } from '../lib/levels.js'
+import { safeTitle, sessionNumber, statusFor } from '../lib/levels.js'
 import { cssPalette } from '../config/theme.js'
 import { stageLabel, categoryLabel, assessmentRows } from '../lib/labels.js'
 
@@ -135,7 +135,7 @@ export function createVRPanel() {
     // Title, up to two lines.
     ctx.font = `700 48px ${FONT}`
     ctx.fillStyle = '#fff'
-    for (const line of wrap(ctx, level.title, CANVAS_W - L * 2, 2)) {
+    for (const line of wrap(ctx, safeTitle(level, markerId), CANVAS_W - L * 2, 2)) {
       y += 52
       ctx.fillText(line, L, y)
     }
