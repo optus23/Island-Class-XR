@@ -185,6 +185,17 @@ export const world = {
   // darker they read as separate paving slabs dropped beside it.
   pathStep: 0xe8cf92,
   pathOptional: 0x9d4edd, // dashed connectors to bonus nodes
+  /**
+   * The road BEHIND the class — everything already walked.
+   *
+   * A green disc on its own was not enough feedback: the ring changed and the
+   * road it stood on did not, so the map never showed a trail. Amber rather
+   * than green, deliberately: green is the completed NODE and reusing it would
+   * make the whole route read as one enormous completed thing. It also has to
+   * stay clear of `palette.nodeRim` (0xf2c14e), or the gold ring around every
+   * disc vanishes into the road it is sitting on.
+   */
+  pathDone: 0xe0a032,
 
   player: 0xef476f,
 

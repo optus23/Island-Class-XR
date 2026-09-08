@@ -11,6 +11,11 @@ import {
   allLevels,
   levelsForWorld,
   sessionNumber,
+  isLocked,
+  setLockAhead,
+  setSeeAll,
+  lockAheadSetting,
+  seeAllSetting,
 } from './lib/levels.js'
 import { openPortal, closePortal } from './ui/portal.js'
 import { mountNav } from './ui/nav.js'
@@ -23,8 +28,8 @@ import {
   nodeLabelFor,
   onNodeLabelEnter,
 } from './ui/nodeLabel.js'
-import { mountLegend } from './ui/legend.js'
-import { writeProgress } from './lib/githubData.js'
+import { hasAdminToken, mountLegend } from './ui/legend.js'
+import { writeLockAhead, writeProgress } from './lib/githubData.js'
 import { nextMarker, START_MARKER } from './lib/levels.js'
 import { irisClose, screenPositionOf } from './ui/transition.js'
 import { buildGrandPath, nearestIndexOn, nodeClearings } from './three/paths.js'
@@ -235,6 +240,9 @@ function buildRoute(fromId, toId, fromPosition = null) {
 
 const raycaster = new THREE.Raycaster()
 let hoveredLevel = null
+/** Where to put the "this one is still locked" note. */
+let lastPointer = { x: window.innerWidth / 2, y: window.innerHeight / 2 }
+let lockedNoteTimer = null
 
 function pick() {
   if (!app.pointerInside) return null
@@ -325,6 +333,7 @@ function gestureState() {
 
 container.addEventListener('pointerdown', (e) => {
   pointers.set(e.pointerId, { x: e.clientX, y: e.clientY })
+  lastPointer = { x: e.clientX, y: e.clientY }
   // Capture LAST, and never let it take the gesture down with it.
   // setPointerCapture throws NotFoundError for a pointer the browser does not
   // consider active; called first, that exception skipped the rest of the
@@ -419,9 +428,25 @@ function nodeUnderPlayer() {
   return best
 }
 
+/**
+ * Everything that can reach a level goes through selectLevel, so this is the
+ * one gate a locked session has to fail: a tap on the disc, a row in the course
+ * list, an arrow key, a controller ray in VR, a shared link. There is no second
+ * door.
+ */
 function selectLevel(levelOrId, { open = false, instant = false } = {}) {
   const level = typeof levelOrId === 'string' ? levelById(levelOrId) : levelOrId
   if (!level) return
+
+  if (isLocked(level, markerId)) {
+    // Silence would read as a broken button. The tooltip already knows how to
+    // say it, and it is placed where the pointer last was.
+    const at = lastPointer
+    tooltip.show(level, at.x, at.y, markerId)
+    clearTimeout(lockedNoteTimer)
+    lockedNoteTimer = setTimeout(() => tooltip.hide(), 2600)
+    return
+  }
 
   // A new selection always wins, and it takes effect from wherever the avatar
   // has got to. Ignoring input while it walked meant a change of mind had to
@@ -537,8 +562,11 @@ window.addEventListener('keydown', (e) => {
   if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || key === 'd') target = order[idx + 1]
   else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp' || key === 'a') target = order[idx - 1]
   else if (e.key === 'Home') target = order[0]
-  else if (e.key === 'End') target = order[order.length - 1]
+  // End goes to the furthest level a student may actually reach. Sending the
+  // keyboard to a locked one would bounce off the guard and look broken.
+  else if (e.key === 'End') target = [...order].reverse().find((l) => !isLocked(l, markerId))
   else return
+  if (target && isLocked(target, markerId)) target = null
 
   e.preventDefault()
   // Arrows walk the map; they do not open the level. Enter does that, so a
@@ -566,6 +594,18 @@ function applyMarker(id, { walk = false, instant = false } = {}) {
   // The VR card shows "aquí estamos" for the marker level, so it restyles too.
   vr?.refreshPanel?.()
   if (walk) selectLevel(id, { open: false, instant })
+}
+
+/**
+ * The lock rule changed. Every surface that decides anything from it has to be
+ * asked again — the map's colours, the course list's titles, and the plate over
+ * the avatar, which may be standing on a session that just became locked.
+ */
+function applyLocks() {
+  map.refresh(markerId)
+  nav?.refreshLocks()
+  tooltip.hide()
+  if (player.levelId && isLocked(levelById(player.levelId), markerId)) hideNodeLabel()
 }
 
 /** "La clase está en" — the readout that used to live on the /admin page. */
@@ -641,6 +681,11 @@ async function boot() {
     loadRoster({ validLevelIds: new Set(mainSequence.map((l) => l.id)) }),
   ])
   markerId = progress.currentLevelId
+  // The course setting first, then this browser's exemption: whoever holds an
+  // admin token sees the whole course, which is the "mecanismo para poder
+  // visualizar todas" without having to turn the rule off for the class.
+  setLockAhead(progress.lockAhead)
+  setSeeAll(hasAdminToken())
   map.refresh(markerId)
 
   // The honoured students. Nothing to draw is the normal state on a fresh term.
@@ -653,7 +698,15 @@ async function boot() {
   // A shared ?level=... link wins over the progress marker: whoever followed
   // the link came for that level, so place the avatar there directly rather
   // than hopping across three worlds to reach it.
-  const deepLinked = readLevelFromUrl()
+  // A link to a session the class has not reached yet is not a way in. It falls
+  // back to the marker rather than erroring, so a link shared early simply
+  // opens the map at today's session and works again once the class arrives.
+  let deepLinked = readLevelFromUrl()
+  if (deepLinked && isLocked(deepLinked, markerId)) {
+    console.info(`[lock] "${deepLinked.id}" todavía no está abierta; abriendo el mapa`)
+    deepLinked = null
+    setLevelInUrl(null, { replace: true })
+  }
   const startId = deepLinked?.id ?? markerId
 
   const start = map.positionById.get(startId)
@@ -696,6 +749,22 @@ async function boot() {
       applyMarker(START_MARKER, { walk: true, instant: true })
       return 'Curso reiniciado.'
     },
+    /** The course-wide rule. Written to progress.json; every student gets it. */
+    onToggleLock: async (on) => {
+      await writeLockAhead(on)
+      setLockAhead(on)
+      applyLocks()
+      return on
+        ? 'Las sesiones futuras quedan ocultas para los alumnos.'
+        : 'Todas las sesiones son visibles.'
+    },
+    /** Local to this browser: look at the map the way the class sees it. */
+    onToggleSeeAll: (seeAll) => {
+      setSeeAll(seeAll)
+      applyLocks()
+    },
+    lockAhead: () => lockAheadSetting(),
+    seeAll: () => seeAllSetting(),
   })
   legend.setMarker(markerReadout(markerId))
   nav.setPlayerLevel(startId)
@@ -756,6 +825,14 @@ async function boot() {
     hideLevelCard()
     if (!level) {
       closePortal()
+      return
+    }
+    // Back and Forward can restore a `?level=` from earlier in this history —
+    // including one the class has not reached. The load-time guard cannot see
+    // those, so the gate has to be here as well.
+    if (isLocked(level, markerId)) {
+      closePortal()
+      setLevelInUrl(null, { replace: true })
       return
     }
     const at = map.positionById.get(level.id)

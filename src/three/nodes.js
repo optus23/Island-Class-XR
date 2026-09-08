@@ -70,7 +70,8 @@ export function createMapObjects() {
   const positionById = new Map(placed.map((p) => [p.level.id, p.position.clone()]))
 
   // --- paths ---------------------------------------------------------------
-  group.add(createPathRibbon())
+  const ribbon = createPathRibbon()
+  group.add(ribbon)
   const dashed = createOptionalConnectors(placed, positionById)
   group.add(dashed)
 
@@ -156,8 +157,22 @@ export function createMapObjects() {
   const color = new THREE.Color()
   let markerId = null
 
+  // How far along the route each session sits, measured once against the road's
+  // own samples rather than recomputed on every marker move.
+  const nodeArc = new Map()
+  if (ribbon.userData.arcAt) {
+    for (const p of placed) {
+      if (p.onPath) nodeArc.set(p.level.id, ribbon.userData.arcAt(p.position))
+    }
+  }
+
   function refresh(nextMarkerId) {
     markerId = nextMarkerId
+
+    // The trail behind the class. A green disc on its own was not enough
+    // feedback — the ring changed and the road it stood on did not — so the
+    // road up to the marker turns amber too.
+    ribbon.userData.markProgress?.(nodeArc.get(markerId) ?? -1)
 
     regular.forEach((p, i) => {
       const st = statusFor(p.level, markerId)
@@ -279,11 +294,20 @@ export function createMapObjects() {
  * Every sample carries the ground the road has to sit on, so the ribbon, its
  * steps and its bridges can never disagree about where the road is.
  */
-function sampleRoad(curve, halfWidth, spacing = 0.5) {
+/**
+ * @param {number} [arcStart] distance already covered by earlier curves, so
+ *   every sample can carry how far along the WHOLE route it is. That number is
+ *   what lets the finished stretch of road be coloured without a second mesh:
+ *   see `markRoadProgress`. Runs overlap by half a road width at each corner,
+ *   so the arc drifts by a unit or so per bend — irrelevant for deciding which
+ *   side of a session a piece of tarmac is on.
+ */
+function sampleRoad(curve, halfWidth, spacing = 0.5, arcStart = 0) {
   const runs = curve.curves?.length ? curve.curves : [curve]
   const rows = []
   const side = new THREE.Vector3()
   const dir = new THREE.Vector3()
+  let arc = arcStart
 
   for (const run of runs) {
     const a = run.getPointAt(0)
@@ -314,10 +338,12 @@ function sampleRoad(curve, halfWidth, spacing = 0.5) {
         groundHeightAt(p.x - side.x * 1.35, p.z - side.z * 1.35),
         groundHeightAt(p.x + side.x * 1.35, p.z + side.z * 1.35)
       )
-      row.push({ p, side: side.clone(), top, yaw })
+      row.push({ p, side: side.clone(), top, yaw, arc: arc + (i / steps) * total })
     }
     rows.push(row)
+    arc += len
   }
+  rows.arcEnd = arc
   return rows
 }
 
@@ -350,12 +376,14 @@ function roadTopAt(x, z, tangent) {
 function ribbonGeometry(samples, lift) {
   const positions = []
   const indices = []
+  const arcs = []
   let base = 0
 
   for (const row of samples) {
     for (const s of row) {
       positions.push(s.p.x - s.side.x, s.top + lift, s.p.z - s.side.z)
       positions.push(s.p.x + s.side.x, s.top + lift, s.p.z + s.side.z)
+      arcs.push(s.arc ?? 0, s.arc ?? 0)
     }
     for (let i = 0; i < row.length - 1; i++) {
       const a = base + i * 2
@@ -368,6 +396,9 @@ function ribbonGeometry(samples, lift) {
   geo.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3))
   geo.setIndex(indices)
   geo.computeVertexNormals()
+  // Not an attribute three knows about — just the table `markRoadProgress`
+  // reads to decide which vertices are behind the class.
+  geo.userData.arc = arcs
   return geo
 }
 
@@ -431,6 +462,7 @@ function createRoadStairs(samples, halfWidth) {
           z: at.z,
           h: y - foot,
           yaw: low.yaw,
+          arc: low.arc ?? 0,
           // Inside the road, never wider than its dark border.
           w: halfWidth * 1.5,
           d: TREAD_DEPTH * 1.35,
@@ -441,9 +473,13 @@ function createRoadStairs(samples, halfWidth) {
 
   const mesh = new THREE.InstancedMesh(
     new THREE.BoxGeometry(1, 1, 1),
-    new THREE.MeshLambertMaterial({ color: themeWorld.pathStep }),
+    // White, because the tint arrives per instance. NOT `vertexColors` — this is
+    // an InstancedMesh with an instanceColor, and setting both multiplies by a
+    // per-vertex attribute that does not exist and renders every tread black.
+    new THREE.MeshLambertMaterial({ color: 0xffffff }),
     Math.max(1, treads.length)
   )
+  mesh.userData.arc = treads.map((t) => t.arc)
   const m = new THREE.Matrix4()
   const q = new THREE.Quaternion()
   const pos = new THREE.Vector3()
@@ -602,12 +638,40 @@ function createBridges(samples, halfWidth) {
   return mesh
 }
 
+/**
+ * The road, and the trail behind the class.
+ *
+ * The curves are assembled in ROUTE order — world 1, the bridge, world 2, the
+ * bridge, world 3 — rather than "all worlds then all connectors", so the arc
+ * length can accumulate across them and every sample knows how far along the
+ * whole journey it is. That single number is what lets the finished stretch be
+ * recoloured with no second mesh and no extra draw call: `markProgress` rewrites
+ * a colour buffer the material already reads.
+ */
 function createPathRibbon() {
-  const curves = [...worlds.map((w) => buildWorldCurves(w).full), ...buildConnectors()]
+  const ordered = [...worlds].sort((a, b) => a.center[0] - b.center[0])
+  const links = buildConnectors()
+  const curves = []
+  ordered.forEach((w, i) => {
+    curves.push(buildWorldCurves(w).full)
+    if (links[i]) curves.push(links[i])
+  })
+
   const group = new THREE.Group()
 
-  const outer = curves.flatMap((c) => sampleRoad(c, 1.6))
-  const inner = curves.flatMap((c) => sampleRoad(c, 1.2))
+  const sampleAll = (halfWidth) => {
+    const rows = []
+    let arc = 0
+    for (const c of curves) {
+      const part = sampleRoad(c, halfWidth, 0.5, arc)
+      rows.push(...part)
+      arc = part.arcEnd ?? arc
+    }
+    return rows
+  }
+
+  const outer = sampleAll(1.6)
+  const inner = sampleAll(1.2)
 
   const border = new THREE.Mesh(
     ribbonGeometry(outer, 0.34),
@@ -622,10 +686,15 @@ function createPathRibbon() {
       polygonOffsetUnits: -6,
     })
   )
+  const roadGeo = ribbonGeometry(inner, 0.44)
   const road = new THREE.Mesh(
-    ribbonGeometry(inner, 0.44),
+    roadGeo,
+    // `vertexColors` is safe HERE and nowhere near an InstancedMesh: this is a
+    // plain Mesh with no instanceColor, so the per-vertex buffer is the only
+    // colour there is. White base, because the buffer carries the tint.
     new THREE.MeshLambertMaterial({
-      color: themeWorld.path,
+      color: 0xffffff,
+      vertexColors: true,
       side: THREE.DoubleSide,
       polygonOffset: true,
       polygonOffsetFactor: -4,
@@ -634,11 +703,64 @@ function createPathRibbon() {
   )
   border.frustumCulled = false
   road.frustumCulled = false
-  group.add(border, road, createRoadStairs(inner, 1.6))
+  const stairs = createRoadStairs(inner, 1.6)
+  group.add(border, road, stairs)
+
+  // Colour buffers, painted the plain road colour to begin with.
+  const arcs = roadGeo.userData.arc
+  const roadColours = new Float32Array(arcs.length * 3)
+  roadGeo.setAttribute('color', new THREE.BufferAttribute(roadColours, 3))
+  const plain = new THREE.Color(themeWorld.path)
+  const done = new THREE.Color(themeWorld.pathDone)
+  const stepPlain = new THREE.Color(themeWorld.pathStep)
+  // The treads are a shade under the road; keep that relationship on the amber
+  // so a finished flight of steps still reads as steps and not as a gap.
+  const stepDone = new THREE.Color(themeWorld.pathDone).multiplyScalar(0.92)
+  const stairArcs = stairs.userData.arc ?? []
+
+  /**
+   * Everything up to `cut` — an arc length along the route — is the road the
+   * class has already walked.
+   * @param {number} cut arc length, or -1 for "nothing walked yet"
+   */
+  function markProgress(cut) {
+    for (let i = 0; i < arcs.length; i++) {
+      const c = arcs[i] <= cut ? done : plain
+      roadColours[i * 3] = c.r
+      roadColours[i * 3 + 1] = c.g
+      roadColours[i * 3 + 2] = c.b
+    }
+    roadGeo.attributes.color.needsUpdate = true
+
+    stairArcs.forEach((a, i) => stairs.setColorAt(i, a <= cut ? stepDone : stepPlain))
+    if (stairs.instanceColor) stairs.instanceColor.needsUpdate = true
+  }
+
+  /** Arc length of the road sample nearest a point — how far along a node is. */
+  function arcAt(position) {
+    let best = Infinity
+    let arc = 0
+    for (const row of inner) {
+      for (const sample of row) {
+        const dx = sample.p.x - position.x
+        const dz = sample.p.z - position.z
+        const d = dx * dx + dz * dz
+        if (d < best) {
+          best = d
+          arc = sample.arc
+        }
+      }
+    }
+    return arc
+  }
+
+  markProgress(-1)
+  group.userData.markProgress = markProgress
+  group.userData.arcAt = arcAt
 
   // Only the connectors ever leave the land, so only they need a bridge.
-  const links = buildConnectors().flatMap((c) => sampleRoad(c, 1.2))
-  group.add(createBridges(links, 1.35))
+  const bridgeRows = links.flatMap((c) => sampleRoad(c, 1.2))
+  group.add(createBridges(bridgeRows, 1.35))
   return group
 }
 

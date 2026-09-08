@@ -1,4 +1,5 @@
 import { cssPalette } from '../config/theme.js'
+import { locksActive } from '../lib/levels.js'
 
 /**
  * Bottom-right colour key, plus the teacher's controls.
@@ -46,7 +47,9 @@ export function hasAdminToken() {
 }
 
 /**
- * @param {{onAdvance:Function, onBack:Function, onReset:Function, onCompleteHere:Function}} actions
+ * @param {{onAdvance:Function, onBack:Function, onReset:Function,
+ *   onCompleteHere:Function, onToggleLock:Function, onToggleSeeAll:Function,
+ *   lockAhead:Function, seeAll:Function}} actions
  */
 export function mountLegend(actions = {}) {
   const el = document.createElement('div')
@@ -63,7 +66,11 @@ export function mountLegend(actions = {}) {
   let marker = null
 
   function render() {
-    const swatches = ROWS.map(
+    // "Bloqueado" only appears when there is something grey on the map to
+    // explain. Listing it to a class that can see everything just invents a
+    // rule they are not subject to.
+    const rows = locksActive() ? [...ROWS, ['locked', 'Aún no disponible']] : ROWS
+    const swatches = rows.map(
       ([key, label]) => `
         <li class="legend-row">
           <span class="nav-dot ${key === 'boss' ? 'nav-dot--boss' : ''}"
@@ -114,6 +121,17 @@ export function mountLegend(actions = {}) {
                       href="${import.meta.env.BASE_URL}admin/">
                      Panel de profesor · alumnos y token →
                    </a>
+                   <label class="legend-switch">
+                     <input type="checkbox" data-switch="lock"
+                            ${actions.lockAhead?.() ? 'checked' : ''} ${busy ? 'disabled' : ''} />
+                     <span>Ocultar las sesiones futuras</span>
+                   </label>
+                   <label class="legend-switch ${actions.lockAhead?.() ? '' : 'is-muted'}">
+                     <input type="checkbox" data-switch="student"
+                            ${actions.seeAll?.() ? '' : 'checked'}
+                            ${actions.lockAhead?.() ? '' : 'disabled'} />
+                     <span>Ver el mapa como un alumno</span>
+                   </label>
                    ${note ? `<p class="legend-admin__note">${note}</p>` : ''}
                  </div>`
               : ''
@@ -130,6 +148,31 @@ export function mountLegend(actions = {}) {
       open = !open
       render()
     })
+
+    // The two switches. `lock` is the COURSE setting and writes to
+    // progress.json; `student` is local to this browser and only decides
+    // whether this teacher's own exemption applies — so one is async and the
+    // other is instant, and they must not be confused for each other.
+    el.querySelectorAll('[data-switch]').forEach((input) =>
+      input.addEventListener('change', async () => {
+        if (input.dataset.switch === 'student') {
+          actions.onToggleSeeAll?.(!input.checked)
+          render()
+          return
+        }
+        busy = true
+        note = 'Guardando…'
+        render()
+        try {
+          note = await actions.onToggleLock?.(input.checked)
+        } catch (e) {
+          note = e?.message ?? 'Error.'
+        } finally {
+          busy = false
+          render()
+        }
+      })
+    )
 
     el.querySelectorAll('[data-act]').forEach((b) =>
       b.addEventListener('click', async () => {
