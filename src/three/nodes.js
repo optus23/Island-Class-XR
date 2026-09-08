@@ -70,7 +70,11 @@ export function createMapObjects() {
   const positionById = new Map(placed.map((p) => [p.level.id, p.position.clone()]))
 
   // --- paths ---------------------------------------------------------------
-  const ribbon = createPathRibbon()
+  // The discs are already placed, so the road can be told to keep its wooden
+  // treads off them.
+  const ribbon = createPathRibbon(
+    placed.filter((p) => p.onPath).map((p) => ({ x: p.position.x, z: p.position.z }))
+  )
   group.add(ribbon)
   const dashed = createOptionalConnectors(placed, positionById)
   group.add(dashed)
@@ -302,10 +306,11 @@ export function createMapObjects() {
  *   so the arc drifts by a unit or so per bend — irrelevant for deciding which
  *   side of a session a piece of tarmac is on.
  */
-function sampleRoad(curve, halfWidth, spacing = 0.5, arcStart = 0) {
+function sampleRoad(curve, halfWidth, spacing = 0.5, arcStart = 0, pad = halfWidth, sampleWidth = halfWidth) {
   const runs = curve.curves?.length ? curve.curves : [curve]
   const rows = []
   const side = new THREE.Vector3()
+  const probe = new THREE.Vector3()
   const dir = new THREE.Vector3()
   let arc = arcStart
 
@@ -318,9 +323,11 @@ function sampleRoad(curve, halfWidth, spacing = 0.5, arcStart = 0) {
     dir.copy(b).sub(a).normalize()
     // Perpendicular in the ground plane, so the road stays flat on the terrain.
     side.set(dir.z, 0, -dir.x).normalize().multiplyScalar(halfWidth)
+    // The span the HEIGHT is sampled across — not necessarily this ribbon's own
+    // width. See `sampleWidth` at the call site.
+    probe.set(dir.z, 0, -dir.x).normalize().multiplyScalar(sampleWidth)
     const yaw = Math.atan2(dir.x, dir.z)
 
-    const pad = halfWidth
     const total = len + pad * 2
     const steps = Math.max(2, Math.round(total / spacing))
     const row = []
@@ -332,11 +339,11 @@ function sampleRoad(curve, halfWidth, spacing = 0.5, arcStart = 0) {
       // ground tilted the quad wherever the terrain stepped, and the low edge
       // then sliced straight through the terrace.
       const top = Math.max(
-        groundHeightAt(p.x - side.x, p.z - side.z),
-        groundHeightAt(p.x + side.x, p.z + side.z),
+        groundHeightAt(p.x - probe.x, p.z - probe.z),
+        groundHeightAt(p.x + probe.x, p.z + probe.z),
         groundHeightAt(p.x, p.z),
-        groundHeightAt(p.x - side.x * 1.35, p.z - side.z * 1.35),
-        groundHeightAt(p.x + side.x * 1.35, p.z + side.z * 1.35)
+        groundHeightAt(p.x - probe.x * 1.35, p.z - probe.z * 1.35),
+        groundHeightAt(p.x + probe.x * 1.35, p.z + probe.z * 1.35)
       )
       row.push({ p, side: side.clone(), top, yaw, arc: arc + (i / steps) * total })
     }
@@ -527,7 +534,15 @@ function ribbonGeometry(samples, lift) {
  * Treads are laid from the LOW side up to the high one and each is deep enough
  * to overlap its neighbour, so the flight is solid from every angle.
  */
-function createRoadStairs(samples, halfWidth) {
+/**
+ * @param {Array<{x:number,z:number}>} nodePads where the session discs are. A
+ *   tread may not stand on one — see NOTHING MAY STAND ABOVE A SESSION DISC in
+ *   CLAUDE.md. The treads had never been checked against that rule; unifying the
+ *   two ribbons' heights created one new step exactly at w3-03 and put a wooden
+ *   slab on the disc, which is how it was noticed. The step itself is hidden by
+ *   the disc that sits on it, so skipping the tread costs nothing.
+ */
+function createRoadStairs(samples, halfWidth, nodePads = []) {
   // Two chunky treads per plateau, not four fine ones. A long climb - the run
   // up to the midterm castle rises 6 units - was otherwise ALL staircase from
   // end to end, and the road stopped reading as a road at exactly the place it
@@ -565,6 +580,9 @@ function createRoadStairs(samples, halfWidth) {
       for (let k = 0; k < steps; k++) {
         const y = low.top + (k + 1) * (Math.abs(rise) / steps)
         const at = low.p.clone().addScaledVector(dir, sign * (steps - k - 0.5) * TREAD_DEPTH)
+        // The disc is 2.4 across and its gold rim reaches 1.49; a tread is 1.2
+        // deep, so 2.1 keeps the whole slab off the circle.
+        if (nodePads.some((n) => Math.hypot(at.x - n.x, at.z - n.z) < 2.1)) continue
         // Treads reach well below the shelf they stand on. The road samples
         // the highest ground across its width, so its surface can sit a step
         // above the ground immediately under a tread; a box starting exactly
@@ -762,7 +780,7 @@ function createBridges(samples, halfWidth) {
  * recoloured with no second mesh and no extra draw call: `markProgress` rewrites
  * a colour buffer the material already reads.
  */
-function createPathRibbon() {
+function createPathRibbon(nodePads = []) {
   const ordered = [...worlds].sort((a, b) => a.center[0] - b.center[0])
   const links = buildConnectors()
   const curves = []
@@ -773,19 +791,32 @@ function createPathRibbon() {
 
   const group = new THREE.Group()
 
-  const sampleAll = (halfWidth) => {
+  const sampleAll = (halfWidth, pad, sampleWidth) => {
     const rows = []
     let arc = 0
     for (const c of curves) {
-      const part = sampleRoad(c, halfWidth, 0.5, arc)
+      const part = sampleRoad(c, halfWidth, 0.5, arc, pad, sampleWidth)
       rows.push(...part)
       arc = part.arcEnd ?? arc
     }
     return rows
   }
 
-  const outer = sampleAll(1.6)
-  const inner = sampleAll(1.2)
+  // THE TWO RIBBONS MUST AGREE ON THEIR HEIGHT, and for a long time they did not.
+  //
+  // `sampleRoad` takes the highest ground across the ribbon's own width, so the
+  // 1.6-wide border could see a terrace the 1.2-wide cream missed and settle a
+  // FULL PLATEAU above it — measured at 2.0 units near w1-05. The dark outline
+  // then floated over its own road as a separate brown slab: "un bloque marrón
+  // que queda un poco feo", and before that the "techo" beside the session.
+  //
+  // Both now sample the height across 1.6 — the same span `roadTopAt` uses, and
+  // therefore the same surface the node discs and the villagers already stand
+  // on. They keep their own WIDTHS, so the outline still reads as an outline.
+  // They also run equally far past each end, which is what fills a 90-degree
+  // corner with road instead of leaving the border's overlap showing.
+  const outer = sampleAll(1.6, 1.6, 1.6)
+  const inner = sampleAll(1.2, 1.6, 1.6)
 
   const border = new THREE.Mesh(
     ribbonGeometry(outer, 0.34),
@@ -817,7 +848,7 @@ function createPathRibbon() {
   )
   border.frustumCulled = false
   road.frustumCulled = false
-  const stairs = createRoadStairs(inner, 1.6)
+  const stairs = createRoadStairs(inner, 1.6, nodePads)
   // Under the border, so the wall meets the outermost edge of the road.
   group.add(createRoadSkirt(outer, 0.34), border, road, stairs)
 
