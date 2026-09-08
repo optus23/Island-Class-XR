@@ -1,8 +1,8 @@
 import * as THREE from 'three'
 import { worlds } from '../config/worlds.js'
-import { palette, world as themeWorld, resolveNodeColor } from '../config/theme.js'
+import { biomes, palette, world as themeWorld, resolveNodeColor } from '../config/theme.js'
 import { buildWorldCurves, buildConnectors, distributeNodes } from './paths.js'
-import { groundHeightAt, landInset } from './terrain.js'
+import { biomeKeyAt, groundHeightAt, landInset } from './terrain.js'
 import { levelsForWorld, statusFor } from '../lib/levels.js'
 import { prefersReducedMotion } from '../lib/motion.js'
 
@@ -373,6 +373,98 @@ function roadTopAt(x, z, tangent) {
   )
 }
 
+/**
+ * The wall that fills the air under a road standing proud of the ground.
+ *
+ * `sampleRoad` gives the ribbon the HIGHEST ground across its whole width so a
+ * quad cannot slice into a terrace, and `groundHeightAt` settles the ground
+ * beside the route on the LOWEST road height nearby. Both rules are right and
+ * both are load-bearing — see CLAUDE.md — but where they disagree the road ends
+ * up a full plateau above the grass with nothing beneath it. Measured: 61 of 953
+ * cross-sections, 28 of them floating on BOTH sides, the worst by 2.34 units.
+ *
+ * So this drops a face from each outer edge down to whatever ground is actually
+ * under it. Only the segments that need one are built — the flush 90 per cent of
+ * the road gets no geometry at all.
+ *
+ * IT IS COLOURED AS TERRAIN, NOT AS ROAD, and that is the whole difference
+ * between a fix and a new eyesore. A single brown wall under the ribbon turned
+ * the floating slab into a slab on a plinth: still a thing sitting on the grass.
+ * Painted in the local biome's own cliff tones — `band` along the top, `rock`
+ * below, the same stack every terrace on the island uses — it stops being a wall
+ * at all and reads as the ground coming up to meet the road. That is also why it
+ * varies per biome while the road above it stays one colour everywhere.
+ */
+function createRoadSkirt(samples, lift) {
+  const MIN_GAP = 0.55 // below this the border already meets the ground
+  const BURY = 0.7 // how far the bottom edge sinks, so no seam can show
+  const positions = []
+  const colours = []
+  const indices = []
+  const band = new THREE.Color()
+  const rock = new THREE.Color()
+  let base = 0
+
+  const edge = (s, sign) => ({
+    x: s.p.x + s.side.x * sign,
+    z: s.p.z + s.side.z * sign,
+    top: s.top + lift,
+  })
+
+  for (const row of samples) {
+    for (let i = 1; i < row.length; i++) {
+      for (const sign of [-1, 1]) {
+        const a = edge(row[i - 1], sign)
+        const b = edge(row[i], sign)
+        const ga = groundHeightAt(a.x, a.z)
+        const gb = groundHeightAt(b.x, b.z)
+        if (a.top - ga < MIN_GAP && b.top - gb < MIN_GAP) continue
+
+        // Never above the road it hangs from, and buried at the bottom.
+        const fa = Math.min(ga, a.top) - BURY
+        const fb = Math.min(gb, b.top) - BURY
+        positions.push(a.x, a.top, a.z, a.x, fa, a.z, b.x, b.top, b.z, b.x, fb, b.z)
+
+        // The biome under each end, so a skirt crossing a seam changes with it
+        // exactly where the ground does.
+        const bA = biomes[biomeKeyAt(a.x, a.z)] ?? biomes.meadow
+        const bB = biomes[biomeKeyAt(b.x, b.z)] ?? biomes.meadow
+        for (const [top, bot] of [
+          [bA.band, bA.rock],
+          [bB.band, bB.rock],
+        ]) {
+          band.setHex(top)
+          rock.setHex(bot)
+          colours.push(band.r, band.g, band.b, rock.r, rock.g, rock.b)
+        }
+        indices.push(base, base + 1, base + 2, base + 1, base + 3, base + 2)
+        base += 4
+      }
+    }
+  }
+
+  const geo = new THREE.BufferGeometry()
+  geo.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3))
+  geo.setAttribute('color', new THREE.Float32BufferAttribute(colours, 3))
+  geo.setIndex(indices)
+  geo.computeVertexNormals()
+
+  const mesh = new THREE.Mesh(
+    geo,
+    // DoubleSide: the two sides of the road wind opposite ways and a skirt seen
+    // from its back face is a hole exactly where the hole used to be.
+    // `vertexColors` is safe here — a plain Mesh, no instanceColor anywhere near.
+    new THREE.MeshLambertMaterial({
+      color: 0xffffff,
+      vertexColors: true,
+      side: THREE.DoubleSide,
+    })
+  )
+  mesh.name = 'road-skirt'
+  mesh.frustumCulled = false
+  return mesh
+}
+
 function ribbonGeometry(samples, lift) {
   const positions = []
   const indices = []
@@ -704,7 +796,8 @@ function createPathRibbon() {
   border.frustumCulled = false
   road.frustumCulled = false
   const stairs = createRoadStairs(inner, 1.6)
-  group.add(border, road, stairs)
+  // Under the border, so the wall meets the outermost edge of the road.
+  group.add(createRoadSkirt(outer, 0.34), border, road, stairs)
 
   // Colour buffers, painted the plain road colour to begin with.
   const arcs = roadGeo.userData.arc

@@ -49,6 +49,11 @@ Seen working in a browser, on the deployed site:
   frames across every session and all three rings: never more than 0.12 off the
   ground away from the road, never more than 0.77 off the road's surface on it,
   and 73 ms to build a full 24-student roster.
+- **The road no longer floats.** Measured before: 89 border edge vertices more
+  than half a unit above the ground beneath them, all of them a full 2-plateau
+  gap, worst 2.34. Measured after: all 89 covered by skirt geometry, none
+  missed. Photographed at w1-05 and w1-07, and confirmed by toggling the skirt
+  off in the running scene — the hole is exactly where it was reported.
 - **Locking the sessions ahead**, in all three states: as a student (28 of 31
   locked with the marker on session 2, titles masked, discs grey), as the teacher
   (0 locked), and through "Ver como alumno" and back. The gate holds against a
