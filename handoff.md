@@ -52,10 +52,13 @@ Everything here has a number or a photograph behind it.
 **The map and its feedback**
 
 - Session discs sit clear of the terrain; `w1-03` photographed on a clean pad.
-- **The road no longer floats.** Before: 89 border edge vertices above the ground
-  beneath them, every one by the full 2-plateau gap, worst 2.34, at 61 of 953
-  cross-sections. After: all 89 covered by skirt geometry, none missed.
-  Photographed at w1-05 and w1-07, and confirmed by toggling the skirt off.
+- **The road no longer floats, on either kind of edge.** Sides: 89 border edge
+  vertices floating by the full 2-plateau gap at 61 of 953 cross-sections, all 89
+  now covered. Ends: a run is padded half a road's width past each end, and the
+  transverse face there needs its own cap — 4 float across the island, 4 capped,
+  two of them the ones beside w1-05 that came back as "ahí aún hay un techo".
+  Photographed at w1-05, w1-07 and w3-07, and confirmed by toggling the skirt
+  off in the running scene.
 - **The amber trail**, counted rather than eyeballed: 0 amber vertices with no
   marker, 6 of 1838 on session 1, 828 on session 12 of 28, 1834 on the last.
 - **The honoured students**, at four sessions, photographed at the follow

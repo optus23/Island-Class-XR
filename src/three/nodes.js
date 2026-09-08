@@ -384,8 +384,15 @@ function roadTopAt(x, z, tangent) {
  * cross-sections, 28 of them floating on BOTH sides, the worst by 2.34 units.
  *
  * So this drops a face from each outer edge down to whatever ground is actually
- * under it. Only the segments that need one are built — the flush 90 per cent of
- * the road gets no geometry at all.
+ * under it, AND caps the transverse edge where a run begins and ends. Both are
+ * needed and the second was missed first time round: the sides were sewn up and
+ * 48 run ends were left open, including the two beside w1-05 — the biggest gap
+ * on the island at 2.78 units, and the one the report came back about. A run is
+ * padded half a road's width past each of its ends, so at a corner that pad
+ * sticks out into open air and its end face is a hole you look straight into.
+ *
+ * Only the segments that need one are built — the flush 90 per cent of the road
+ * gets no geometry at all.
  *
  * IT IS COLOURED AS TERRAIN, NOT AS ROAD, and that is the whole difference
  * between a fix and a new eyesore. A single brown wall under the ribbon turned
@@ -404,6 +411,7 @@ function createRoadSkirt(samples, lift) {
   const band = new THREE.Color()
   const rock = new THREE.Color()
   let base = 0
+  let caps = 0 // run ends actually sealed; counted so the fix can be verified
 
   const edge = (s, sign) => ({
     x: s.p.x + s.side.x * sign,
@@ -411,34 +419,47 @@ function createRoadSkirt(samples, lift) {
     top: s.top + lift,
   })
 
+  /** One face from `a`'s top down to the ground, across to `b`. */
+  const wall = (a, b) => {
+    const ga = groundHeightAt(a.x, a.z)
+    const gb = groundHeightAt(b.x, b.z)
+    if (a.top - ga < MIN_GAP && b.top - gb < MIN_GAP) return false
+
+    // Never above the road it hangs from, and buried at the bottom.
+    const fa = Math.min(ga, a.top) - BURY
+    const fb = Math.min(gb, b.top) - BURY
+    positions.push(a.x, a.top, a.z, a.x, fa, a.z, b.x, b.top, b.z, b.x, fb, b.z)
+
+    // The biome under each end, so a wall crossing a seam changes with it
+    // exactly where the ground does.
+    const bA = biomes[biomeKeyAt(a.x, a.z)] ?? biomes.meadow
+    const bB = biomes[biomeKeyAt(b.x, b.z)] ?? biomes.meadow
+    for (const [top, bot] of [
+      [bA.band, bA.rock],
+      [bB.band, bB.rock],
+    ]) {
+      band.setHex(top)
+      rock.setHex(bot)
+      colours.push(band.r, band.g, band.b, rock.r, rock.g, rock.b)
+    }
+    indices.push(base, base + 1, base + 2, base + 1, base + 3, base + 2)
+    base += 4
+    return true
+  }
+
   for (const row of samples) {
+    // The two ends of the run, across its width. At a corner these land inside
+    // the neighbouring run and are simply never seen; where a pad sticks out
+    // into the open they are the difference between a causeway and a roof.
+    if (row.length) {
+      if (wall(edge(row[0], -1), edge(row[0], 1))) caps++
+      const last = row[row.length - 1]
+      if (wall(edge(last, 1), edge(last, -1))) caps++
+    }
+
     for (let i = 1; i < row.length; i++) {
       for (const sign of [-1, 1]) {
-        const a = edge(row[i - 1], sign)
-        const b = edge(row[i], sign)
-        const ga = groundHeightAt(a.x, a.z)
-        const gb = groundHeightAt(b.x, b.z)
-        if (a.top - ga < MIN_GAP && b.top - gb < MIN_GAP) continue
-
-        // Never above the road it hangs from, and buried at the bottom.
-        const fa = Math.min(ga, a.top) - BURY
-        const fb = Math.min(gb, b.top) - BURY
-        positions.push(a.x, a.top, a.z, a.x, fa, a.z, b.x, b.top, b.z, b.x, fb, b.z)
-
-        // The biome under each end, so a skirt crossing a seam changes with it
-        // exactly where the ground does.
-        const bA = biomes[biomeKeyAt(a.x, a.z)] ?? biomes.meadow
-        const bB = biomes[biomeKeyAt(b.x, b.z)] ?? biomes.meadow
-        for (const [top, bot] of [
-          [bA.band, bA.rock],
-          [bB.band, bB.rock],
-        ]) {
-          band.setHex(top)
-          rock.setHex(bot)
-          colours.push(band.r, band.g, band.b, rock.r, rock.g, rock.b)
-        }
-        indices.push(base, base + 1, base + 2, base + 1, base + 3, base + 2)
-        base += 4
+        wall(edge(row[i - 1], sign), edge(row[i], sign))
       }
     }
   }
@@ -462,6 +483,7 @@ function createRoadSkirt(samples, lift) {
   )
   mesh.name = 'road-skirt'
   mesh.frustumCulled = false
+  mesh.userData.caps = caps
   return mesh
 }
 
