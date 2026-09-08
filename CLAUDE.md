@@ -291,6 +291,11 @@ Every one of these was diagnosed the hard way. Do not re-derive them.
   world, bridge, world, bridge, world — rather than all worlds then all
   connectors. Colouring the finished stretch is then a comparison against one
   number per vertex. Break that ordering and the trail paints the wrong half.
+- **Count the lift that the mesh you are measuring actually has.** The border
+  ribbon sits at (max-of-5 ground) + 0.34; the road surface adds ROAD_LIFT 0.44
+  on top. A check that added both to the border reported 48 floating run ends
+  where there were 4, because every flush end came out at 0.78 — comfortably
+  over a 0.55 threshold, and entirely imaginary.
 - **Colour buffers are LINEAR, the hex you wrote is sRGB.** `new THREE.Color(hex)`
   converts on construction, so a test that compares a colour attribute against
   the raw hex components reports nonsense — cream came back as "amber" for a
@@ -318,6 +323,13 @@ Every one of these was diagnosed the hard way. Do not re-derive them.
   slab hanging in the sky. `createRoadSkirt` fills it. **Do not "fix" it by
   changing either height rule**; that is how the green wedge and the sliced
   discs come back.
+- **The ribbon's boundary is its two sides AND the transverse edge at each run's
+  ends.** The first skirt sewed up only the sides, which left four run ends open
+  — including the two beside w1-05, the biggest gap on the island at 2.34 units,
+  and the one that came straight back as "ahí aún hay un techo". A run is padded
+  half a road's width past each end, so at a corner that pad sticks out into open
+  air and its end face is a hole you look into. Sides: 89 of 89 covered. Ends: 4
+  floating, 4 capped. Both numbers are the check.
 - **The skirt is coloured as TERRAIN, not as road.** One flat brown wall turned
   the floating slab into a slab on a plinth. Painted in the local biome's `band`
   over `rock` — the same stack every terrace uses — it stops being a wall and
