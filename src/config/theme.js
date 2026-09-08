@@ -214,12 +214,15 @@ export const cssPalette = Object.fromEntries(
 /**
  * The one place node colour is decided. ORDER MATTERS, and this is the order:
  *
- *   completed → locked → boss → optional → the day's own category
+ *   completed → boss → locked → optional → the day's own category
  *
- * `boss` sits ABOVE `optional` on purpose. The re-evaluation is both: an extra
- * hanging off the final castle on a dashed connector, and an exam. Marc asked
- * for it in red, so being a boss has to win over being optional — flip those
- * two and it silently turns lilac.
+ * `boss` sits ABOVE both `locked` and `optional` on purpose:
+ *   - above LOCKED, because a castle's grey is its stone, not a status. Below
+ *     it, a locked castle turned the lighter `palette.locked` and read as a
+ *     different building.
+ *   - above OPTIONAL, because the re-evaluation is both: an extra hanging off
+ *     the final castle on a dashed connector, and an exam. Marc asked for it in
+ *     red, so being a boss has to win — flip those two and it turns lilac.
  *
  * The voluntary "Actitud" activities are NOT here: they are their own optional
  * nodes and pick up `optional` lilac like any other. The class day they hang
@@ -231,13 +234,16 @@ export const cssPalette = Object.fromEntries(
  */
 export function resolveNodeColor(level, state = {}) {
   if (level.completed) return palette.completed // wins over everything
-  if (state.locked) return palette.locked
-  // An 'extra' boss is the re-evaluation: a small outbuilding beside the final
-  // castle, and the one exam Marc asked for in red. The castles themselves stay
-  // grey stone with red details — this function paints their every part.
+  // A CASTLE IS GREY STONE WHETHER OR NOT IT IS LOCKED, and that is why this
+  // sits above the lock. `palette.locked` is a lighter grey, so a locked castle
+  // came out as a different building rather than the same one not yet open —
+  // reported as "¿por qué el castillo es de un gris más clarito?". The padlock
+  // in the course list and the hidden title are what say it is locked; the
+  // stone is the material, not a status.
   if (level.category === 'boss') {
     return level.bossTier === 'extra' ? palette.bossAccent : palette.boss
   }
+  if (state.locked) return palette.locked
   if (level.optional) return palette.optional
   return palette[level.category] ?? palette.theory
 }
