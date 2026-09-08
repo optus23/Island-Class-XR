@@ -49,6 +49,11 @@ Seen working in a browser, on the deployed site:
   frames across every session and all three rings: never more than 0.12 off the
   ground away from the road, never more than 0.77 off the road's surface on it,
   and 73 ms to build a full 24-student roster.
+- **The opening flight survives a background tab.** Found while verifying this
+  round: `setAnimationLoop` gives ZERO callbacks in a hidden tab, so the flight
+  could never finish and left the whole UI invisible under a click-catcher. A
+  wall-clock failsafe now ends it; proved in a pane with rAF genuinely dead —
+  zero frames, page recovered anyway.
 - **The road no longer floats.** Measured before: 89 border edge vertices more
   than half a unit above the ground beneath them, all of them a full 2-plateau
   gap, worst 2.34. Measured after: all 89 covered by skirt geometry, none

@@ -197,6 +197,25 @@ export function createIntro({ camera, scene, avatar }) {
   let skipping = false
   let done = false
 
+  /**
+   * BELT AND BRACES: A TAB THAT NEVER GETS A FRAME MUST NOT BE LEFT BROKEN.
+   *
+   * `setAnimationLoop` does not fire at all in a hidden tab — measured, zero
+   * callbacks in three seconds — so a page opened in a background tab has an
+   * opening flight that cannot advance. It holds `#ui` at opacity 0 and a
+   * full-screen catcher over the map, and both are only cleared when the flight
+   * ENDS. The page then looks broken until it is brought forward.
+   *
+   * A wall-clock timer finishes it regardless. `setTimeout` is throttled in a
+   * background tab but it does fire, unlike rAF. Once the flight is over the
+   * camera is simply the rig's, so a tab that wakes up later gets the ordinary
+   * map rather than a frozen sky.
+   *
+   * The curtain in `ui/hud.js` carries the same guard for the same reason —
+   * "a curtain that outlives the page it hides is worse than no curtain".
+   */
+  const failsafe = setTimeout(finish, (SECONDS + 4) * 1000)
+
   /** A pane over everything, so a tap skips the flight instead of picking a node. */
   const catcher = document.createElement('button')
   catcher.type = 'button'
@@ -224,6 +243,7 @@ export function createIntro({ camera, scene, avatar }) {
   function finish() {
     if (done) return
     done = true
+    clearTimeout(failsafe)
     window.removeEventListener('keydown', onKey, true)
     catcher.remove()
     scene.remove(group)
