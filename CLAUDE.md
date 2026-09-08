@@ -335,6 +335,20 @@ Every one of these was diagnosed the hard way. Do not re-derive them.
   over `rock` — the same stack every terrace uses — it stops being a wall and
   reads as the ground coming up to meet the road. It is therefore the one part
   of the road that changes colour per biome.
+- **THE TWO ROAD RIBBONS MUST SAMPLE THEIR HEIGHT ACROSS THE SAME WIDTH.**
+  `sampleRoad` takes the highest ground across the ribbon's own width, so the
+  1.6-wide dark border could see a terrace the 1.2-wide cream missed and settle
+  a FULL PLATEAU above its own road — measured at 2.0 units beside w1-05. The
+  outline then floated over the road it outlines and read as a brown box dumped
+  next to the session. Both now sample across 1.6, which is also `ROAD_FOOT`, so
+  the border, the cream, the treads, the node discs and the villagers are all on
+  one surface. They keep their own WIDTHS; only the probe is shared.
+- **Treads may not stand on a session disc either.** They had never been checked
+  against that rule. Unifying the ribbon heights created one new step exactly at
+  w3-03 and put a wooden slab on the circle — caught by raycasting straight down
+  at all 26 ordinary sessions and asserting the disc is what answers. Keep that
+  check: `createRoadStairs` takes the node positions and skips any tread within
+  2.1 of one. The step itself is hidden by the disc standing on it.
 - **A node disc stands on the ROAD, and the road is not at ground height.**
   `sampleRoad` takes the HIGHEST of five samples across the ribbon's width so a
   quad crossing a terrace does not slice through it, so beside a step the road
