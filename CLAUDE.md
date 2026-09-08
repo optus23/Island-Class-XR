@@ -28,8 +28,9 @@ These come from the brief and are not negotiable without the user saying so.
   gitignored `.env` as `GH_TOKEN` — never `VITE_`-prefixed, because Vite inlines
   `VITE_*` into the public bundle.
 - **There are exactly two hand-moved data files, and `/admin` is where you sign
-  in for both**: `public/progress.json` (where the class is) and
-  `public/npcs.json` (which students walk the island). The MARKER controls are
+  in for both**: `public/progress.json` (where the class is, AND whether the
+  sessions ahead are hidden — `lockAhead`) and `public/npcs.json` (which students
+  walk the island). The MARKER controls are
   not on `/admin` — they live in the map's legend, because pressing "Avanzar"
   while staring at a form read as a dead button. The ROSTER editor is on
   `/admin`, because it is data entry with nothing to watch while you type. That
@@ -77,8 +78,8 @@ OLD bundle, which is still on Pages and still works. A shipped fix and a stale
 page look identical from the outside. One round was spent re-diagnosing
 something that was already fixed. Ask for the build id first.
 
-Merge-to-main permission runs until **14 September 2026**; after that, commits go
-to `develop` and the user merges.
+Merge-to-main permission runs until **14 September 2026** — days away as of the
+last round; after that, commits go to `develop` and the user merges the PR.
 
 Pushing: Git Credential Manager caches an under-scoped credential and 403s
 without re-prompting. Push with the helper reset inline:
@@ -121,11 +122,22 @@ Nothing is hardcoded per node. Reshape a world by editing data, not geometry.
 | `src/three/intro.js` | The opening flight, its title plate and its pacing. |
 | `src/three/clouds.js` | Voxel clouds. Intro-only, by design. |
 | `src/three/cameraRig.js` | Bounded per-world follow camera. |
+| `src/lib/levels.js` | The sequence, and **the one place the lock rule lives** (`statusFor`, `safeTitle`). |
+| `src/lib/githubData.js` | The write path for both public data files. |
 
 **Session count is fixed by the calendar**, verified against the user's Whimsical
-board: 11 sessions → midterm (session 12) → 15 sessions = **27**, landing as
-**7 / 9 / 11** per world, plus 3 optional levels that are not sessions. Both Fall
-and Spring are identical. Do not add sessions without re-checking that board.
+board: 11 sessions → midterm (session 12) → 15 sessions. Both Fall and Spring are
+identical. Do not add or remove sessions without re-checking that board.
+
+**What `levels.json` actually holds today** (counted, September 2026): 31 levels
+= **28 on the main path** (8 / 11 / 9 per world, including the two castles) plus
+**3 optional** — the two "Actitud" activities and the re-evaluation. Of the 28,
+**26 are classes** and 2 are exams; the nav reads "Sesión N / 28".
+
+Those two paragraphs disagree: the note above says 27 and 7 / 9 / 11, the data
+says 28 and 8 / 11 / 9. **Nobody has re-checked the board since, so do not
+"correct" either one from the other** — the numbers came from different places
+and only the board settles it.
 
 **Never place anything by hand.** If an object needs a position, derive it from
 the path template or the node list so reshaping a world moves it too.
@@ -510,6 +522,15 @@ Every one of these was diagnosed the hard way. Do not re-derive them.
   hides the element outside its own box, which is the opposite. `subtract`
   composites the other way and gives the effect inside out.
 
+**Anything driven by the render loop**
+
+- **`setAnimationLoop` gives ZERO callbacks in a hidden tab** — measured, not
+  "throttled to 1 fps". So anything whose ENDING depends on a frame arriving
+  must also carry a wall-clock `setTimeout`, because timers do fire in the
+  background. The curtain in `ui/hud.js` has had that guard since round one; the
+  opening flight shipped without it and left a background tab showing an
+  invisible UI under a full-screen catcher until it was focused. Learned twice.
+
 **Tooling**
 
 - `scripts/validate.mjs` runs under **Node**, so anything it imports must not pull
@@ -539,8 +560,10 @@ Every one of these was diagnosed the hard way. Do not re-derive them.
   with `` `place-items` `` inside a `` ` `` string is a parse error several lines
   later, and the message points at the wrong place. This cost time three times
   in one round. Grep for backticks in generated markup before building.
-- Debug globals (`__app`, `__map`, `__player`, `__selectLevel`, `__setOverview`,
-  `__step`) exist in **dev only**. They are absent on Pages, by design.
+- Debug globals (`__app`, `__map`, `__player`, `__villagers`, `__selectLevel`,
+  `__setOverview`, `__step`) exist in **dev only**. They are absent on Pages, by
+  design — which is why anything that has to be checked on the deployed site is
+  checked through the DOM and the scene graph instead.
 
 ---
 
