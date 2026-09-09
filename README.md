@@ -149,7 +149,7 @@ Everything a session shows lives in **one entry** in
 | **External** deck | `slidesLink: { "url": "https://…", "label": "…" }` | A button, not an embed. For anything that refuses to be framed |
 | **Deck not made yet** | `slidesPending: true` | The portal says the slides are being prepared instead of "no lleva diapositivas". `validate` errors if it survives the deck arriving |
 | **Exercises** | `exercises: "content/exercises/<id>.md"` | Plain Markdown at `public/content/exercises/<id>.md` |
-| **Activities** | `todos: [ … ]` | `objective-task` objects — objective, starting point, milestones, deliverable |
+| **Activities** | `todos: [ … ]` | `objective-task` objects — objective, starting point, numbered `steps`, deliverable. Optional `steps_note` qualifies the guide |
 | **Generated deck** | `marp: true` in the exercise Markdown | Slides built from that Markdown at build time — see below. Beats a `slides` block |
 | **Graded exercise** | `block`, `submissionMethod`, `groupMode`, `gradeWeight` | Only on the 8 exercises of the three practical blocks — see below |
 
@@ -232,12 +232,28 @@ Native interactive activities — never a PDF, never plain text. The type today 
   "type": "objective-task",
   "objective": "Usar AR Foundation para instanciar un modelo sobre un plano.",
   "starting_point": "Proyecto Unity con AR Foundation ya instalado.",
-  "milestones": ["Escena AR mínima", "Detección de planos", "Raycast", "Build"],
+  "steps": [
+    "Abre `Window > Package Manager` y comprueba que **AR Foundation** está instalado.",
+    "Selecciona el **XR Origin** → `Add Component` → **AR Plane Manager**.",
+    "Instancia el prefab en `hit.pose` y prueba el build en el móvil."
+  ],
   "deliverable": "Vídeo del build en el móvil + carpeta del proyecto."
 }
 ```
 
-Milestone checkboxes are the **student's own** notes: they live in that student's
+`steps` is an **ordered** guide, rendered numbered: the student follows it top to
+bottom and can say "I'm stuck on step 9". Each string may use inline Markdown —
+`**bold**` and `` `code` `` — which is rendered, so keep menu paths inside
+backticks (`` `Edit > Project Settings` ``) or `marked` reads the `>` as a
+blockquote. Add `steps_note` when a sentence qualifies the whole guide; it prints
+in brackets after the heading.
+
+> It was called `milestones` until the step-by-step content landed. That was an
+> unordered list of things the finished work had to show — a different document
+> from a guide you follow in order, so it was renamed rather than left saying one
+> thing and holding the other. `validate` errors on the old name.
+
+Step checkboxes are the **student's own** notes: they live in that student's
 browser (`localStorage`) and never leave it. They are unrelated to the teacher's
 progress marker.
 
@@ -834,10 +850,13 @@ con `"exercises": "content/exercises/<id>.md"`. Si le pones `marp: true` en la
 cabecera, ese mismo archivo se convierte en una presentación dentro de la web
 — ver [Slides generated from Markdown](#slides-generated-from-markdown-marp).
 
-**Tareas** de la sesión, en `todos`: objetivo, punto de partida, hitos y entrega.
-Los cuatro campos son obligatorios y `milestones` no puede estar vacío. Las
-casillas que marca el alumno se quedan en **su** navegador y no las ve nadie más;
-no tienen nada que ver con el marcador del profesor.
+**Tareas** de la sesión, en `todos`: objetivo, punto de partida, guía paso a paso
+y entrega. Los cuatro campos son obligatorios y `steps` no puede estar vacío. Es
+una lista **ordenada** y se numera sola, así que escríbela como se sigue: paso 1,
+paso 2. Cada paso admite `**negrita**` y `` `código` `` — mete las rutas de menú
+entre comillas invertidas. Las casillas que marca el alumno se quedan en **su**
+navegador y no las ve nadie más; no tienen nada que ver con el marcador del
+profesor.
 
 ```bash
 npm run placeholders   # crea los archivos que falten; nunca pisa los que hay

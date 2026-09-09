@@ -189,8 +189,14 @@ for (const l of levels) {
     for (const f of ['objective', 'starting_point', 'deliverable']) {
       if (!t[f]) err(`${tat}: missing "${f}"`)
     }
-    if (!Array.isArray(t.milestones) || t.milestones.length === 0) {
-      err(`${tat}: milestones must be a non-empty array`)
+    // `steps`, not `milestones`: an ordered guide the student follows top to
+    // bottom, which is what the v3.0 content replaced the achievement list with.
+    if (!Array.isArray(t.steps) || t.steps.length === 0) {
+      err(`${tat}: steps must be a non-empty array`)
+    }
+    if (t.milestones) err(`${tat}: "milestones" was renamed to "steps"`)
+    if (t.steps_note !== undefined && typeof t.steps_note !== 'string') {
+      err(`${tat}: "steps_note" must be a string`)
     }
   }
 
