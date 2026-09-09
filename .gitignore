@@ -13,3 +13,10 @@ dist/
 
 # Slide decks compiled from Marp markdown by scripts/build-decks.mjs.
 public/decks/
+
+# Working notes, kept on disk and out of the public repo. Students read this
+# repository; handoff.md and .claude/ are session scaffolding for whoever is
+# maintaining it, and docs/ is the teacher's own planning material.
+docs/
+handoff.md
+.claude/
