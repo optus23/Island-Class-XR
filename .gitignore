@@ -17,6 +17,10 @@ public/decks/
 # Working notes, kept on disk and out of the public repo. Students read this
 # repository; handoff.md and .claude/ are session scaffolding for whoever is
 # maintaining it, and docs/ is the teacher's own planning material.
-docs/
+# `docs/*`, not `docs/`: a negation cannot re-include a file whose parent
+# directory is excluded, and one file in there must stay tracked — its URL
+# was sent to another teacher before the guide moved into the README.
+docs/*
+!docs/adaptar-a-tu-asignatura.md
 handoff.md
 .claude/
