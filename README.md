@@ -463,6 +463,20 @@ exemption in that browser only and changes nothing for anyone else.
 The switch is stored as `lockAhead` inside `public/progress.json`, alongside the
 marker, so it is one file and one commit.
 
+### Showing the whole island without a token
+
+The exemption has its own switch, and it does **not** need a token: `/admin/`
+opens on **Ver todo el mapa**, and ticking it makes that browser see every
+session. It is the same setting the legend's *Ver el mapa como un alumno* flips,
+stored as one key in that browser's `localStorage` — nothing is committed and
+nothing is deployed, so the class is unaffected while you demo the island to a
+colleague. `?ver=todo` on the map URL does the same thing in one click (and
+`?ver=alumno` undoes it); `/admin/` has the link ready to copy.
+
+Turning `lockAhead` off instead would work too, and is the wrong tool: that is
+the course-wide rule, so it spoils the term for the actual class for as long as
+the demo lasts, and costs a commit and a Pages rebuild in each direction.
+
 ---
 
 ## Alumnos en la isla — `/admin`
@@ -837,6 +851,14 @@ ahí se ve al personaje caminar hasta la sesión siguiente.
 **Ocultar las sesiones futuras.** El interruptor de ese mismo bloque. Con él
 activado, el alumno solo ve hasta donde ha llegado la clase; el resto sale en
 gris, con candado y sin título. Tú, con tu token, lo sigues viendo todo.
+
+**Enseñar la isla entera a alguien.** En `/admin/`, arriba del todo: **Ver todo
+el mapa**. No hace falta token. Es una preferencia de ese navegador — no cambia
+nada para la clase y no toca el repositorio — y se quita desde el mismo sitio o
+desde la leyenda del mapa. Si vas a enseñarlo en otro ordenador, `/admin/` te da
+el enlace `?ver=todo` listo para copiar. **No apagues** *Ocultar las sesiones
+futuras* para esto: ese interruptor es la regla del curso y les destripa el
+temario a los alumnos mientras esté apagado.
 
 **Alumnos paseando por la isla.** En `/admin/`, apartado *Alumnos en la isla*.
 Escribes un nombre, eliges la sesión, y aparece un personaje dando vueltas junto

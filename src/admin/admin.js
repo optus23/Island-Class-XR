@@ -8,6 +8,7 @@ import {
   writeRoster,
 } from '../lib/githubData.js'
 import { MAX_NAME, MAX_NPCS, cleanName, makeNpcId } from '../lib/roster.js'
+import { rememberSeeAll, seeAllChoice, seeAllLink } from '../lib/teacherView.js'
 
 /**
  * /admin — sign in, and edit the roster of honoured students.
@@ -28,6 +29,15 @@ import { MAX_NAME, MAX_NPCS, cleanName, makeNpcId } from '../lib/roster.js'
  *
  * Edits are STAGED and saved in one go. Every save is a commit and a deploy, so
  * adding five students one commit at a time would be five deploys.
+ *
+ * The "Ver todo el mapa" card is the third thing here, and it is the only one
+ * that works WITHOUT a token. Showing the island to a colleague used to mean
+ * either handing them a GitHub token with write access to the repository, or
+ * turning `lockAhead` off in `progress.json` — which is the course setting, so
+ * it spoils the term for the actual class for as long as the demo lasts, and
+ * costs a commit and a Pages deploy in each direction. Neither is a sane price
+ * for looking at a map. It is a switch in this browser's localStorage; the
+ * repository never hears about it.
  *
  * Token handling, unchanged and deliberate:
  *   - typed here, kept in THIS browser's localStorage only
@@ -62,6 +72,15 @@ let state = {
   /** The session a new name is filed under. Defaults to where the class is. */
   levelId: null,
   focusName: false,
+  /**
+   * Does THIS browser see the sessions ahead? Same key the map reads, so the
+   * switch here and the one in the legend are the same switch.
+   *
+   * An untouched browser falls back to the token, which is the rule the map has
+   * always used: whoever runs the course sees the whole course.
+   */
+  seeAll: seeAllChoice() ?? Boolean(settings.token),
+  linkCopied: false,
 }
 
 /** Names come from a human and land in `innerHTML` below. */
@@ -202,10 +221,12 @@ function signInCard() {
 
   return `
     <div class="admin-card pixel-panel rounded-xl bg-base-100 p-5 w-full">
-      <h1 class="text-xl font-bold">Acceso de profesor</h1>
+      <h2 class="text-xl font-bold">Acceso con token de GitHub</h2>
       <p class="opacity-70 text-sm mt-1 mb-4">
-        Los controles del curso (avanzar, retroceder, reiniciar) están en el bloque
-        <strong>Profesor</strong> de la leyenda, dentro del mapa.
+        Solo hace falta para <strong>mover el curso</strong> y para editar la lista de
+        alumnos. Para mirar el mapa entero no lo necesitas: eso es el interruptor de
+        arriba. Los controles del curso (avanzar, retroceder, reiniciar) están en el
+        bloque <strong>Profesor</strong> de la leyenda, dentro del mapa.
       </p>
 
       <label class="form-control mb-3 block">
@@ -262,6 +283,69 @@ function signInCard() {
       <a class="btn btn-block btn-sm ${current ? 'btn-success' : 'btn-outline'}"
          href="${import.meta.env.BASE_URL}">
         ${current ? 'Abrir el mapa →' : 'Volver al mapa'}
+      </a>
+    </div>`
+}
+
+/**
+ * "Ver todo el mapa" — the only card on this page that needs no token.
+ *
+ * It writes one key in this browser's localStorage, which the map reads on boot.
+ * Nothing is committed and nothing is deployed, so it cannot spoil the course
+ * for the class the way turning the course-wide lock off would.
+ */
+function viewCard() {
+  const shareable = seeAllLink(true)
+
+  return `
+    <div class="admin-card pixel-panel rounded-xl bg-base-100 p-5 w-full">
+      <h1 class="text-xl font-bold">Panel de profesor</h1>
+      <h2 class="text-sm font-bold uppercase tracking-[0.14em] opacity-55 mt-4 mb-1">
+        Ver todo el mapa
+      </h2>
+      <p class="opacity-70 text-sm mb-4">
+        Mientras el curso tenga ocultas las sesiones futuras, los alumnos ven en gris
+        todo lo que queda por delante y sin el título. Este interruptor te salta esa
+        regla <strong>solo en este navegador</strong>, y no hace falta ningún token.
+      </p>
+
+      <label class="flex items-start gap-3 cursor-pointer rounded-lg bg-base-200 p-3 mb-3">
+        <input id="see-all" type="checkbox" class="toggle toggle-success mt-0.5"
+               ${state.seeAll ? 'checked' : ''} />
+        <span class="text-sm">
+          <strong class="block">
+            ${state.seeAll ? 'Vista de profesor: se ve todo' : 'Vista de alumno: sesiones futuras ocultas'}
+          </strong>
+          <span class="opacity-70">
+            Cámbialo cuando quieras. También está en el bloque «Profesor» de la leyenda,
+            dentro del mapa.
+          </span>
+        </span>
+      </label>
+
+      <div class="alert alert-info text-xs mb-3">
+        <span>
+          No cambia nada para la clase: la regla del curso sigue como está y esto no
+          escribe en el repositorio. Es una preferencia de este navegador, y se borra
+          si borras los datos del sitio.
+        </span>
+      </div>
+
+      <p class="label-text text-sm mb-1">Enlace para abrirlo así en otro navegador</p>
+      <div class="join w-full mb-1">
+        <input id="see-all-link" type="text" readonly value="${esc(shareable)}"
+               class="input input-bordered input-sm join-item flex-1 text-xs" />
+        <button id="see-all-copy" class="btn btn-sm join-item">
+          ${state.linkCopied ? '✓' : 'Copiar'}
+        </button>
+      </div>
+      <p class="text-xs opacity-55 mb-4">
+        Ábrelo una vez y ese navegador queda en vista de profesor. Es una preferencia
+        local, así que no se lo des a los alumnos.
+      </p>
+
+      <a class="btn btn-block btn-sm btn-outline" href="${import.meta.env.BASE_URL}">
+        Abrir el mapa →
       </a>
     </div>`
 }
@@ -378,6 +462,7 @@ function render() {
   root.innerHTML = `
     <main class="min-h-screen flex flex-col items-center gap-4 p-4 py-6">
       <div class="w-full max-w-md flex flex-col gap-4">
+        ${viewCard()}
         ${signInCard()}
         ${rosterCard()}
       </div>
@@ -396,6 +481,30 @@ function render() {
     state.currentLevelId = null
     state.roster = null
     say('Token borrado de este navegador. Los controles del mapa se ocultan.', 'info')
+  })
+
+  // The view switch. Instant and local — no request, no commit, no deploy —
+  // which is the whole point of it existing next to the token form rather than
+  // being another thing the token unlocks.
+  el('see-all').addEventListener('change', (e) => {
+    state.seeAll = e.target.checked
+    state.linkCopied = false
+    rememberSeeAll(state.seeAll)
+    render()
+  })
+  const linkInput = el('see-all-link')
+  linkInput.addEventListener('focus', () => linkInput.select())
+  el('see-all-copy').addEventListener('click', async () => {
+    const input = linkInput
+    try {
+      await navigator.clipboard.writeText(input.value)
+      state.linkCopied = true
+      render()
+    } catch {
+      // No clipboard permission (or an insecure context). Selecting the text is
+      // the fallback that works everywhere, and it is what the user would do.
+      input.select()
+    }
   })
 
   if (!state.roster) return

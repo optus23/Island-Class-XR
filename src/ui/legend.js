@@ -1,5 +1,6 @@
 import { cssPalette } from '../config/theme.js'
 import { locksActive } from '../lib/levels.js'
+import { seeAllChoice } from '../lib/teacherView.js'
 
 /**
  * Bottom-right colour key, plus the teacher's controls.
@@ -14,6 +15,15 @@ import { locksActive } from '../lib/levels.js'
  * The block only appears when an admin token is present in THIS browser's
  * localStorage. Students never see it, and it is not a second source of truth:
  * every button writes through the same progress marker.
+ *
+ * ONE EXCEPTION, and it is deliberate: a browser that has been given the
+ * token-free "ver todo el mapa" exemption (from /admin, or from `?ver=todo`)
+ * gets a stripped-down version of this block carrying only the switch that
+ * turns it back off. Without that there is no way out of the teacher's view
+ * from the map itself, and the person being shown the island is exactly the
+ * person who does not know that /admin exists. Nothing that writes to the
+ * repository is in it — no marker buttons, no course-wide lock switch — because
+ * none of that works without a token anyway.
  *
  * It also carries the ONLY link to /admin. The teacher who has a token in this
  * browser has no other way of finding that page — the marker controls being
@@ -70,6 +80,13 @@ export function mountLegend(actions = {}) {
     // explain. Listing it to a class that can see everything just invents a
     // rule they are not subject to.
     const rows = locksActive() ? [...ROWS, ['locked', 'Aún no disponible']] : ROWS
+
+    // Who gets the Profesor block: a token holder, or a browser that has been
+    // handed the token-free view. `seeAllChoice()` and not `actions.seeAll()`,
+    // because the moment they tick "ver como alumno" the second one goes false —
+    // and a block that removes itself takes the way back with it.
+    const teacher = admin || seeAllChoice() !== null
+
     const swatches = rows.map(
       ([key, label]) => `
         <li class="legend-row">
@@ -94,11 +111,11 @@ export function mountLegend(actions = {}) {
           <ul class="legend-list">${swatches}</ul>
 
           ${
-            admin
+            teacher
               ? `<div class="legend-admin">
                    <p class="legend-admin__title">Profesor</p>
                    ${
-                     marker
+                     admin && marker
                        ? `<div class="legend-admin__marker">
                             <span class="legend-admin__marker-label">La clase está en</span>
                             <strong>${marker.title}</strong>
@@ -106,26 +123,34 @@ export function mountLegend(actions = {}) {
                           </div>`
                        : ''
                    }
-                   <div class="legend-admin__grid">
-                     <button class="legend-btn is-primary" data-act="complete" ${busy ? 'disabled' : ''}>
-                       Completar y avanzar
-                     </button>
-                     <button class="legend-btn" data-act="back" ${busy ? 'disabled' : ''}>
-                       Retroceder
-                     </button>
-                     <button class="legend-btn is-danger" data-act="reset" ${busy ? 'disabled' : ''}>
-                       Reiniciar curso
-                     </button>
-                   </div>
+                   ${
+                     admin
+                       ? `<div class="legend-admin__grid">
+                            <button class="legend-btn is-primary" data-act="complete" ${busy ? 'disabled' : ''}>
+                              Completar y avanzar
+                            </button>
+                            <button class="legend-btn" data-act="back" ${busy ? 'disabled' : ''}>
+                              Retroceder
+                            </button>
+                            <button class="legend-btn is-danger" data-act="reset" ${busy ? 'disabled' : ''}>
+                              Reiniciar curso
+                            </button>
+                          </div>`
+                       : ''
+                   }
                    <a class="legend-btn legend-admin__link"
                       href="${import.meta.env.BASE_URL}admin/">
-                     Panel de profesor · alumnos y token →
+                     ${admin ? 'Panel de profesor · alumnos y token →' : 'Panel de profesor →'}
                    </a>
-                   <label class="legend-switch">
-                     <input type="checkbox" data-switch="lock"
-                            ${actions.lockAhead?.() ? 'checked' : ''} ${busy ? 'disabled' : ''} />
-                     <span>Ocultar las sesiones futuras</span>
-                   </label>
+                   ${
+                     admin
+                       ? `<label class="legend-switch">
+                            <input type="checkbox" data-switch="lock"
+                                   ${actions.lockAhead?.() ? 'checked' : ''} ${busy ? 'disabled' : ''} />
+                            <span>Ocultar las sesiones futuras</span>
+                          </label>`
+                       : ''
+                   }
                    <label class="legend-switch ${actions.lockAhead?.() ? '' : 'is-muted'}">
                      <input type="checkbox" data-switch="student"
                             ${actions.seeAll?.() ? '' : 'checked'}
