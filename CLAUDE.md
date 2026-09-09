@@ -11,6 +11,15 @@ for two near-identical VR/AR courses at UPC CITM. Static site, no backend.
 Priority order, in this order, always: **performance first, visual polish second,
 simple for one person to maintain third.**
 
+**This file is public on purpose, and it is the only working note that is.**
+Since 9 September 2026 `handoff.md`, `docs/` and `.claude/` are gitignored: the
+students read this repository and none of that was written for them. `CLAUDE.md`
+stays because it is what stops the next session repeating a mistake, and it is
+only useful sitting next to the code it is about. So write it for a stranger:
+no marks, no student names, no unpublished exam material, and nothing about the
+user a colleague of theirs should not read. The teacher-facing documentation is
+`README.md`, including the fork guide at the end of it.
+
 ---
 
 ## Hard constraints
@@ -236,6 +245,24 @@ Changing any of these is a design decision, not a refactor.
 ## Traps that cost real time
 
 Every one of these was diagnosed the hard way. Do not re-derive them.
+
+**Git**
+
+- **`git rm --cached` does not keep the file on disk.** It keeps it at the
+  moment you run it. The deletion is still a deletion in the commit, so the
+  ordinary `git merge` that carries it into `develop` — or any checkout crossing
+  that commit — **removes the working-tree copy**, gitignored or not. That is how
+  `docs/`, `handoff.md` and `.claude/` were deleted from the user's disk seconds
+  after being deliberately preserved. Restore with
+  `git show <sha-before>:<path> > <path>`, and check the files are still there
+  after the merge, not only after the `rm`.
+- **`git push` and `gh` can disagree about who you are.** `gh auth status` showed
+  a valid token with `push: true` from the API, and every push 403'd, because the
+  API reports the *account's* repo role, not the *token's* grants. The token that
+  works is `GH_TOKEN` in `.env`, and the Bash tool's shell does not load it:
+  `export GH_TOKEN="$(grep '^GH_TOKEN=' .env | cut -d= -f2- | tr -d '[:space:]')"`
+  before pushing. Never print it; pipe command output through
+  `sed -E 's/(gh[po]|github_pat)_[A-Za-z0-9_]+/[redacted]/g'`.
 
 **WebXR** (live on every page; the button is the bridge)
 
