@@ -179,9 +179,9 @@
         "Introducció a GitHub",
         "Activitat a classe: 2. AR Foundation — Image Tracking"
       ],
-      "slidesLink": {
-        "label": "Diapositives de la sessió",
-        "url": "https://canva.link/hdd9inujtdnynat"
+      "slides": {
+        "type": "canva",
+        "source": "https://www.canva.com/design/DAHHUg9bRnE/aMSHYnSQXgr-muOpollVCA/view?embed"
       },
       "block": {
         "number": 1,
@@ -235,9 +235,9 @@
         "Plausability",
         "Dinàmica de grup Wooclap: Immersion"
       ],
-      "slidesLink": {
-        "label": "Diapositives de la sessió",
-        "url": "https://canva.link/kt9ah4dcspg6jl5"
+      "slides": {
+        "type": "canva",
+        "source": "https://www.canva.com/design/DAHHUp02vgE/awBWuYyLqxzlAp8T7L9GZA/view?embed"
       },
       "todos": []
     },
@@ -255,9 +255,9 @@
         "Activitat a classe: 3. AR Foundation — Face Detection, Occlusion, Point Clouds…",
         "Treball en equips: Entrega AR Foundation"
       ],
-      "slidesLink": {
-        "label": "Diapositives de la sessió",
-        "url": "https://canva.link/hdd9inujtdnynat"
+      "slides": {
+        "type": "canva",
+        "source": "https://www.canva.com/design/DAHHUg9bRnE/aMSHYnSQXgr-muOpollVCA/view?embed"
       },
       "block": {
         "number": 1,
@@ -360,9 +360,9 @@
         "Simulator Sickness",
         "Dinàmica de classe: Pluja d'idees Parcial"
       ],
-      "slidesLink": {
-        "label": "Diapositives de la sessió",
-        "url": "https://canva.link/ibsctft9abi9h0q"
+      "slides": {
+        "type": "canva",
+        "source": "https://www.canva.com/design/DAHHUoOtuSY/6Tu2uB2S-1txMuzlgcqWyA/view?embed"
       },
       "todos": []
     },
@@ -428,9 +428,9 @@
         "Navegació VR/MR",
         "Gorilla Arm syndrome"
       ],
-      "slidesLink": {
-        "label": "Diapositives de la sessió",
-        "url": "https://canva.link/roxrbc0tpvuzu0e"
+      "slides": {
+        "type": "canva",
+        "source": "https://www.canva.com/design/DAHHUkRCaoo/wagpGpX5fl4aQWPZ-38zmQ/view?embed"
       },
       "todos": []
     },
@@ -463,9 +463,9 @@
         "Mostra d'antics projectes",
         "Activitat a classe: VR Design Slides"
       ],
-      "slidesLink": {
-        "label": "Diapositives de la sessió",
-        "url": "https://canva.link/jmtzma3p76j9qh5"
+      "slides": {
+        "type": "canva",
+        "source": "https://www.canva.com/design/DAHHUldC-xQ/hjUzELpy_CEgkyala8yYCg/view?embed"
       },
       "todos": []
     },
@@ -546,9 +546,9 @@
         "Introduction to OpenXR / Unity",
         "Introducció a Unity / C#"
       ],
-      "slidesLink": {
-        "label": "Diapositives de la sessió",
-        "url": "https://canva.link/lefa33o6t14oc8w"
+      "slides": {
+        "type": "canva",
+        "source": "https://www.canva.com/design/DAHHUmQSDh0/lcUF8boPiNOBDV0jEc3rqA/view?embed"
       },
       "todos": []
     },
@@ -565,9 +565,9 @@
         "Activitat a classe: 1. XR Interaction Toolkit — Locomoció i Interacció",
         "Unity VR Template demonstration"
       ],
-      "slidesLink": {
-        "label": "Diapositives de la sessió",
-        "url": "https://canva.link/lefa33o6t14oc8w"
+      "slides": {
+        "type": "canva",
+        "source": "https://www.canva.com/design/DAHHUmQSDh0/lcUF8boPiNOBDV0jEc3rqA/view?embed"
       },
       "block": {
         "number": 3,
