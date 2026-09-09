@@ -556,7 +556,7 @@ if (fixmes.length) {
   // printed on every run so they cannot quietly become permanent.
   console.log(`\n--- open decisions (${fixmes.length}) ---`)
   for (const f of fixmes) console.log(`  ${f}`)
-  console.log('  full list: docs/decisiones-abiertas.md')
+  console.log('  each is a _fixme on its node; leave them open until decided')
 }
 for (const w of warnings) console.warn(`WARN  ${w}`)
 for (const e of errors) console.error(`ERROR ${e}`)

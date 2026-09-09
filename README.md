@@ -10,6 +10,10 @@ is ~99% identical, but nothing in the code is specific to either.
 
 Static site: Three.js + Vite, deployed to GitHub Pages. No backend, no database.
 
+> **¿Eres profesor y quieres tu propia copia, con tus sesiones?**
+> Salta a [**Forkéalo para tu asignatura**](#forkéalo-para-tu-asignatura), al
+> final. Está escrito para hacerlo a mano, sin saber Three.js.
+
 ---
 
 ## Quick start
@@ -142,6 +146,7 @@ Everything a session shows lives in **one entry** in
 | One-line **summary** | `summary` | Under the title in the portal |
 | **Canva** deck | `slides: { "type": "canva", "source": "<embed URL>" }` | Must be the **Share → Embed** link and contain `?embed`. `npm run validate` rejects edit links |
 | **PDF** deck | `slides: { "type": "pdf", "source": "content/slides/<id>.pdf" }` | Drop the file at `public/content/slides/<id>.pdf` |
+| **External** deck | `slidesLink: { "url": "https://…", "label": "…" }` | A button, not an embed. For anything that refuses to be framed |
 | **Exercises** | `exercises: "content/exercises/<id>.md"` | Plain Markdown at `public/content/exercises/<id>.md` |
 | **Activities** | `todos: [ … ]` | `objective-task` objects — objective, starting point, milestones, deliverable |
 | **Generated deck** | `marp: true` in the exercise Markdown | Slides built from that Markdown at build time — see below. Beats a `slides` block |
@@ -191,7 +196,7 @@ Stages: `intro-theory`, `ar-foundation`, `meta-pre-exam`, `mini-boss-midterm`,
 After editing, run `npm run placeholders` to create any new content files, then
 `npm run validate`.
 
-### Slides: PDF or Canva
+### Slides: PDF, Canva, or just a link
 
 Each level picks one.
 
@@ -199,6 +204,10 @@ Each level picks one.
   this repo, so it also works offline in class.
 - `{"type": "canva", "source": "https://www.canva.com/design/XXX/view?embed"}` —
   for decks with animation, video or GIFs that a PDF cannot carry.
+- `slidesLink: {"url": "https://…", "label": "Diapositivas"}` — the least work,
+  and the fallback for anything that refuses to be embedded. It renders as a
+  button that opens in a new tab, so the deck is never shown inside the portal.
+  Both fields are required; `validate` rejects a relative URL.
 
 > The Canva URL **must** be the public **Share → Embed** link. `validate` rejects
 > edit links, so a private deck cannot reach the published site by accident.
@@ -257,14 +266,17 @@ home and sits after.
 **`null` is a real value here and means "not decided yet".** The field being
 *absent* is an error; the field being `null` renders as *«por decidir»* in the
 portal. `gradeWeight.exercise` is null on all eight — the per-exercise split is
-an open decision and must not be guessed. See
-[`docs/decisiones-abiertas.md`](docs/decisiones-abiertas.md); `npm run validate`
-prints all four open decisions on every run.
+an open decision and must not be guessed. Every open decision is flagged with a
+`_fixme` on its own node and printed by **every** `npm run validate` run, so it
+cannot quietly become permanent by being forgotten.
 
-`starterRepo` points at a **separate** student repository, one branch per
-exercise — its Unity project never lands in this repo. It does not exist yet;
-[`docs/repo-ejercicios-bloque1.md`](docs/repo-ejercicios-bloque1.md) has the
-branch layout and the one-line edit that publishes the link.
+`starterRepo` points at a **separate** student repository — the Unity project
+never lands in this repo, and the relationship between the two is a link, not a
+dependency. One branch per exercise, each branched from the previous one, so the
+last branch holds the complete project. It does not exist yet: `url` is `null`
+and the portal shows *«pendiente de publicar»*. Creating that repo and filling
+the same `url` into the three block-1 nodes is the entire job — no code
+changes.
 
 ### Slides generated from Markdown (Marp)
 
@@ -331,12 +343,24 @@ warns if you leave one underneath where it can never be seen.
 ### Colours
 
 All colours live in [`src/config/theme.js`](src/config/theme.js) — change them
-there and nowhere else. Two rules are enforced in `resolveNodeColor()`:
+there and nowhere else. They are hex numbers with an `0x` prefix, not CSS
+strings. Two rules are enforced in `resolveNodeColor()`:
 
 - **Completed is always green**, whatever the category.
 - **Optional nodes are never green**, because green means completed.
 
-Category colours are placeholders; tune them freely.
+Category colours are placeholders; tune them freely. The three biomes
+(`meadow`, `desert`, `summit`) each carry a `ground`, a `band` and a `rock`, and
+it is that three-tone stack — cap, bright band under the lip, dark body — that
+makes a plateau read as a plateau. Set them too close to each other and the
+relief disappears.
+
+**Two traps worth knowing before you touch this file:**
+
+- `palette.boss` **is the castle stone**, not an accent. Make it red and you get
+  two entirely red castles.
+- `palette.project` must stay different from `palette.nodeRim`. If they match,
+  project nodes render as empty rings.
 
 ### Reshaping the island
 
@@ -344,6 +368,12 @@ Category colours are placeholders; tune them freely.
 fixed camera anchor, and its path as a list of spline control points. Drag those
 numbers to reshape a world. `validate` will tell you if a path became too tight
 for the number of levels on it.
+
+**Segments must be axis-aligned and corners square**: between two consecutive
+control points only X *or* Z may change, never both. `validate` enforces it, and
+it is deliberate — diagonal runs make the road twist and the skirt underneath it
+tear. To fit more sessions into a world, add corners to lengthen its route; the
+nodes, the road, the ramps and the houses all re-space themselves.
 
 ---
 
@@ -418,6 +448,21 @@ teclear nombres y no hay nada que mirar mientras lo haces.
 Completion is derived from this single marker — there is deliberately no
 per-level `completed` flag, because two sources of truth would drift.
 
+### Hiding the sessions ahead
+
+The same Profesor block carries a switch, **Ocultar las sesiones futuras**. With
+it on, a student sees the course only as far as the class has reached: everything
+past the marker turns grey, gets a padlock and **loses its title**, so an
+unopened session cannot be a spoiler. The gate is not cosmetic — a locked level
+refuses a disc tap, a row in the course list and a `?level=` deep link alike.
+
+Anyone holding a token is exempt and keeps seeing the whole course. To check what
+the students actually see, tick **Ver el mapa como un alumno**; that drops the
+exemption in that browser only and changes nothing for anyone else.
+
+The switch is stored as `lockAhead` inside `public/progress.json`, alongside the
+marker, so it is one file and one commit.
+
 ---
 
 ## Alumnos en la isla — `/admin`
@@ -474,6 +519,54 @@ vale lo que vale.
 
 ---
 
+## VR mode
+
+Every page carries a **VR** button when the browser has a headset. There is
+nothing separate to deploy and nothing to install: open the site in the Quest
+browser and press it. `/vr` and `?vr=1` arm the XR context eagerly, for going
+straight in.
+
+**The island is a tabletop diorama, not a world you stand in.** The whole map is
+scaled to about 3 m across and parked at table height in front of you. That is a
+decision, not a shortcut: the desktop camera keeps its near plane far out because
+a close one across a 180-unit field spent the entire depth buffer on empty space
+and made the road and the terrain trade pixels. Standing inside the map at
+1 unit = 1 m walks straight back into that. At diorama scale the depth range is a
+couple of metres and a map you lean over reads better than one you are a giant
+on.
+
+| Input | Does |
+| --- | --- |
+| Head | Look around, stereo, 6DoF — walk around the model |
+| Point + trigger | Ray at a node → select it; the avatar walks there |
+| Trigger on the node you are on | Enter → ends the session and opens the 2D portal |
+| Left thumbstick | Pan the model, in the direction you are looking |
+| Right thumbstick ← → | Turn the model around **your** vertical axis |
+| Right thumbstick ↑ ↓ | Zoom, 0.4×–3.2× |
+| Grip, either hand | Re-centre the model in front of you |
+
+**With no controllers** — a phone in a Cardboard holder — the head is the
+pointer: a reticle sits in the middle of the view and holding a node in it for
+about 1.4 s activates it, exactly as the trigger would. Those are the headsets
+most students actually have, and a phone in a holder has no button to press.
+
+The **model** moves, never the viewer. Pushing a standing person around by
+thumbstick is the reliable way to make them ill, and reaching over to spin a
+table map is what you would do anyway.
+
+A level card floats above the model with the session under the ray — or, when the
+ray is on nothing, the session the avatar is standing on, so it never goes blank.
+It is a canvas painted onto a plane, because **there is no DOM inside an
+immersive session**: the page's HTML is not composited into the headset, so
+anything the wearer reads has to be geometry.
+
+Not there, deliberately: **no slides and no activity checklists in the headset**
+(the card is a readout, and laying slide markup out on a canvas by hand is real
+work rather than a hookup), no hand tracking, no teleport locomotion, and no
+AR/passthrough — `immersive-vr` only.
+
+---
+
 ## 3D assets
 
 The island is generated from code today, so the project runs with no asset
@@ -513,17 +606,288 @@ login. Before you commit real material, check:
 - **Exam material.** Anything you would not want
   visible before an exam should not be committed until after it.
 
+- **Git history keeps what you take back.** Deleting a file in a later commit
+  does not remove it from the repository — it stays readable in the history of
+  the branch it was pushed to. Treat every push as final.
+
 If something cannot be published openly, keep it out of this repo and link to it
 from the private platform instead.
 
 ---
 
-## ¿Otro profesor quiere usar esto?
+## Forkéalo para tu asignatura
 
-Hay una guía entera para eso:
-**[docs/adaptar-a-tu-asignatura.md](docs/adaptar-a-tu-asignatura.md)** — fork,
-publicar la web, su propio token, cambiar sesiones, contenidos, colores y la
-forma de la isla. Escrita para hacerlo a mano, sin conocer Three.js.
+Guía para un profesor que quiere **su propia copia** de este mapa, con sus
+sesiones, sus contenidos y sus colores. No hace falta saber Three.js: casi todo
+se cambia editando dos archivos de datos. Las secciones de arriba son la
+referencia completa; esto es el camino corto, en orden.
+
+Al terminar tendrás una web propia, en tu cuenta de GitHub, con tu dirección
+(`https://TU-USUARIO.github.io/TU-REPO/`), y un panel para ir marcando por dónde
+va la clase.
+
+**Lo que hace falta:** una cuenta de GitHub, [Node.js](https://nodejs.org) 22 (la
+versión que usa el despliegue) y un editor de texto. No hay servidor, no hay base
+de datos y no hay nada que pagar.
+
+### 1. Haz tu copia
+
+**Fork**, no clon. Un fork es tu propio repositorio en tu cuenta, y es lo que te
+permite publicar tu web.
+
+1. Entra en <https://github.com/optus23/Island-Class-XR>.
+2. Arriba a la derecha, **Fork** → **Create fork**.
+3. Ponle el nombre que quieras. Ese nombre sale en tu dirección web, así que algo
+   corto: `mi-asignatura-xr`, por ejemplo.
+
+Ahora bájatelo a tu ordenador:
+
+```bash
+git clone https://github.com/TU-USUARIO/TU-REPO.git
+cd TU-REPO
+npm install
+npm run dev
+```
+
+Abre <http://localhost:5173> y ya tienes el mapa en tu máquina. `npm run dev` se
+queda corriendo; para pararlo, Ctrl+C.
+
+> **Si `npm run dev` va lentísimo después de un rato**, párralo y arráncalo otra
+> vez. Consume mucha memoria con las horas, y los síntomas parecen un fallo del
+> código sin serlo.
+
+### 2. Enciende tu web
+
+GitHub publica tu copia gratis, pero hay que activarlo una vez.
+
+1. En tu repositorio: **Settings** → **Pages**.
+2. En **Source**, elige **GitHub Actions**.
+3. Ve a la pestaña **Actions**. Si sale un aviso pidiendo permiso para ejecutar
+   los flujos de trabajo, acéptalo.
+4. Sube cualquier cambio (o **Actions** → flujo `deploy` → **Run workflow**).
+
+En un par de minutos tu mapa está en `https://TU-USUARIO.github.io/TU-REPO/`.
+
+**No tienes que tocar ninguna dirección en el código.** La ruta base se saca sola
+del nombre de tu repositorio, así que funciona se llame como se llame. Cada vez
+que subas algo a `main`, la web se reconstruye sola.
+
+> Trabajando solo, **commitea directamente en `main`**. La rama `develop` y los
+> pull requests de [Branch workflow](#branch-workflow) existen porque aquí hay
+> dos manos tocándolo; tú no lo necesitas. Lo único que publica es `main`.
+
+### 3. Ponte tú de profesor: el token
+
+Los botones de profesor —avanzar la clase, la lista de alumnos, ocultar las
+sesiones futuras— escriben en tu repositorio desde el navegador. Para eso
+necesitan un permiso tuyo: un **token**. Es **tu** token, de **tu** cuenta, y
+solo para **tu** repositorio.
+
+1. Ve a <https://github.com/settings/personal-access-tokens>.
+2. **Generate new token** → *Fine-grained token*.
+3. **Repository access** → *Only select repositories* → elige el tuyo.
+4. **Permissions** → *Repository permissions* → **Contents: Read and write**.
+   Es la única que hace falta.
+5. Ponle caducidad (90 días está bien) y créalo. **Cópialo ahora**: GitHub no te
+   lo vuelve a enseñar.
+
+Abre `https://TU-USUARIO.github.io/TU-REPO/admin/`, pega el token y pulsa
+**Guardar y comprobar**.
+
+**Dónde vive ese token, y dónde NO:**
+
+- Se guarda **solo** en el `localStorage` del navegador donde lo pegaste, y se
+  envía solo a `api.github.com`.
+- **No** va en el `.env`. El `GH_TOKEN` de ese archivo es otra cosa: lo usan
+  `git` y `gh` desde tu ordenador. Está en el `.gitignore` y no se sube.
+- **No** entra en el código ni en la web publicada. Los alumnos solo *leen*.
+- Funciona igual en tu web publicada que en `localhost`, porque escribe contra
+  `api.github.com` desde el navegador. No hace falta servidor.
+- Un token por navegador: en otro ordenador tendrás que pegarlo otra vez.
+  **Olvidar token**, en `/admin`, lo borra de ese navegador.
+
+Si algún día se te escapa el token, bórralo en GitHub y crea otro. No hay que
+tocar nada más.
+
+### 4. Ponle tu nombre
+
+En **`src/data/levels.json`**, arriba del todo:
+
+```json
+{
+  "course": {
+    "title": "XR Island",
+    "subtitle": "Realidad Virtual y Realidad Aumentada · Entornos de Realidad Virtual",
+    "tagline": "Realidad Virtual y Aumentada"
+  }
+}
+```
+
+- `title` — el panel del mapa y **el título del vuelo de entrada**.
+- `subtitle` — la línea larga del panel.
+- `tagline` — la línea corta, **solo para la entrada**. Que sea corta de verdad:
+  ocupa una pantalla entera.
+
+La pestaña del navegador se cambia en `index.html` (`<title>`), y la del panel de
+profesor en `admin/index.html`.
+
+### 5. Cambia las sesiones
+
+Toda la isla —caminos, castillos y cuestas— se genera sola a partir de la lista
+`levels` de **`src/data/levels.json`**. **No hay que colocar nada a mano**: el
+orden en el archivo es el orden en el mapa, y añadir una sesión re-reparte a sus
+vecinas.
+
+Una sesión mínima:
+
+```json
+{
+  "id": "w1-01",
+  "world": 1,
+  "title": "Introducción a la asignatura",
+  "category": "theory",
+  "stage": "intro-theory",
+  "summary": "De qué va todo esto y cómo se evalúa."
+}
+```
+
+| Campo | Qué es |
+| --- | --- |
+| `id` | Identificador único. Sale en los enlaces (`?level=w1-01`). Cámbialo **antes** de empezar el curso, no después: los enlaces compartidos dejarían de funcionar. |
+| `world` | 1, 2 o 3. El trozo de isla donde cae. |
+| `title` | Lo que lee el alumno. |
+| `category` | `theory`, `practical`, `project` o `boss`. Decide el color del círculo. |
+| `stage` | Bloque temático. Sirve para agrupar. |
+| `optional` | `true` para actividades voluntarias. Cuelgan con una línea de puntos de la sesión que digas en `anchorAfter`. |
+
+La lista larga de campos está en
+[Where to put your content](#where-to-put-your-content) y
+[Adding, editing and reordering levels](#adding-editing-and-reordering-levels).
+
+**Ejecuta `npm run validate` cada vez que toques este archivo.** Te dice qué está
+mal antes de que lo veas roto, y se ejecuta sola al construir, así que un error
+aquí **impide que la web se publique**. Lo que comprueba, y por qué te importa:
+
+- **Cada mundo con `bossSlot` necesita exactamente un examen**, y no puede ser ni
+  el primero ni el último de su mundo: va *entre* dos mitades.
+- **El examen final cierra el mundo 3**: tiene que ser la última sesión.
+- **Ninguna fecha, en ningún sitio.** Ni `date`, ni `week`, ni `deadline`. El
+  mapa no es un calendario; el avance lo mueves tú a mano. Un campo con esos
+  nombres hace fallar la validación.
+- **Los nodos no pueden quedar demasiado juntos.** Si metes muchas sesiones en un
+  mundo, te avisa de que hay que estirar el camino
+  ([Reshaping the island](#reshaping-the-island)).
+- **Una actividad opcional cuelga de una sesión normal** de su mismo mundo.
+
+La plantilla trae 28 sesiones repartidas 8 / 11 / 9. Puedes poner menos sin tocar
+nada más.
+
+### 6. Pon tu contenido
+
+Cada sesión puede llevar diapositivas, tareas y ejercicios.
+
+**Diapositivas**, de menos a más trabajo:
+
+```jsonc
+// 1. Un enlace y ya (lo más fácil): abre en otra pestaña
+"slidesLink": { "url": "https://…", "label": "Diapositivas de la sesión" }
+
+// 2. Un PDF que se ve dentro de la web. El archivo, en public/content/slides/
+"slides": { "type": "pdf", "source": "content/slides/mi-clase.pdf" }
+
+// 3. Un Canva incrustado
+"slides": { "type": "canva", "source": "https://www.canva.com/design/…?embed" }
+```
+
+Para Canva: **Compartir → Más → Insertar**, y copia esa dirección. Tiene que
+llevar `?embed`. Si copias el enlace de *edición* (lleva `/edit`), la validación
+lo rechaza — y menos mal, porque cualquiera podría editarte las diapositivas.
+
+**Ejercicios**: Markdown en `public/content/exercises/`, enlazado desde la sesión
+con `"exercises": "content/exercises/<id>.md"`. Si le pones `marp: true` en la
+cabecera, ese mismo archivo se convierte en una presentación dentro de la web
+— ver [Slides generated from Markdown](#slides-generated-from-markdown-marp).
+
+**Tareas** de la sesión, en `todos`: objetivo, punto de partida, hitos y entrega.
+Los cuatro campos son obligatorios y `milestones` no puede estar vacío. Las
+casillas que marca el alumno se quedan en **su** navegador y no las ve nadie más;
+no tienen nada que ver con el marcador del profesor.
+
+```bash
+npm run placeholders   # crea los archivos que falten; nunca pisa los que hay
+npm run validate
+```
+
+### 7. Tus colores y tu isla
+
+Los colores, todos, en **`src/config/theme.js`** — y solo ahí. La forma de la
+isla, en **`src/config/worlds.js`**. Las dos secciones de arriba lo explican con
+las trampas incluidas: [Colours](#colours) y
+[Reshaping the island](#reshaping-the-island).
+
+### 8. Durante el curso
+
+Todo esto es desde el navegador, sin tocar código.
+
+**Avanzar la clase.** En el mapa, bloque **Profesor** de la leyenda: *Completar y
+avanzar*, *Retroceder*, *Reiniciar curso*. Cada uno hace un commit y la web se
+reconstruye en uno o dos minutos. Están en el mapa y no en `/admin` a propósito:
+ahí se ve al personaje caminar hasta la sesión siguiente.
+
+**Ocultar las sesiones futuras.** El interruptor de ese mismo bloque. Con él
+activado, el alumno solo ve hasta donde ha llegado la clase; el resto sale en
+gris, con candado y sin título. Tú, con tu token, lo sigues viendo todo.
+
+**Alumnos paseando por la isla.** En `/admin/`, apartado *Alumnos en la isla*.
+Escribes un nombre, eliges la sesión, y aparece un personaje dando vueltas junto
+a ese círculo. Es para premiar participación. Caben 24.
+
+> Tu repositorio es **público**: cualquiera puede leer `public/npcs.json`. Usa
+> apodos o nombre + inicial, nunca el nombre completo de un menor.
+
+### 9. Cuando algo falla
+
+**La web no se actualiza.** Mira abajo del todo en la leyenda: pone `build` y
+unas letras, que son el commit que estás viendo. Si no coincide con el último,
+tu navegador tiene la página en caché: recarga forzando (Ctrl+Shift+R). Esto
+engaña muchísimo — una corrección puede estar publicada y no verse.
+
+**`public/progress.json does not match …`** Habías pulsado dos botones muy
+seguidos. Vuelve a pulsar: se relee el archivo y se reintenta solo.
+
+**El despliegue falla en Actions.** Casi siempre es `npm run validate`. Abre el
+flujo fallido en la pestaña **Actions** y lee el error: te dice el `id` de la
+sesión y qué le pasa. Corrígelo, súbelo, y se publica solo.
+
+**Ejecuta `npm run validate` en tu ordenador antes de subir nada.** Te ahorra
+todo este apartado.
+
+### 10. Antes de enseñárselo a nadie
+
+Tu repositorio es público y tu web también. Repasa
+[Content is public](#content-is-public--review-before-publishing) entero: derechos
+de autor del material que no es tuyo, cero datos de alumnos, y exámenes fuera del
+repositorio hasta que toque. Y ten presente que **el historial de Git guarda lo
+que subiste aunque luego lo borres**.
+
+### Chuleta
+
+| Quiero cambiar… | Archivo |
+| --- | --- |
+| Nombre y subtítulos del curso | `src/data/levels.json` (`course`) |
+| Sesiones, títulos, tareas, ejercicios | `src/data/levels.json` (`levels`) |
+| Colores de todo | `src/config/theme.js` |
+| Forma de los caminos y de la isla | `src/config/worlds.js` |
+| Diapositivas en PDF | `public/content/slides/` |
+| Ejercicios en Markdown | `public/content/exercises/` |
+| Por dónde va la clase | El bloque Profesor, en el mapa |
+| Alumnos destacados | `/admin/` |
+
+```bash
+npm run dev        # trabajar en local
+npm run validate   # comprobar antes de subir
+npm run build      # construir como lo hace GitHub
+```
 
 ---
 
