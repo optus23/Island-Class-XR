@@ -111,13 +111,24 @@ export async function renderSlides(el, level) {
     return
   }
 
+  // 3. No deck. Two different nothings, and they must not read the same:
+  //    a session whose deck is not written yet is waiting on something, while a
+  //    project day has no deck by design and never will. Saying "todavía" to the
+  //    second one promises slides that are never coming.
   if (!slides?.source) {
     el.innerHTML = `
       <div class="p-1">
         ${contentsList(level)}
-        <p class="opacity-70 text-sm">
-          Esta sesión todavía no tiene diapositivas enlazadas.
-        </p>
+        ${
+          level.slidesPending
+            ? `<p class="opacity-70 text-sm">
+                 Las diapositivas de esta sesión están en preparación. El contenido
+                 de arriba es lo que se dará; el enlace llegará antes de la clase.
+               </p>`
+            : `<p class="opacity-70 text-sm">
+                 Esta sesión no lleva diapositivas.
+               </p>`
+        }
       </div>`
     return
   }

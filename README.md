@@ -147,6 +147,7 @@ Everything a session shows lives in **one entry** in
 | **Canva** deck | `slides: { "type": "canva", "source": "<embed URL>" }` | Must be the **Share → Embed** link and contain `?embed`. `npm run validate` rejects edit links |
 | **PDF** deck | `slides: { "type": "pdf", "source": "content/slides/<id>.pdf" }` | Drop the file at `public/content/slides/<id>.pdf` |
 | **External** deck | `slidesLink: { "url": "https://…", "label": "…" }` | A button, not an embed. For anything that refuses to be framed |
+| **Deck not made yet** | `slidesPending: true` | The portal says the slides are being prepared instead of "no lleva diapositivas". `validate` errors if it survives the deck arriving |
 | **Exercises** | `exercises: "content/exercises/<id>.md"` | Plain Markdown at `public/content/exercises/<id>.md` |
 | **Activities** | `todos: [ … ]` | `objective-task` objects — objective, starting point, milestones, deliverable |
 | **Generated deck** | `marp: true` in the exercise Markdown | Slides built from that Markdown at build time — see below. Beats a `slides` block |
@@ -211,6 +212,14 @@ Each level picks one.
 
 > The Canva URL **must** be the public **Share → Embed** link. `validate` rejects
 > edit links, so a private deck cannot reach the published site by accident.
+
+A level with none of the three shows its contents list and says the session
+carries no slides. If that is only true *for now* — the deck exists in the
+calendar but has not been written — set `slidesPending: true` and the portal says
+it is being prepared instead. `validate` lists every pending level on each build
+and **errors** if one still carries the flag after its deck lands, so the note
+cannot rot into a lie. A project or exam day, which will never have a deck, just
+leaves all four fields out.
 
 ### Activities (`todos`)
 
@@ -811,6 +820,9 @@ Cada sesión puede llevar diapositivas, tareas y ejercicios.
 
 // 3. Un Canva incrustado
 "slides": { "type": "canva", "source": "https://www.canva.com/design/…?embed" }
+
+// 4. Todavía no las has hecho: la sesión dice "en preparación"
+"slidesPending": true
 ```
 
 Para Canva: **Compartir → Más → Insertar**, y copia esa dirección. Tiene que

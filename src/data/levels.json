@@ -310,6 +310,7 @@
         "Pilars Meta All in One SDK",
         "Activitat a classe: 1. Building Blocks — Passthrough and Grabbable Item"
       ],
+      "slidesPending": true,
       "block": {
         "number": 2,
         "name": "Meta Building Blocks",
@@ -379,6 +380,7 @@
         "Presentació Enunciat (2-2)",
         "Activitat a classe: 2. Building Blocks — Hand Tracking"
       ],
+      "slidesPending": true,
       "block": {
         "number": 2,
         "name": "Meta Building Blocks",
@@ -498,6 +500,7 @@
         "Activitat a classe: 3. Building Blocks Additional Feature — Effect Mesh, Spatial Anchor…",
         "Treball en equips: Entrega Meta All in One SDK"
       ],
+      "slidesPending": true,
       "block": {
         "number": 2,
         "name": "Meta Building Blocks",
@@ -618,9 +621,9 @@
         "XRITK GitHub Examples: Socket XR",
         "Projecte Final d'Assignatura: Concept"
       ],
-      "slidesLink": {
-        "label": "Diapositives de la sessió",
-        "url": "https://canva.link/hexv8y331t4u50j"
+      "slides": {
+        "type": "canva",
+        "source": "https://www.canva.com/design/DAHI0RO9Tmg/KR1Mz0x1tNIVIyfD73jIwQ/view?embed"
       },
       "todos": []
     },
@@ -637,9 +640,9 @@
         "Activitat a classe: 2. XR Interaction Toolkit — Hand Tracking and Gestures",
         "Unity VR Template demonstration"
       ],
-      "slidesLink": {
-        "label": "Diapositives de la sessió",
-        "url": "https://canva.link/hexv8y331t4u50j"
+      "slides": {
+        "type": "canva",
+        "source": "https://www.canva.com/design/DAHI0RO9Tmg/KR1Mz0x1tNIVIyfD73jIwQ/view?embed"
       },
       "block": {
         "number": 3,
