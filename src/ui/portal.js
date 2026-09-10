@@ -42,7 +42,10 @@ function assessmentStrip(level) {
   const b = level.block
   const weight = level.gradeWeight
   const weightText = weight
-    ? `${weight.block} del curso · ${weight.exercise ? `${weight.exercise} del bloque` : `reparto por ejercicio ${UNDECIDED}`}`
+    ? `${weight.block} del curso · ${weight.exercise ? `${weight.exercise} del bloque` : `reparto por ejercicio ${UNDECIDED}`}` +
+      // Says WHICH exercise carries the most, never how much. The split itself
+      // is still undecided, and `weight.exercise` stays null until it is not.
+      (weight.note ? ` · ${weight.note}` : '')
     : UNDECIDED
 
   const items = [

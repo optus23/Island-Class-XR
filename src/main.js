@@ -38,6 +38,7 @@ import { createEnemies } from './three/enemies.js'
 import { createVillagers } from './three/villagers.js'
 import { loadRoster } from './lib/roster.js'
 import { readLevelFromUrl, setLevelInUrl, onRouteChange } from './lib/router.js'
+import { readSeeAllFromUrl, rememberSeeAll, seeAllChoice } from './lib/teacherView.js'
 import { createVR } from './three/vr.js'
 import { createIntro, introWanted } from './three/intro.js'
 
@@ -685,7 +686,11 @@ async function boot() {
   // admin token sees the whole course, which is the "mecanismo para poder
   // visualizar todas" without having to turn the rule off for the class.
   setLockAhead(progress.lockAhead)
-  setSeeAll(hasAdminToken())
+  // `?ver=todo` first (an explicit instruction on this load), then a choice this
+  // browser has already made, and only then the token. That order is what lets
+  // someone be shown the whole island without one — and lets a teacher who has
+  // one stay in "ver como alumno" across a reload, which used to snap back.
+  setSeeAll(readSeeAllFromUrl() ?? seeAllChoice() ?? hasAdminToken())
   map.refresh(markerId)
 
   // The honoured students. Nothing to draw is the normal state on a fresh term.
@@ -761,6 +766,7 @@ async function boot() {
     /** Local to this browser: look at the map the way the class sees it. */
     onToggleSeeAll: (seeAll) => {
       setSeeAll(seeAll)
+      rememberSeeAll(seeAll)
       applyLocks()
     },
     lockAhead: () => lockAheadSetting(),

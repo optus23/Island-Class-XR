@@ -228,6 +228,18 @@ Changing any of these is a design decision, not a refactor.
   Several titles are plot points, so the list read on day one is the spoiler.
   Course-wide switch in the legend, written to `progress.json`; anyone holding
   an admin token is exempt, and "Ver como alumno" drops that exemption locally.
+- **The exemption is its own switch and needs no token.** `/admin` opens on
+  "Ver todo el mapa"; `?ver=todo` / `?ver=alumno` does the same in a link, and
+  is stripped from the address bar once read. It is one `localStorage` key
+  (`xrisland:see-all`) in `src/lib/teacherView.js`, which the map reads on boot
+  ahead of the token. Showing the island to a colleague must never mean handing
+  them a token with write access, and must never mean turning `lockAhead` off —
+  that is the COURSE rule, so it spoils the term for the real class for as long
+  as the demo lasts, and costs a commit and a deploy each way. A browser that
+  has been given the view gets a cut-down "Profesor" block in the legend with
+  only the switch that turns it back off: without it there is no way out of the
+  teacher's view from the map, and the person being shown the island is exactly
+  the one who does not know `/admin` exists.
 - **Bosses** close the screen through a horned silhouette instead of a circle.
 - **The level portal is ONE scrolling page.** Header, tags, tabs and content all
   scroll away together; only the back button stays (it is `position: fixed`, and

@@ -125,19 +125,25 @@
           "id": "w1-arf-01-t1",
           "type": "objective-task",
           "objective": "Blue Goblin está en la escena desde el primer frame. Replica la mecánica del vídeo del profesor —tocar un plano detectado instancia un modelo 3D— y usa ese objeto para enfrentarte a él o para camelarlo, según la historia que tú quieras contar. El modelo lo eliges tú, de donde quieras.",
-          "starting_point": "Proyecto Unity de la rama 01-plane-detection del repositorio de ejercicios, con Blue Goblin ya instanciado en la escena. Móvil Android o iOS propio, con cable de datos.",
-          "milestones": [
-            "Build Settings en Android (o iOS) y XR Plug-in Management con el proveedor activado: ARCore o ARKit",
-            "Escena mínima montada: AR Session + XR Origin con AR Camera, y ninguna Main Camera duplicada colgando de la escena",
-            "AR Plane Manager en el XR Origin con un prefab de plano visible, para ver en pantalla qué está detectando el dispositivo",
-            "Toque leído con el Input System (Touchscreen / EnhancedTouch) y AR Raycast Manager en el XR Origin",
-            "Raycast contra TrackableType.PlaneWithinPolygon desde la posición del dedo; si no impacta en un plano, el toque se descarta sin instanciar nada",
-            "Modelo propio importado como prefab y escalado a tamaño real: sobre una mesa tiene que medir centímetros, no metros",
-            "El prefab aparece en el punto de impacto con la rotación del plano, y tocar dos veces no apila dos copias en el mismo sitio",
-            "Blue Goblin sigue en escena y el objeto instanciado hace algo visible con él: lo ataca, lo distrae, lo encanta. La escena cuenta tu versión sin que tengas que explicarla",
-            "Build APK generado, instalado y recorrido en el móvil físico, no solo en Play Mode"
+          "starting_point": "Proyecto Unity de la rama `01-plane-detection`, con Blue Goblin ya instanciado en la escena. Móvil Android o iOS propio, con cable de datos.",
+          "steps": [
+            "`Window > Package Manager > Unity Registry` — comprueba que **AR Foundation** y el proveedor de tu plataforma (**ARCore XR Plugin** para Android o **ARKit XR Plugin** para iOS) están instalados.",
+            "`Edit > Project Settings > XR Plug-in Management` → pestaña Android/iOS → activa la casilla del proveedor correspondiente.",
+            "Comprueba que la escena tiene un **AR Session** y un **XR Origin (AR Rig)** (si el proyecto de partida ya los trae, no los dupliques — usa `GameObject > XR` solo si faltan).",
+            "Selecciona el **XR Origin** en la Hierarchy → `Add Component` → **AR Plane Manager**.",
+            "En AR Plane Manager, arrastra un prefab de plano al campo **Plane Prefab** (puedes usar el que trae el paquete) para ver en pantalla qué está detectando el dispositivo mientras pruebas.",
+            "Sobre el mismo XR Origin, `Add Component` → **AR Raycast Manager**.",
+            "Crea un script (p. ej. `TapToPlace.cs`) y engánchalo a un GameObject de la escena; referencia en él el AR Raycast Manager (y opcionalmente el AR Plane Manager).",
+            "Lee el toque de pantalla con el Input System (`Touchscreen.current` o `EnhancedTouch.Touch`).",
+            "Al detectar un toque, llama a `raycastManager.Raycast(pos, hits, TrackableType.PlaneWithinPolygon)`; si devuelve `true` y hay al menos un resultado, usa `hits[0].pose` para la posición/rotación.",
+            "Instancia tu prefab con `Instantiate(prefab, hit.pose.position, hit.pose.rotation)`.",
+            "Ajusta la escala real del modelo: junto a un objeto de referencia de 1 metro en la escena, debe verse a tamaño real (1 unidad de Unity = 1 metro).",
+            "Evita apilar copias: antes de instanciar, comprueba si ya existe un objeto instanciado y decide si lo reemplazas o bloqueas una segunda instanciación.",
+            "Conecta visualmente el objeto instanciado con Blue Goblin: que la escena cuente tu versión (ataque, distracción, encantamiento) sin que tengas que explicarla.",
+            "`File > Build Settings` — confirma la plataforma (Android/iOS).",
+            "Build and Run con el móvil conectado, y prueba en el dispositivo físico — el Play Mode del editor no simula detección real de planos."
           ],
-          "deliverable": "APK, no vídeo: se instala y se corrige en un móvil, por eso tiene que arrancar solo. Nómbralo bloque1-ej1-<apellido>.apk y acompáñalo del enlace a tu rama. En el README de la rama, tres líneas: qué modelo has usado, de dónde sale y con qué licencia, y cómo se enfrenta a Blue Goblin."
+          "deliverable": "APK, no vídeo. Nómbralo `bloque1-ej1-<apellido>.apk` y acompáñalo del enlace a tu rama. En el README: qué modelo has usado, de dónde sale y con qué licencia, y cómo se enfrenta a Blue Goblin."
         }
       ],
       "slides": {
@@ -179,9 +185,9 @@
         "Introducció a GitHub",
         "Activitat a classe: 2. AR Foundation — Image Tracking"
       ],
-      "slidesLink": {
-        "label": "Diapositives de la sessió",
-        "url": "https://canva.link/hdd9inujtdnynat"
+      "slides": {
+        "type": "canva",
+        "source": "https://www.canva.com/design/DAHHUg9bRnE/aMSHYnSQXgr-muOpollVCA/view?embed"
       },
       "block": {
         "number": 1,
@@ -205,18 +211,25 @@
           "id": "w1-arf-02-t1",
           "type": "objective-task",
           "objective": "Los primos verdes de Blue Goblin se han repartido por objetos que tienes a mano. Elige tú las imágenes físicas que hacen de marcador —una carta, una portada, una pegatina— y monta el seguimiento para que cada marcador invoque a su goblin. Mínimo dos marcadores distintos.",
-          "starting_point": "Tu propio proyecto del ejercicio 1, continuado en la rama 02-image-tracking. Necesitas las dos imágenes físicas encima de la mesa antes de empezar.",
-          "milestones": [
-            "Dos imágenes capturadas en alta resolución, rectas, sin reflejos ni recortes, importadas al proyecto",
-            "Reference Image Library creada con las dos, cada una con su tamaño físico real en metros — sin ese dato el goblin sale a una escala arbitraria",
-            "Puntuación de calidad de cada imagen revisada en el inspector; la que salga baja se sustituye por otra con más contraste y más detalle irregular",
-            "AR Tracked Image Manager en el XR Origin, con la librería asignada y el máximo de imágenes seguidas puesto a 2",
-            "Un prefab distinto por marcador, resueltos por el nombre de la imagen y no por el índice del array",
-            "trackedImagesChanged atendido en added, updated y removed: el goblin sigue a su marcador y desaparece —o se queda quieto— cuando el tracking se pierde, pero nunca parpadea",
-            "Prueba con los dos marcadores a la vez delante de la cámara: salen dos goblins distintos, cada uno sobre el suyo",
-            "Build APK probado con los marcadores impresos o mostrados en otra pantalla, con luz de aula"
+          "starting_point": "Tu proyecto del ejercicio 1, continuado en la rama `02-image-tracking`. Necesitas las dos imágenes físicas encima de la mesa antes de empezar.",
+          "steps": [
+            "Captura o prepara 2 imágenes en alta resolución (JPG/PNG), rectas, sin reflejos, e impórtalas a `Assets`.",
+            "Clic derecho en el Project window → `Create > XR > Reference Image Library`.",
+            "Selecciona la librería creada, en el Inspector pulsa **+** por cada imagen, y arrastra cada una al campo correspondiente.",
+            "Para cada entrada, rellena el tamaño físico real (ancho/alto en metros) — sin ese dato el goblin sale a escala arbitraria.",
+            "Revisa la puntuación de calidad que el editor muestra al procesar cada imagen; si sale baja, sustitúyela por otra con más contraste y detalle irregular.",
+            "Selecciona el XR Origin → `Add Component` → **AR Tracked Image Manager**.",
+            "Arrastra la Reference Image Library al campo **Serialized Library**.",
+            "Ajusta **Max Number Of Moving Images** a 2.",
+            "Crea un prefab distinto por marcador (o uno genérico que decida internamente qué mostrar).",
+            "En un script, suscríbete al evento `trackedImagesChanged` del manager (`manager.trackedImagesChanged += OnChanged`).",
+            "En el callback, recorre `args.added` y `args.updated`: por cada `ARTrackedImage`, usa `trackedImage.referenceImage.name` para identificar el marcador, e instancia/posiciona el prefab correspondiente en `trackedImage.transform`.",
+            "En `args.removed` (o comprobando `trackedImage.trackingState != TrackingState.Tracking`), decide si ocultas, destruyes o dejas quieto el objeto — evita que parpadee cada frame.",
+            "Prueba con los dos marcadores a la vez delante de la cámara del móvil: deben salir dos goblins distintos, cada uno sobre el suyo.",
+            "Genera el PDF/PNG de los dos marcadores para imprimir, comprobando que el tamaño impreso coincide con el configurado en la librería.",
+            "Build APK y prueba con los marcadores impresos (o en otra pantalla) con luz normal de aula."
           ],
-          "deliverable": "APK más los dos marcadores en PDF o PNG listos para imprimir: sin ellos el ejercicio no se puede corregir. En el README de la rama, qué imagen invoca a qué goblin."
+          "deliverable": "APK más los dos marcadores en PDF o PNG listos para imprimir. En el README: qué imagen invoca a qué goblin."
         }
       ]
     },
@@ -235,9 +248,9 @@
         "Plausability",
         "Dinàmica de grup Wooclap: Immersion"
       ],
-      "slidesLink": {
-        "label": "Diapositives de la sessió",
-        "url": "https://canva.link/kt9ah4dcspg6jl5"
+      "slides": {
+        "type": "canva",
+        "source": "https://www.canva.com/design/DAHHUp02vgE/awBWuYyLqxzlAp8T7L9GZA/view?embed"
       },
       "todos": []
     },
@@ -255,9 +268,9 @@
         "Activitat a classe: 3. AR Foundation — Face Detection, Occlusion, Point Clouds…",
         "Treball en equips: Entrega AR Foundation"
       ],
-      "slidesLink": {
-        "label": "Diapositives de la sessió",
-        "url": "https://canva.link/hdd9inujtdnynat"
+      "slides": {
+        "type": "canva",
+        "source": "https://www.canva.com/design/DAHHUg9bRnE/aMSHYnSQXgr-muOpollVCA/view?embed"
       },
       "block": {
         "number": 1,
@@ -267,7 +280,8 @@
       },
       "gradeWeight": {
         "block": "10 %",
-        "exercise": null
+        "exercise": null,
+        "note": "el de más peso del bloque"
       },
       "groupMode": "individual-within-group",
       "submissionMethod": "build",
@@ -280,19 +294,23 @@
         {
           "id": "w1-arf-03-t1",
           "type": "objective-task",
-          "objective": "Elige del repositorio público de samples de AR Foundation al menos una feature que no hayamos usado —light estimation, face tracking, mesh scanning, occlusion, lo que te llame— e intégrala en el mismo proyecto para inventar el desenlace de Blue Goblin en el móvil. Puedes combinar varias: si todas funcionan, sube la nota. La historia se evalúa igual que el código.",
-          "starting_point": "El proyecto de los ejercicios 1 y 2, continuado en la rama 03-libre, que al terminar contiene el bloque entero. Catálogo de referencia: el repositorio público Unity-Technologies/arfoundation-samples.",
-          "milestones": [
-            "Feature elegida y justificada en una línea: qué le aporta a tu final de Blue Goblin, no solo que queda vistosa",
-            "Escena del sample ejecutada tal cual en tu dispositivo antes de tocar nada, para saber si un fallo posterior es tuyo o del hardware",
-            "Requisitos comprobados en tu móvil concreto: no todos soportan face tracking, profundidad u occlusion",
-            "Feature portada a tu proyecto —managers, prefabs y permisos— sin arrastrar la escena del sample entera",
-            "Plane detection e image tracking de los ejercicios 1 y 2 siguen funcionando después de integrarla",
-            "El desenlace ocurre en la app, no en el README: alguien que abra el APK sin leer nada ve cómo acaba tu Blue Goblin",
-            "Si combinas varias features, cada una funciona por separado y todas conviven en la misma sesión AR",
-            "Build APK final desde la rama 03-libre, probado en frío: instalar, abrir y recorrer las tres partes del bloque sin reiniciar"
+          "objective": "Elige del repositorio público de samples de AR Foundation al menos una feature que no hayamos usado —light estimation, face tracking, mesh scanning, occlusion, lo que te llame— e intégrala en el mismo proyecto para inventar el desenlace de Blue Goblin. Puedes combinar varias. La historia se evalúa igual que el código.",
+          "starting_point": "El proyecto de los ejercicios 1 y 2, continuado en `03-libre`. Catálogo de referencia: `Unity-Technologies/arfoundation-samples`.",
+          "steps_note": "proceso general — la feature exacta la eliges tú",
+          "steps": [
+            "Descarga o clona `Unity-Technologies/arfoundation-samples` (Code → Download ZIP, o `git clone`).",
+            "Ábrelo en Unity y localiza en `Assets/Scenes` la escena de ejemplo de la feature que te interese.",
+            "Ejecuta esa escena tal cual en tu propio dispositivo antes de tocar nada — algunas features (face tracking, profundidad, occlusion) no están disponibles en todos los modelos de móvil.",
+            "Identifica en esa escena qué Managers son necesarios (p. ej. AR Face Manager, AR Occlusion Manager, AR Human Body Manager) y qué scripts van sobre ellos.",
+            "En tu propio proyecto, añade esos mismos Managers al XR Origin ya existente — no dupliques XR Origin ni AR Session.",
+            "Copia solo los scripts y prefabs estrictamente necesarios de la muestra, no la escena completa.",
+            "Revisa permisos: algunas features requieren permisos extra en el manifiesto Android (`Player Settings > Publishing Settings > Custom Main Manifest`); Unity suele añadirlos solo al activar el manager, pero conviene comprobarlo.",
+            "Verifica que plane detection e image tracking (ejercicios 1 y 2) siguen funcionando después de integrar la nueva feature.",
+            "Diseña el desenlace de Blue Goblin usando la feature: qué pasa visualmente, cuándo se dispara, qué lo activa — que se vea en la app, no que haya que explicarlo en el README.",
+            "Si combinas varias features, prueba que cada una funciona por separado y que conviven en la misma sesión AR.",
+            "Build APK final desde `03-libre`, probado en frío: instalar, abrir y recorrer las tres partes del bloque sin reiniciar."
           ],
-          "deliverable": "APK con el bloque entero integrado, más la rama 03-libre. En el README: features añadidas, dispositivo en el que lo has probado y, en un párrafo, cómo termina tu Blue Goblin. Es el ejercicio de más peso del bloque y el storytelling puntúa."
+          "deliverable": "APK con el bloque entero integrado, más la rama `03-libre`. En el README: features añadidas, dispositivo de prueba y, en un párrafo, cómo termina tu Blue Goblin."
         }
       ]
     },
@@ -310,6 +328,7 @@
         "Pilars Meta All in One SDK",
         "Activitat a classe: 1. Building Blocks — Passthrough and Grabbable Item"
       ],
+      "slidesPending": true,
       "block": {
         "number": 2,
         "name": "Meta Building Blocks",
@@ -330,19 +349,30 @@
         {
           "id": "w2-pre-02-t1",
           "type": "objective-task",
-          "objective": "Blue Goblin se sube a un mecha y sale de la pantalla del móvil al espacio real. Móntalo con building blocks: passthrough para ver la sala, detección de superficies para saber dónde está el suelo o la mesa, y el mecha instanciado encima. Es el paralelo del ejercicio 1 de AR Foundation, ahora en realidad mixta, y es deliberadamente corto: la mitad de la sesión se va en conectar el visor.",
-          "starting_point": "Proyecto Unity nuevo con el Meta XR All-in-One SDK, en el ordenador del grupo. Una Quest 3 o Quest 2 cargada por grupo. Empezad por la conexión: es el obstáculo real de este bloque.",
-          "milestones": [
-            "Visor reconocido por el ordenador: modo desarrollador activado, cable de datos —no de carga—, diálogo de depuración USB aceptado dentro del visor y adb devices mostrándolo",
-            "Proyecto en plataforma Android, con el Meta XR All-in-One SDK instalado y el Project Setup Tool sin avisos pendientes",
-            "Building block Camera Rig en la escena y building block de Passthrough añadido: se ve la sala desde dentro del visor",
-            "Permiso de datos espaciales concedido y Space Setup ejecutado en el visor antes de la primera prueba",
-            "Building block de detección de superficies en escena, con el suelo o una mesa reconocidos y visualizados",
-            "Prefab del mecha de Blue Goblin colocado sobre la superficie detectada, orientado con ella y a escala real",
-            "Comprobación de que esto es MR y no AR: al andar alrededor, el mecha se queda anclado a la sala en lugar de seguir a la mirada",
-            "Build APK instalado en el visor y arrancado desde la biblioteca, sin cable y sin el editor abierto"
+          "objective": "Blue Goblin se sube a un mecha y sale de la pantalla del móvil al espacio real. Móntalo con building blocks: passthrough para ver la sala, detección de superficies para saber dónde está el suelo o la mesa, el mecha instanciado encima y, a diferencia del Ejercicio 1 de AR Foundation, que se pueda coger con la mano. Deliberadamente corto: la mitad de la sesión se va en conectar el visor.",
+          "starting_point": "Proyecto Unity nuevo con el Meta XR All-in-One SDK. Una Quest 3 o Quest 2 cargada por grupo.",
+          "steps": [
+            "Cuenta de desarrollador: entra en `developer.oculus.com` y crea/únete a una organización (gratis) si el grupo no la tiene ya.",
+            "En el móvil, con la app **Meta Horizon** emparejada al visor: icono del visor → Configuración del casco → **Modo desarrollador** → actívalo. Reinicia el visor cuando lo pida.",
+            "Conecta el visor al ordenador con cable USB-C **de datos** (no solo de carga). Ponte el visor y acepta \"Permitir depuración USB\" (marca \"permitir siempre desde este ordenador\").",
+            "En Unity: `File > Build Profiles` → en Platforms selecciona **Meta Quest** → Enable/Switch Platform (si tu versión de Unity no lo tiene, usa **Android**).",
+            "Instala el **Meta XR All-in-One SDK** desde el Package Manager.",
+            "Ejecuta el **Project Setup Tool** (Meta → Tools → Project Setup Tool) y aplica \"Fix All\" hasta que no queden avisos.",
+            "Abre `Meta > Tools > Building Blocks`.",
+            "Busca **Camera Rig** y pulsa \"Add block to current scene\".",
+            "Busca **Passthrough** y añádelo igual; comprueba en Play Mode/Build que ves la sala real a través del visor.",
+            "Concede el permiso de datos espaciales cuando el visor lo pida.",
+            "Busca **Instant Content Placement** y añádelo — coloca contenido sobre una superficie detectada sin necesidad de escanear antes la sala.",
+            "Arrastra el prefab del mecha de Blue Goblin al campo que pida el bloque para el contenido a colocar.",
+            "Prueba en el visor que el mecha aparece apoyado en una superficie real.",
+            "Selecciona el mecha en la Hierarchy → clic derecho → **Interaction SDK → Add Grab Interaction**.",
+            "Comprueba que se han añadido los componentes de interacción de agarre; no los borres.",
+            "Prueba en el visor: acércate con la mano, ciérrala para agarrar el mecha, muévelo y suéltalo — no debe quedar flotando ni desincronizado.",
+            "Anda alrededor: el mecha debe quedarse anclado a la sala, no seguir tu mirada (si lo hace, revisa que no sea hijo de la cámara por error).",
+            "`Build And Run` con el visor como Run Device.",
+            "Desconecta el cable y abre la app desde la biblioteca del visor para confirmar que arranca sola."
           ],
-          "deliverable": "APK por grupo, con el nombre del grupo en el archivo. Se corrige instalándolo en un visor, así que tiene que arrancar solo y sin Space Setup previo por parte de quien corrige."
+          "deliverable": "APK por grupo, con el nombre del grupo en el archivo. Tiene que arrancar solo y sin Space Setup previo por parte de quien corrige."
         }
       ]
     },
@@ -360,9 +390,9 @@
         "Simulator Sickness",
         "Dinàmica de classe: Pluja d'idees Parcial"
       ],
-      "slidesLink": {
-        "label": "Diapositives de la sessió",
-        "url": "https://canva.link/ibsctft9abi9h0q"
+      "slides": {
+        "type": "canva",
+        "source": "https://www.canva.com/design/DAHHUoOtuSY/6Tu2uB2S-1txMuzlgcqWyA/view?embed"
       },
       "todos": []
     },
@@ -379,6 +409,7 @@
         "Presentació Enunciat (2-2)",
         "Activitat a classe: 2. Building Blocks — Hand Tracking"
       ],
+      "slidesPending": true,
       "block": {
         "number": 2,
         "name": "Meta Building Blocks",
@@ -399,19 +430,19 @@
         {
           "id": "w2-pre-03-t1",
           "type": "objective-task",
-          "objective": "El giro de la historia: Blue Goblin, ya evolucionado, se pasa a vuestro lado. Montad el seguimiento de imagen sobre passthrough para que un marcador físico lo invoque como aliado frente a la nueva amenaza. Un solo marcador, a diferencia de AR Foundation: en Meta el image tracking cuesta bastante más de configurar.",
-          "starting_point": "El proyecto del ejercicio 1 de este bloque, continuado. Un marcador impreso por grupo, medido con regla.",
-          "milestones": [
-            "Marcador elegido, impreso y con su tamaño físico medido y anotado en centímetros",
-            "Features y permisos de seguimiento de imagen habilitados en la configuración de Meta XR y en el manifiesto",
-            "Building block de seguimiento de imagen en escena, con el marcador registrado y su tamaño real introducido",
-            "Blue Goblin aliado aparece sobre el marcador y se mantiene estable mientras el marcador está a la vista",
-            "Comportamiento decidido y programado para cuando se pierde el marcador: se queda anclado donde estaba, o desaparece — pero no parpadea",
-            "La nueva amenaza está en escena y se distingue de Blue Goblin a simple vista, por silueta o color",
-            "El cambio de bando se lee sin narración externa: algo en la escena —color, animación, hacia dónde mira— cuenta que ahora está con vosotros",
-            "Build APK probado en el visor con el marcador impreso y con la luz normal del aula, no con la persiana bajada"
+          "objective": "El giro de la historia: Blue Goblin, ya evolucionado, se pasa a vuestro lado frente a la nueva amenaza. Sin mandos: un gesto de la mano dispara el cambio de bando.",
+          "starting_point": "El proyecto del ejercicio 1, continuado.",
+          "steps": [
+            "En `Meta > Tools > Building Blocks`, busca **Hand Tracking** (categoría Core) y añádelo.",
+            "En el Camera Rig ya presente, revisa en su componente OVR Manager (Quest Features) que el soporte de manos está activo.",
+            "`Build and Run` y, en el visor, deja los mandos sobre la mesa: deberías ver tus manos representadas moviéndose en tiempo real.",
+            "Vuelve a Building Blocks y añade el bloque de interacción que elija tu grupo: **Poke Interaction** (toque directo), **Distance Grab** (a distancia, apuntando) o **Touch Hand Grab** (agarre por contacto).",
+            "Sobre el objeto de Blue Goblin evolucionado: clic derecho → **Interaction SDK** → añade la interacción elegida (mismo patrón que en el Ejercicio 1).",
+            "Decide qué gesto dispara la evolución (un toque, un agarre, una pose sostenida) y prográmalo enganchando el evento que expone el building block de interacción (p. ej. su \"Select Entered\") a un método propio que cambie el aspecto de Blue Goblin.",
+            "Prueba con las manos fuera del campo de visión del visor: decide y programa explícitamente qué pasa (por ejemplo, que el objeto se quede en su último estado) en vez de dejar que la interacción se rompa sola.",
+            "`Build and Run` sin mandos sobre la mesa desde el arranque, y recorre el ejercicio completo solo con las manos."
           ],
-          "deliverable": "APK por grupo más el marcador en PDF listo para imprimir. Sin el marcador el ejercicio no se puede corregir."
+          "deliverable": "APK por grupo. Tiene que funcionar solo con manos desde el arranque, sin mandos."
         }
       ]
     },
@@ -428,9 +459,9 @@
         "Navegació VR/MR",
         "Gorilla Arm syndrome"
       ],
-      "slidesLink": {
-        "label": "Diapositives de la sessió",
-        "url": "https://canva.link/roxrbc0tpvuzu0e"
+      "slides": {
+        "type": "canva",
+        "source": "https://www.canva.com/design/DAHHUkRCaoo/wagpGpX5fl4aQWPZ-38zmQ/view?embed"
       },
       "todos": []
     },
@@ -463,9 +494,9 @@
         "Mostra d'antics projectes",
         "Activitat a classe: VR Design Slides"
       ],
-      "slidesLink": {
-        "label": "Diapositives de la sessió",
-        "url": "https://canva.link/jmtzma3p76j9qh5"
+      "slides": {
+        "type": "canva",
+        "source": "https://www.canva.com/design/DAHHUldC-xQ/hjUzELpy_CEgkyala8yYCg/view?embed"
       },
       "todos": []
     },
@@ -498,6 +529,7 @@
         "Activitat a classe: 3. Building Blocks Additional Feature — Effect Mesh, Spatial Anchor…",
         "Treball en equips: Entrega Meta All in One SDK"
       ],
+      "slidesPending": true,
       "block": {
         "number": 2,
         "name": "Meta Building Blocks",
@@ -506,7 +538,8 @@
       },
       "gradeWeight": {
         "block": "10 %",
-        "exercise": null
+        "exercise": null,
+        "note": "el de más peso del bloque"
       },
       "groupMode": "per-group",
       "submissionMethod": "build",
@@ -515,19 +548,21 @@
         {
           "id": "w2-post-03-t1",
           "type": "objective-task",
-          "objective": "Ejercicio libre del bloque, el de más peso. Escoged un building block de impacto visual —Scene Mesh o Effect Mesh son los que más rinden, pero Room Guardian o la detección de objetos también valen— y usadlo para que el enfrentamiento de Blue Goblin y la amenaza ocurra dentro de vuestra habitación real. La narrativa la inventáis vosotros, con el mismo espíritu que el ejercicio 3 de AR Foundation.",
-          "starting_point": "El proyecto del bloque, con passthrough e image tracking ya funcionando. Se empieza en clase, con el profesor delante, y se termina en casa.",
-          "milestones": [
-            "Building block elegido y probado en una escena aislada antes de meterlo en el proyecto del grupo",
-            "Space Setup rehecho en el visor con el que vais a entregar: la malla de la escena depende de la sala capturada, y una captura vieja da resultados raros",
-            "Scene Mesh o Effect Mesh en escena, con un material que deje ver la sala real por debajo en lugar de taparla",
-            "Colisiones reales contra la malla: algo del juego rebota, se apoya o se esconde detrás de vuestro mobiliario de verdad",
-            "Probado en una habitación distinta a la que usasteis para montarlo, y sigue teniendo sentido",
-            "Narrativa cerrada: qué pasa con Blue Goblin y con la amenaza en vuestra versión, y se ve dentro de la aplicación",
-            "Rendimiento revisado en el visor y no en el editor: sin caídas de frames al mirar la malla completa de la sala",
-            "Build APK final del bloque, instalado en frío y recorrido de principio a fin sin ayuda"
+          "objective": "Ejercicio libre. Escoged un building block de impacto visual —Scene Mesh o Effect Mesh son los que más rinden, pero Room Guardian o la detección de objetos también valen— y usadlo para que el enfrentamiento de Blue Goblin y la amenaza ocurra dentro de vuestra habitación real.",
+          "starting_point": "El proyecto del bloque, con passthrough, plane detection y hand tracking ya funcionando.",
+          "steps": [
+            "En Building Blocks, localiza el bloque elegido — revisa en el Inspector del propio bloque qué **Dependencies** muestra (Effect Mesh, por ejemplo, depende de MRUK y lo añade solo).",
+            "Pruébalo aislado primero: crea una escena nueva y vacía con solo Camera Rig + Passthrough + el bloque elegido, y comprueba que funciona antes de meterlo en el proyecto del grupo.",
+            "Con el visor puesto: Configuración → Space Setup → vuelve a escanear la sala donde vais a entregar — la malla depende de esa captura, y una vieja da resultados raros.",
+            "En el componente del bloque (p. ej. `EffectMesh`), sustituye el Material por uno semitransparente que deje ver el passthrough por debajo.",
+            "Añade colisión a la malla generada (Mesh Collider, o la opción de colisión que exponga el propio bloque) para que otros objetos puedan rebotar, apoyarse o esconderse detrás de mobiliario real.",
+            "Prueba que algo del juego choca de verdad contra un mueble real, no lo atraviesa.",
+            "Prueba el build en una habitación distinta a la que usasteis para montarlo, y comprobad que sigue teniendo sentido.",
+            "Cierra la narrativa: qué pasa con Blue Goblin y la amenaza en vuestra versión, visible dentro de la app.",
+            "Revisa el rendimiento en el visor (no en el editor) mirando la malla completa de la sala — usa `Meta > Tools > Runtime Optimizer` si necesitas identificar caídas de frames.",
+            "Build APK final del bloque, instalado en frío y recorrido de principio a fin sin ayuda."
           ],
-          "deliverable": "APK por grupo más medio folio con la narrativa y la lista de building blocks usados. Es el ejercicio de mayor peso del bloque."
+          "deliverable": "APK por grupo más medio folio con la narrativa y la lista de building blocks usados."
         }
       ]
     },
@@ -546,9 +581,9 @@
         "Introduction to OpenXR / Unity",
         "Introducció a Unity / C#"
       ],
-      "slidesLink": {
-        "label": "Diapositives de la sessió",
-        "url": "https://canva.link/lefa33o6t14oc8w"
+      "slides": {
+        "type": "canva",
+        "source": "https://www.canva.com/design/DAHHUmQSDh0/lcUF8boPiNOBDV0jEc3rqA/view?embed"
       },
       "todos": []
     },
@@ -565,9 +600,9 @@
         "Activitat a classe: 1. XR Interaction Toolkit — Locomoció i Interacció",
         "Unity VR Template demonstration"
       ],
-      "slidesLink": {
-        "label": "Diapositives de la sessió",
-        "url": "https://canva.link/lefa33o6t14oc8w"
+      "slides": {
+        "type": "canva",
+        "source": "https://www.canva.com/design/DAHHUmQSDh0/lcUF8boPiNOBDV0jEc3rqA/view?embed"
       },
       "block": {
         "number": 3,
@@ -590,19 +625,28 @@
         {
           "id": "w3-xrit-02-t1",
           "type": "objective-task",
-          "objective": "La historia se muda a realidad virtual completa: ya no miráis el mundo de Blue Goblin a través de una cámara, estáis dentro. Montad desde cero un proyecto con el XR Interaction Toolkit y resolved lo básico de estar en él: moverse y tocar cosas. Este bloque no da proyecto de partida a propósito — a estas alturas el montaje lo lleváis vosotros.",
-          "starting_point": "Nada heredado: plantilla VR oficial de Unity, creada por el grupo. De consulta, el repositorio público Unity-Technologies/XR-Interaction-Toolkit-Examples.",
-          "milestones": [
-            "Proyecto creado desde la plantilla VR oficial, con OpenXR activo y el perfil de interacción del mando que vais a usar",
-            "XR Origin (VR) en escena y comprobación de que cabeza y mandos se mueven, con el visor conectado",
-            "Locomoción continua funcionando: desplazamiento con el stick y giro, sea snap turn o continuo",
-            "Teleportación funcionando en paralelo: áreas y anchors de teleport, con el rayo curvo visible al apuntar",
-            "Las dos locomociones conviven sin pelearse por el mismo input, y se sabe qué botón hace qué",
-            "Al menos un XR Grab Interactable con su attach point ajustado, que se agarre por donde toca y no quede flotando al soltarlo",
-            "Un interactable de otro tipo —botón, palanca o socket— para que no todo sea agarrar",
-            "Confort mínimo revisado: viñeta o fundido al moverse, altura del suelo correcta y ninguna rotación de cámara forzada por código"
+          "objective": "La historia se muda a realidad virtual completa. Montad desde cero un proyecto con el XR Interaction Toolkit y resolved lo básico de estar en él: moverse y tocar cosas. Sin proyecto de partida a propósito.",
+          "starting_point": "Plantilla VR oficial de Unity, creada por el grupo. Consulta: `Unity-Technologies/XR-Interaction-Toolkit-Examples`.",
+          "steps": [
+            "`File > New Project` → plantilla **VR (Core)** desde Unity Hub.",
+            "`Window > Package Manager` → instala **XR Interaction Toolkit** si no viene ya con la plantilla.",
+            "Con XR Interaction Toolkit seleccionado en el Package Manager, pestaña **Samples** → importa **Starter Assets**.",
+            "`Edit > Project Settings > XR Plug-in Management` → activa **OpenXR** para tu plataforma, y dentro de OpenXR activa el **Interaction Profile** del mando que uses (p. ej. Meta Quest Touch Controller Profile).",
+            "Arrastra a la Hierarchy el prefab **XR Origin (XR Rig)** desde `Assets/Samples/XR Interaction Toolkit/[versión]/Starter Assets/Prefabs`.",
+            "Conecta el visor (o usa el Device Simulator si aún no tienes hardware) y comprueba en Play Mode que cabeza y mandos se mueven.",
+            "En el XR Origin, comprueba/añade **Locomotion System** (suele venir ya en el prefab de Starter Assets).",
+            "`Add Component` → **Continuous Move Provider** (o **Dynamic Move Provider**), enganchado al Locomotion System; revisa que los Input Actions de movimiento (del asset \"XRI Default Input Actions\") están asignados al stick que quieras.",
+            "`Add Component` → **Snap Turn Provider** (o Continuous Turn Provider), enganchado también al Locomotion System, con el otro stick.",
+            "Comprueba que mover y girar no compiten por el mismo botón.",
+            "`Add Component` → **Teleportation Provider** en el XR Origin.",
+            "Crea un `Plane` (`GameObject > 3D Object > Plane`) como suelo teleportable, y añádele **Teleportation Area**.",
+            "Prueba que apuntar con el mando muestra un rayo curvo y que soltar el botón de teleport te desplaza ahí.",
+            "Elige un objeto relacionado con Blue Goblin, añádele Rigidbody + Collider, y luego **XR Grab Interactable**.",
+            "Si queda descentrado al agarrarlo, crea un GameObject vacío hijo en el punto de \"agarre\" y asígnalo a **Attach Transform**.",
+            "Añade un interactable de otro tipo (botón o palanca del propio Starter Assets) para que no todo sea agarrar.",
+            "Revisa confort: viñeta al moverse (si el provider la incluye), altura del suelo correcta (Tracking Origin Mode), y ninguna rotación de cámara forzada por código."
           ],
-          "deliverable": "Método de entrega del bloque 3 pendiente de definir (ver decisiones abiertas): el brief no lo especifica y no se asume el APK de los bloques 1 y 2. Mientras tanto, dejad el proyecto en un repositorio del grupo con un README que explique qué habéis montado y con qué mando se prueba."
+          "deliverable": "Pendiente de definir (ver \"cuatro cosas que siguen sin decidir\"). Mientras tanto: repositorio del grupo con README explicando qué habéis montado y con qué mando se prueba."
         }
       ]
     },
@@ -618,9 +662,9 @@
         "XRITK GitHub Examples: Socket XR",
         "Projecte Final d'Assignatura: Concept"
       ],
-      "slidesLink": {
-        "label": "Diapositives de la sessió",
-        "url": "https://canva.link/hexv8y331t4u50j"
+      "slides": {
+        "type": "canva",
+        "source": "https://www.canva.com/design/DAHI0RO9Tmg/KR1Mz0x1tNIVIyfD73jIwQ/view?embed"
       },
       "todos": []
     },
@@ -637,9 +681,9 @@
         "Activitat a classe: 2. XR Interaction Toolkit — Hand Tracking and Gestures",
         "Unity VR Template demonstration"
       ],
-      "slidesLink": {
-        "label": "Diapositives de la sessió",
-        "url": "https://canva.link/hexv8y331t4u50j"
+      "slides": {
+        "type": "canva",
+        "source": "https://www.canva.com/design/DAHI0RO9Tmg/KR1Mz0x1tNIVIyfD73jIwQ/view?embed"
       },
       "block": {
         "number": 3,
@@ -658,19 +702,28 @@
         {
           "id": "w3-xrit-03-t1",
           "type": "objective-task",
-          "objective": "Último ejercicio del curso antes del proyecto final, y el que cierra la historia. Quitad los mandos: con hand tracking y un gesto que decidáis vosotros se resuelve lo que empezó cuando un goblin azul se coló en el despacho del profesor. El gesto tiene que ser la acción que dispara el desenlace, no un adorno.",
-          "starting_point": "El proyecto del ejercicio 1 de este bloque. Samples de manos del XR Interaction Toolkit y del proveedor, y los mandos fuera de la escena y fuera de la mesa.",
-          "milestones": [
-            "Hand tracking habilitado en OpenXR y también en los ajustes del visor, con los mandos apartados",
-            "Samples de manos importados desde el Package Manager y ejecutados tal cual antes de integrar nada",
-            "Manos visibles y articuladas en escena, con los datos de las articulaciones llegando en tiempo de ejecución",
-            "Interacción básica sin mandos resuelta: poke o pinch sobre un objeto o sobre una UI",
-            "Un gesto reconocido de verdad con XR Hand Shape o Hand Pose, con los umbrales ajustados para que no salte solo al mover la mano",
-            "Ese gesto dispara el desenlace de Blue Goblin: es el cierre de los tres bloques, y se nota que lo es",
-            "Fallback cuando las manos salen del campo de visión: la escena no se rompe ni deja al jugador atascado esperando",
-            "Recorrido completo probado de pie, sin mandos y sin nadie explicando nada: entrar, hacer el gesto, ver el final"
+          "objective": "Último ejercicio antes del proyecto final. Quitad los mandos: con hand tracking y un gesto que decidáis vosotros se resuelve la historia de Blue Goblin.",
+          "starting_point": "El proyecto del ejercicio 1. Samples de manos del XR Interaction Toolkit y del proveedor.",
+          "steps": [
+            "`Window > Package Manager` → instala el paquete **XR Hands**.",
+            "Con XR Hands seleccionado, pestaña Samples → importa **HandVisualizer**.",
+            "Con XR Interaction Toolkit seleccionado, pestaña Samples → importa **Hands Interaction Demo** (pedirá también OpenXR Plugin y XR Hands en versión mínima).",
+            "`Edit > Project Settings > XR Plug-in Management > OpenXR` → activa la característica de hand tracking de tu proveedor para tu plataforma.",
+            "En el visor: activa el seguimiento de manos y aparta los mandos de la mesa antes de probar.",
+            "Usa el prefab de XR Origin con soporte de manos que trae el sample Hands Interaction Demo (o añade **XR Input Modality Manager** a tu XR Origin actual para alternar entre mandos y manos).",
+            "Ejecuta la escena de ejemplo del sample tal cual, en el visor, antes de portar nada, para confirmar que ves tus manos articuladas.",
+            "Añade el prefab **Hand Visual** (del sample HandVisualizer) a tu proyecto, enganchado al mismo `XRHandTrackingEvents` que usa el resto del sistema.",
+            "Prueba primero una interacción básica sin gesto personalizado: poke o pinch sobre un botón/UI del Starter Assets, solo con las manos.",
+            "Con XR Hands seleccionado, pestaña Samples → importa **Gestures**.",
+            "Crea un **Hand Shape**: clic derecho en el Project window → `Create > XR > Hand Interactions > Hand Shape`, y define dedo a dedo el valor de curvatura (Full Curl) de tu gesto.",
+            "Si necesitas una orientación concreta de la mano (p. ej. palma hacia arriba), crea además un **Hand Pose** (`Create > XR > Hand Interactions > Hand Pose`) que referencie tu Hand Shape.",
+            "En la escena, añade el componente **Static Hand Gesture**: asigna en \"Hand Tracking Events\" el `XRHandTrackingEvents` de la mano que quieras, y en \"Hand Shape Or Pose\" tu asset.",
+            "Usa el evento que expone el Static Hand Gesture (\"Gesture Performed\") para disparar el desenlace de Blue Goblin.",
+            "Usa la escena de depuración del sample Gestures (`HandGestures`) para ver en tiempo real los valores de curvatura de tus dedos mientras ajustas las tolerancias del Hand Shape, hasta que el gesto se reconozca de forma fiable.",
+            "Programa el fallback para cuando las manos salen del campo de visión (los joints de `XRHandTrackingEvents` dejan de reportar tracking válido) para que la escena no se quede esperando indefinidamente.",
+            "Prueba el recorrido completo de pie, sin mandos, desde entrar hasta hacer el gesto y ver el final."
           ],
-          "deliverable": "Método de entrega del bloque 3 pendiente de definir (ver decisiones abiertas). De momento, el mismo repositorio del ejercicio 1, con el desenlace y el gesto documentados en el README."
+          "deliverable": "Pendiente de definir. Repositorio del ejercicio 1, con el desenlace y el gesto documentados en el README."
         }
       ]
     },

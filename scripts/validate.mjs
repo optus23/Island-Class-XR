@@ -141,7 +141,10 @@ for (const l of levels) {
   // embed: these are canva.link shortlinks, which are neither "?embed" URLs
   // nor "/edit" ones, so they cannot go through the `slides` block without
   // failing its Canva rule. When public embed URLs arrive they become real
-  // `slides` entries and this field goes away for that level.
+  // `slides` entries and this field goes away for that level. As of the round
+  // that read the board on 9 September 2026 no level uses it any more — every
+  // deck the calendar names is a full canva.com/design URL — but the field
+  // stays supported for anything that refuses to be framed.
   if (l.slidesLink) {
     if (!l.slidesLink.url) err(`${at}: slidesLink.url is empty`)
     else if (!/^https?:\/\//.test(l.slidesLink.url)) {
@@ -159,8 +162,22 @@ for (const l of levels) {
     if (l.slides.type === 'canva' && /\/edit\b/.test(l.slides.source ?? '')) {
       err(`${at}: Canva link is an EDIT link — never publish that`)
     }
-  } else if (l.category === 'theory' && !l.slidesLink) {
+  } else if (l.category === 'theory' && !l.slidesLink && !l.slidesPending) {
     warn(`${at}: theory level with no slides — the portal opens slides first`)
+  }
+
+  // "Marc has not made this deck yet", said out loud in the data.
+  //
+  // Without it a session waiting on a deck is indistinguishable from a project
+  // day that will never have one, and the portal says the same flat thing about
+  // both. It must not survive the deck arriving, so a level carrying a deck AND
+  // the flag is an error rather than a warning — the flag is deleted in the same
+  // edit that adds the `slides` block.
+  if (l.slidesPending !== undefined) {
+    if (l.slidesPending !== true) err(`${at}: "slidesPending" is a flag — true, or absent`)
+    if (l.slides || l.slidesLink) {
+      err(`${at}: has slides AND "slidesPending" — drop the flag, the deck arrived`)
+    }
   }
 
   for (const t of l.todos ?? []) {
@@ -172,8 +189,14 @@ for (const l of levels) {
     for (const f of ['objective', 'starting_point', 'deliverable']) {
       if (!t[f]) err(`${tat}: missing "${f}"`)
     }
-    if (!Array.isArray(t.milestones) || t.milestones.length === 0) {
-      err(`${tat}: milestones must be a non-empty array`)
+    // `steps`, not `milestones`: an ordered guide the student follows top to
+    // bottom, which is what the v3.0 content replaced the achievement list with.
+    if (!Array.isArray(t.steps) || t.steps.length === 0) {
+      err(`${tat}: steps must be a non-empty array`)
+    }
+    if (t.milestones) err(`${tat}: "milestones" was renamed to "steps"`)
+    if (t.steps_note !== undefined && typeof t.steps_note !== 'string') {
+      err(`${tat}: "steps_note" must be a string`)
     }
   }
 
@@ -521,20 +544,25 @@ cover(
 )
 cover('at least one optional node', levels.some((l) => l.optional),
   levels.filter((l) => l.optional).map((l) => l.id).join(', '))
-// Slides now arrive as links off the calendar's Classes column. The `slides`
-// block (pdf / canva embed) is still supported and is what a level gets once a
-// public Share → Embed URL exists for it — it is just no longer required.
-cover(
-  'slide links from the calendar',
-  levels.some((l) => l.slidesLink),
-  `${levels.filter((l) => l.slidesLink).length} of ${levels.length} levels`
-)
+// Slides come off the calendar's Classes column. They arrived as canva.link
+// shortlinks, which can only ever be a button; they are now full
+// canva.com/design URLs, which frame. This is a REPORT and not a `cover` check:
+// requiring at least one shortlink made sense while they were the only thing
+// there, and would now fail the build for the good outcome.
 {
   const embeds = levels.filter((l) => l.slides).length
+  const links = levels.filter((l) => l.slidesLink).length
+  const pending = levels.filter((l) => l.slidesPending)
   console.log(
     `  ${embeds ? '✓' : '·'} embedded decks (pdf/canva) — ${embeds || 'none yet; ' +
       'waiting on public Share → Embed URLs'}`
   )
+  if (links) console.log(`  · decks that are a link, not an embed — ${links}`)
+  if (pending.length) {
+    console.log(
+      `  · decks not made yet — ${pending.length}: ${pending.map((l) => l.id).join(', ')}`
+    )
+  }
 }
 cover('an objective-task todo', levels.some((l) => l.todos?.some((t) => t.type === 'objective-task')))
 cover(
