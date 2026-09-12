@@ -43,7 +43,15 @@ const SLIDE_TYPES = ['pdf', 'canva']
 // `null` is a legal value for submissionMethod and groupMode and means
 // "not decided yet". It is NOT the same as the field being absent.
 const SUBMISSION_METHODS = ['build', 'video', 'repo']
-const GROUP_MODES = ['individual', 'individual-within-group', 'per-group']
+const GROUP_MODES = [
+  'individual',
+  'individual-within-group',
+  'per-group',
+  // What all three blocks are today: group work whose groups may be re-formed
+  // at the start of each block. Kept distinct from 'per-group' because the
+  // re-forming is the part students ask about.
+  'per-group-per-block',
+]
 
 // The runtime holds the ground down around every session disc before it builds
 // the island. Validation samples the same terrain, so it has to do the same or
