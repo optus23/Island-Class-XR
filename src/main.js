@@ -252,6 +252,14 @@ function pick() {
   return map.levelFromHit(hits[0])
 }
 
+/** A deliverable flag, hovered — informational only, never a `pick()` target. */
+function pickFlag() {
+  if (!app.pointerInside) return null
+  raycaster.setFromCamera(app.pointer, app.rig.camera)
+  const hits = raycaster.intersectObjects(map.flagPickTargets, false)
+  return map.deliverableFromHit(hits[0])
+}
+
 container.addEventListener('pointermove', (e) => {
   // Hover is a mouse idea. On touch every drag would raise a tooltip under the
   // finger and leave it stuck there once the finger lifted.
@@ -280,7 +288,12 @@ container.addEventListener('pointermove', (e) => {
   if (level && !(standingHere && nodeLabelFor() === level.id)) {
     tooltip.show(level, e.clientX, e.clientY, markerId)
   } else {
-    tooltip.hide()
+    // Only checked once nothing else claimed the pointer: a flag never wins
+    // over the node it stands beside.
+    const flagLevel = level ? null : pickFlag()
+    container.classList.toggle('is-hovering-node', Boolean(flagLevel))
+    if (flagLevel) tooltip.showDeliverable(flagLevel, e.clientX, e.clientY)
+    else tooltip.hide()
   }
 })
 

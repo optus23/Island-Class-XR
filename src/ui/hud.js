@@ -63,6 +63,34 @@ export function createTooltip() {
       el.style.left = `${Math.max(8, left)}px`
       el.style.top = `${Math.max(8, top)}px`
     },
+    /**
+     * Hovering the flag beside a session, not the session itself — what it is
+     * worth and that standing here means the window to hand it in is closing.
+     * Namespaced key (`flag:…`) so hovering a flag right after its own node
+     * still re-renders instead of being skipped as "same level, no change".
+     */
+    showDeliverable(level, x, y) {
+      const key = `flag:${level.id}`
+      if (key !== shownFor) {
+        shownFor = key
+        const d = level.deliverable
+        el.innerHTML = `
+          <span class="flex items-center gap-2">
+            <span class="inline-block w-2.5 h-2.5 rounded-[3px] shrink-0"
+                  style="background:${cssPalette.flagPending}"></span>
+            <span class="font-semibold leading-tight">🚩 Entrega: ${d.label}</span>
+          </span>
+          <span class="block text-[11px] opacity-70 mt-0.5">
+            ${d.weight} del curso · fecha límite de esta actividad
+          </span>`
+      }
+      el.classList.remove('hidden')
+      const r = el.getBoundingClientRect()
+      const left = Math.min(x + 16, window.innerWidth - r.width - 8)
+      const top = Math.min(y + 16, window.innerHeight - r.height - 8)
+      el.style.left = `${Math.max(8, left)}px`
+      el.style.top = `${Math.max(8, top)}px`
+    },
     hide() {
       shownFor = null
       el.classList.add('hidden')

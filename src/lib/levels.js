@@ -120,41 +120,26 @@ export function isLocked(level, markerId) {
 }
 
 /**
- * Sessions that carry an actual hand-in — the calendar's "Deliverables"
- * column. That column is already echoed into `contents` as an "Entrega…"
- * bullet for every level that has one (see levels.json), so this reads that
- * existing signal instead of keeping a second, hand-maintained list that could
- * drift from it.
- *
- * Three exceptions, named rather than derived, because no rule captures why
- * they differ from the rest — they are Marc's calls:
- *   - w2-boss / w3-reeval: exams. The castle already says "exam"; a flag on
- *     top of it would be redundant, and the midterm's own "no hace falta" was
- *     explicit.
- *   - w2-att-01: also an "Entrega…" bullet (its Presentació activity), but
- *     Marc wants only the Mono/Stereoscopic actitud (w1-att-01) flagged.
+ * Sessions that carry an actual hand-in — an explicit `level.deliverable`
+ * (`{ label, weight }`), placed on whichever session the calendar's
+ * "Deliverables" column names. That is NOT always the session whose own
+ * `contents` describes the work: a block's exercises finish on one day and
+ * the calendar records the grade a week to a week and a half later, on
+ * whatever class happens to fall on that row. An earlier version of this
+ * function derived the flag from an "Entrega…" bullet living in the working
+ * session's own `contents`, which put the AR Foundation flag on `w1-arf-03`
+ * (last exercise) instead of `w2-pre-02` (the row the calendar actually
+ * names) — wrong by exactly that lag. `deliverable` is set by hand, on the
+ * right session, once, instead of being re-derived from prose that was never
+ * about placement in the first place.
  */
-const DELIVERABLE_EXCEPTIONS = new Set(['w2-boss', 'w3-reeval', 'w2-att-01'])
-
 export function hasDeliverable(level) {
-  if (DELIVERABLE_EXCEPTIONS.has(level.id)) return false
-  return Boolean(level.contents?.some((c) => /entrega/i.test(c)))
+  return Boolean(level.deliverable)
 }
 
-/**
- * Whether a deliverable's flag should read as handed in.
- *
- * For a main-path level this is just `statusFor(...).completed`. An optional
- * level (the actitud nodes) never turns "completed" itself — see `statusFor`,
- * which deliberately keeps every optional node in its own colour forever — so
- * there is nothing to read there. Its flag instead follows the class day it
- * hangs off: once the marker has passed that anchor, the window for the
- * activity has passed too.
- */
+/** Whether a deliverable's flag should read as handed in. */
 export function deliverableDone(level, markerId) {
-  if (!level.optional) return statusFor(level, markerId).completed
-  const anchor = level.anchorAfter ? levelById(level.anchorAfter) : null
-  return anchor ? statusFor(anchor, markerId).completed : false
+  return statusFor(level, markerId).completed
 }
 
 /**
