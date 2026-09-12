@@ -42,6 +42,12 @@ export const palette = {
   // Gold rim drawn around every node disc, as in the NSMB world maps.
   nodeRim: 0xf2c14e,
 
+  // The Mario-style flag beside a session that carries a graded deliverable.
+  // Yellow while it is still ahead; turns `completed` green once handed in —
+  // see hasDeliverable()/deliverableDone() in lib/levels.js for which
+  // sessions get one.
+  flagPending: 0xffcc00,
+
   // Castle accents: roofs, banners and trim pick this up against the stone.
   bossAccent: 0xb32a2a,
   bossStone: 0x6a7079,

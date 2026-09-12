@@ -3,7 +3,7 @@ import { worlds } from '../config/worlds.js'
 import { biomes, palette, world as themeWorld, resolveNodeColor } from '../config/theme.js'
 import { buildWorldCurves, buildConnectors, distributeNodes } from './paths.js'
 import { biomeKeyAt, groundHeightAt, landInset } from './terrain.js'
-import { levelsForWorld, statusFor } from '../lib/levels.js'
+import { levelsForWorld, statusFor, hasDeliverable, deliverableDone } from '../lib/levels.js'
 import { prefersReducedMotion } from '../lib/motion.js'
 
 /**
@@ -140,6 +140,45 @@ export function createMapObjects() {
     group.add(entry.group)
   }
 
+  // --- deliverable flags ---------------------------------------------------
+  // Planted beside the node, not on it — see hasDeliverable()/deliverableDone
+  // in lib/levels.js for which sessions get one and what turns them green.
+  const flagEntries = []
+  for (const p of placed) {
+    if (!hasDeliverable(p.level)) continue
+    let side, offset
+    if (p.level.category === 'boss') {
+      // createBossCastle never rotates its group — the gate and its stairs
+      // always face world +Z, regardless of the road's own tangent here. -Z
+      // is the one side that is just the plain back wall. The final boss's
+      // plinth alone reaches 3.5 * scale(2.3) = 8.05 from its centre — using
+      // the ~2.9 a scale-1 guess gives buried the flag inside the stairs.
+      side = new THREE.Vector3(0, 0, -1)
+      offset = 10
+    } else if (p.onPath) {
+      side = new THREE.Vector3(p.tangent.z, 0, -p.tangent.x).normalize()
+      offset = 2.7
+    } else {
+      // An off-path (bonus) node already sits offset from its anchor, out in
+      // open country — continuing further along that same line clears the
+      // road it came from. Doubling back with the tangent's perpendicular
+      // landed the flag on the connector it hangs off instead.
+      const anchorPos = positionById.get(p.anchorId)
+      side = anchorPos
+        ? new THREE.Vector3(p.position.x - anchorPos.x, 0, p.position.z - anchorPos.z).normalize()
+        : new THREE.Vector3(p.tangent.z, 0, -p.tangent.x).normalize()
+      offset = 2.7
+    }
+    const fx = p.position.x + side.x * offset
+    const fz = p.position.z + side.z * offset
+    const entry = createDeliverableFlag(
+      p.level,
+      new THREE.Vector3(fx, groundHeightAt(fx, fz), fz)
+    )
+    flagEntries.push(entry)
+    group.add(entry.group)
+  }
+
   // --- current-position ring ----------------------------------------------
   const ring = new THREE.Mesh(
     new THREE.RingGeometry(NODE_SIZE * 0.95, NODE_SIZE * 1.3, 4),
@@ -192,6 +231,11 @@ export function createMapObjects() {
         if (part.userData.keepColor) continue
         part.material.color.setHex(hex)
       }
+    }
+
+    for (const f of flagEntries) {
+      const hex = deliverableDone(f.level, markerId) ? palette.completed : palette.flagPending
+      for (const part of f.parts) part.material.color.setHex(hex)
     }
 
     const here = positionById.get(markerId)
@@ -1062,5 +1106,50 @@ function createBossCastle(placement) {
     parts,
     baseY,
     phase: isFinal ? 1.7 : 0,
+  }
+}
+
+const FLAG_POLE = 0xe8e3d8
+const FLAG_BASE = 0x9aa7b3
+
+/**
+ * The Mario-style deliverable flag: a pole planted at `groundPos`, with a
+ * stepped-pixel pennant that is the ONLY part `refresh()` recolours — base,
+ * pole and finial are `keepColor`, the same convention `createBossCastle`
+ * uses to protect its stone from the completed-node repaint.
+ */
+function createDeliverableFlag(level, groundPos) {
+  const g = new THREE.Group()
+  g.position.copy(groundPos)
+
+  const parts = []
+  const addBox = (w, h, d, x, y, z, opts = {}) => {
+    const mesh = new THREE.Mesh(
+      new THREE.BoxGeometry(w, h, d),
+      new THREE.MeshLambertMaterial({ color: opts.color ?? palette.flagPending })
+    )
+    mesh.position.set(x, y, z)
+    mesh.userData.keepColor = Boolean(opts.keepColor)
+    g.add(mesh)
+    parts.push(mesh)
+    return mesh
+  }
+
+  // Short — level with the node disc it stands beside, not a tower over it.
+  // A 4-unit pole read as taller than the landmark next to it and put the
+  // pennant well above the session it was meant to flag.
+  addBox(1.1, 0.3, 1.1, 0, 0.15, 0, { color: FLAG_BASE, keepColor: true })
+  addBox(0.22, 1.3, 0.22, 0, 0.95, 0, { color: FLAG_POLE, keepColor: true })
+  addBox(0.32, 0.32, 0.32, 0, 1.76, 0, { color: palette.nodeRim, keepColor: true })
+  // Pennant: three stepped boxes, the pixel-art triangle every other voxel
+  // shape in this file uses instead of a true diagonal.
+  addBox(1.2, 0.5, 0.1, 0.75, 1.45, 0)
+  addBox(0.86, 0.44, 0.1, 0.58, 1.06, 0)
+  addBox(0.5, 0.38, 0.1, 0.4, 0.72, 0)
+
+  return {
+    level,
+    group: g,
+    parts: parts.filter((m) => !m.userData.keepColor),
   }
 }
