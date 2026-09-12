@@ -654,14 +654,27 @@ Every one of these was diagnosed the hard way. Do not re-derive them.
     so a 2 s dwell costs 12 canvas uploads rather than 120 — verified.
   - **The pad is hit-tested BEFORE the nodes and swallows the frame**, or the
     disc behind it keeps charging its own dwell ring under the button being held.
-  - **YAW-FOLLOW, FIXED HEIGHT.** It was world-locked, placed once in front of
-    wherever you faced on entry, and that made getting anywhere impossible:
-    "cuando hago Zoom y me muevo hacia delante, lo hago mirando siempre hacia
-    abajo... porque no hay forma de mirar hacia delante". Fully head-locked is
-    worse — tilt down and the buttons tilt away. Yaw only: it swings round to
-    stay ahead of whichever way you turn and sits 25.5 degrees below the eye
-    (measured), so looking forward leaves it out of frame and a nod reaches it.
-    Ease the yaw; tracking a head exactly reads as stuck to your face.
+  - **IT TRAILS YOUR FACING, AND FREEZES THE MOMENT IT IS AIMED AT.** Four
+    designs; keep all four reasons, because the wrong ones look right.
+    **(1) World-locked**, placed once on entry: aimable, and useless for going
+    anywhere — the map moved out of view while your head stayed pointed at one
+    corner of the room ("no hay forma de mirar hacia delante").
+    **(2) Yaw-following**: worse. The cells are laid out HORIZONTALLY, so
+    choosing one means turning your head sideways, and a strip that follows yaw
+    turns with you — the target walks away at exactly the speed you chase it, and
+    only the middle cell is ever reachable ("esquiva el target del gaze").
+    **(3) An angular deadzone** fixes the dodge and strands the strip: with
+    hysteresis wide enough for the ±21° of aiming, it settles up to 12° off and
+    the next turn under 55° does not re-trigger — measured stuck 46° to one side,
+    permanently.
+    **(4) Freeze while aimed at**, which needs no threshold at all: `aim()`
+    already knows, so the strip trails your facing while nobody is looking at it
+    and stops dead when the reticle lands on a cell. It sits 25.5° below the eye
+    (measured), so looking forward never engages it. Verified: 0° of trailing
+    error, all five cells reachable, and **exactly zero movement while aimed**.
+    The release grace is counted in `dt`, not against `performance.now()` — a
+    wall clock mixed into frame-driven code behaves differently whenever the
+    frame rate does.
   - **It fades back when you look up** (to 0.22, never to 0 — a control nobody
     can see is a control nobody knows exists). "Completamente estática" was half
     about it never reacting to anything.

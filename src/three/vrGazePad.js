@@ -41,28 +41,49 @@ const CANVAS_W = 1000
 const CANVAS_H = Math.round((CANVAS_W * PANEL_H) / PANEL_W)
 
 /**
- * WHERE THE STRIP LIVES, AND WHY IT FOLLOWS YOUR HEAD IN YAW ONLY.
+ * WHERE THE STRIP LIVES. Four designs; the first three are all wrong and the
+ * reasons are worth keeping, because each looks obviously right until you use it.
  *
- * It used to be world-locked: placed once, in front of wherever you happened to
- * be facing on entry. That made it unusable for getting anywhere — "cuando hago
- * Zoom y me muevo hacia delante, lo hago mirando siempre hacia abajo, en
- * diagonal hacia abajo, porque no hay forma de mirar hacia delante". You had to
- * hold your head down at one fixed corner of the room while the map moved
- * somewhere you could not see.
+ * 1. WORLD-LOCKED, placed once in front of wherever you faced on entry. Aimable,
+ *    and useless for getting anywhere: the map moved somewhere you could not see
+ *    while your head stayed pointed at one fixed corner of the room — "no hay
+ *    forma de mirar hacia delante".
  *
- * Fully head-locked is worse: tilt down and the buttons tilt with you, so the
- * reticle can never reach them.
+ * 2. YAW-FOLLOWING, swinging round to stay ahead of you. Worse. The cells are
+ *    laid out HORIZONTALLY, so choosing one means turning your head sideways,
+ *    and a strip that follows yaw turns with you: the target walks away from the
+ *    reticle at exactly the speed you chase it. Only the middle cell was ever
+ *    reachable. "Esquiva el target del gaze al seguir el punto central."
  *
- * YAW ONLY is the answer. The strip swings round to stay in front of whichever
- * way you turn, and sits at a FIXED height below the eye — so looking forward
- * leaves it out of the frame, a ~25 degree nod puts the reticle on it, and the
- * direction you were facing is still the direction you are facing. Turn to
- * where you want to go, nod, zoom.
+ * 3. FOLLOWING WITH AN ANGULAR DEADZONE. Fixes the dodge and introduces a lag
+ *    that never resolves: with hysteresis wide enough to cover the +/-21 degrees
+ *    of aiming, a settled strip sits up to 12 degrees off, and the NEXT turn of
+ *    under 55 degrees does not re-trigger. Measured it stranded at 46 degrees to
+ *    one side permanently.
+ *
+ * 4. FREEZE WHILE IT IS BEING AIMED AT, which is what this is, and the only one
+ *    that needs no threshold at all. The module already knows the answer —
+ *    `aim()` computes it every frame — so the strip follows your facing
+ *    continuously while you are NOT looking at it, and stops dead the instant
+ *    the reticle lands on a cell. It is below your eyeline, so looking forward
+ *    never engages it: you turn to face where you want to go with the strip
+ *    trailing along, nod down onto it, and from that moment it is as still as a
+ *    table for as long as you are using it.
  */
 const AHEAD = 1.3
 const DROP = -0.62
-/** How fast the strip swings round to your new facing. Per second. */
-const FOLLOW = 6
+/** How fast it trails your facing while nobody is aiming at it. Per second. */
+const FOLLOW = 3.5
+/**
+ * How long it stays frozen after the gaze slips off. Without this, drifting a
+ * degree past the edge of a cell makes it lurch, which reads as the dodge again.
+ *
+ * Counted down with `dt`, not against `performance.now()`. Everything else in
+ * this module is frame-driven, and a wall clock mixed in behaves differently
+ * whenever the frame rate does — which is exactly the sort of thing that only
+ * shows up on the slowest device in the room.
+ */
+const HOLD = 0.5 // seconds
 
 /**
  * It also gets out of the way. A strip pinned at full strength in the bottom of
@@ -210,32 +231,45 @@ export function createGazePad() {
   group.add(hint)
 
   const target = new THREE.Vector3()
+  const flat = new THREE.Vector3()
+  /** Seconds of freeze still owed to the gaze — see HOLD. */
+  let holdLeft = 0
 
   return {
     group,
 
     /**
-     * Keep the strip in front of the viewer's FACING, at a fixed height below
-     * the eye. Called every frame — see AHEAD/DROP for why yaw-only.
+     * Trail the viewer's facing — but ONLY while nobody is aiming at the strip.
+     * See the numbered history above for the three designs this replaces.
      *
-     * The yaw is eased rather than snapped: a strip that tracks a head exactly
-     * reads as stuck to your face, and the whole point is that it stays put in
-     * the world while you look around above it.
+     * The height tracks the head every frame regardless: moving a horizontal row
+     * of cells vertically cannot make it dodge, and without it the strip sits at
+     * the wrong height for anyone who stands up.
      *
      * @param lookDown 0..1, how far down the viewer is looking. Drives the fade.
      */
     follow(headPos, headFwd, dt, lookDown = 1) {
+      const first = !group.visible
       group.visible = true
-      target.copy(headPos).addScaledVector(headFwd, AHEAD).setY(headPos.y + DROP)
-      const k = Math.min(1, dt * FOLLOW)
-      group.position.lerp(target, k)
 
-      const wantYaw = Math.atan2(headFwd.x, headFwd.z) + Math.PI
-      // Shortest way round, or turning past due south unwinds the long way.
-      let d = wantYaw - group.rotation.y
-      while (d > Math.PI) d -= Math.PI * 2
-      while (d < -Math.PI) d += Math.PI * 2
-      group.rotation.y += d * k
+      const wantY = headPos.y + DROP
+      group.position.y += (wantY - group.position.y) * Math.min(1, dt * FOLLOW)
+
+      // `aim()` ran earlier this frame and topped `holdLeft` up if the reticle
+      // was on a cell.
+      const busy = !first && holdLeft > 0
+      holdLeft = Math.max(0, holdLeft - dt)
+      if (!busy) {
+        target.copy(headPos).addScaledVector(headFwd, AHEAD).setY(wantY)
+        const k = first ? 1 : Math.min(1, dt * FOLLOW)
+        group.position.lerp(target, k)
+
+        const wantYaw = Math.atan2(headFwd.x, headFwd.z) + Math.PI
+        let d = wantYaw - group.rotation.y
+        while (d > Math.PI) d -= Math.PI * 2
+        while (d < -Math.PI) d += Math.PI * 2
+        group.rotation.y += d * k
+      }
 
       const a = DIM + (1 - DIM) * Math.min(1, Math.max(0, lookDown))
       strip.material.opacity = a
@@ -244,6 +278,7 @@ export function createGazePad() {
 
     hide() {
       group.visible = false
+      holdLeft = 0
     },
 
     /**
@@ -264,6 +299,8 @@ export function createGazePad() {
         charge = 0
         paint()
       }
+      // Freezes the strip in place while it is being used — see follow().
+      if (index >= 0) holdLeft = HOLD
       return index >= 0 ? CELLS[index].id : null
     },
 
