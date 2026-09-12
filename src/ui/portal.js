@@ -33,26 +33,18 @@ const esc = (v) =>
   ))
 
 /**
- * The assessment strip: how this exercise is handed in, who hands it in, and
- * what it is worth. Only graded block exercises have it.
+ * The assessment strip: how this exercise is handed in and who hands it in.
+ * Only graded block exercises have it. No weight/percentage row — grades
+ * live in the university's own docencia platform, not on this island.
  */
 function assessmentStrip(level) {
   if (!level.block) return ''
 
   const b = level.block
-  const weight = level.gradeWeight
-  const weightText = weight
-    ? `${weight.block} del curso · ${weight.exercise ? `${weight.exercise} del bloque` : `reparto por ejercicio ${UNDECIDED}`}` +
-      // Says WHICH exercise carries the most, never how much. The split itself
-      // is still undecided, and `weight.exercise` stays null until it is not.
-      (weight.note ? ` · ${weight.note}` : '')
-    : UNDECIDED
-
   const items = [
     ['Bloque', `${b.number} · ${b.name} — ejercicio ${b.exercise} de ${b.of}`],
     ['Entrega', SUBMISSION_LABELS[level.submissionMethod] ?? UNDECIDED],
     ['Trabajo', GROUP_LABELS[level.groupMode] ?? UNDECIDED],
-    ['Peso', weightText],
   ]
 
   if (level.starterRepo) {

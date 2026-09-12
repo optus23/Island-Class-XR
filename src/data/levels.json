@@ -53,10 +53,6 @@
         "exercise": 1,
         "of": 3
       },
-      "gradeWeight": {
-        "block": "10 %",
-        "exercise": null
-      },
       "groupMode": "per-group-per-block",
       "submissionMethod": "build",
       "starterRepo": {
@@ -64,7 +60,6 @@
         "branch": "01-plane-detection"
       },
       "_fixme": [
-        "TODO(decisión abierta a): el reparto de nota entre los tres ejercicios del bloque 1 está sin decidir. gradeWeight.exercise sigue en null a propósito.",
         "TODO(decisión abierta b): sin decidir si AR Foundation se instala en clase con los alumnos y se les entrega el proyecto ya montado con Blue Goblin, o si lo generan ellos desde cero. starting_point asume lo primero; si cambia, hay que reescribirlo en los tres ejercicios del bloque.",
         "TODO(decisión abierta e): los tres ejercicios del bloque 1 pasan a ser por grupo, pero el entregable de este sigue pidiendo `bloque1-ej1-<apellido>.apk`. Sin decidir si el nombre pasa a ser el del grupo. El texto del enunciado se deja como está."
       ],
@@ -162,10 +157,6 @@
         "exercise": 2,
         "of": 3
       },
-      "gradeWeight": {
-        "block": "10 %",
-        "exercise": null
-      },
       "groupMode": "per-group-per-block",
       "submissionMethod": "build",
       "starterRepo": {
@@ -242,11 +233,6 @@
         "name": "AR Foundation",
         "exercise": 3,
         "of": 3
-      },
-      "gradeWeight": {
-        "block": "10 %",
-        "exercise": null,
-        "note": "el de más peso del bloque"
       },
       "groupMode": "per-group-per-block",
       "submissionMethod": "build",
@@ -326,15 +312,8 @@
         "exercise": 1,
         "of": 3
       },
-      "gradeWeight": {
-        "block": "10 %",
-        "exercise": null
-      },
       "groupMode": "per-group-per-block",
       "submissionMethod": "build",
-      "_fixme": [
-        "TODO(decisión abierta a): el reparto de nota entre los tres ejercicios del bloque 2 está sin decidir. gradeWeight.exercise sigue en null a propósito."
-      ],
       "exercises": "content/exercises/w2-pre-02.md",
       "todos": [
         {
@@ -386,10 +365,6 @@
         "name": "Meta Building Blocks",
         "exercise": 2,
         "of": 3
-      },
-      "gradeWeight": {
-        "block": "10 %",
-        "exercise": null
       },
       "groupMode": "per-group-per-block",
       "submissionMethod": "build",
@@ -455,11 +430,6 @@
         "name": "Meta Building Blocks",
         "exercise": 3,
         "of": 3
-      },
-      "gradeWeight": {
-        "block": "10 %",
-        "exercise": null,
-        "note": "el de más peso del bloque"
       },
       "groupMode": "per-group-per-block",
       "submissionMethod": "build",
@@ -588,14 +558,9 @@
         "exercise": 1,
         "of": 2
       },
-      "gradeWeight": {
-        "block": "10 %",
-        "exercise": null
-      },
       "groupMode": "per-group-per-block",
       "submissionMethod": null,
       "_fixme": [
-        "TODO(decisión abierta a): el reparto de nota entre los dos ejercicios del bloque 3 está sin decidir. gradeWeight.exercise sigue en null a propósito.",
         "TODO(decisión abierta d): el brief no especifica método de entrega para el bloque 3. submissionMethod se deja en null en los dos ejercicios en vez de asumir \"build\" como en los bloques 1 y 2."
       ],
       "exercises": "content/exercises/w3-xrit-02.md",
@@ -650,10 +615,6 @@
         "name": "XR Interaction Toolkit",
         "exercise": 2,
         "of": 2
-      },
-      "gradeWeight": {
-        "block": "10 %",
-        "exercise": null
       },
       "groupMode": "per-group-per-block",
       "submissionMethod": null,
