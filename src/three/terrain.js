@@ -218,10 +218,14 @@ let crossingsCache = null
 export function crossings() {
   if (!crossingsCache) {
     crossingsCache = buildConnectors().map((c, i) => {
-      const a = c.getPointAt(0)
-      const b = c.getPointAt(1)
+      // The connector is an L (X leg, then Z leg — see buildConnectors), so
+      // averaging its two ENDPOINTS gives a point nowhere near the bend: it
+      // sat well off the actual road, and the bridge — built along the real
+      // path — crossed the near edge of the crater instead of its middle.
+      // The path's own midpoint by arc length is guaranteed to sit ON it.
+      const mid = c.getPointAt(0.5)
       const spec = CROSSINGS[i % CROSSINGS.length]
-      return { ...spec, x: (a.x + b.x) / 2 + spec.offX, z: a.z + spec.offZ }
+      return { ...spec, x: mid.x + spec.offX, z: mid.z + spec.offZ }
     })
   }
   return crossingsCache
@@ -294,14 +298,20 @@ export function isLand(x, z) {
 const clearings = []
 
 /**
- * @param {Array<{x:number, z:number, r:number}>} points
+ * @param {Array<{x:number, z:number, r:number, flat?:boolean}>} points
  */
 export function clearGroundAround(points) {
   clearings.length = 0
   for (const p of points) {
     // Height sampled with the registry EMPTY, so a pad can never be defined in
     // terms of another pad.
-    clearings.push({ x: p.x, z: p.z, r2: p.r * p.r, y: groundHeightAt(p.x, p.z) })
+    clearings.push({
+      x: p.x,
+      z: p.z,
+      r2: p.r * p.r,
+      y: groundHeightAt(p.x, p.z),
+      flat: Boolean(p.flat),
+    })
   }
 }
 
@@ -343,11 +353,15 @@ export function groundHeightAt(x, z) {
   const step = away > 0.8 ? TIER : PLATEAU
   const height = Math.round(raw / step) * step
 
-  // Nothing may stand above a session disc. Downward only.
+  // Nothing may stand above a session disc — downward only, EXCEPT a boss:
+  // a castle is a building with real width, not a thin disc, so a dip just
+  // past its centre floats the whole plinth. `flat` clearings level both ways.
   for (const c of clearings) {
     const dx = x - c.x
     const dz = z - c.z
-    if (dx * dx + dz * dz <= c.r2 && height > c.y) return c.y
+    if (dx * dx + dz * dz > c.r2) continue
+    if (height > c.y) return c.y
+    if (c.flat && height < c.y) return c.y
   }
   return height
 }

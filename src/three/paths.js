@@ -274,6 +274,21 @@ export function distributeNodes(worldDef, worldLevels) {
         for (const dist of [6, 7, 8, 9, 10, 12, 14, 16]) {
           const at = node.position.clone().addScaledVector(axis, dir * dist)
           if (!isLand(at.x, at.z)) continue
+          // Castles have no room beside them (see nodes.js/villagers.js — the
+          // same rule already keeps a villager off a boss node). A boss's
+          // FLAT clearing (nodes.js/paths.js's own `nodeClearings`) makes the
+          // ground for several units around it artificially perfect — which
+          // then reads as excellent shelf to this very scorer below, and
+          // pulled the re-evaluation node in from its declared distance to
+          // sit half-buried in the final boss's own plinth. Ruled out before
+          // scoring, not out-scored: a flat pad next to a castle is not a
+          // real candidate, however good the number.
+          const tooCloseToBoss = placed.some((b) => {
+            if (b.level.category !== 'boss') return false
+            const bossRadius = b.level.bossTier === 'final' ? 9 : 4.5
+            return Math.hypot(at.x - b.position.x, at.z - b.position.z) < bossRadius + 2
+          })
+          if (tooCloseToBoss) continue
           // Distance from the road was the ONLY thing scored, so the search
           // happily parked a bonus node against a cliff face or out on the
           // shoreline as long as it was far from the path. It now has to be
@@ -432,6 +447,16 @@ export function nearestIndexOn(points, position) {
  * Off-path bonus nodes are excluded — they sit out in open country, where a
  * flat pad would read as a scar rather than a clearing.
  *
+ * A boss is `flat: true` — its clearing is levelled in BOTH directions, not
+ * just downward. A flat disc is thin enough that a dip just past its edge
+ * reads as ordinary terrain, but a castle is a building with a footprint of
+ * its own: the midterm's plinth (half-width 3.5 * scale 0.95 ≈ 3.3) sat right
+ * where the plateau steps down 2 units on three sides, and "downward only"
+ * left that dip alone since it was already below the registered shelf,
+ * floating the whole building over open air. Radius is widened to match each
+ * tier's actual footprint — the default 4 barely covers the midterm and is
+ * nowhere near the final boss's 8.05.
+ *
  * @param {Array<object>} levels every level, as levels.json holds them
  * @param {number} radius world units of flat ground around each disc
  */
@@ -439,7 +464,13 @@ export function nodeClearings(levels, radius = NODE_CLEAR_RADIUS) {
   const out = []
   for (const w of worlds) {
     for (const p of distributeNodes(w, levels.filter((l) => l.world === w.id))) {
-      if (p.onPath) out.push({ x: p.position.x, z: p.position.z, r: radius })
+      if (!p.onPath) continue
+      if (p.level.category === 'boss') {
+        const bossRadius = p.level.bossTier === 'final' ? 9 : 4.5
+        out.push({ x: p.position.x, z: p.position.z, r: bossRadius, flat: true })
+      } else {
+        out.push({ x: p.position.x, z: p.position.z, r: radius })
+      }
     }
   }
   return out
