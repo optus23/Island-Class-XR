@@ -29,6 +29,7 @@ import {
   onNodeLabelEnter,
 } from './ui/nodeLabel.js'
 import { hasAdminToken, mountLegend } from './ui/legend.js'
+import { mountCamPad } from './ui/camPad.js'
 import { writeLockAhead, writeProgress } from './lib/githubData.js'
 import { nextMarker, START_MARKER } from './lib/levels.js'
 import { irisClose, screenPositionOf } from './ui/transition.js'
@@ -93,6 +94,10 @@ app.worldGroup.add(player.group)
 // speed, so they read as far away instead of pinned to the island.
 const BACKDROP_PARALLAX = 0.28
 app.onUpdate((dt) => {
+  // Before rig.update reads them: the pad feeds rig.orbit/rig.zoom the same
+  // deltas a drag and a wheel would, and the updaters all run ahead of the
+  // camera in the frame (see scene.js).
+  camPad?.update(dt)
   island.update(dt)
   enemies.update(dt)
   villagers?.update(dt, app.rig.camera)
@@ -410,6 +415,7 @@ container.addEventListener('contextmenu', (e) => e.preventDefault())
 
 let nav = null
 let legend = null
+let camPad = null
 let markerId = null
 // Assigned in boot(). Null until then, and on any device without WebXR.
 let vr = null
@@ -773,6 +779,10 @@ async function boot() {
     seeAll: () => seeAllSetting(),
   })
   legend.setMarker(markerReadout(markerId))
+
+  // Orbit and zoom as buttons. Same rig methods as the drag and the wheel, so
+  // it adds a door rather than a second way for the camera to be moved.
+  camPad = mountCamPad({ rig: app.rig, host: document.getElementById('ui') })
   nav.setPlayerLevel(startId)
 
   // The opening flight. Set up BEFORE app.start(), because the hook has to run

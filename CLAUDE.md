@@ -345,6 +345,23 @@ Every one of these was diagnosed the hard way. Do not re-derive them.
   island alone put the viewer *inside* the water, 1.3 m of it behind them.
 - **Rotation turns the viewer, not the model.** Spinning a two-metre model in
   front of someone reads as self-motion however centred the pivot is.
+- **NEVER CACHE THE GAMEPAD OFF THE `connected` EVENT.** `vr.js` used to keep
+  `e.data.gamepad` in the controller's `userData` and read the sticks from it
+  all session. Three re-binds a controller's POSE from the live input source
+  every frame, so that snapshot going stale does not stop the ray tracking — it
+  only stops the axes ever changing again. The symptom is therefore precisely
+  **"rays and trigger work, the thumbsticks do nothing"**, reported off a Quest 3
+  over Link. Read `session.inputSources` each frame instead; it cannot go stale
+  and costs one pass over a two-element list. `hasControllers()` reads it too,
+  because the same staleness would drop a Quest wearer into the gaze reticle.
+- **Take the thumbstick as a PAIR, chosen by the gamepad's own axis count.**
+  `xr-standard` puts it at axes 2/3 with 0/1 left for a trackpad, but a
+  controller reporting only two axes has it at 0/1. The old code picked each
+  axis separately with `axis(gp,2) || axis(gp,0)`, so x could come from one slot
+  while y came from the other — a stick that only moves in an L. Four axes means
+  2/3, two means 0/1, and only if BOTH of 2/3 read zero is 0/1 tried as a
+  fallback. Entering a session logs one line naming what the runtime offered;
+  ask for it before theorising about the next stick bug.
 
 **Rendering**
 
@@ -577,6 +594,20 @@ Every one of these was diagnosed the hard way. Do not re-derive them.
   axis is inverted. This has now been reported twice; don't re-derive it on
   paper, measure it: `rig.orbit(100, 0)` then compare `camera.position` against
   the camera's own right vector from `matrixWorld.extractBasis`.
+- **The camera pad's signs are the OPPOSITE of the drag's, and both are right.**
+  `ui/camPad.js` feeds the same `rig.orbit`, but a drag is a GRAB and an arrow
+  button is not: pull right and the island follows your hand, press ▶ and the
+  camera itself has to go right. Handing the pad's directions straight to
+  `orbit` shipped both axes backwards — measured, not guessed: hold a button 45
+  frames, dot the camera's travel with its own right vector. ▶ read −27 and ▲
+  read −20.75 in Y; they read +27 and +13.95 now. **Anything new that moves the
+  camera has to declare which of the two conventions it is in.**
+- **The pad repeats from the render loop, never a timer.** It only converts a
+  held button into `rig.orbit`/`rig.zoom` deltas times dt, so it holds no camera
+  state of its own and cannot reach anywhere a drag cannot. A `setInterval`
+  would drift against the frame clock and keep firing in a background tab.
+  Held buttons are cleared on `blur` and `visibilitychange` — without that, a
+  tab switch mid-press leaves the camera turning by itself.
 
 **Layout** — every one of these was found on a phone, none on a desktop
 

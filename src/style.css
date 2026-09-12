@@ -776,6 +776,120 @@ body.map-view {
   line-height: 1.35;
 }
 
+/* ---- Camera pad (bottom-left) -------------------------------------------
+   The orbit and zoom gestures, as buttons. Bottom-left is the one corner the
+   chrome had left: the nav owns the top (and the WHOLE width on a phone) and
+   the legend owns bottom-right. It is also where a thumb sits when a phone is
+   held two-handed. */
+.campad-panel {
+  position: absolute;
+  left: 0.85rem;
+  bottom: 0.85rem;
+  z-index: 20;
+  font-family: var(--xri-font);
+}
+.campad-card {
+  background: var(--xri-plate);
+  color: var(--xri-ink);
+  border-radius: 0.75rem;
+  box-shadow: var(--xri-edge);
+  overflow: hidden;
+}
+.campad-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  width: 100%;
+  padding: 0.4rem 0.6rem;
+  font-size: 0.66rem;
+  font-weight: 600;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  background: var(--xri-plate-2);
+  color: var(--xri-ink);
+  border: 0;
+  cursor: pointer;
+}
+.campad-caret {
+  transition: transform 0.15s ease;
+}
+.campad-panel.is-closed .campad-caret {
+  transform: rotate(-90deg);
+}
+.campad-body {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem;
+}
+
+/* Five buttons on a 3x3 grid: the four directions around the reset. */
+.campad-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 2rem);
+  grid-template-rows: repeat(3, 2rem);
+  gap: 0.2rem;
+}
+.campad-up { grid-area: 1 / 2; }
+.campad-left { grid-area: 2 / 1; }
+.campad-reset { grid-area: 2 / 2; }
+.campad-right { grid-area: 2 / 3; }
+.campad-down { grid-area: 3 / 2; }
+
+.campad-zoom {
+  display: grid;
+  grid-template-rows: repeat(2, 2rem);
+  gap: 0.2rem;
+}
+
+/* Same chunky pressable block as the nav and legend buttons: bright face, dark
+   under-edge that collapses on press. */
+.campad-btn {
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  font-family: inherit;
+  font-size: 0.72rem;
+  font-weight: 600;
+  line-height: 1;
+  color: var(--xri-ink);
+  background: var(--xri-plate-2);
+  border: 0;
+  border-radius: 0.35rem;
+  cursor: pointer;
+  /* The canvas hands every gesture to its own pointer handlers via
+     touch-action:none; these buttons need the same, or a touch-hold on one
+     scrolls or zooms the document instead of turning the camera. */
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  box-shadow:
+    0 0 0 2px #0b0f16,
+    inset 0 -3px 0 0 rgb(0 0 0 / 0.32);
+  transition:
+    transform 0.08s ease,
+    background 0.15s ease;
+}
+.campad-btn:hover {
+  background: #2a3648;
+}
+.campad-btn:active {
+  transform: translateY(2px);
+  background: var(--xri-gold);
+  color: #12161d;
+  box-shadow:
+    0 0 0 2px #0b0f16,
+    inset 0 -1px 0 0 rgb(0 0 0 / 0.32);
+}
+.campad-reset {
+  font-size: 0.95rem;
+  background: var(--xri-plate);
+}
+
 /* ---- Phones -------------------------------------------------------------
    Two separate problems, so two separate queries.
 
@@ -810,6 +924,19 @@ body.map-view {
     right: 0.5rem;
     bottom: 0.5rem;
     width: 12rem;
+  }
+  /* A phone on its side is ~380px tall and the legend already owns the bottom
+     edge opposite. The pad keeps its hit targets and only loses its padding. */
+  .campad-panel {
+    left: 0.5rem;
+    bottom: 0.5rem;
+  }
+  .campad-body {
+    padding: 0.35rem;
+  }
+  .campad-head {
+    padding: 0.3rem 0.5rem;
+    font-size: 0.6rem;
   }
   /* The list is the only part that may grow, and it stops well short of the
      bottom edge so the legend and the map are both still reachable. */

@@ -264,7 +264,15 @@ export function createVR({
   reticle.add(gazeFill)
   scene.add(reticle)
 
-  const hasControllers = () => controllers.some((c) => c.userData.gamepad)
+  /**
+   * Live first, snapshot second. This decides between the ray pointers and the
+   * gaze reticle, so it must not answer "no controllers" for a headset that has
+   * them — a Quest wearer dropped into dwell-to-select would rightly call the
+   * whole thing broken.
+   */
+  const hasControllers = () =>
+    [...(session?.inputSources ?? [])].some((s) => s.gamepad) ||
+    controllers.some((c) => c.userData.gamepad)
 
   const gazeOrigin = new THREE.Vector3()
   const gazeDir = new THREE.Vector3()
@@ -336,9 +344,73 @@ export function createVR({
 
   // --- locomotion ----------------------------------------------------------
 
-  const axis = (gamepad, i) => {
-    const v = gamepad?.axes?.[i] ?? 0
-    return Math.abs(v) < DEAD_ZONE ? 0 : v
+  /**
+   * The input sources, live, by hand — NOT the snapshot the `connected` handler
+   * leaves in `userData`.
+   *
+   * That snapshot is only as fresh as the last connect event on that controller
+   * INDEX, and a runtime may hand out a new XRInputSource without firing one:
+   * three re-binds the controller's POSE either way, so the ray goes on
+   * tracking while the stored gamepad sits at zero for the rest of the session.
+   * "Rays and trigger work, the sticks do nothing" is that bug's exact shape,
+   * and it is what came back from a Quest 3 over Link.
+   *
+   * Reading the session each frame cannot go stale. It costs one pass over a
+   * two-element list, which is nothing next to the raycast happening beside it.
+   *
+   * `handedness` is 'none' on some devices (a Cardboard clicker, a gamepad
+   * reported without a hand). Those fill whichever slot is still empty rather
+   * than being dropped, so a single unlabelled stick still drives the map.
+   */
+  function liveInputs() {
+    const hands = { left: null, right: null }
+    const spare = []
+    for (const src of session?.inputSources ?? []) {
+      if (!src.gamepad) continue
+      if (src.handedness === 'left' || src.handedness === 'right') hands[src.handedness] = src
+      else spare.push(src)
+    }
+    for (const src of spare) {
+      if (!hands.left) hands.left = src
+      else if (!hands.right) hands.right = src
+    }
+    return hands
+  }
+
+  /**
+   * The thumbstick as a PAIR, from whichever slot this runtime filled.
+   *
+   * `xr-standard` puts the stick at axes 2/3 and leaves 0/1 for a trackpad, but
+   * a controller reported with only two axes has its stick at 0/1. Picking the
+   * pair from the gamepad's own length — rather than per-axis with `||`, which
+   * is what this did before — is what stops x coming from one slot while y
+   * comes from the other, which makes a stick that only moves in an L.
+   */
+  function stick(gamepad) {
+    const a = gamepad?.axes
+    if (!a || a.length < 2) return null
+
+    let [x, y] = a.length >= 4 ? [a[2], a[3]] : [a[0], a[1]]
+    // Four axes reported, but the runtime is driving the trackpad slot.
+    if (!x && !y && a.length >= 4) [x, y] = [a[0], a[1]]
+
+    x = Math.abs(x) < DEAD_ZONE ? 0 : x
+    y = Math.abs(y) < DEAD_ZONE ? 0 : y
+    return x || y ? { x, y } : null
+  }
+
+  /**
+   * One line per session saying what the runtime actually handed over. If the
+   * sticks are dead again, this is the first thing to ask for — it separates
+   * "no gamepad at all" from "a gamepad whose axes never leave zero".
+   */
+  function reportInputs() {
+    const seen = [...(session?.inputSources ?? [])].map(
+      (s) =>
+        `${s.handedness}[axes:${s.gamepad?.axes?.length ?? 'none'}` +
+        `${s.gamepad?.mapping ? ` ${s.gamepad.mapping}` : ''}]`
+    )
+    console.info(`[xr] mandos: ${seen.length ? seen.join(' · ') : 'ninguno — modo mirada'}`)
   }
 
   /**
@@ -349,48 +421,41 @@ export function createVR({
    * reaching over and spinning it is what you would actually do.
    */
   function locomotion(dt) {
-    const oriented = readHead()
-    for (const c of controllers) {
-      const gp = c.userData.gamepad
-      if (!gp) continue
-      const hand = c.userData.handedness
+    if (!readHead()) return
+    const hands = liveInputs()
 
-      // Quest maps the thumbstick to axes 2/3; 0/1 is the trackpad slot.
-      const x = axis(gp, 2) || axis(gp, 0)
-      const y = axis(gp, 3) || axis(gp, 1)
-      if (!x && !y) continue
+    // Move in the direction you are LOOKING, not along the world axes.
+    //
+    // An older version built a yaw angle and rotated the stick vector by it
+    // with the sine terms the wrong way round, so the frame turned opposite to
+    // the head and the whole thing behaved as if it were world-locked.
+    // Composing the head's own right/forward vectors removes the trig, and the
+    // sign question, entirely.
+    //
+    // Stick forward is NEGATIVE y on a Quest, and the model moves opposite to
+    // the viewer's intent — push forward and the map slides toward you.
+    const left = stick(hands.left?.gamepad)
+    if (left) {
+      pivot.position.addScaledVector(headRight, -left.x * PAN_SPEED * dt)
+      pivot.position.addScaledVector(headFwd, left.y * PAN_SPEED * dt)
+    }
 
-      if (hand === 'left') {
-        // Move in the direction you are LOOKING, not along the world axes.
-        //
-        // The old version built a yaw angle and rotated the stick vector by it
-        // with the sine terms the wrong way round, so the frame turned opposite
-        // to the head and the whole thing behaved as if it were world-locked.
-        // Composing the head's own right/forward vectors removes the trig, and
-        // the sign question, entirely.
-        //
-        // Stick forward is NEGATIVE y on a Quest, and the model moves opposite
-        // to the viewer's intent — push forward and the map slides toward you.
-        if (!oriented) continue
-        pivot.position.addScaledVector(headRight, -x * PAN_SPEED * dt)
-        pivot.position.addScaledVector(headFwd, y * PAN_SPEED * dt)
-      } else {
-        // ROTATE ABOUT THE VIEWER, not about the model.
-        //
-        // Turning the model on its own centre was tried first and was reported
-        // as uncomfortable every time: a two-metre model spinning in front of
-        // you fills the view with optical flow that reads as self-motion. What
-        // a person actually wants from a right stick is "turn me" — so the
-        // whole diorama is swung around the HEAD's vertical axis instead, which
-        // is geometrically identical to the viewer turning on the spot.
-        if (!oriented) continue
-        const turn = x * TURN_SPEED * dt
-        pivot.position.sub(headPos).applyAxisAngle(UP, turn).add(headPos)
-        pivot.rotation.y += turn
+    // ROTATE ABOUT THE VIEWER, not about the model.
+    //
+    // Turning the model on its own centre was tried first and was reported as
+    // uncomfortable every time: a two-metre model spinning in front of you
+    // fills the view with optical flow that reads as self-motion. What a person
+    // actually wants from a right stick is "turn me" — so the whole diorama is
+    // swung around the HEAD's vertical axis instead, which is geometrically
+    // identical to the viewer turning on the spot.
+    const right = stick(hands.right?.gamepad)
+    if (right) {
+      const turn = right.x * TURN_SPEED * dt
+      pivot.position.sub(headPos).applyAxisAngle(UP, turn).add(headPos)
+      pivot.rotation.y += turn
 
-        zoom = THREE.MathUtils.clamp(zoom * (1 - y * ZOOM_SPEED * dt), ...ZOOM_RANGE)
-        pivot.scale.setScalar(zoom)
-      }
+      zoom = THREE.MathUtils.clamp(zoom * (1 - right.y * ZOOM_SPEED * dt), ...ZOOM_RANGE)
+      pivot.scale.setScalar(zoom)
     }
   }
 
@@ -580,9 +645,15 @@ export function createVR({
         setLabel('Entrar en VR')
       })
 
+      // Controllers come and go mid-session — they sleep, they wake, a runtime
+      // swaps the input source. Nothing is cached off this any more, but it is
+      // the one place that can say what the runtime is offering.
+      pending.addEventListener('inputsourceschange', reportInputs)
+
       attach()
       await renderer.xr.setSession(pending)
       session = pending
+      reportInputs()
       setLabel('Salir de VR')
     } catch (e) {
       // Leave nothing half-attached: a failed entry must return the map to
