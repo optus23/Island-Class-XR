@@ -17,9 +17,27 @@
  * rig is already being updated per frame with a dt. A `setInterval` would
  * drift against it and would keep firing in a background tab.
  *
- * This is a 2D-map control. An immersive session paints no DOM, so nothing
- * here is reachable from inside a headset — the thumbsticks are that.
+ * TOUCH DEVICES ONLY. On a desktop the same two verbs are already a drag and a
+ * wheel, with a mouse to do them precisely, and a pad in the corner is chrome
+ * over the map for nothing. On a phone dragging the island is fiddly and the
+ * wheel does not exist, which is where buttons earn their space.
+ *
+ * This is a 2D-map control either way. An immersive session paints no DOM, so
+ * nothing here is reachable from inside a headset: on a Quest that is the
+ * thumbsticks, and on a phone in a holder it is the gaze controls in
+ * `three/vr.js`.
  */
+
+/**
+ * Is the primary pointer a finger?
+ *
+ * `(pointer: coarse)` asks about the PRIMARY input, so a laptop with a
+ * touchscreen still answers false — which is right, because it has a mouse and
+ * the gestures are the better tool there. `any-pointer` would answer true for
+ * that laptop and put the pad on every convertible.
+ */
+export const wantsCamPad = () =>
+  typeof matchMedia === 'function' && matchMedia('(pointer: coarse)').matches
 
 const STORE = 'xrisland:campad-open'
 

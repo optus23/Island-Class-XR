@@ -602,6 +602,32 @@ Every one of these was diagnosed the hard way. Do not re-derive them.
   frames, dot the camera's travel with its own right vector. ▶ read −27 and ▲
   read −20.75 in Y; they read +27 and +13.95 now. **Anything new that moves the
   camera has to declare which of the two conventions it is in.**
+- **The camera pad is for TOUCH DEVICES only** (`(pointer: coarse)`, which asks
+  about the PRIMARY pointer — a laptop with a touchscreen answers false and
+  keeps its mouse). With a mouse the drag and the wheel already do both verbs
+  better; on a phone dragging the island is fiddly and there is no wheel.
+  `any-pointer: coarse` is the wrong query here: it puts the pad on every
+  convertible.
+- **THE PAD CANNOT BE THE ANSWER INSIDE A HEADSET. An immersive session paints
+  no DOM** — only the WebGL layer reaches the display — so no HTML control is
+  visible or touchable in there, on a Quest or on a phone. A Quest has the
+  thumbsticks; a phone in a Cardboard holder has neither sticks nor DOM, and its
+  screen is against the wearer's face. That case is `three/vrGazePad.js`: a
+  world-space strip of buttons driven by where the viewer is looking, shown only
+  on the no-controller path, plus a world-space hint because nobody arrives
+  knowing that looking at a button is what presses it.
+  - **Gaze-and-HOLD there, not dwell.** Selecting a node waits `GAZE_MS` because
+    entering a level is a commitment; turning the map is not, and a dwell per
+    nudge makes a quarter turn take half a minute.
+  - **The pad is hit-tested BEFORE the nodes and swallows the frame**, or the
+    node behind it keeps charging its dwell ring under a button being held.
+  - **One mesh, one canvas, hit-tested by `uv.x`.** Five planes would be five
+    draw calls and five raycast targets for buttons that never move relative to
+    each other. Repaint only when the highlighted cell changes.
+  - **Volume buttons are NOT available to a web page** and were asked for twice.
+    Android gives those keys to the system, not the document, and the old
+    Cardboard trick of watching `volumechange` on a muted `<audio>` died when
+    they stopped touching the element's own `.volume`. Do not try again.
 - **The pad repeats from the render loop, never a timer.** It only converts a
   held button into `rig.orbit`/`rig.zoom` deltas times dt, so it holds no camera
   state of its own and cannot reach anywhere a drag cannot. A `setInterval`

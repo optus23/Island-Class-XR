@@ -29,7 +29,7 @@ import {
   onNodeLabelEnter,
 } from './ui/nodeLabel.js'
 import { hasAdminToken, mountLegend } from './ui/legend.js'
-import { mountCamPad } from './ui/camPad.js'
+import { mountCamPad, wantsCamPad } from './ui/camPad.js'
 import { writeLockAhead, writeProgress } from './lib/githubData.js'
 import { nextMarker, START_MARKER } from './lib/levels.js'
 import { irisClose, screenPositionOf } from './ui/transition.js'
@@ -780,9 +780,13 @@ async function boot() {
   })
   legend.setMarker(markerReadout(markerId))
 
-  // Orbit and zoom as buttons. Same rig methods as the drag and the wheel, so
-  // it adds a door rather than a second way for the camera to be moved.
-  camPad = mountCamPad({ rig: app.rig, host: document.getElementById('ui') })
+  // Orbit and zoom as buttons, on touch devices only: with a mouse the drag and
+  // the wheel already do this better, and the pad would just cover the island.
+  // Same rig methods either way, so it adds a door rather than a second way for
+  // the camera to be moved.
+  if (wantsCamPad()) {
+    camPad = mountCamPad({ rig: app.rig, host: document.getElementById('ui') })
+  }
   nav.setPlayerLevel(startId)
 
   // The opening flight. Set up BEFORE app.start(), because the hook has to run
