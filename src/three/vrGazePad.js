@@ -81,6 +81,8 @@ export function createGazePad() {
   texture.anisotropy = 4
 
   let hot = -1
+  /** 0..1 while the gaze is arming the hot cell — see `setCharge`. */
+  let charge = 0
 
   function paint() {
     const cw = CANVAS_W / CELLS.length
@@ -105,6 +107,19 @@ export function createGazePad() {
       ctx.lineWidth = 4
       ctx.strokeStyle = '#0b0f16'
       ctx.stroke()
+
+      // The arming bar. The button does nothing for two seconds, so it has to
+      // SAY it is counting or the wearer concludes it is broken and looks away
+      // at about 1.5 — which was the whole complaint about the first version
+      // acting instantly: no middle ground between nothing and everything.
+      if (on && charge > 0 && charge < 1) {
+        ctx.save()
+        roundRect(ctx, x + 12, 16, cw - 24, CANVAS_H - 32, 18)
+        ctx.clip()
+        ctx.fillStyle = '#38b000'
+        ctx.fillRect(x + 12, CANVAS_H - 34, (cw - 24) * charge, 14)
+        ctx.restore()
+      }
 
       ctx.fillStyle = on ? '#12161d' : '#f2f6fb'
       ctx.font = `600 ${Math.round(CANVAS_H * 0.42)}px ${FONT}`
@@ -199,9 +214,24 @@ export function createGazePad() {
       }
       if (index !== hot) {
         hot = index
+        charge = 0
         paint()
       }
       return index >= 0 ? CELLS[index].id : null
+    },
+
+    /**
+     * How far along the arming dwell the hot cell is, 0..1.
+     *
+     * QUANTISED TO TWELFTHS. The canvas is only uploaded when the drawn result
+     * would actually differ, so a two-second dwell costs a dozen repaints
+     * instead of one hundred and twenty.
+     */
+    setCharge(t) {
+      const step = Math.round(THREE.MathUtils.clamp(t, 0, 1) * 12) / 12
+      if (step === charge) return
+      charge = step
+      paint()
     },
 
     /** The hint has done its job the moment the viewer uses a button. */

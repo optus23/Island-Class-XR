@@ -594,46 +594,62 @@ Every one of these was diagnosed the hard way. Do not re-derive them.
   axis is inverted. This has now been reported twice; don't re-derive it on
   paper, measure it: `rig.orbit(100, 0)` then compare `camera.position` against
   the camera's own right vector from `matrixWorld.extractBasis`.
-- **The camera pad's signs are the OPPOSITE of the drag's, and both are right.**
-  `ui/camPad.js` feeds the same `rig.orbit`, but a drag is a GRAB and an arrow
-  button is not: pull right and the island follows your hand, press ▶ and the
-  camera itself has to go right. Handing the pad's directions straight to
-  `orbit` shipped both axes backwards — measured, not guessed: hold a button 45
-  frames, dot the camera's travel with its own right vector. ▶ read −27 and ▲
-  read −20.75 in Y; they read +27 and +13.95 now. **Anything new that moves the
-  camera has to declare which of the two conventions it is in.**
-- **The camera pad is for TOUCH DEVICES only** (`(pointer: coarse)`, which asks
-  about the PRIMARY pointer — a laptop with a touchscreen answers false and
-  keeps its mouse). With a mouse the drag and the wheel already do both verbs
-  better; on a phone dragging the island is fiddly and there is no wheel.
-  `any-pointer: coarse` is the wrong query here: it puts the pad on every
-  convertible.
-- **THE PAD CANNOT BE THE ANSWER INSIDE A HEADSET. An immersive session paints
-  no DOM** — only the WebGL layer reaches the display — so no HTML control is
-  visible or touchable in there, on a Quest or on a phone. A Quest has the
-  thumbsticks; a phone in a Cardboard holder has neither sticks nor DOM, and its
-  screen is against the wearer's face. That case is `three/vrGazePad.js`: a
-  world-space strip of buttons driven by where the viewer is looking, shown only
-  on the no-controller path, plus a world-space hint because nobody arrives
-  knowing that looking at a button is what presses it.
-  - **Gaze-and-HOLD there, not dwell.** Selecting a node waits `GAZE_MS` because
-    entering a level is a commitment; turning the map is not, and a dwell per
-    nudge makes a quarter turn take half a minute.
+- **There is no on-screen camera pad, and adding one back needs a reason.** One
+  shipped — a D-pad in the corner driving the same `rig.orbit`/`rig.zoom` — and
+  was removed a round later: on a desktop the drag and the wheel already do both
+  verbs better, and on a phone the finger drag and the pinch do, so it was
+  chrome over the island everywhere. Two things learned on the way out are worth
+  keeping if it ever comes back:
+  - **An arrow button is not a drag.** A drag is a GRAB — pull right and the
+    island follows your hand — so feeding a pad's directions straight into
+    `rig.orbit` gives a camera that goes the wrong way on both axes. Measured,
+    not reasoned: hold for 45 frames, dot the camera's travel with its own right
+    vector from `matrixWorld.extractBasis`.
+  - **Repeat from the render loop, never a timer**, and clear held buttons on
+    `blur` and `visibilitychange` or a tab switch mid-press leaves the camera
+    turning by itself.
+- **NO HTML CONTROL IS REACHABLE INSIDE A HEADSET. An immersive session paints
+  no DOM** — only the WebGL layer reaches the display — so this is true on a
+  Quest and on a phone alike. A Quest has the thumbsticks; a phone in a
+  Cardboard holder has neither sticks nor DOM, and its screen is against the
+  wearer's face. That case is `three/vrGazePad.js`: a world-space strip of
+  buttons driven by where the viewer is looking, shown only on the
+  no-controller path, plus a world-space hint because nobody arrives knowing
+  that looking at a button is what presses it.
+  - **ARM ON A DWELL, THEN RUN.** The first cut acted on the frame the reticle
+    touched a button, and the strip hangs below the diorama — so every glance
+    down, and every sweep across it, turned or zoomed the map. Reported as "el
+    gaze presiona los botones instantáneamente, y es molesto". It now needs
+    `PAD_ARM_MS` (2 s) of rest before it starts, and then keeps acting while the
+    gaze stays: a dwell per nudge would make a quarter turn take half a minute,
+    which is why this is not simply `GAZE_MS` again.
+  - **A button that does nothing for two seconds must say it is counting**, or
+    the wearer concludes it is broken and looks away at about 1.5. The reticle
+    ring fills AND the cell grows a bar. `setCharge` is quantised to twelfths,
+    so a 2 s dwell costs 12 canvas uploads rather than 120 — verified.
   - **The pad is hit-tested BEFORE the nodes and swallows the frame**, or the
-    node behind it keeps charging its dwell ring under a button being held.
+    disc behind it keeps charging its own dwell ring under the button being held.
   - **One mesh, one canvas, hit-tested by `uv.x`.** Five planes would be five
     draw calls and five raycast targets for buttons that never move relative to
-    each other. Repaint only when the highlighted cell changes.
+    each other.
   - **Volume buttons are NOT available to a web page** and were asked for twice.
     Android gives those keys to the system, not the document, and the old
     Cardboard trick of watching `volumechange` on a muted `<audio>` died when
     they stopped touching the element's own `.volume`. Do not try again.
-- **The pad repeats from the render loop, never a timer.** It only converts a
-  held button into `rig.orbit`/`rig.zoom` deltas times dt, so it holds no camera
-  state of its own and cannot reach anywhere a drag cannot. A `setInterval`
-  would drift against the frame clock and keep firing in a background tab.
-  Held buttons are cleared on `blur` and `visibilitychange` — without that, a
-  tab switch mid-press leaves the camera turning by itself.
+- **The diorama is centred on the AVATAR's session, not on the island**, because
+  the flat map has always opened where the avatar stands and the headset has no
+  business being the one view that does not. Whatever sits at the pivot's origin
+  is also what rotation turns about, so this doubles as "turn around where I am".
+- **A TABLETOP CANNOT BE ZOOMED INTO, and the ceiling is measured, not chosen.**
+  The model's half-extent grows with the scale while its distance from you does
+  not, so past a point the near edge arrives at your face and you are standing
+  inside the island — which a fixed `[0.4, 3.2]` allowed, and which came back as
+  "apenas te quedas fuera de la isla". The ceiling is now derived per session:
+  whatever scale keeps the furthest corner `HEAD_CLEAR` from the viewer, entered
+  at `START_OF_RANGE` of it. **Measured against the session discs, NOT the
+  worldGroup box** — that box is mostly sea, and bounding on it clamps the model
+  down to keep open water off you, which lands the session further away than
+  before. The honest gain is the FLOOR: 0.22 against the old 0.40.
 
 **Layout** — every one of these was found on a phone, none on a desktop
 
