@@ -60,7 +60,33 @@ const DIORAMA_DROP = -0.55
 const PAN_SPEED = 1.1 // metres/second at full stick
 const TURN_SPEED = 1.4 // radians/second
 const ZOOM_SPEED = 0.9 // scale factor per second
-const ZOOM_RANGE = [0.4, 3.2] // multiplier on the fitted scale
+
+/**
+ * HOW FAR THE MODEL MAY BE ZOOMED, and why the top end is measured rather than
+ * chosen.
+ *
+ * A tabletop diorama cannot really be zoomed INTO: the model's half-extent
+ * grows linearly with the scale while its distance from you does not, so past a
+ * point the near edge simply arrives at your face and you are standing inside
+ * the island. The old fixed `[0.4, 3.2]` let that happen — 3.2 put a 7.7 m
+ * island around a viewer 1.8 m from its centre — and it was reported as
+ * "apenas te quedas fuera de la isla".
+ *
+ * So the ceiling is derived per session from the box that `attach()` already
+ * measures and from where the avatar stands in it: whatever scale keeps the
+ * furthest corner of the model `HEAD_CLEAR` away from the viewer. The floor is
+ * a plain constant, and it is generous — pulling back to a small model you can
+ * take in without turning your head is the thing the range was short of.
+ */
+const ZOOM_MIN = 0.22
+const HEAD_CLEAR = 0.45 // metres between the land's nearest reach and the head
+/**
+ * Where entry sits inside that range. At the ceiling itself the far end of the
+ * island is only HEAD_CLEAR from your ear while the session you came for is
+ * 1.8 m in front, which is a strange place to be dropped; a little back from it
+ * is the session, comfortably, with room left to push in.
+ */
+const START_OF_RANGE = 0.8
 const DEAD_ZONE = 0.15
 
 export function createVR({
@@ -74,6 +100,8 @@ export function createVR({
   onSelect = () => {},
   onEnter = () => {},
   playerLevelId = () => null,
+  /** Where the avatar is standing, in worldGroup-local space. See attach(). */
+  playerPosition = () => null,
   levelById = () => null,
   markerId = () => null,
   /**
@@ -131,6 +159,8 @@ export function createVR({
   }
 
   let zoom = 1
+  /** [min, max] for `zoom`, measured in attach() — see ZOOM_MIN. */
+  let zoomRange = [ZOOM_MIN, 1]
   /** Set on entry and by the grip button — see recentre(). */
   let needsRecentre = false
   let session = null
@@ -240,6 +270,24 @@ export function createVR({
   // standard answer here because a phone in a holder has no button to press.
 
   const GAZE_MS = 1400
+  /**
+   * How long the gaze must REST on a locomotion button before it starts acting.
+   *
+   * The first cut acted on the frame the reticle touched a button, which is
+   * unusable: the strip hangs below the diorama, so every glance downwards — and
+   * every sweep across it on the way somewhere else — turned or zoomed the map.
+   * Reported as "el gaze presiona los botones instantáneamente, y es molesto".
+   *
+   * ARM, THEN RUN. Once the dwell completes the button keeps acting for as long
+   * as the gaze stays on it: a dwell per nudge would make a quarter turn take
+   * half a minute, which is why this is not simply GAZE_MS again. Looking away,
+   * or onto a different button, disarms and the next one has to earn its own
+   * two seconds.
+   */
+  const PAD_ARM_MS = 2000
+  /** The button the gaze is resting on, and for how long. */
+  let padAct = null
+  let padHeld = 0
   const gazeRay = new THREE.Raycaster()
   let gazeLevel = null
   let gazeHeld = 0
@@ -308,26 +356,47 @@ export function createVR({
     // commitment; turning the map is not, and a dwell per nudge would make a
     // quarter turn take half a minute. The look is the hold.
     const act = gazePad.aim(gazeRay)
+    if (act !== padAct) {
+      padAct = act
+      padHeld = 0
+    }
     if (act) {
+      // The node dwell is abandoned while the gaze is on the strip, or a disc
+      // behind it keeps charging its own ring under the button being held.
       gazeLevel = null
       gazeHeld = 0
-      gazeFill.visible = false
-      reticle.material.color.setHex(0xf2c14e)
-      gazePad.dismissHint()
-      if (act === 'recentre') needsRecentre = true
-      else if (readHead()) {
-        if (act === 'left' || act === 'right') {
+
+      padHeld += dt * 1000
+      const armed = padHeld >= PAD_ARM_MS
+
+      // The same ring the nodes use, so one piece of feedback means one thing:
+      // "keep looking". It fills over the two seconds and stays full while the
+      // button runs.
+      const t = Math.min(1, padHeld / PAD_ARM_MS)
+      gazeFill.visible = true
+      gazeFill.scale.setScalar(0.4 + t * 0.6)
+      gazeFill.material.opacity = t
+      reticle.material.color.setHex(armed ? 0x38b000 : 0xf2c14e)
+      gazePad.setCharge(t)
+
+      if (armed && readHead()) {
+        gazePad.dismissHint()
+        if (act === 'recentre') {
+          needsRecentre = true
+          padHeld = 0 // one recentre per dwell, not one per frame
+        } else if (act === 'left' || act === 'right') {
           const turn = (act === 'left' ? -1 : 1) * TURN_SPEED * dt
           pivot.position.sub(headPos).applyAxisAngle(UP, turn).add(headPos)
           pivot.rotation.y += turn
         } else {
           const way = act === 'in' ? -1 : 1
-          zoom = THREE.MathUtils.clamp(zoom * (1 - way * ZOOM_SPEED * dt), ...ZOOM_RANGE)
+          zoom = THREE.MathUtils.clamp(zoom * (1 - way * ZOOM_SPEED * dt), ...zoomRange)
           pivot.scale.setScalar(zoom)
         }
       }
       return null
     }
+    gazePad.setCharge(0)
 
     const targets = pickTargets()
     const hit = targets.length ? gazeRay.intersectObjects(targets, false)[0] : null
@@ -490,7 +559,7 @@ export function createVR({
       pivot.position.sub(headPos).applyAxisAngle(UP, turn).add(headPos)
       pivot.rotation.y += turn
 
-      zoom = THREE.MathUtils.clamp(zoom * (1 - right.y * ZOOM_SPEED * dt), ...ZOOM_RANGE)
+      zoom = THREE.MathUtils.clamp(zoom * (1 - right.y * ZOOM_SPEED * dt), ...zoomRange)
       pivot.scale.setScalar(zoom)
     }
   }
@@ -563,14 +632,60 @@ export function createVR({
     const span = Math.max(size.x, size.z) || 1
     const s = DIORAMA_SPAN / span
 
-    // Centre the model ON the pivot's origin, so the pivot's rotation is the
-    // model turning on the spot rather than orbiting some arbitrary point.
+    // THE MODEL IS CENTRED ON THE AVATAR'S SESSION, NOT ON THE ISLAND.
+    //
+    // Entering VR used to drop you in front of the middle of the map, which on
+    // a 28-session island is nowhere in particular — the flat map has always
+    // opened on the session the avatar is standing at, and there is no reason
+    // for the headset to be the one view that does not. Whatever sits at the
+    // pivot's origin is also what rotation turns about, so this doubles as
+    // "turn around where I am" rather than "orbit the middle of the sea".
+    //
+    // It falls back to the box centre when the avatar's position is not
+    // available, which keeps this honest on a page that never mounted a player.
+    const focus = playerPosition() ?? centre
+    const anchor = new THREE.Vector3(focus.x, centre.y, focus.z)
+
     worldGroup.scale.setScalar(s)
-    worldGroup.position.copy(centre).multiplyScalar(-s)
+    worldGroup.position.copy(anchor).multiplyScalar(-s)
     pivot.add(worldGroup)
 
-    zoom = 1
-    pivot.scale.setScalar(1)
+    // How far the MAP reaches from that anchor, in metres, at zoom 1.
+    //
+    // Measured against the session discs, NOT against the box above. That box
+    // is dominated by the sea — 2.4x the island's width and 3.4x its depth — so
+    // sizing the zoom against it would clamp the model down to keep open water
+    // off the viewer, which is not what "inside the island" means. What must
+    // stay clear is the land you are looking at.
+    //
+    // Rotation can bring any corner round to face you, so the furthest one is
+    // the one that decides.
+    const mapBox = new THREE.Box3()
+    for (const t of pickTargets()) mapBox.expandByObject(t)
+    const edges = mapBox.isEmpty() ? box : mapBox
+    const reach =
+      Math.max(
+        Math.hypot(edges.min.x - anchor.x, edges.min.z - anchor.z),
+        Math.hypot(edges.max.x - anchor.x, edges.min.z - anchor.z),
+        Math.hypot(edges.min.x - anchor.x, edges.max.z - anchor.z),
+        Math.hypot(edges.max.x - anchor.x, edges.max.z - anchor.z)
+      ) * s
+
+    const ceiling = Math.max(ZOOM_MIN, (DIORAMA_DISTANCE - HEAD_CLEAR) / (reach || 1))
+    zoomRange = [ZOOM_MIN, ceiling]
+    // A TABLETOP CANNOT REALLY BE ZOOMED INTO — the model's half-extent grows
+    // with the scale while its distance from you does not — so the honest
+    // improvement is not a bigger ceiling but a much lower FLOOR, plus an entry
+    // that already looks at the right place. Measured at session 1: the map is
+    // 1.05 m wide on entry against 1.00 m before, and pulls back to 0.22 m,
+    // where the old range stopped at 0.40 m and its top end put the island
+    // through the viewer.
+    zoom = Math.max(ZOOM_MIN, ceiling * START_OF_RANGE)
+    pivot.scale.setScalar(zoom)
+    console.info(
+      `[xr] diorama: alcance ${reach.toFixed(2)} m · zoom ${ZOOM_MIN.toFixed(2)}–${ceiling.toFixed(2)}` +
+        ` (entra en ${zoom.toFixed(2)}) · centrado en ${playerLevelId() ?? 'el centro del mapa'}`
+    )
     // Placed for real on the first frame that has a head pose; there is none
     // yet at this point in the handshake.
     pivot.position.set(0, 1.0, -DIORAMA_DISTANCE)
