@@ -2,7 +2,7 @@ import * as THREE from 'three'
 import { worlds } from '../config/worlds.js'
 import { biomes, palette, world as themeWorld, resolveNodeColor } from '../config/theme.js'
 import { buildWorldCurves, buildConnectors, distributeNodes } from './paths.js'
-import { biomeKeyAt, groundHeightAt, landInset } from './terrain.js'
+import { biomeKeyAt, groundHeightAt, landInset, isLand } from './terrain.js'
 import { levelsForWorld, statusFor, hasDeliverable, deliverableDone } from '../lib/levels.js'
 import { prefersReducedMotion } from '../lib/motion.js'
 
@@ -160,6 +160,19 @@ export function createMapObjects() {
     } else {
       side = new THREE.Vector3(p.tangent.z, 0, -p.tangent.x).normalize()
       offset = 2.2
+      // Near a crossing, one side of the road is the bridge and the other is
+      // open water — groundHeightAt answers a height either way, so nothing
+      // stopped the flag from landing mid-sea. w2-pre-02 (right by the
+      // world 1→2 bridge) is exactly that case: `side` alone put it over
+      // water with a plausible-looking y. Flip to the far side when the near
+      // one isn't land; only give up and keep the original if NEITHER is —
+      // a node with water on both sides is not a case any flag hits today.
+      if (!isLand(p.position.x + side.x * offset, p.position.z + side.z * offset)) {
+        const flipped = side.clone().negate()
+        if (isLand(p.position.x + flipped.x * offset, p.position.z + flipped.z * offset)) {
+          side = flipped
+        }
+      }
     }
     const fx = p.position.x + side.x * offset
     const fz = p.position.z + side.z * offset
