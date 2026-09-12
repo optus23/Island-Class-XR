@@ -93,11 +93,21 @@ function spread(count, { startsAtBoss = false, endsAtBoss = false } = {}) {
 const NODE_FOOT = 1.6 // half-width of the disc's footprint
 
 /**
- * Past this, extra distance from the road buys a bonus node nothing — it
- * already reads as off the path, and chasing more just pushes it into the sea
- * or up against a cliff.
+ * How far an optional branch should sit from the road.
+ *
+ * `validate` rejects anything under 4.5 — closer than that and the branch reads
+ * as part of the main path rather than as a detour off it. BRANCH_MIN keeps a
+ * margin over that; BRANCH_IDEAL is where it actually wants to be.
+ *
+ * IT IS A TARGET, NOT A MAXIMUM. The score used to reward clearance outright,
+ * capped at 13, so every branch was pushed as far from the road as the land
+ * allowed — the Mono/Stereo activity landed 16 units out, adrift in open
+ * country instead of tucked beside the session it belongs to. Far is not
+ * better than close-and-tidy once the road is genuinely cleared, so the score
+ * now punishes both sides of the target.
  */
-const BRANCH_ENOUGH = 13
+const BRANCH_MIN = 6
+const BRANCH_IDEAL = 8
 
 /** Height range of the ground over a disc — 0 means genuinely level. */
 const FLAT_SAMPLES = [
@@ -225,19 +235,35 @@ export function distributeNodes(worldDef, worldLevels) {
     const forced = level.offsetSide === 'left' ? -1 : level.offsetSide === 'right' ? 1 : null
     const dirs = forced != null ? [forced] : [1, -1]
 
-    // Search the ANCHOR too, not just side and distance. Where the route
-    // doubles back, every offset around one particular node lands near another
-    // run of the same road, so no side or distance can rescue it. Allowing the
-    // branch to hang off a neighbouring node instead is what actually gets it
-    // clear of the path. The declared anchor stays the preference: it is tried
-    // first and only beaten by a clearly better spot.
+    // Search the ANCHOR too, not just side and distance — but ONLY when nobody
+    // said which session this hangs off. Where the route doubles back, every
+    // offset around one particular node lands near another run of the same
+    // road, so no side or distance can rescue it, and letting the branch move
+    // to a neighbour is what gets it clear of the path.
+    //
+    // A DECLARED `anchorAfter` IS NOT A PREFERENCE, IT IS THE ANSWER.
+    // It used to be one, beatable by 1.5 points of score, and the Mono/Stereo
+    // activity duly drifted TWO sessions up the route: declared on session 3,
+    // placed at session 1's z, 22.2 units from its anchor — further than the
+    // 14.1 between whole sessions. Worse, the drift rewrites `anchorId`, which
+    // is what draws the dashed connector, while the LOCK still follows
+    // `anchorAfter`. So the line pointed at one session and the reveal came
+    // from another: "esta actividad extra se debería de revelar cuando te
+    // sitúas en la sesión que está pegada por la línea discontinua".
+    //
+    // The two must never disagree. When the teacher names the session, the
+    // search may only choose a side and a distance around it.
     const onPath = placed.filter((p) => p.onPath)
     const declaredIndex = onPath.indexOf(anchor)
     const anchorChoices = []
-    for (let d = 0; d <= 2; d++) {
-      for (const step of d === 0 ? [0] : [-d, d]) {
-        const cand = onPath[declaredIndex + step]
-        if (cand) anchorChoices.push({ node: cand, penalty: d * 1.5 })
+    if (level.anchorAfter && declaredIndex !== -1) {
+      anchorChoices.push({ node: anchor, penalty: 0 })
+    } else {
+      for (let d = 0; d <= 2; d++) {
+        for (const step of d === 0 ? [0] : [-d, d]) {
+          const cand = onPath[declaredIndex + step]
+          if (cand) anchorChoices.push({ node: cand, penalty: d * 1.5 })
+        }
       }
     }
 
@@ -245,7 +271,7 @@ export function distributeNodes(worldDef, worldLevels) {
     for (const { node, penalty } of anchorChoices) {
       const axis = node.tangent.clone().cross(UP).normalize()
       for (const dir of dirs) {
-        for (const dist of [8, 10, 12, 14, 16]) {
+        for (const dist of [6, 7, 8, 9, 10, 12, 14, 16]) {
           const at = node.position.clone().addScaledVector(axis, dir * dist)
           if (!isLand(at.x, at.z)) continue
           // Distance from the road was the ONLY thing scored, so the search
@@ -255,14 +281,30 @@ export function distributeNodes(worldDef, worldLevels) {
           // and only far enough from the road to read as a branch.
           const level = flatness(at.x, at.z)
           const inland = landInset(at.x, at.z)
+          const clearance = nearestPath(at.x, at.z).dist
+          // SAME SHELF AS ITS SESSION. This is what "hangs off session 3" looks
+          // like on a terraced island: a branch a whole plateau below its anchor
+          // reads as a separate place, however flat the ground there is. It
+          // outweighs flatness on purpose — beside the session on a slight slope
+          // belongs; perfectly level and four units down does not.
+          //
+          // Safe to score on the terrain because `groundHeightAt` only consults
+          // the ON-PATH clearings, and those are identical in both passes (the
+          // arc-length distribution never asks the ground where to go). Scoring
+          // an optional node's own pad here would be circular: the pad would
+          // move the placement that decided where to put the pad.
+          const shelf = Math.min(Math.abs(groundHeightAt(at.x, at.z) - node.position.y), 8)
           candidates.push({
             node,
             axis,
             dir,
             dist,
             score:
-              Math.min(nearestPath(at.x, at.z).dist, BRANCH_ENOUGH) -
-              level * 2.5 -
+              // Hard push off the road, gentle pull back in once clear of it.
+              -Math.max(0, BRANCH_MIN - clearance) * 6 -
+              Math.max(0, clearance - BRANCH_IDEAL) * 0.8 -
+              shelf * 2.5 -
+              level * 1.2 -
               Math.max(0, 10 - inland) * 1.2 -
               penalty,
           })
@@ -271,7 +313,23 @@ export function distributeNodes(worldDef, worldLevels) {
     }
 
     const best = candidates.sort((a, b) => b.score - a.score)[0]
-    if (!best) return
+    if (!best) {
+      // Pinned to a declared anchor and every offset around it fell in the sea.
+      // Placing it tight against the anchor is ugly; dropping it loses a graded
+      // activity off the map entirely, which is worse and silent.
+      if (!level.anchorAfter) return
+      const fallback = anchor.tangent.clone().cross(UP).normalize().multiplyScalar(9)
+      const at = anchor.position.clone().add(fallback)
+      at.y = Math.max(groundHeightAt(at.x, at.z), anchor.position.y)
+      placed.push({
+        level,
+        position: at,
+        tangent: anchor.tangent.clone(),
+        onPath: false,
+        anchorId: anchor.level.id,
+      })
+      return
+    }
     const useAnchor = best.node
     const lateral = best.axis.clone().multiplyScalar(best.dir * best.dist)
 

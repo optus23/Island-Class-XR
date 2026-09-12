@@ -211,6 +211,22 @@ Changing any of these is a design decision, not a refactor.
   class day on a dashed connector, lilac. The day itself keeps its ordinary
   theory or practice colour — it is an ordinary class. Do not go back to
   recolouring the day.
+  **A DECLARED `anchorAfter` IS THE ANSWER, NOT A PREFERENCE.** The placement
+  search may pick a side and a distance; it may NOT pick a different session.
+  It used to be allowed to drift two sessions for 1.5 points of score, and the
+  Mono/Stereo activity duly landed 22.2 units from its anchor — further than the
+  14.1 between whole sessions — sitting beside session 1 while belonging to
+  session 3. Worse, drifting rewrites `anchorId`, which is what draws the dashed
+  connector, while the LOCK still follows `anchorAfter`: the line pointed at one
+  session and the reveal came from another. That is the bug behind "esta
+  actividad extra se debería de revelar cuando te sitúas en la sesión que está
+  pegada por la línea discontinua". **The line and the lock must never
+  disagree.**
+  **An optional branch belongs on its anchor's SHELF.** A whole plateau below
+  reads as a separate place however flat the ground is, so the shelf term
+  outweighs flatness. Scoring the branch's own clearing would be circular — the
+  pad would move the placement that decided where to put the pad — which is why
+  off-path nodes still get no pad and the score reads the terrain instead.
   **Mono/Stereoscopic has no class of its own and must not get one back.** It
   used to be session 2, a practical day. The dates stopped fitting the content,
   so the session was deleted and every practical moved one slot earlier; the
@@ -247,11 +263,17 @@ Changing any of these is a design decision, not a refactor.
   already sits — Marc's reference is the Simpsons title sequence. It plays on
   every visit, and it is skipped for reduced motion, for a shared `?level=` link
   and for `?vr=1` / `/vr/`.
-- **The road behind the class is amber, the road ahead is cream.** A green disc
-  on its own was not enough feedback — the ring changed and the road it stood on
-  did not — so `world.pathDone` paints the route already walked, up to the
-  marker. Amber and NOT green: green is the completed node, and reusing it makes
-  the whole route read as one enormous completed thing.
+- **The road behind the class is YELLOW, the road ahead is cream.** It was amber
+  (0xe0a032) and came back as "demasiado naranja". The replacement was SEARCHED,
+  not nudged: `pathDone` is squeezed between `path` (0xf6dfa6, or the trail stops
+  reading) and `nodeRim` (0xf2c14e — the XR badge gold — or the ring around every
+  disc vanishes into the road it sits on), so the new value is the yellow nearest
+  that gold which still holds the separation the old one had: 13.3 ΔE from the
+  rim, 41.4 from the cream, hue 38 -> 49. Counted after: 8 vertices of 1906 on
+  session 1, 936 of 1906 at the midterm, 1900 at the end. Re-run that search
+  before changing it again. Still NOT green, whatever the hue drifts to: green
+  is the completed NODE, and reusing it makes the whole route read as one
+  enormous completed thing.
 - **A session past the marker is LOCKED, and locked means its NAME is hidden.**
   Grey disc, padlock in the course list, "Sesión 7" instead of the title.
   Several titles are plot points, so the list read on day one is the spoiler.
@@ -464,7 +486,10 @@ Every one of these was diagnosed the hard way. Do not re-derive them.
   said the villagers were walking through terrain; they never were. When probing
   terrain from the console, call
   `clearGroundAround(nodeClearings(allLevels))` on the copy FIRST, or compare
-  against Node instead.
+  against Node instead. **But check before believing it**: in dev, importing the
+  same URL the app used (`/src/three/terrain.js`) gave the SAME module instance
+  with its registry already seeded — verified by sampling `groundHeightAt` at a
+  node and getting its own shelf back. Probe first, then trust the probe.
 - **The road's surface is its CENTRE LINE height, at every point across its
   width.** `nodes.js` gives both edges of every ribbon quad the same `top`, so a
   figure standing at the road's edge belongs at the centre-line height —
@@ -636,20 +661,37 @@ Every one of these was diagnosed the hard way. Do not re-derive them.
     Android gives those keys to the system, not the document, and the old
     Cardboard trick of watching `volumechange` on a muted `<audio>` died when
     they stopped touching the element's own `.volume`. Do not try again.
-- **The diorama is centred on the AVATAR's session, not on the island**, because
-  the flat map has always opened where the avatar stands and the headset has no
-  business being the one view that does not. Whatever sits at the pivot's origin
-  is also what rotation turns about, so this doubles as "turn around where I am".
-- **A TABLETOP CANNOT BE ZOOMED INTO, and the ceiling is measured, not chosen.**
-  The model's half-extent grows with the scale while its distance from you does
-  not, so past a point the near edge arrives at your face and you are standing
-  inside the island — which a fixed `[0.4, 3.2]` allowed, and which came back as
-  "apenas te quedas fuera de la isla". The ceiling is now derived per session:
-  whatever scale keeps the furthest corner `HEAD_CLEAR` from the viewer, entered
-  at `START_OF_RANGE` of it. **Measured against the session discs, NOT the
-  worldGroup box** — that box is mostly sea, and bounding on it clamps the model
-  down to keep open water off you, which lands the session further away than
-  before. The honest gain is the FLOOR: 0.22 against the old 0.40.
+- **THE DIORAMA'S SCALE COMES FROM THE AVATAR, NOT FROM THE ISLAND.** Fitting
+  the whole world into 2.4 m made the avatar **14.2 mm tall** — measured — and
+  that one number is the whole of "la cámara se sitúa muy, muy alejado de la
+  isla, se ve la isla de fondo". The camera was never far; the model was too
+  small to read as anything but a backdrop. So `AVATAR_TARGET_H` picks how tall
+  the avatar should be and the scale is derived from its own measured height.
+  At 8 cm the island comes out ~5.7 m across with sessions ~0.37 m apart: a
+  god's-eye map you stand over, which is what was asked for.
+- **That map is BELOW the viewer, and it has to stay there.** A 5.7 m model at
+  the old -0.55 m drop puts the sea plane at waist height and sweeps it through
+  you on every turn — the same bug that cost a round when the sea was first
+  measured. `DIORAMA_DROP` is -1.05 so you look down at it.
+- **The VR zoom range is a plain constant, and two attempts at deriving it both
+  shipped broken.** Against the map's horizontal reach it was computed in MIXED
+  UNITS — `Box3.expandByObject` refreshes world matrices, so a box taken after
+  the group was rescaled came back in metres and got multiplied by the scale
+  again — and the ceiling collapsed onto the floor, where `clamp` pins the scale
+  and neither button does anything: "me deja rodar, me deja hacer todo lo demás,
+  pero el Zoom no". Against the model's height it came out at 0.67 with entry at
+  1.0, so the first press was already against the stop. **A fixed span cannot go
+  degenerate, which is the property that matters.** The constraint those were
+  protecting against belonged to a tabletop at chest height and no longer
+  exists.
+- **Measure the diorama BEFORE re-parenting anything.** One space, worldGroup
+  local units, group at the origin and unscaled. Every mixed-unit bug above came
+  from measuring after the move.
+- **The gaze dwell is 1 s** (`PAD_ARM_MS`), below `GAZE_MS`: moving the map is a
+  smaller commitment than opening a level, so it must not cost more. Two seconds
+  read as sluggish in the headset; acting instantly fired on every glance across
+  the strip. The gaze buttons are also deliberately large — the head does not
+  hold still, so a cell is a comfortable target rather than a minimum one.
 
 **Layout** — every one of these was found on a phone, none on a desktop
 

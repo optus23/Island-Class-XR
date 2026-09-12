@@ -30,8 +30,13 @@ import * as THREE from 'three'
  * and the canvas is only repainted when the highlighted cell changes.
  */
 
-const PANEL_W = 0.9 // metres
-const PANEL_H = 0.18
+/**
+ * Bigger than the first cut (0.9 x 0.18), because gaze is a coarse pointer: the
+ * head does not hold still, so a cell has to be a comfortable target rather
+ * than a minimum one. At AHEAD these five cells are ~9 degrees wide each.
+ */
+const PANEL_W = 1.25 // metres
+const PANEL_H = 0.26
 const CANVAS_W = 1000
 const CANVAS_H = Math.round((CANVAS_W * PANEL_H) / PANEL_W)
 
@@ -50,8 +55,8 @@ const CELLS = [
   { id: 'recentre', glyph: '⌖' },
 ]
 
-const HINT_W = 0.9
-const HINT_H = 0.19
+const HINT_W = 1.25
+const HINT_H = 0.24
 
 function roundRect(ctx, x, y, w, h, r) {
   ctx.beginPath()
@@ -108,10 +113,11 @@ export function createGazePad() {
       ctx.strokeStyle = '#0b0f16'
       ctx.stroke()
 
-      // The arming bar. The button does nothing for two seconds, so it has to
-      // SAY it is counting or the wearer concludes it is broken and looks away
-      // at about 1.5 — which was the whole complaint about the first version
-      // acting instantly: no middle ground between nothing and everything.
+      // The arming bar. The button does nothing for the length of the dwell, so
+      // it has to SAY it is counting or the wearer concludes it is broken and
+      // looks away before it fires — which was the complaint about the first
+      // version from the other side: no middle ground between nothing and
+      // everything.
       if (on && charge > 0 && charge < 1) {
         ctx.save()
         roundRect(ctx, x + 12, 16, cw - 24, CANVAS_H - 32, 18)
