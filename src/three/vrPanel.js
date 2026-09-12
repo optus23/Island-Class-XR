@@ -26,10 +26,18 @@ import { stageLabel, categoryLabel, assessmentRows } from '../lib/labels.js'
  * a size chosen for reading at arm's length.
  */
 
-const PANEL_W = 0.62 // metres
-const PANEL_H = 0.40
+/**
+ * Sized to hang over ONE session without covering its neighbours. The diorama
+ * puts sessions about 0.37 m apart, so a 0.62 m card — what this was while it
+ * floated over the middle of the map — spanned more than one of them. At 1.4 m
+ * this still subtends ~18 degrees, which is a comfortable read.
+ */
+const PANEL_W = 0.44 // metres
+const PANEL_H = 0.28
 const CANVAS_W = 1024
 const CANVAS_H = Math.round((CANVAS_W * PANEL_H) / PANEL_W)
+/** Clear of the disc and the gold rim, without drifting off into the sky. */
+const PANEL_LIFT = 0.2
 
 const FONT = 'Fredoka, ui-rounded, "Segoe UI", system-ui, sans-serif'
 const INK = '#e8eef7'
@@ -66,6 +74,8 @@ function wrap(ctx, text, maxWidth, maxLines) {
 const hex = (n) => `#${n.toString(16).padStart(6, '0')}`
 
 export function createVRPanel() {
+  /** True when the session has no controllers, so the card says "hold your gaze". */
+  let byGaze = false
   const canvas = document.createElement('canvas')
   canvas.width = CANVAS_W
   canvas.height = CANVAS_H
@@ -176,7 +186,12 @@ export function createVRPanel() {
     // Footer hint: what the trigger will do from here.
     ctx.font = `600 22px ${FONT}`
     ctx.fillStyle = DIM
-    const hint = st.current ? 'Gatillo para ENTRAR' : 'Gatillo para ir aquí'
+    // A phone in a holder has no trigger — it is the headset this card was
+    // built for, and telling those viewers to pull one is telling them the
+    // thing does not work. `byGaze` comes from whether the session reported
+    // any controllers at all.
+    const act = byGaze ? 'Mantén la mirada' : 'Gatillo'
+    const hint = st.current ? `${act} para ENTRAR` : `${act} para ir aquí`
     ctx.fillText(hint, L, CANVAS_H - 34)
 
     if (st.current) {
@@ -191,6 +206,17 @@ export function createVRPanel() {
 
   return {
     mesh,
+
+    /**
+     * Which input the wearer actually has, so the footer names it. Forces the
+     * next `show` to repaint by forgetting what is on the canvas — the text is
+     * baked into the texture, so flipping the flag alone changes nothing.
+     */
+    setGaze(on) {
+      if (on === byGaze) return
+      byGaze = on
+      shownId = null
+    },
 
     /** Null hides the panel. Repaints only when the level actually changes. */
     show(level, markerId) {
@@ -222,7 +248,9 @@ export function createVRPanel() {
       if (!mesh.visible) return
 
       mesh.material.opacity = opacity
-      mesh.position.set(anchor.x, anchor.y + 0.42, anchor.z)
+      // Just above the disc, the way the villagers' name plates sit over their
+      // heads — close enough to read as belonging to that session.
+      mesh.position.set(anchor.x, anchor.y + PANEL_LIFT, anchor.z)
       mesh.rotation.set(0, Math.atan2(headPos.x - mesh.position.x, headPos.z - mesh.position.z), 0)
     },
 

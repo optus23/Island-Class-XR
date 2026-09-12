@@ -40,9 +40,37 @@ const PANEL_H = 0.26
 const CANVAS_W = 1000
 const CANVAS_H = Math.round((CANVAS_W * PANEL_H) / PANEL_W)
 
-/** In front of the viewer and below the diorama, so it never covers the map. */
-const AHEAD = 1.5
-const DROP = -0.92
+/**
+ * WHERE THE STRIP LIVES, AND WHY IT FOLLOWS YOUR HEAD IN YAW ONLY.
+ *
+ * It used to be world-locked: placed once, in front of wherever you happened to
+ * be facing on entry. That made it unusable for getting anywhere — "cuando hago
+ * Zoom y me muevo hacia delante, lo hago mirando siempre hacia abajo, en
+ * diagonal hacia abajo, porque no hay forma de mirar hacia delante". You had to
+ * hold your head down at one fixed corner of the room while the map moved
+ * somewhere you could not see.
+ *
+ * Fully head-locked is worse: tilt down and the buttons tilt with you, so the
+ * reticle can never reach them.
+ *
+ * YAW ONLY is the answer. The strip swings round to stay in front of whichever
+ * way you turn, and sits at a FIXED height below the eye — so looking forward
+ * leaves it out of the frame, a ~25 degree nod puts the reticle on it, and the
+ * direction you were facing is still the direction you are facing. Turn to
+ * where you want to go, nod, zoom.
+ */
+const AHEAD = 1.3
+const DROP = -0.62
+/** How fast the strip swings round to your new facing. Per second. */
+const FOLLOW = 6
+
+/**
+ * It also gets out of the way. A strip pinned at full strength in the bottom of
+ * every frame is what "la UI World está completamente estática" describes; this
+ * fades back when you look up and comes forward as you look down toward it.
+ * Never to zero — a control nobody can see is a control nobody knows exists.
+ */
+const DIM = 0.22
 
 const FONT = 'Fredoka, ui-rounded, "Segoe UI", system-ui, sans-serif'
 
@@ -181,23 +209,37 @@ export function createGazePad() {
   hint.position.y = PANEL_H * 0.5 + HINT_H * 0.5 + 0.04
   group.add(hint)
 
-  const hitPoint = new THREE.Vector3()
+  const target = new THREE.Vector3()
 
   return {
     group,
 
     /**
-     * World-lock the strip in front of the viewer. Called from the same place
-     * the diorama is recentred, so the two always agree — a pad that followed
-     * the head every frame could never be looked AT.
+     * Keep the strip in front of the viewer's FACING, at a fixed height below
+     * the eye. Called every frame — see AHEAD/DROP for why yaw-only.
+     *
+     * The yaw is eased rather than snapped: a strip that tracks a head exactly
+     * reads as stuck to your face, and the whole point is that it stays put in
+     * the world while you look around above it.
+     *
+     * @param lookDown 0..1, how far down the viewer is looking. Drives the fade.
      */
-    place(headPos, headFwd) {
+    follow(headPos, headFwd, dt, lookDown = 1) {
       group.visible = true
-      group.position
-        .copy(headPos)
-        .addScaledVector(headFwd, AHEAD)
-        .setY(headPos.y + DROP)
-      group.rotation.set(0, Math.atan2(headFwd.x, headFwd.z) + Math.PI, 0)
+      target.copy(headPos).addScaledVector(headFwd, AHEAD).setY(headPos.y + DROP)
+      const k = Math.min(1, dt * FOLLOW)
+      group.position.lerp(target, k)
+
+      const wantYaw = Math.atan2(headFwd.x, headFwd.z) + Math.PI
+      // Shortest way round, or turning past due south unwinds the long way.
+      let d = wantYaw - group.rotation.y
+      while (d > Math.PI) d -= Math.PI * 2
+      while (d < -Math.PI) d += Math.PI * 2
+      group.rotation.y += d * k
+
+      const a = DIM + (1 - DIM) * Math.min(1, Math.max(0, lookDown))
+      strip.material.opacity = a
+      hint.material.opacity = a
     },
 
     hide() {
@@ -216,7 +258,6 @@ export function createGazePad() {
       let index = -1
       if (hit?.uv) {
         index = Math.min(CELLS.length - 1, Math.floor(hit.uv.x * CELLS.length))
-        hitPoint.copy(hit.point)
       }
       if (index !== hot) {
         hot = index
