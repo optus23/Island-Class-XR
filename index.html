@@ -24,7 +24,11 @@
   </head>
   <body class="map-view">
     <div id="app"></div>
-    <div class="ui-layer" id="ui"></div>
+    <!-- Ships hidden: the opening flight owns the screen, and a HUD painted at
+         full opacity before the camera lands (then fading out) was a visible
+         flash. `main.js` clears `is-intro` at once when there is no flight; the
+         flight clears it through `is-revealing`, the one state that fades. -->
+    <div class="ui-layer is-intro" id="ui"></div>
     <script type="module" src="/src/main.js"></script>
   </body>
 </html>

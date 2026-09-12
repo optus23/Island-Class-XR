@@ -10,7 +10,7 @@ paginate: true
 
 **Bloque 1 — AR Foundation** · 10 % del curso, reparto por ejercicio *por decidir*
 (este ejercicio es el de **más peso** del bloque)
-**Individual**, dentro de tu grupo de referencia · **Entrega: build (APK)**
+**Por grupo** · los grupos se rehacen cada bloque · **Entrega: build (APK)**
 
 ---
 

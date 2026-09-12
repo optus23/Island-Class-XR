@@ -48,6 +48,15 @@ These come from the brief and are not negotiable without the user saying so.
   no points, no counters, no emails, no dates — the no-calendar rule covers it
   and `validate` enforces both. The repository is public, so `/admin` says in as
   many words to use a nickname or a first name plus an initial.
+- **Every graded exercise in blocks 1, 2 and 3 is group work, and the groups are
+  re-formed each block.** That is `groupMode: "per-group-per-block"`, and the
+  label says the re-forming out loud because it is the part students ask about.
+  Block 1 was individual-within-group until 12 September 2026; nothing is
+  individual any more. The enum lives in three places that must agree —
+  `GROUP_MODES` in `validate.mjs`, `GROUP_LABELS` in `lib/labels.js`, and the
+  data. **The reason the groups may change is the hardware count, and the
+  hardware count is not published**: do not write the number of headsets into
+  the repository, the decks or the map.
 - **No live in-browser AI calls, no API keys on the client.** The slide decks
   are a Markdown→HTML pipeline run at build time, not generation.
 - **The course publishes no answers.** The todos are the instructions and that
@@ -134,19 +143,33 @@ Nothing is hardcoded per node. Reshape a world by editing data, not geometry.
 | `src/lib/levels.js` | The sequence, and **the one place the lock rule lives** (`statusFor`, `safeTitle`). |
 | `src/lib/githubData.js` | The write path for both public data files. |
 
-**Session count is fixed by the calendar**, verified against the user's Whimsical
-board: 11 sessions → midterm (session 12) → 15 sessions. Both Fall and Spring are
-identical. Do not add or remove sessions without re-checking that board.
+**Session count is fixed by the calendar**, and the calendar is the user's
+Whimsical board — <https://whimsical.com/upc-citm/calendar-upc-citm-3b62v2g9JvyWZxCXwZhSRR>.
+Do not add or remove sessions without re-reading it.
 
-**What `levels.json` actually holds today** (counted, September 2026): 31 levels
-= **28 on the main path** (8 / 11 / 9 per world, including the two castles) plus
-**3 optional** — the two "Actitud" activities and the re-evaluation. Of the 28,
-**26 are classes** and 2 are exams; the nav reads "Sesión N / 28".
+**Read the FALL table, never the Spring one.** They used to be identical and the
+note here used to say so. They are not any more: as of 12 September 2026 Fall is
+the one the user maintains and Spring is a stale copy of the older shape — it
+still carries the Mono/Stereoscopic practical as its own session. Reconciling
+Fall from Spring would undo this round. Both tables hang off the same board;
+Fall is the first one, headed "Fall Semester".
 
-Those two paragraphs disagree: the note above says 27 and 7 / 9 / 11, the data
-says 28 and 8 / 11 / 9. **Nobody has re-checked the board since, so do not
-"correct" either one from the other** — the numbers came from different places
-and only the board settles it.
+**Counted off the Fall table, 12 September 2026**: 31 rows = 28 sessions, two
+holidays and the re-evaluation. **12 sessions → the midterm castle (session 13)
+→ 15 more**, the last of which is the final castle. An earlier note here said
+"11 → midterm at 12 → 15", and a second one said 27 sessions at 7 / 9 / 11 per
+world. **Both were wrong; the board settles it and this is the settled number.**
+
+**What `levels.json` holds today**: 31 levels = **28 on the main path**
+(**7 / 11 / 10** per world, including the two castles) plus **3 optional** — the
+two "Actitud" activities and the re-evaluation. Of the 28, **26 are classes** and
+2 are exams; the nav reads "Sesión N / 28".
+
+**The board's own text is not all safe to copy.** Its Content column carries
+scheduling notes — "Teacher absent – class to be rescheduled September 31",
+"Holiday – no class" — and a holiday row is not a session. The no-dates rule
+covers those: a date inside a `contents` string is still a date in map data.
+Holidays are skipped and the rescheduling note is dropped.
 
 **Never place anything by hand.** If an object needs a position, derive it from
 the path template or the node list so reshaping a world moves it too.
@@ -188,6 +211,12 @@ Changing any of these is a design decision, not a refactor.
   class day on a dashed connector, lilac. The day itself keeps its ordinary
   theory or practice colour — it is an ordinary class. Do not go back to
   recolouring the day.
+  **Mono/Stereoscopic has no class of its own and must not get one back.** It
+  used to be session 2, a practical day. The dates stopped fitting the content,
+  so the session was deleted and every practical moved one slot earlier; the
+  activity is now EXPLAINED inside the second theory day (`w1-03`) and handed in
+  from home. The lilac node survives unchanged and anchors there — the exercise
+  itself was never in question, only the day that carried it.
 - **Two round crossings** on the route: one water, one a chasm with a dark
   bottom, each with a small wooden bridge. Different sizes and offsets — they
   must not read as one feature mirrored. The island stays **one landmass**; an
@@ -316,6 +345,23 @@ Every one of these was diagnosed the hard way. Do not re-derive them.
   island alone put the viewer *inside* the water, 1.3 m of it behind them.
 - **Rotation turns the viewer, not the model.** Spinning a two-metre model in
   front of someone reads as self-motion however centred the pivot is.
+- **NEVER CACHE THE GAMEPAD OFF THE `connected` EVENT.** `vr.js` used to keep
+  `e.data.gamepad` in the controller's `userData` and read the sticks from it
+  all session. Three re-binds a controller's POSE from the live input source
+  every frame, so that snapshot going stale does not stop the ray tracking — it
+  only stops the axes ever changing again. The symptom is therefore precisely
+  **"rays and trigger work, the thumbsticks do nothing"**, reported off a Quest 3
+  over Link. Read `session.inputSources` each frame instead; it cannot go stale
+  and costs one pass over a two-element list. `hasControllers()` reads it too,
+  because the same staleness would drop a Quest wearer into the gaze reticle.
+- **Take the thumbstick as a PAIR, chosen by the gamepad's own axis count.**
+  `xr-standard` puts it at axes 2/3 with 0/1 left for a trackpad, but a
+  controller reporting only two axes has it at 0/1. The old code picked each
+  axis separately with `axis(gp,2) || axis(gp,0)`, so x could come from one slot
+  while y came from the other — a stick that only moves in an L. Four axes means
+  2/3, two means 0/1, and only if BOTH of 2/3 read zero is 0/1 tried as a
+  fallback. Entering a session logs one line naming what the runtime offered;
+  ask for it before theorising about the next stick bug.
 
 **Rendering**
 
@@ -504,6 +550,14 @@ Every one of these was diagnosed the hard way. Do not re-derive them.
 - **The clouds do not survive the intro.** The overview camera pulls back a
   couple of hundred units and looks almost straight down, so a permanent cloud
   layer would put a lid on the one shot meant to show the whole map.
+- **`#ui` must ship hidden, not be hidden by JS.** `is-intro` (opacity 0) lives
+  on `#ui` in `index.html`. It used to be added in `boot()` AFTER the nav and
+  legend were mounted — but `#ui` had already been painted at opacity 1 during
+  the network wait, so adding the class fired the 700 ms transition and the HUD
+  faded OUT over the first frames of the flight, then back in at the end. The
+  fade is now on `is-revealing` alone, added by `intro.finish()`; `boot()` only
+  ever REMOVES `is-intro` (immediately, no fade) when there is no flight. Reported
+  as "se ve un momento la UI, luego la animación, y vuelve a aparecer la UI".
 
 **Locking the sessions ahead**
 
@@ -540,6 +594,20 @@ Every one of these was diagnosed the hard way. Do not re-derive them.
   axis is inverted. This has now been reported twice; don't re-derive it on
   paper, measure it: `rig.orbit(100, 0)` then compare `camera.position` against
   the camera's own right vector from `matrixWorld.extractBasis`.
+- **The camera pad's signs are the OPPOSITE of the drag's, and both are right.**
+  `ui/camPad.js` feeds the same `rig.orbit`, but a drag is a GRAB and an arrow
+  button is not: pull right and the island follows your hand, press ▶ and the
+  camera itself has to go right. Handing the pad's directions straight to
+  `orbit` shipped both axes backwards — measured, not guessed: hold a button 45
+  frames, dot the camera's travel with its own right vector. ▶ read −27 and ▲
+  read −20.75 in Y; they read +27 and +13.95 now. **Anything new that moves the
+  camera has to declare which of the two conventions it is in.**
+- **The pad repeats from the render loop, never a timer.** It only converts a
+  held button into `rig.orbit`/`rig.zoom` deltas times dt, so it holds no camera
+  state of its own and cannot reach anywhere a drag cannot. A `setInterval`
+  would drift against the frame clock and keep firing in a background tab.
+  Held buttons are cleared on `blur` and `visibilitychange` — without that, a
+  tab switch mid-press leaves the camera turning by itself.
 
 **Layout** — every one of these was found on a phone, none on a desktop
 
