@@ -654,6 +654,17 @@ Every one of these was diagnosed the hard way. Do not re-derive them.
     so a 2 s dwell costs 12 canvas uploads rather than 120 — verified.
   - **The pad is hit-tested BEFORE the nodes and swallows the frame**, or the
     disc behind it keeps charging its own dwell ring under the button being held.
+  - **YAW-FOLLOW, FIXED HEIGHT.** It was world-locked, placed once in front of
+    wherever you faced on entry, and that made getting anywhere impossible:
+    "cuando hago Zoom y me muevo hacia delante, lo hago mirando siempre hacia
+    abajo... porque no hay forma de mirar hacia delante". Fully head-locked is
+    worse — tilt down and the buttons tilt away. Yaw only: it swings round to
+    stay ahead of whichever way you turn and sits 25.5 degrees below the eye
+    (measured), so looking forward leaves it out of frame and a nod reaches it.
+    Ease the yaw; tracking a head exactly reads as stuck to your face.
+  - **It fades back when you look up** (to 0.22, never to 0 — a control nobody
+    can see is a control nobody knows exists). "Completamente estática" was half
+    about it never reacting to anything.
   - **One mesh, one canvas, hit-tested by `uv.x`.** Five planes would be five
     draw calls and five raycast targets for buttons that never move relative to
     each other.
@@ -661,6 +672,32 @@ Every one of these was diagnosed the hard way. Do not re-derive them.
     Android gives those keys to the system, not the document, and the old
     Cardboard trick of watching `volumechange` on a muted `<audio>` died when
     they stopped touching the element's own `.volume`. Do not try again.
+- **THE GAZE PICKS A SESSION BY ANGLE, NEVER BY RAYCASTING THE DISC.** Measured
+  from the entry pose, a session disc subtends **2.72 degrees** — and seen from
+  above it is a foreshortened ellipse, which is where "solo funciona de la mitad
+  para la izquierda" came from. Controllers can raycast it; a wobbling head
+  cannot. `gazePick` takes whichever node the view direction comes CLOSEST to
+  inside `GAZE_CONE`. Nearest-wins is what makes a generous cone safe: it can
+  only change whether something is picked, never pick a neighbour in preference
+  to what you are looking at. **Neighbouring sessions are 4.9 degrees apart at
+  the median and 1.8 at the tightest** — not the 15 that a first estimate
+  assumed — so the cone is 3 degrees. Re-measure before changing it.
+- **The VR card hangs over the SESSION, not over the middle of the map.** It sat
+  above `pivot.position`, so it floated in one spot whatever you looked at. Over
+  the node it behaves like the 2D hover tooltip and like the villagers' name
+  plates: it belongs to the thing it describes. It is sized to hang over one
+  session (0.44 m, ~18 degrees) rather than the 0.62 it was.
+- **The card names the input the wearer actually has.** It said "Gatillo para
+  ENTRAR" to a phone in a holder, which has no trigger — telling exactly the
+  audience it was built for that the thing does not work. `panel.setGaze()`
+  follows `hasControllers()`, and because the text is baked into the texture it
+  forgets `shownId` to force a repaint.
+- **The backdrop stays visible in VR.** It was hidden for two reasons and only
+  one was ever about looks: it was also the widest thing in the scene while the
+  scale was fitted to the bounding box. The scale comes from the avatar now, so
+  it costs the model nothing, and a map with no horizon read as floating in a
+  void. The rows sit behind the island only, so from the far side they are thin
+  — but they are real mounds, not a painted card.
 - **THE DIORAMA'S SCALE COMES FROM THE AVATAR, NOT FROM THE ISLAND.** Fitting
   the whole world into 2.4 m made the avatar **14.2 mm tall** — measured — and
   that one number is the whole of "la cámara se sitúa muy, muy alejado de la
