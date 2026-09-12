@@ -504,6 +504,14 @@ Every one of these was diagnosed the hard way. Do not re-derive them.
 - **The clouds do not survive the intro.** The overview camera pulls back a
   couple of hundred units and looks almost straight down, so a permanent cloud
   layer would put a lid on the one shot meant to show the whole map.
+- **`#ui` must ship hidden, not be hidden by JS.** `is-intro` (opacity 0) lives
+  on `#ui` in `index.html`. It used to be added in `boot()` AFTER the nav and
+  legend were mounted — but `#ui` had already been painted at opacity 1 during
+  the network wait, so adding the class fired the 700 ms transition and the HUD
+  faded OUT over the first frames of the flight, then back in at the end. The
+  fade is now on `is-revealing` alone, added by `intro.finish()`; `boot()` only
+  ever REMOVES `is-intro` (immediately, no fade) when there is no flight. Reported
+  as "se ve un momento la UI, luego la animación, y vuelve a aparecer la UI".
 
 **Locking the sessions ahead**
 

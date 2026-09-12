@@ -778,14 +778,20 @@ async function boot() {
   // The opening flight. Set up BEFORE app.start(), because the hook has to run
   // on the very first frame — one frame of the ordinary map before the sky
   // appears is a visible flash of the ending.
+  //
+  // `#ui` ships hidden (`is-intro` in index.html), so the HUD is never painted
+  // at full opacity and then faded out before the clouds. When there is no
+  // flight, drop the class now and the HUD is simply present; the flight itself
+  // drops it through `is-revealing` once the camera has landed.
   if (introWanted({ deepLinked: Boolean(deepLinked), xrEager: XR_EAGER })) {
-    document.getElementById('ui').classList.add('is-intro')
     const intro = createIntro({
       camera: app.rig.camera,
       scene: app.scene,
       avatar: player.group.position.clone(),
     })
     app.setAfterCamera((dt) => intro.update(dt))
+  } else {
+    document.getElementById('ui').classList.remove('is-intro')
   }
 
   app.start()

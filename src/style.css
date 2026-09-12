@@ -56,14 +56,18 @@ body.map-view {
   pointer-events: auto;
 }
 
-/* The opening flight owns the screen. The panels fade in as the camera lands,
-   so the first thing anyone sees is sky rather than a map with furniture on it.
+/* The opening flight owns the screen. `#ui` ships with `is-intro` in the markup
+   (see index.html), so the panels are never painted before the camera lands —
+   the first thing anyone sees is sky, not a map with furniture on it that then
+   fades out. `main.js` drops `is-intro` immediately when there is no flight, so
+   the HUD is simply there; the flight drops it via `is-revealing`, which is the
+   only state that transitions — the panels fade up as the camera lands.
    `.intro-catch` is what makes a tap skip the flight instead of picking a node
    through it. */
 .ui-layer.is-intro {
   opacity: 0;
 }
-.ui-layer {
+.ui-layer.is-revealing {
   transition: opacity 700ms ease-out;
 }
 .intro-catch {
