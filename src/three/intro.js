@@ -251,7 +251,13 @@ export function createIntro({ camera, scene, avatar }) {
     title.geometry.dispose()
     title.material.dispose()
     texture.dispose()
-    document.getElementById('ui')?.classList.remove('is-intro')
+    // Hand the screen over: `is-revealing` is what carries the 700ms fade, so
+    // the panels rise as the camera settles rather than snapping on.
+    const ui = document.getElementById('ui')
+    if (ui) {
+      ui.classList.add('is-revealing')
+      ui.classList.remove('is-intro')
+    }
   }
 
   /**

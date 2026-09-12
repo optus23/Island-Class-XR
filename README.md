@@ -67,9 +67,9 @@ repo and the map stays reusable year after year.
 
 | World | Content | Biome | Viewing angle |
 | --- | --- | --- | --- |
-| 1 | Introduction and foundational theory, ending in AR Foundation | Meadow | Isometric, from the left |
-| 2 | Meta Building Blocks, split in half by the midterm castle | Desert | Frontal |
-| 3 | XR Interaction Toolkit, then the final project | Snowy summit | Isometric, from the right |
+| 1 | Introduction, foundational theory and the AR Foundation block | Meadow | Isometric, from the left |
+| 2 | Meta Building Blocks split in half by the midterm castle, then the XR Interaction Toolkit | Desert | Frontal |
+| 3 | The final project, closing on the presentation castle | Snowy summit | Isometric, from the right |
 
 ### The camera
 
@@ -113,25 +113,27 @@ even that moves only when a human presses a button.
 
 ## One level = one class session
 
-The course runs **27 sessions per semester**, and Fall and Spring have the same
-shape (the source of truth is the Calendar board in Whimsical):
+The course runs **28 sessions per semester**. The source of truth is the
+Calendar board in Whimsical, and the table to read is **Fall** — Spring is
+currently a stale copy of an older shape, so it is not a second opinion.
 
-| | Fall | Spring |
-| --- | --- | --- |
-| Scheduled slots | 29 | 29 |
-| Holidays | 2 | 2 (Semana Santa) |
-| **Sessions** | **27** | **27** |
-| Midterm | session 12 | session 12 |
+| | Fall |
+| --- | --- |
+| Rows on the board | 31 |
+| Holidays | 2 |
+| Re-evaluation (not a class) | 1 |
+| **Sessions** | **28** |
+| Midterm | session 13 |
 
-So `levels.json` holds **27 non-optional levels, 9 per world**. The midterm is
-the mini-boss at the centre of world 2, and the final exam is the final boss
-closing world 3 — both count as sessions.
+So `levels.json` holds **28 non-optional levels, 7 / 11 / 10 per world**. The
+midterm is the mini-boss at the centre of world 2, and the final presentation is
+the final boss closing world 3 — both count as sessions.
 
 Optional/bonus levels are **extra**: they are not sessions, sit off the main
-path, and do not count toward the 27.
+path, and do not count toward the 28. The re-evaluation is one of them.
 
 Holidays still never appear here. They shift *when* a session happens, not
-whether it exists, so the count stays 27 either way.
+whether it exists, so the count stays 28 either way.
 
 ---
 
@@ -270,7 +272,7 @@ fields:
 {
   "block": { "number": 1, "name": "AR Foundation", "exercise": 1, "of": 3 },
   "submissionMethod": "build",              // build | video | repo | null
-  "groupMode": "individual-within-group",   // individual | individual-within-group | per-group
+  "groupMode": "per-group-per-block",       // individual | individual-within-group | per-group | per-group-per-block
   "gradeWeight": { "block": "10 %", "exercise": null },
   "starterRepo": { "url": null, "branch": "01-plane-detection" }  // block 1 only
 }
@@ -818,8 +820,8 @@ aquí **impide que la web se publique**. Lo que comprueba, y por qué te importa
   ([Reshaping the island](#reshaping-the-island)).
 - **Una actividad opcional cuelga de una sesión normal** de su mismo mundo.
 
-La plantilla trae 28 sesiones repartidas 8 / 11 / 9. Puedes poner menos sin tocar
-nada más.
+La plantilla trae 28 sesiones repartidas 7 / 11 / 10. Puedes poner menos sin
+tocar nada más.
 
 ### 6. Pon tu contenido
 

@@ -48,6 +48,11 @@ export const GROUP_LABELS = {
   individual: 'Individual',
   'individual-within-group': 'Individual, dentro del grupo',
   'per-group': 'Por grupo',
+  // Every graded block is group work, and the groups are not fixed for the
+  // term: a block may be started with a different line-up from the last one.
+  // That is the part a student has to be told, so it is in the label rather
+  // than in a footnote nobody reads.
+  'per-group-per-block': 'Por grupo · los grupos se rehacen cada bloque',
 }
 
 /** What an undecided field reads as, in plain text. */

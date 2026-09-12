@@ -29,6 +29,7 @@ import {
   onNodeLabelEnter,
 } from './ui/nodeLabel.js'
 import { hasAdminToken, mountLegend } from './ui/legend.js'
+import { mountCamPad } from './ui/camPad.js'
 import { writeLockAhead, writeProgress } from './lib/githubData.js'
 import { nextMarker, START_MARKER } from './lib/levels.js'
 import { irisClose, screenPositionOf } from './ui/transition.js'
@@ -93,6 +94,10 @@ app.worldGroup.add(player.group)
 // speed, so they read as far away instead of pinned to the island.
 const BACKDROP_PARALLAX = 0.28
 app.onUpdate((dt) => {
+  // Before rig.update reads them: the pad feeds rig.orbit/rig.zoom the same
+  // deltas a drag and a wheel would, and the updaters all run ahead of the
+  // camera in the frame (see scene.js).
+  camPad?.update(dt)
   island.update(dt)
   enemies.update(dt)
   villagers?.update(dt, app.rig.camera)
@@ -410,6 +415,7 @@ container.addEventListener('contextmenu', (e) => e.preventDefault())
 
 let nav = null
 let legend = null
+let camPad = null
 let markerId = null
 // Assigned in boot(). Null until then, and on any device without WebXR.
 let vr = null
@@ -773,19 +779,29 @@ async function boot() {
     seeAll: () => seeAllSetting(),
   })
   legend.setMarker(markerReadout(markerId))
+
+  // Orbit and zoom as buttons. Same rig methods as the drag and the wheel, so
+  // it adds a door rather than a second way for the camera to be moved.
+  camPad = mountCamPad({ rig: app.rig, host: document.getElementById('ui') })
   nav.setPlayerLevel(startId)
 
   // The opening flight. Set up BEFORE app.start(), because the hook has to run
   // on the very first frame — one frame of the ordinary map before the sky
   // appears is a visible flash of the ending.
+  //
+  // `#ui` ships hidden (`is-intro` in index.html), so the HUD is never painted
+  // at full opacity and then faded out before the clouds. When there is no
+  // flight, drop the class now and the HUD is simply present; the flight itself
+  // drops it through `is-revealing` once the camera has landed.
   if (introWanted({ deepLinked: Boolean(deepLinked), xrEager: XR_EAGER })) {
-    document.getElementById('ui').classList.add('is-intro')
     const intro = createIntro({
       camera: app.rig.camera,
       scene: app.scene,
       avatar: player.group.position.clone(),
     })
     app.setAfterCamera((dt) => intro.update(dt))
+  } else {
+    document.getElementById('ui').classList.remove('is-intro')
   }
 
   app.start()
