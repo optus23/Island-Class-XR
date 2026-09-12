@@ -93,6 +93,7 @@ function tabsFor(level) {
   const slides = { key: 'slides', label: 'Diapositivas' }
   const todos = { key: 'todos', label: 'Actividades' }
   const exercises = { key: 'exercises', label: 'Ejercicios' }
+  const bibliography = { key: 'bibliography', label: 'Bibliografía' }
 
   // There is no answers tab. The todos ARE the instructions, and the course
   // deliberately does not publish worked solutions.
@@ -100,10 +101,18 @@ function tabsFor(level) {
   // Practical levels lead with the activities; everything else leads with slides.
   const ordered =
     level.category === 'practical' && level.todos?.length
-      ? [todos, slides, exercises]
-      : [slides, todos, exercises]
+      ? [todos, slides, exercises, bibliography]
+      : [slides, todos, exercises, bibliography]
 
-  return ordered.filter((t) => (t.key === 'todos' ? Boolean(level.todos?.length) : true))
+  // A tab only shows when the level actually has something behind it — an
+  // empty "Ejercicios" or "Bibliografía" button that opens on "esta sesión no
+  // tiene..." reads as a broken feature, not as an honest empty state.
+  return ordered.filter((t) => {
+    if (t.key === 'todos') return Boolean(level.todos?.length)
+    if (t.key === 'exercises') return Boolean(level.exercises)
+    if (t.key === 'bibliography') return Boolean(level.bibliography)
+    return true
+  })
 }
 
 /** Removes the panel without notifying — used when swapping one level for another. */
@@ -152,11 +161,10 @@ export function openPortal(
   restoreFocusTo = document.activeElement instanceof HTMLElement ? document.activeElement : null
 
   const status = statusFor(level, markerId)
-  const accent = level.optional
-    ? cssPalette.optional
-    : status.completed
-      ? cssPalette.completed
-      : cssPalette[level.category] ?? cssPalette.theory
+  // The category colour (Teoría/Práctica…) never changes on completion — the
+  // separate "Completado" badge below is what says that. Swapping this one to
+  // green too used to make a finished practical read as "another theory day".
+  const accent = level.optional ? cssPalette.optional : cssPalette[level.category] ?? cssPalette.theory
 
   const n = sessionNumber(level)
   const sessionLabel = n
@@ -179,7 +187,12 @@ export function openPortal(
     level.bossTier
       ? `<span class="badge badge-sm badge-outline">${BOSS_TIER_LABELS[level.bossTier]}</span>`
       : '',
-    status.completed ? '<span class="badge badge-sm badge-success">Completado</span>' : '',
+    // Not `badge-success`: the "night" DaisyUI theme's success colour is a
+    // teal that reads as cyan next to this palette's actual green. Painted
+    // from `palette.completed` it matches the green the map itself uses.
+    status.completed
+      ? `<span class="badge badge-sm" style="background:${cssPalette.completed};color:#0b0f14;border:none">Completado</span>`
+      : '',
     status.current ? '<span class="badge badge-sm badge-warning">Aquí estamos</span>' : '',
   ]
     .filter(Boolean)
@@ -254,8 +267,11 @@ export function openPortal(
       return
     }
     panel.innerHTML = '<p class="opacity-60">Cargando…</p>'
-    const result = await loadMarkdown(level.exercises)
-    renderMarkdownInto(panel, result, 'Este nivel no tiene ejercicios.')
+    const path = key === 'bibliography' ? level.bibliography : level.exercises
+    const emptyLabel =
+      key === 'bibliography' ? 'Este nivel no tiene bibliografía.' : 'Este nivel no tiene ejercicios.'
+    const result = await loadMarkdown(path)
+    renderMarkdownInto(panel, result, emptyLabel)
   }
 
   buttons.forEach((b) => b.addEventListener('click', () => show(b.dataset.tab)))
