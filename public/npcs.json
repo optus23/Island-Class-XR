@@ -9,6 +9,11 @@
       "id": "8pn2ih",
       "name": "Gimeno",
       "levelId": "w1-arf-02"
+    },
+    {
+      "id": "cu08cv",
+      "name": "Gepeto",
+      "levelId": "w1-01"
     }
   ],
   "note": "Alumnos destacados. Escrito solo desde /admin; los estudiantes lo leen y nunca lo escriben. Sin fechas, sin notas, sin correos: un nombre visible y la sesión junto a la que pasea."
