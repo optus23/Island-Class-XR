@@ -143,6 +143,8 @@ export function createMapObjects() {
   // --- deliverable flags ---------------------------------------------------
   // Planted beside the node, not on it — see hasDeliverable()/deliverableDone
   // in lib/levels.js for which sessions get one and what turns them green.
+  // Every `deliverable` session today is on-path (see lib/levels.js) — an
+  // off-path placement isn't handled here because nothing currently needs it.
   const flagEntries = []
   for (const p of placed) {
     if (!hasDeliverable(p.level)) continue
@@ -155,19 +157,9 @@ export function createMapObjects() {
       // the ~2.9 a scale-1 guess gives buried the flag inside the stairs.
       side = new THREE.Vector3(0, 0, -1)
       offset = 10
-    } else if (p.onPath) {
-      side = new THREE.Vector3(p.tangent.z, 0, -p.tangent.x).normalize()
-      offset = 2.7
     } else {
-      // An off-path (bonus) node already sits offset from its anchor, out in
-      // open country — continuing further along that same line clears the
-      // road it came from. Doubling back with the tangent's perpendicular
-      // landed the flag on the connector it hangs off instead.
-      const anchorPos = positionById.get(p.anchorId)
-      side = anchorPos
-        ? new THREE.Vector3(p.position.x - anchorPos.x, 0, p.position.z - anchorPos.z).normalize()
-        : new THREE.Vector3(p.tangent.z, 0, -p.tangent.x).normalize()
-      offset = 2.7
+      side = new THREE.Vector3(p.tangent.z, 0, -p.tangent.x).normalize()
+      offset = 2.2
     }
     const fx = p.position.x + side.x * offset
     const fz = p.position.z + side.z * offset
@@ -282,6 +274,17 @@ export function createMapObjects() {
     return hit.object.userData.level ?? null
   }
 
+  // Flags are their own, separate pick list: they are informational (a hover
+  // tooltip), never selectable, so they must not feed into setHovered/click —
+  // that would scale a node disc or open a portal for a flag standing next to
+  // it.
+  const flagPickTargets = flagEntries.map((f) => f.pick)
+
+  /** Resolve a raycast hit on a flag to the level it belongs to, or null. */
+  function deliverableFromHit(hit) {
+    return hit?.object.userData.level ?? null
+  }
+
   // Gentle bob so the map feels alive; bosses breathe slower than nodes.
   let t = 0
   function update(dt) {
@@ -307,6 +310,8 @@ export function createMapObjects() {
     positionById,
     pickTargets,
     levelFromHit,
+    flagPickTargets,
+    deliverableFromHit,
     setHovered,
     refresh,
     update,
@@ -1135,21 +1140,29 @@ function createDeliverableFlag(level, groundPos) {
     return mesh
   }
 
-  // Short — level with the node disc it stands beside, not a tower over it.
-  // A 4-unit pole read as taller than the landmark next to it and put the
-  // pennant well above the session it was meant to flag.
-  addBox(1.1, 0.3, 1.1, 0, 0.15, 0, { color: FLAG_BASE, keepColor: true })
-  addBox(0.22, 1.3, 0.22, 0, 0.95, 0, { color: FLAG_POLE, keepColor: true })
-  addBox(0.32, 0.32, 0.32, 0, 1.76, 0, { color: palette.nodeRim, keepColor: true })
+  addBox(1.1, 0.36, 1.1, 0, 0.18, 0, { color: FLAG_BASE, keepColor: true })
+  addBox(0.22, 3.5, 0.22, 0, 1.93, 0, { color: FLAG_POLE, keepColor: true })
+  addBox(0.36, 0.36, 0.36, 0, 3.86, 0, { color: palette.nodeRim, keepColor: true })
   // Pennant: three stepped boxes, the pixel-art triangle every other voxel
   // shape in this file uses instead of a true diagonal.
-  addBox(1.2, 0.5, 0.1, 0.75, 1.45, 0)
-  addBox(0.86, 0.44, 0.1, 0.58, 1.06, 0)
-  addBox(0.5, 0.38, 0.1, 0.4, 0.72, 0)
+  addBox(1.3, 0.55, 0.1, 0.78, 3.45, 0)
+  addBox(0.92, 0.48, 0.1, 0.6, 2.96, 0)
+  addBox(0.52, 0.42, 0.1, 0.42, 2.52, 0)
+
+  // Invisible box bounding the whole flag, so hovering anywhere near the pole
+  // or the pennant — not just the thin boxes themselves — raises the tooltip.
+  const pick = new THREE.Mesh(
+    new THREE.BoxGeometry(1.6, 4.1, 1.6),
+    new THREE.MeshBasicMaterial({ visible: false })
+  )
+  pick.position.y = 2.05
+  pick.userData.level = level
+  g.add(pick)
 
   return {
     level,
     group: g,
+    pick,
     parts: parts.filter((m) => !m.userData.keepColor),
   }
 }

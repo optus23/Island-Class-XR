@@ -35,13 +35,18 @@
       "stage": "ar-foundation",
       "category": "practical",
       "optional": false,
-      "summary": "News! Notícies VR/MR · Presentació Enunciat (1-1) · Pilars AR Foundation · Activitat a classe: 1. AR Foundation — Plane Detection",
+      "summary": "News! Notícies VR/MR · Presentació Enunciat (1-1) · Pilars AR Foundation · Activitat a classe: 1. AR Foundation — Plane Detection · Entrega Mono/Stereoscopic",
       "contents": [
         "News! Notícies VR/MR",
         "Presentació Enunciat (1-1)",
         "Pilars AR Foundation",
-        "Activitat a classe: 1. AR Foundation — Plane Detection"
+        "Activitat a classe: 1. AR Foundation — Plane Detection",
+        "Entrega Mono/Stereoscopic"
       ],
+      "deliverable": {
+        "label": "Mono/Stereoscopic",
+        "weight": "10 %"
+      },
       "block": {
         "number": 1,
         "name": "AR Foundation",
@@ -125,11 +130,11 @@
       "category": "practical",
       "optional": true,
       "anchorAfter": "w1-03",
-      "attitudeGrade": "Actitud 10% · voluntaria",
-      "summary": "Actividad voluntaria: se explica en clase en la sesión de dispositivos y tracking, y se entrega desde casa. Cuenta para el 10 % de actitud.",
+      "attitudeGrade": "Actitud · voluntària",
+      "summary": "Actividad voluntaria: se explica en clase en la sesión de dispositivos y tracking, y se entrega desde casa. Cuenta para la nota de actitud.",
       "contents": [
         "Activitat a classe: Explicació Mono/Stereoscopic",
-        "Entrega Mono/Stereoscopic (Actitud 10%, voluntària, feta a casa)"
+        "Feta a casa, voluntària"
       ],
       "todos": []
     },
@@ -222,12 +227,11 @@
       "stage": "ar-foundation",
       "category": "practical",
       "optional": false,
-      "summary": "News! Notícies VR/MR · Presentació Enunciat (1-3) · Activitat a classe: 3. AR Foundation — Face Detection, Occlusion, Point Clouds… · Treball en equips: Entrega AR Foundation",
+      "summary": "News! Notícies VR/MR · Presentació Enunciat (1-3) · Activitat a classe: 3. AR Foundation — Face Detection, Occlusion, Point Clouds…",
       "contents": [
         "News! Notícies VR/MR",
         "Presentació Enunciat (1-3)",
-        "Activitat a classe: 3. AR Foundation — Face Detection, Occlusion, Point Clouds…",
-        "Treball en equips: Entrega AR Foundation"
+        "Activitat a classe: 3. AR Foundation — Face Detection, Occlusion, Point Clouds…"
       ],
       "slides": {
         "type": "canva",
@@ -303,13 +307,18 @@
       "stage": "meta-pre-exam",
       "category": "practical",
       "optional": false,
-      "summary": "News! Notícies VR/MR · Presentació Enunciat (2-1) · Pilars Meta All in One SDK · Activitat a classe: 1. Building Blocks — Passthrough and Grabbable Item",
+      "summary": "News! Notícies VR/MR · Presentació Enunciat (2-1) · Pilars Meta All in One SDK · Activitat a classe: 1. Building Blocks — Passthrough and Grabbable Item · Entrega AR Foundation",
       "contents": [
         "News! Notícies VR/MR",
         "Presentació Enunciat (2-1)",
         "Pilars Meta All in One SDK",
-        "Activitat a classe: 1. Building Blocks — Passthrough and Grabbable Item"
+        "Activitat a classe: 1. Building Blocks — Passthrough and Grabbable Item",
+        "Entrega AR Foundation"
       ],
+      "deliverable": {
+        "label": "AR Foundation",
+        "weight": "10 %"
+      },
       "slidesPending": true,
       "block": {
         "number": 2,
@@ -435,11 +444,10 @@
       "stage": "meta-pre-exam",
       "category": "practical",
       "optional": false,
-      "summary": "Presentació Enunciat (2-3) · Activitat a classe: 3. Building Blocks Additional Feature — Effect Mesh, Spatial Anchor… · Treball en equips: Entrega Meta All in One SDK",
+      "summary": "Presentació Enunciat (2-3) · Activitat a classe: 3. Building Blocks Additional Feature — Effect Mesh, Spatial Anchor…",
       "contents": [
         "Presentació Enunciat (2-3)",
-        "Activitat a classe: 3. Building Blocks Additional Feature — Effect Mesh, Spatial Anchor…",
-        "Treball en equips: Entrega Meta All in One SDK"
+        "Activitat a classe: 3. Building Blocks Additional Feature — Effect Mesh, Spatial Anchor…"
       ],
       "slidesPending": true,
       "block": {
@@ -504,10 +512,9 @@
       "stage": "mini-boss-midterm",
       "category": "boss",
       "optional": false,
-      "summary": "Examen parcial · Entrega Parcial (20%)",
+      "summary": "Examen parcial",
       "contents": [
-        "Examen parcial",
-        "Entrega Parcial (20%)"
+        "Examen parcial"
       ],
       "bossTier": "mini",
       "todos": []
@@ -530,22 +537,6 @@
         "type": "canva",
         "source": "https://www.canva.com/design/DAHHUldC-xQ/hjUzELpy_CEgkyala8yYCg/view?embed"
       },
-      "todos": []
-    },
-    {
-      "id": "w2-att-01",
-      "title": "Activitat: Presentació",
-      "world": 2,
-      "stage": "meta-post-exam",
-      "category": "practical",
-      "optional": true,
-      "anchorAfter": "w2-05",
-      "attitudeGrade": "Actitud 10% · voluntaria",
-      "summary": "Presentación del análisis, a partir de la sesión de casos de uso y concept design. Cuenta para el 10% de actitud.",
-      "contents": [
-        "Activitat a classe: VR Design Slides",
-        "Entrega Presentació (Actitud 10%)"
-      ],
       "todos": []
     },
     {
@@ -574,14 +565,19 @@
       "stage": "xr-toolkit",
       "category": "practical",
       "optional": false,
-      "summary": "Presentació Enunciat (3-1) · Activitat a classe: 1. XR Interaction Toolkit — Locomoció i Interacció · Unity VR Template demonstration · Introduction to OpenXR / Unity · Introducció a Unity / C#",
+      "summary": "Presentació Enunciat (3-1) · Activitat a classe: 1. XR Interaction Toolkit — Locomoció i Interacció · Unity VR Template demonstration · Introduction to OpenXR / Unity · Introducció a Unity / C# · Entrega Meta Building Blocks",
       "contents": [
         "Presentació Enunciat (3-1)",
         "Activitat a classe: 1. XR Interaction Toolkit — Locomoció i Interacció",
         "Unity VR Template demonstration",
         "Introduction to OpenXR / Unity",
-        "Introducció a Unity / C#"
+        "Introducció a Unity / C#",
+        "Entrega Meta Building Blocks"
       ],
+      "deliverable": {
+        "label": "Meta Building Blocks",
+        "weight": "10 %"
+      },
       "slides": {
         "type": "canva",
         "source": "https://www.canva.com/design/DAHHUmQSDh0/lcUF8boPiNOBDV0jEc3rqA/view?embed"
@@ -716,11 +712,15 @@
       "stage": "final-project",
       "category": "project",
       "optional": false,
-      "summary": "Projecte Final d'Assignatura: Concept — Resolució de dubtes · Entrega Treball Final d'Assignatura: Concept (10%)",
+      "summary": "Projecte Final d'Assignatura: Concept — Resolució de dubtes · Entrega Treball Final d'Assignatura: Concept",
       "contents": [
         "Projecte Final d'Assignatura: Concept — Resolució de dubtes",
-        "Entrega Treball Final d'Assignatura: Concept (10%)"
+        "Entrega Treball Final d'Assignatura: Concept"
       ],
+      "deliverable": {
+        "label": "Treball Final d'Assignatura — Concept",
+        "weight": "10 %"
+      },
       "todos": []
     },
     {
@@ -756,11 +756,15 @@
       "stage": "final-project",
       "category": "project",
       "optional": false,
-      "summary": "Projecte Final d'Assignatura: Set up Software & Hardware · Entrega Treball Final d'Assignatura: Set Up (10%)",
+      "summary": "Projecte Final d'Assignatura: Set up Software & Hardware · Entrega Treball Final d'Assignatura: Set Up",
       "contents": [
         "Projecte Final d'Assignatura: Set up Software & Hardware",
-        "Entrega Treball Final d'Assignatura: Set Up (10%)"
+        "Entrega Treball Final d'Assignatura: Set Up"
       ],
+      "deliverable": {
+        "label": "Treball Final d'Assignatura — Set Up",
+        "weight": "10 %"
+      },
       "todos": []
     },
     {
@@ -835,11 +839,15 @@
       "stage": "final-boss-presentation",
       "category": "boss",
       "optional": false,
-      "summary": "Presentacions: Treball Final d'Assignatura VR/MR · Entrega Treball Final d'Assignatura (30%)",
+      "summary": "Presentacions: Treball Final d'Assignatura VR/MR · Entrega Treball Final d'Assignatura",
       "contents": [
         "Presentacions: Treball Final d'Assignatura VR/MR",
-        "Entrega Treball Final d'Assignatura (30%)"
+        "Entrega Treball Final d'Assignatura"
       ],
+      "deliverable": {
+        "label": "Treball Final d'Assignatura",
+        "weight": "30 %"
+      },
       "bossTier": "final",
       "todos": []
     },
@@ -852,10 +860,9 @@
       "bossTier": "extra",
       "optional": true,
       "anchorAfter": "w3-boss",
-      "summary": "Exàmens de reavaluació · Entrega Re-avaluacions (+20% Parcial)",
+      "summary": "Exàmens de reavaluació",
       "contents": [
-        "Exàmens de reavaluació",
-        "Entrega Re-avaluacions (+20% Parcial)"
+        "Exàmens de reavaluació"
       ],
       "todos": []
     }
