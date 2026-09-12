@@ -1,5 +1,6 @@
 import * as THREE from 'three'
 import { createVRPanel } from './vrPanel.js'
+import { createGazePad } from './vrGazePad.js'
 
 /**
  * Immersive VR entry — EXPERIMENTAL, lives only on the `webxr-vr-mode` branch.
@@ -264,6 +265,11 @@ export function createVR({
   reticle.add(gazeFill)
   scene.add(reticle)
 
+  // Turn, zoom and recentre for a headset with no sticks and no DOM. Built
+  // always, shown only on the gaze path — see `updateGaze`.
+  const gazePad = createGazePad()
+  scene.add(gazePad.group)
+
   /**
    * Live first, snapshot second. This decides between the ray pointers and the
    * gaze reticle, so it must not answer "no controllers" for a headset that has
@@ -293,6 +299,36 @@ export function createVR({
 
     gazeRay.ray.origin.copy(origin)
     gazeRay.ray.direction.copy(dir)
+
+    // THE PAD IS TESTED FIRST, and while the gaze rests on it nothing else
+    // happens: it hangs below the diorama, so a node behind it would otherwise
+    // keep charging its dwell ring underneath a button being held.
+    //
+    // Gaze-and-HOLD, not dwell. Entering a level waits GAZE_MS because it is a
+    // commitment; turning the map is not, and a dwell per nudge would make a
+    // quarter turn take half a minute. The look is the hold.
+    const act = gazePad.aim(gazeRay)
+    if (act) {
+      gazeLevel = null
+      gazeHeld = 0
+      gazeFill.visible = false
+      reticle.material.color.setHex(0xf2c14e)
+      gazePad.dismissHint()
+      if (act === 'recentre') needsRecentre = true
+      else if (readHead()) {
+        if (act === 'left' || act === 'right') {
+          const turn = (act === 'left' ? -1 : 1) * TURN_SPEED * dt
+          pivot.position.sub(headPos).applyAxisAngle(UP, turn).add(headPos)
+          pivot.rotation.y += turn
+        } else {
+          const way = act === 'in' ? -1 : 1
+          zoom = THREE.MathUtils.clamp(zoom * (1 - way * ZOOM_SPEED * dt), ...ZOOM_RANGE)
+          pivot.scale.setScalar(zoom)
+        }
+      }
+      return null
+    }
+
     const targets = pickTargets()
     const hit = targets.length ? gazeRay.intersectObjects(targets, false)[0] : null
     const level = hit ? levelFromHit(hit) : null
@@ -481,6 +517,9 @@ export function createVR({
     // Face the model's "north" at the viewer, so entering always looks the same
     // however the play space happens to be oriented.
     pivot.rotation.set(0, Math.atan2(headFwd.x, headFwd.z) + Math.PI, 0)
+    // The pad is world-locked to the same pose, so the grip button (or the
+    // pad's own recentre) brings BOTH back to the viewer together.
+    gazePad.place(headPos, headFwd)
     return true
   }
 
@@ -567,6 +606,9 @@ export function createVR({
     panel.show(null)
     panel.mesh.visible = false
     reticle.visible = false
+    // Leaving the session must not strand a world-locked strip of buttons in
+    // the middle of the 2D scene.
+    gazePad.hide()
     gazeLevel = null
     gazeHeld = 0
     camera.near = saved.near
@@ -753,9 +795,16 @@ export function createVR({
       let hovered
       if (hasControllers()) {
         reticle.visible = false
+        // Sticks do all of this and better; the pad would just hang under the
+        // island in the way. Controllers can appear mid-session, so this is
+        // checked every frame rather than once on entry.
+        gazePad.hide()
         hovered = updateRays()
         locomotion(dt)
       } else {
+        // Self-healing: if the controllers went away, or the very first pose
+        // arrived after the entry recentre, put the pad where it belongs.
+        if (!gazePad.group.visible && readHead()) gazePad.place(headPos, headFwd)
         hovered = updateGaze(dt)
         readHead()
       }
