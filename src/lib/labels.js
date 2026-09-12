@@ -71,16 +71,10 @@ export const categoryLabel = (level) => CATEGORY_LABELS[level?.category] ?? leve
 export function assessmentRows(level) {
   if (!level?.block) return []
   const b = level.block
-  const w = level.gradeWeight
-
-  const weight = w
-    ? `${w.block} del curso · ${w.exercise ? `${w.exercise} del bloque` : `reparto ${UNDECIDED_TEXT}`}`
-    : UNDECIDED_TEXT
 
   return [
     ['Bloque', `${b.number} · ${b.name} — ejercicio ${b.exercise} de ${b.of}`],
     ['Entrega', SUBMISSION_LABELS[level.submissionMethod] ?? UNDECIDED_TEXT],
     ['Trabajo', GROUP_LABELS[level.groupMode] ?? UNDECIDED_TEXT],
-    ['Peso', weight],
   ]
 }

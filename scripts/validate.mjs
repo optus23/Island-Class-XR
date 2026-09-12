@@ -104,10 +104,8 @@ for (const l of levels) {
   if ('groupMode' in l && l.groupMode !== null && !GROUP_MODES.includes(l.groupMode)) {
     err(`${at}: groupMode "${l.groupMode}" — use ${GROUP_MODES.join(' | ')} or null`)
   }
-  if (l.gradeWeight) {
-    if (!('block' in l.gradeWeight) || !('exercise' in l.gradeWeight)) {
-      err(`${at}: gradeWeight needs both "block" and "exercise" (exercise may be null)`)
-    }
+  if ('gradeWeight' in l) {
+    err(`${at}: "gradeWeight" is not allowed — grades live in the university's own docencia platform, not on the island`)
   }
   if (l.starterRepo) {
     if (!l.starterRepo.branch) err(`${at}: starterRepo needs a branch name`)
@@ -127,11 +125,8 @@ for (const l of levels) {
     if (l.category !== 'practical') err(`${at}: a graded block exercise must be category "practical"`)
     if (l.optional) err(`${at}: a graded block exercise cannot be optional`)
     if (!l.todos?.length) err(`${at}: a graded block exercise needs at least one todo`)
-    for (const f of ['submissionMethod', 'groupMode', 'gradeWeight']) {
+    for (const f of ['submissionMethod', 'groupMode']) {
       if (!(f in l)) err(`${at}: graded exercise is missing "${f}" (null is fine, absent is not)`)
-    }
-    if (l.gradeWeight && !l.gradeWeight.block) {
-      err(`${at}: gradeWeight.block is the known 10% per block — it must not be empty`)
     }
   }
 

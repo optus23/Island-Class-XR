@@ -30,6 +30,16 @@ These come from the brief and are not negotiable without the user saying so.
   The single exception is the manual progress marker in `public/progress.json`,
   moved by hand from `/admin`. `scripts/validate.mjs` fails the build on a stray
   `date` / `week` / `deadline` field.
+- **No grade percentages anywhere in map data, either.** The island is for
+  activities, not for grades — Marc publishes the real weighting separately, in
+  each block's own guía docente on the university's platform. There used to be
+  a `gradeWeight` field and a "Peso" row in the portal's assessment strip
+  (`ui/portal.js`) and the VR panel's rows (`lib/labels.js`); both are gone, and
+  `scripts/validate.mjs` fails the build if `gradeWeight` reappears on a level.
+  **The one exception**: a deliverable's flag (see "Deliverable flags" below)
+  carries `deliverable.weight`, shown only in that flag's own hover tooltip —
+  not always-visible chrome, and about "there is a hand-in due around here",
+  not about how the course is graded.
 - **No backend, no database.** Everything is static files plus the GitHub
   Contents API for the one marker write.
 - **The admin GitHub token never touches source or the build.** It lives only in
@@ -189,6 +199,26 @@ Changing any of these is a design decision, not a refactor.
 - **A landmark beside each session** — toad house (red and lilac, both spotted),
   well, warp pipe, cannon, signpost, crates. Close enough that standing on the
   disc feels like arriving somewhere.
+- **Deliverable flags.** A Mario-style pole-and-pennant beside a session that
+  carries a graded hand-in (`three/nodes.js`, `createDeliverableFlag`). Yellow
+  (`palette.flagPending`) while ahead, green (`palette.completed`) once the
+  marker passes it; hoverable, with its own tooltip (label + weight — see the
+  grade-percentage rule above for why the number lives only there).
+  **Which session gets one is `level.deliverable` (`{label, weight}`), set by
+  hand — never derived from an "Entrega…" bullet in `contents`.** That was
+  tried first and put the AR Foundation flag on the block's last exercise,
+  which is wrong: the calendar's Deliverables column records the grade a week
+  to a week and a half AFTER the block finishes, on whatever class happens to
+  fall on that row. Match that row literally; don't assume the deliverable
+  lands on the day the work does.
+  **Positioned tight against the node it belongs to** (`offset = 2.2`, barely
+  past the disc's own rim) — pushed further out, an off-path node's flag
+  walked onto the mound its own landmark stands on, since only an on-path node
+  gets a `clearGroundAround` pad. A boss is the one exception: `createBossCastle`
+  never rotates its group, so the gate and its stairs always face world +Z
+  regardless of the road's tangent, and the final boss's plinth alone reaches
+  8.05 units from its centre (3.5 × scale 2.3) — the flag stands at `offset =
+  10` on the -Z (back-wall) side, the one side with nothing sticking out further.
 - **Castles**: grey stone, red roofs. The final boss is 2.3× the midterm's.
   **`palette.boss` IS that stone**, not a marker colour — `nodes.js` repaints
   every castle part not flagged `keepColor` with `resolveNodeColor()`, so
