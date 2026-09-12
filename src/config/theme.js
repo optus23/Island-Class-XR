@@ -189,13 +189,23 @@ export const world = {
    * The road BEHIND the class — everything already walked.
    *
    * A green disc on its own was not enough feedback: the ring changed and the
-   * road it stood on did not, so the map never showed a trail. Amber rather
+   * road it stood on did not, so the map never showed a trail. YELLOW rather
    * than green, deliberately: green is the completed NODE and reusing it would
-   * make the whole route read as one enormous completed thing. It also has to
-   * stay clear of `palette.nodeRim` (0xf2c14e), or the gold ring around every
-   * disc vanishes into the road it is sitting on.
+   * make the whole route read as one enormous completed thing.
+   *
+   * It also has to stay clear of `palette.nodeRim` (0xf2c14e) — the same gold
+   * as the XR badge — or the ring around every disc vanishes into the road it
+   * sits on, and clear of `path` (0xf6dfa6) or the trail stops reading at all.
+   * Squeezed between those two, it was 0xe0a032 and came back as "demasiado
+   * naranja... me gustaría más amarillento, como amarillo pastel".
+   *
+   * So this was SEARCHED, not nudged: the yellow closest to that gold which
+   * still holds the separation the old colour had — 13.3 ΔE from the rim and
+   * 41.4 from the cream. Hue moves 38 -> 49 and lightness 54 -> 60, which is
+   * the whole of the complaint, and the ring stays readable, which is the
+   * constraint. Re-run that search before changing it again.
    */
-  pathDone: 0xe0a032,
+  pathDone: 0xf3d140,
 
   player: 0xef476f,
 
