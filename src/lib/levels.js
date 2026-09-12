@@ -120,6 +120,44 @@ export function isLocked(level, markerId) {
 }
 
 /**
+ * Sessions that carry an actual hand-in — the calendar's "Deliverables"
+ * column. That column is already echoed into `contents` as an "Entrega…"
+ * bullet for every level that has one (see levels.json), so this reads that
+ * existing signal instead of keeping a second, hand-maintained list that could
+ * drift from it.
+ *
+ * Three exceptions, named rather than derived, because no rule captures why
+ * they differ from the rest — they are Marc's calls:
+ *   - w2-boss / w3-reeval: exams. The castle already says "exam"; a flag on
+ *     top of it would be redundant, and the midterm's own "no hace falta" was
+ *     explicit.
+ *   - w2-att-01: also an "Entrega…" bullet (its Presentació activity), but
+ *     Marc wants only the Mono/Stereoscopic actitud (w1-att-01) flagged.
+ */
+const DELIVERABLE_EXCEPTIONS = new Set(['w2-boss', 'w3-reeval', 'w2-att-01'])
+
+export function hasDeliverable(level) {
+  if (DELIVERABLE_EXCEPTIONS.has(level.id)) return false
+  return Boolean(level.contents?.some((c) => /entrega/i.test(c)))
+}
+
+/**
+ * Whether a deliverable's flag should read as handed in.
+ *
+ * For a main-path level this is just `statusFor(...).completed`. An optional
+ * level (the actitud nodes) never turns "completed" itself — see `statusFor`,
+ * which deliberately keeps every optional node in its own colour forever — so
+ * there is nothing to read there. Its flag instead follows the class day it
+ * hangs off: once the marker has passed that anchor, the window for the
+ * activity has passed too.
+ */
+export function deliverableDone(level, markerId) {
+  if (!level.optional) return statusFor(level, markerId).completed
+  const anchor = level.anchorAfter ? levelById(level.anchorAfter) : null
+  return anchor ? statusFor(anchor, markerId).completed : false
+}
+
+/**
  * The title, or a spoiler-free stand-in when the level is locked.
  *
  * EVERY surface that prints a level's name goes through here. The session
