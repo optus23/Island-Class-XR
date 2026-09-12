@@ -170,10 +170,13 @@ holidays and the re-evaluation. **12 sessions → the midterm castle (session 13
 "11 → midterm at 12 → 15", and a second one said 27 sessions at 7 / 9 / 11 per
 world. **Both were wrong; the board settles it and this is the settled number.**
 
-**What `levels.json` holds today**: 31 levels = **28 on the main path**
-(**7 / 11 / 10** per world, including the two castles) plus **3 optional** — the
-two "Actitud" activities and the re-evaluation. Of the 28, **26 are classes** and
-2 are exams; the nav reads "Sesión N / 28".
+**What `levels.json` holds today**: 30 levels = **28 on the main path**
+(**7 / 11 / 10** per world, including the two castles) plus **2 optional** — the
+Mono/Stereoscopic "Actitud" activity (`w1-att-01`) and the re-evaluation. Of the
+28, **26 are classes** and 2 are exams; the nav reads "Sesión N / 28". A second
+"Actitud" node (`w2-att-01`, "Activitat: Presentació") existed until
+13 September 2026, when Marc dropped it from the syllabus — removed rather than
+kept-but-unlisted, so it does not linger as dead, unreferenced data.
 
 **The board's own text is not all safe to copy.** Its Content column carries
 scheduling notes — "Teacher absent – class to be rescheduled September 31",
