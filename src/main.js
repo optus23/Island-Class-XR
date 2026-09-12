@@ -815,6 +815,7 @@ async function boot() {
     levelFromHit: (hit) => map.levelFromHit(hit),
     playerLevelId: () => player.levelId,
     playerObject: () => player.group,
+    nodes: () => map.placed,
     levelById: (id) => levelById(id),
     markerId: () => markerId,
     onSelect: (level) => selectLevel(level),

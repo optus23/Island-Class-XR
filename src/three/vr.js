@@ -115,6 +115,12 @@ export function createVR({
    * would silently un-fix the "island as a distant backdrop" bug.
    */
   playerObject = () => null,
+  /**
+   * Every placed node as `{ level, position }` in worldGroup-local space. The
+   * gaze picks against these directly rather than raycasting the discs, and the
+   * card hangs over whichever one is picked.
+   */
+  nodes = () => [],
   levelById = () => null,
   markerId = () => null,
   /**
@@ -349,6 +355,57 @@ export function createVR({
 
   const gazeOrigin = new THREE.Vector3()
   const gazeDir = new THREE.Vector3()
+  const nodeWorld = new THREE.Vector3()
+  const toNode = new THREE.Vector3()
+  /** World position of the node the gaze last settled on — the card hangs here. */
+  const gazeAnchor = new THREE.Vector3()
+  const tmpDir = new THREE.Vector3()
+  const avatarWorld = new THREE.Vector3()
+
+  /**
+   * WHICH SESSION THE GAZE IS ON, BY ANGLE RATHER THAN BY COLLISION.
+   *
+   * Raycasting the discs is what the controllers do, and it is hopeless for a
+   * head: in the diorama a session disc is about 3.5 cm across at 1.4 m, which
+   * is a degree and a half of target. It was reported as only answering "de la
+   * mitad para la izquierda" of the circle — not actually an asymmetry, just
+   * the edge of something far too small to hold a wobbling head on.
+   *
+   * So the gaze takes whichever node its direction comes CLOSEST to, inside a
+   * cone. That is symmetric by construction — a disc seen from above is a
+   * foreshortened ellipse, which is where the left/right feel came from —
+   * independent of how far the node is, and tunable in degrees, which is the
+   * unit the problem is in.
+   *
+   * The cone was measured, not guessed. From the entry pose a session disc
+   * subtends 2.72 degrees and neighbouring sessions sit 4.9 apart at the median
+   * (1.8 at the tightest, where the route doubles back). Three degrees is
+   * comfortably wider than the disc's own radius — so a wobbling head still
+   * holds it — and inside half the median gap, so "nearest wins" is rarely a
+   * close call. Nearest-wins is also what makes a wide cone safe: it can only
+   * change WHETHER something is picked, never pick a neighbour in preference to
+   * the node you are actually looking at.
+   */
+  const GAZE_CONE = THREE.MathUtils.degToRad(3)
+
+  function gazePick(origin, dir) {
+    let best = null
+    let bestAngle = GAZE_CONE
+    for (const p of nodes()) {
+      nodeWorld.copy(p.position).applyMatrix4(worldGroup.matrixWorld)
+      toNode.copy(nodeWorld).sub(origin)
+      const dist = toNode.length()
+      if (dist < 1e-3) continue
+      toNode.divideScalar(dist)
+      const angle = Math.acos(THREE.MathUtils.clamp(dir.dot(toNode), -1, 1))
+      if (angle < bestAngle) {
+        bestAngle = angle
+        best = p
+        gazeAnchor.copy(nodeWorld)
+      }
+    }
+    return best
+  }
 
   function updateGaze(dt) {
     const xrCam = renderer.xr.getCamera()
@@ -417,9 +474,8 @@ export function createVR({
     }
     gazePad.setCharge(0)
 
-    const targets = pickTargets()
-    const hit = targets.length ? gazeRay.intersectObjects(targets, false)[0] : null
-    const level = hit ? levelFromHit(hit) : null
+    const picked = gazePick(origin, dir)
+    const level = picked ? picked.level : null
 
     if (!level || level !== gazeLevel) {
       gazeLevel = level
@@ -605,9 +661,6 @@ export function createVR({
     // Face the model's "north" at the viewer, so entering always looks the same
     // however the play space happens to be oriented.
     pivot.rotation.set(0, Math.atan2(headFwd.x, headFwd.z) + Math.PI, 0)
-    // The pad is world-locked to the same pose, so the grip button (or the
-    // pad's own recentre) brings BOTH back to the viewer together.
-    gazePad.place(headPos, headFwd)
     return true
   }
 
@@ -627,12 +680,16 @@ export function createVR({
 
     dolly.add(camera)
 
-    // The backdrop is a fixed-camera trick: distant hills with their markings
-    // projected onto an ellipsoid for one particular viewing angle. In a
-    // headset you can walk round the model and see it edge-on, where it reads
-    // as a painted flat. It is also the widest thing in the scene, so leaving
-    // it in would shrink everything else to fit it.
-    if (backdrop) backdrop.visible = false
+    // THE BACKDROP STAYS. It used to be hidden here for two reasons and only
+    // one of them was ever about how it looks: it was also the widest thing in
+    // the scene, and the scale was fitted to the bounding box, so leaving it in
+    // shrank everything else to make room for it. The scale comes from the
+    // avatar now, so it costs the model nothing.
+    //
+    // What remains is that the rows sit BEHIND the island only, so from the
+    // far side you see them thin. They are real mounds rather than a painted
+    // card, so thin still reads as hills — and a map with no horizon read as
+    // floating in a void, which was the report.
     panel.mesh.visible = false
 
     // MEASURE, don't assume — but measure BEFORE re-parenting anything.
@@ -903,7 +960,8 @@ export function createVR({
 
       // Controllers when there are any, the head when there are not.
       let hovered
-      if (hasControllers()) {
+      const controllers2 = hasControllers()
+      if (controllers2) {
         reticle.visible = false
         // Sticks do all of this and better; the pad would just hang under the
         // island in the way. Controllers can appear mid-session, so this is
@@ -912,15 +970,36 @@ export function createVR({
         hovered = updateRays()
         locomotion(dt)
       } else {
-        // Self-healing: if the controllers went away, or the very first pose
-        // arrived after the entry recentre, put the pad where it belongs.
-        if (!gazePad.group.visible && readHead()) gazePad.place(headPos, headFwd)
         hovered = updateGaze(dt)
-        readHead()
+        if (readHead()) {
+          // `headFwd` is flattened to the horizon by readHead, which is exactly
+          // the yaw the strip should follow. How far DOWN the viewer is looking
+          // comes from the unflattened camera direction instead.
+          const xrCam = renderer.xr.getCamera()
+          let down = 0
+          if (xrCam) {
+            xrCam.getWorldDirection(tmpDir)
+            // 0 at the horizon, 1 by the time the strip is centred in view.
+            down = THREE.MathUtils.clamp(-tmpDir.y / 0.45, 0, 1)
+          }
+          gazePad.follow(headPos, headFwd, dt, down)
+        }
       }
 
+      // THE CARD HANGS OVER THE SESSION, not over the middle of the map.
+      //
+      // It used to sit above `pivot.position` — the map's own origin — so it
+      // floated in the same spot whatever you were looking at, which is most of
+      // "la UI World está completamente estática". Over the node it behaves the
+      // way the 2D hover tooltip does, and the way the villagers' name plates
+      // already do: it belongs to the thing it describes.
+      panel.setGaze(!controllers2)
       panel.show(hovered ?? levelById(playerLevelId()), markerId())
-      panel.update(dt, pivot.position, headPos)
+      const avatar = playerObject()
+      if (!hovered && avatar) {
+        avatarWorld.copy(avatar.position).applyMatrix4(worldGroup.matrixWorld)
+      }
+      panel.update(dt, hovered ? gazeAnchor : avatar ? avatarWorld : pivot.position, headPos)
     },
 
     /** The marker moved, so whatever the card is showing may have restyled. */
