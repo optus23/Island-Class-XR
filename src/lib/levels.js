@@ -133,7 +133,7 @@ export function isLocked(level, markerId) {
 
 /**
  * Sessions that carry an actual hand-in — an explicit `level.deliverable`
- * (`{ label, weight }`), placed on whichever session the calendar's
+ * (`{ label, kind }`), placed on whichever session the calendar's
  * "Deliverables" column names. That is NOT always the session whose own
  * `contents` describes the work: a block's exercises finish on one day and
  * the calendar records the grade a week to a week and a half later, on
@@ -152,6 +152,23 @@ export function hasDeliverable(level) {
 /** Whether a deliverable's flag should read as handed in. */
 export function deliverableDone(level, markerId) {
   return statusFor(level, markerId).completed
+}
+
+/**
+ * What KIND of hand-in it is: `'graded'` (counts towards the course) or
+ * `'optional'` (a voluntary practical).
+ *
+ * This is the whole of what the flag says about weighting, and it is a WORD,
+ * not a number — the island is for activities, never for marks; the real
+ * weighting lives in each block's guía docente. The tooltip used to print
+ * "10 % del curso" and that was the rule being broken, not bent.
+ *
+ * It also picks the pennant's colour: `optional` flies the same lilac the
+ * voluntary "Actitud" nodes wear, so a voluntary hand-in reads as voluntary
+ * from across the map without opening anything.
+ */
+export function deliverableKind(level) {
+  return level.deliverable?.kind === 'optional' ? 'optional' : 'graded'
 }
 
 /**

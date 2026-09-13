@@ -1,8 +1,10 @@
 import { LANGS, getLang, setLang, t } from '../lib/i18n/index.js'
 import { FLAGS } from './flags.js'
+import { hudRail, openPanel, onOtherPanelOpen } from './hudRail.js'
 
 /**
- * The language picker, top right.
+ * The language picker, top right — the left half of the rail it shares with
+ * the avatar wardrobe (see `ui/hudRail.js`).
  *
  * Top right because it is the one corner nothing else uses — the course index
  * is top left, the legend is bottom right — and because that is where a
@@ -19,7 +21,7 @@ import { FLAGS } from './flags.js'
 export function mountLangPicker() {
   const el = document.createElement('div')
   el.className = 'lang-picker'
-  document.getElementById('ui').appendChild(el)
+  hudRail().appendChild(el)
 
   const current = LANGS.find((l) => l.code === getLang()) ?? LANGS[0]
 
@@ -47,11 +49,20 @@ export function mountLangPicker() {
     b.addEventListener('click', () => setLang(b.dataset.lang))
   )
 
+  const details = el.querySelector('details')
+
   // Clicking the map should close the menu, the way clicking away from any
   // other menu does. <details> does not do this by itself.
   document.addEventListener('pointerdown', (e) => {
-    const d = el.querySelector('details')
-    if (d?.open && !el.contains(e.target)) d.open = false
+    if (details?.open && !el.contains(e.target)) details.open = false
+  })
+
+  // One panel open at a time on the rail — see ui/hudRail.js.
+  details?.addEventListener('toggle', () => {
+    if (details.open) openPanel('lang')
+  })
+  onOtherPanelOpen('lang', () => {
+    if (details) details.open = false
   })
 
   return el

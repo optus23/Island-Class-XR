@@ -267,12 +267,29 @@ export function distributeNodes(worldDef, worldLevels) {
       }
     }
 
+    // A SIDEWAYS OFFSET ALONE CANNOT GET BEHIND A CASTLE.
+    // Everything above moves a branch perpendicular to the road, which is all
+    // an ordinary bonus node needs. The re-evaluation hangs off the FINAL
+    // castle, and the only perpendicular there points straight back from it:
+    // the castle is 8 units of plinth wide and stands between the camera and
+    // anything directly behind it, so the node was hidden by the building it
+    // belongs to — "lo has puesto justo detrás del examen final, y es que
+    // prácticamente no se ve". `offsetAlong` slides it up or down the route as
+    // well, which is the axis the perpendicular cannot reach. Signed along the
+    // route's own direction of travel, so negative is back the way the class
+    // came. It is a shift of the whole search, not a candidate: the side and
+    // the distance are still chosen, and the anchor is still untouched.
+    const along = level.offsetAlong ?? 0
+
     const candidates = []
     for (const { node, penalty } of anchorChoices) {
       const axis = node.tangent.clone().cross(UP).normalize()
+      // Horizontal only: the route climbs, and a tangent with a y in it would
+      // slide the node up the slope as well as along it.
+      const ahead = node.tangent.clone().setY(0).normalize().multiplyScalar(along)
       for (const dir of dirs) {
         for (const dist of [6, 7, 8, 9, 10, 12, 14, 16]) {
-          const at = node.position.clone().addScaledVector(axis, dir * dist)
+          const at = node.position.clone().addScaledVector(axis, dir * dist).add(ahead)
           if (!isLand(at.x, at.z)) continue
           // Castles have no room beside them (see nodes.js/villagers.js — the
           // same rule already keeps a villager off a boss node). A boss's
@@ -334,8 +351,12 @@ export function distributeNodes(worldDef, worldLevels) {
       // activity off the map entirely, which is worse and silent.
       if (!level.anchorAfter) return
       const fallback = anchor.tangent.clone().cross(UP).normalize().multiplyScalar(9)
-      const at = anchor.position.clone().add(fallback)
-      at.y = Math.max(groundHeightAt(at.x, at.z), anchor.position.y)
+      const at = anchor.position
+        .clone()
+        .add(fallback)
+        .addScaledVector(anchor.tangent.clone().setY(0).normalize(), along)
+      // On the ground, for the same reason as the main path above.
+      at.y = groundHeightAt(at.x, at.z)
       placed.push({
         level,
         position: at,
@@ -347,12 +368,20 @@ export function distributeNodes(worldDef, worldLevels) {
     }
     const useAnchor = best.node
     const lateral = best.axis.clone().multiplyScalar(best.dir * best.dist)
+    const ahead = useAnchor.tangent.clone().setY(0).normalize().multiplyScalar(along)
 
-    // Anchor to the ACTUAL ground under the offset position. Copying the
-    // anchor's height is what buried the world-2 bonus node: a sideways offset
-    // can easily land on a taller plateau than the node it hangs off.
-    const position = useAnchor.position.clone().add(lateral)
-    position.y = Math.max(groundHeightAt(position.x, position.z), useAnchor.position.y)
+    // THE BRANCH STANDS ON THE GROUND UNDER IT, FULL STOP.
+    // Copying the anchor's height buried the old world-2 bonus node, so this
+    // asked the terrain — and then took `Math.max` with the anchor's own
+    // shelf, which is the same mistake pointing the other way. It only ever
+    // fired when the branch legitimately sat a plateau LOWER than its anchor,
+    // and then it left the node hanging in the air by exactly that plateau:
+    // the re-evaluation castle floated 2 units the moment it moved onto the
+    // cliff shelf beside the final castle. A castle's sides floating off the
+    // ground is a bug the user has already reported once, on the midterm.
+    // `validate` now asserts every off-path node sits on its own terrain.
+    const position = useAnchor.position.clone().add(lateral).add(ahead)
+    position.y = groundHeightAt(position.x, position.z)
 
     placed.push({
       level,

@@ -1,5 +1,5 @@
 import { cssPalette } from '../config/theme.js'
-import { safeTitle, statusFor } from '../lib/levels.js'
+import { safeTitle, statusFor, deliverableKind } from '../lib/levels.js'
 import { categoryLabel } from '../lib/labels.js'
 import { t } from '../lib/i18n/index.js'
 
@@ -59,8 +59,16 @@ export function createTooltip() {
       el.style.top = `${Math.max(8, top)}px`
     },
     /**
-     * Hovering the flag beside a session, not the session itself — what it is
-     * worth and that standing here means the window to hand it in is closing.
+     * Hovering the flag beside a session, not the session itself: WHAT the
+     * hand-in is, what kind of hand-in it is, and that this is the last
+     * session to hand it in.
+     *
+     * NO PERCENTAGE AND NO DATE. Both were here and both were wrong: the
+     * island is for activities, not for marks (the weighting lives in each
+     * block's guía docente), and it has no relationship with the calendar at
+     * all — "sesión límite", never "fecha límite", because what a student
+     * navigates here is sessions.
+     *
      * Namespaced key (`flag:…`) so hovering a flag right after its own node
      * still re-renders instead of being skipped as "same level, no change".
      */
@@ -69,14 +77,17 @@ export function createTooltip() {
       if (key !== shownFor) {
         shownFor = key
         const d = level.deliverable
+        const optional = deliverableKind(level) === 'optional'
+        // The swatch matches the pennant the pointer is actually over.
+        const swatch = optional ? cssPalette.optional : cssPalette.flagPending
         el.innerHTML = `
           <span class="flex items-center gap-2">
             <span class="inline-block w-2.5 h-2.5 rounded-[3px] shrink-0"
-                  style="background:${cssPalette.flagPending}"></span>
+                  style="background:${swatch}"></span>
             <span class="font-semibold leading-tight">${t('tooltip.deliverable', { label: d.label })}</span>
           </span>
           <span class="block text-[11px] opacity-70 mt-0.5">
-            ${t('tooltip.deliverableSub', { weight: d.weight })}
+            ${t(optional ? 'tooltip.deliverableOptional' : 'tooltip.deliverableGraded')}
           </span>`
       }
       el.classList.remove('hidden')

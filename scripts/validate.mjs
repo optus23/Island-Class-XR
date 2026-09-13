@@ -43,6 +43,8 @@ const SLIDE_TYPES = ['pdf', 'canva']
 // `null` is a legal value for submissionMethod and groupMode and means
 // "not decided yet". It is NOT the same as the field being absent.
 const SUBMISSION_METHODS = ['build', 'video', 'repo']
+/** Must agree with `deliverableKind` in `src/lib/levels.js`. */
+const DELIVERABLE_KINDS = ['graded', 'optional']
 const GROUP_MODES = [
   'individual',
   'individual-within-group',
@@ -145,6 +147,28 @@ for (const l of levels) {
   }
   if ('gradeWeight' in l) {
     err(`${at}: "gradeWeight" is not allowed — grades live in the university's own docencia platform, not on the island`)
+  }
+  // The flag beside a session that carries a hand-in. `kind` is a WORD, not a
+  // number: it says whether the hand-in counts towards the course or is a
+  // voluntary practical, and it picks the pennant's colour. It carried a
+  // `weight` ("10 %") for exactly one round, which printed a grade percentage
+  // in the tooltip — the same rule `gradeWeight` above exists to hold.
+  if (l.deliverable !== undefined) {
+    const d = l.deliverable
+    if (!d || typeof d !== 'object' || Array.isArray(d)) {
+      err(`${at}: "deliverable" must be an object — { label, kind }`)
+    } else {
+      if (!d.label || typeof d.label !== 'string') err(`${at}: deliverable.label must be a string`)
+      if (!DELIVERABLE_KINDS.includes(d.kind)) {
+        err(`${at}: deliverable.kind "${d.kind}" — use ${DELIVERABLE_KINDS.join(' | ')}`)
+      }
+      if ('weight' in d) {
+        err(`${at}: "deliverable.weight" is not allowed — the island shows WHAT a hand-in is, never what it is worth`)
+      }
+      for (const k of Object.keys(d)) {
+        if (!['label', 'kind'].includes(k)) err(`${at}: unknown deliverable field "${k}"`)
+      }
+    }
   }
   if (l.starterRepo) {
     if (!l.starterRepo.branch) err(`${at}: starterRepo needs a branch name`)
@@ -468,6 +492,42 @@ for (const w of worlds) {
       err(
         `world ${w.id}: optional "${pl.level.id}" is only ${d.toFixed(2)} from the road ` +
           `(min ${MIN_BRANCH_CLEARANCE}) — it reads as part of the main path`
+      )
+    }
+
+    // AND IT MUST STAND ON THE GROUND. Off-path nodes get no flat pad, so the
+    // terrain under one is whatever the terrain is — which is fine, and is
+    // why the node takes its height from `groundHeightAt` and nothing else.
+    // The placement used to raise a branch to its ANCHOR's shelf as well,
+    // which floated the re-evaluation castle a full plateau the moment it
+    // moved onto the cliff beside the final castle. A castle with daylight
+    // under its walls has already been reported once, on the midterm.
+    // Checked across the footprint, not just the centre: the centre was
+    // never the part that floated.
+    const R = pl.level.category === 'boss' ? 3.5 * (pl.level.bossTier === 'final' ? 2.3 : 0.95) : 2
+    let lo = Infinity
+    let hi = -Infinity
+    for (let a = 0; a < 360; a += 15) {
+      for (const r of [R * 0.4, R * 0.7, R]) {
+        const h = groundHeightAt(
+          pl.position.x + Math.cos((a * Math.PI) / 180) * r,
+          pl.position.z + Math.sin((a * Math.PI) / 180) * r
+        )
+        lo = Math.min(lo, h)
+        hi = Math.max(hi, h)
+      }
+    }
+    const gap = pl.position.y - hi
+    if (gap > 0.01) {
+      err(
+        `world ${w.id}: optional "${pl.level.id}" floats ${gap.toFixed(2)} above its own ground ` +
+          `(node y ${pl.position.y.toFixed(2)}, terrain ${lo.toFixed(2)}..${hi.toFixed(2)})`
+      )
+    }
+    if (pl.position.y - lo < -0.01) {
+      err(
+        `world ${w.id}: optional "${pl.level.id}" is buried — node y ${pl.position.y.toFixed(2)}, ` +
+          `terrain ${lo.toFixed(2)}..${hi.toFixed(2)}`
       )
     }
   }
