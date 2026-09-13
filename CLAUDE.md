@@ -748,6 +748,22 @@ Every one of these was diagnosed the hard way. Do not re-derive them.
   that merges.
 - **`explain()` wins over GitHub's `message`** for statuses we know. The raw
   message for a sha clash names a hash and nothing else.
+- **THE WRITE AND THE READ DO NOT GO TO THE SAME PLACE.** "Completar y avanzar"
+  writes a COMMIT through the GitHub API; the map reads the `progress.json`
+  that **GitHub Pages** is serving, and Pages keeps serving the old one until
+  Actions has rebuilt the site — a minute or two later. So a browser that polls
+  in between reads its OWN pre-press value and helpfully corrects itself: the
+  avatar walks BACKWARDS, then forward again when the deploy lands. Reported as
+  "le he dado a completar y avanzar y a los treinta segundos me ha vuelto del
+  1-5 al 1-3", plus the version that fires the instant you switch back to the
+  tab, which is the `focus` handler doing the same read early.
+  `notePendingWrite()` remembers what this browser wrote and the poll keeps
+  that value until the served file agrees (or a 15-minute safety valve expires,
+  so a failed deploy cannot pin the map forever).
+  **It was never about two people watching**, which is what it looks like. A
+  second viewer only ever READS the deployed file, so viewers always agree with
+  each other; the fight is between one tab and its own pending commit. Don't go
+  looking for a multi-user bug here.
 - **The legend's Profesor block carries the only link to /admin**, and it has to
   keep carrying it. With the marker controls on the map, a teacher who already
   has a token has no way of discovering that page — and the roster of honoured
