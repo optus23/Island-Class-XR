@@ -44,6 +44,7 @@ import { createIntro, introWanted } from './three/intro.js'
 import { initLang, t } from './lib/i18n/index.js'
 import { cleanSchedule, effectiveMarker, nextScheduledAt } from './lib/schedule.js'
 import { mountLangPicker } from './ui/langPicker.js'
+import { mountAvatarPicker } from './ui/avatarPicker.js'
 
 const container = document.getElementById('app')
 // BEFORE anything renders. The curtain on the next line is already text, and
@@ -799,6 +800,8 @@ async function boot() {
 
   // Top right — the one corner the index and the legend leave free.
   mountLangPicker()
+  // Under it, and deliberately small: a wardrobe is not course furniture.
+  mountAvatarPicker({ onChange: (look) => player.applyLook(look) })
 
   // If a timetable is published, sleep until the next session is due.
   armScheduleTimer()
