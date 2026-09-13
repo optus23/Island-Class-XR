@@ -1097,7 +1097,9 @@ async function boot() {
     window.__step = (frames = 60, dt = 1 / 60) => {
       for (let i = 0; i < frames; i++) {
         for (const fn of app.updaters) fn(dt)
-        app.rig.update(dt, { x: 0, y: 0 })
+        // The REAL pointer the loop uses, not a zero — otherwise the stepper
+        // silently disables mouse parallax and cannot reproduce it.
+        app.rig.update(dt, app.parallaxPointer)
         app.tickAfterCamera(dt)
       }
       app.renderer.render(app.scene, app.rig.camera)
