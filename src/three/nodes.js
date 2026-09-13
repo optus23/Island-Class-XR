@@ -888,10 +888,26 @@ function createPathRibbon(nodePads = []) {
   // Both now sample the height across 1.6 — the same span `roadTopAt` uses, and
   // therefore the same surface the node discs and the villagers already stand
   // on. They keep their own WIDTHS, so the outline still reads as an outline.
-  // They also run equally far past each end, which is what fills a 90-degree
-  // corner with road instead of leaving the border's overlap showing.
+  //
+  // EACH RIBBON RUNS PAST ITS ENDS BY ITS OWN HALF-WIDTH, AND THAT IS WHAT
+  // MAKES A CORNER. This is the "corner tile" — there is no separate piece of
+  // geometry, because two runs padded by exactly their own half-width already
+  // tile a 90-degree bend perfectly: the runs meet at a shared point (measured:
+  // the gap between one run's end and the next one's start is 0.000), so each
+  // contributes precisely half of the corner square and the union is that
+  // square, nothing more.
+  //
+  // The cream used to be padded 1.6 while being only 1.2 wide — it was given
+  // the BORDER's pad, on the since-disproved worry that a shorter one would
+  // leave the border's overlap showing at a bend. It does not; what the longer
+  // one does is stick two tongues of cream 0.4 deep out of every corner, and
+  // those tongues reach exactly the border's outer edge. So for a couple of
+  // units at every single bend the brown outline was covered by its own road
+  // and simply vanished — which is the corner that "queda un poco feo" in all
+  // four photos. Pad each ribbon by its own half-width and the outline keeps a
+  // constant 0.4 all the way round.
   const outer = sampleAll(1.6, 1.6, 1.6)
-  const inner = sampleAll(1.2, 1.6, 1.6)
+  const inner = sampleAll(1.2, 1.2, 1.6)
 
   const border = new THREE.Mesh(
     ribbonGeometry(outer, 0.34),
