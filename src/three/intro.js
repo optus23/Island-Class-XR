@@ -184,6 +184,29 @@ export function createIntro({ camera, scene, avatar }) {
   title.frustumCulled = false
   group.add(title)
 
+  /**
+   * Shrink the title until it fits the frame it is actually being shown in.
+   *
+   * The plate is a fixed 105 units wide hanging TITLE_AHEAD in front of the
+   * camera, which fits a 16:9 desktop with room to spare — and is more than
+   * TWICE the visible width of a phone held upright. At 40° of vertical fov
+   * and 150 units out the frame is ~109 units tall, so a 390x844 screen sees
+   * about 50 units across it: the title ran off both edges, which is what
+   * "se ve cortado" was.
+   *
+   * Scaled, not moved. Pulling the camera back would fit it too, but the
+   * opening framing is tuned to the degree — level camera, island 60° below
+   * a 40° frame, cloud band in the top of the shot — and moving the camera
+   * moves all of it. Re-fitted every frame so rotating the phone mid-flight
+   * is handled by the same line; it costs two multiplications.
+   */
+  const fitTitle = () => {
+    const visibleH = 2 * TITLE_AHEAD * Math.tan((camera.fov * Math.PI) / 360)
+    const visibleW = visibleH * camera.aspect
+    title.scale.setScalar(Math.min(1, (visibleW * 0.86) / TITLE_W))
+  }
+  fitTitle()
+
   const startPos = new THREE.Vector3()
   const startQuat = new THREE.Quaternion()
   const rigPos = new THREE.Vector3()
@@ -308,6 +331,7 @@ export function createIntro({ camera, scene, avatar }) {
     camera.position.lerpVectors(startPos, rigPos, e)
     camera.quaternion.slerpQuaternions(startQuat, rigQuat, easeAim(p))
 
+    fitTitle()
     clouds.update(dt)
     // The cloud band and the title both belong to the top of the shot. They go
     // as the camera drops out of the sky, so the island is never seen through

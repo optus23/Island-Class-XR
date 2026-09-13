@@ -35,18 +35,13 @@
       "stage": "ar-foundation",
       "category": "practical",
       "optional": false,
-      "summary": "News! Notícies VR/MR · Presentació Enunciat (1-1) · Pilars AR Foundation · Activitat a classe: 1. AR Foundation — Plane Detection · Entrega Mono/Stereoscopic",
+      "summary": "News! Notícies VR/MR · Presentació Enunciat (1-1) · Pilars AR Foundation · Activitat a classe: 1. AR Foundation — Plane Detection",
       "contents": [
         "News! Notícies VR/MR",
         "Presentació Enunciat (1-1)",
         "Pilars AR Foundation",
-        "Activitat a classe: 1. AR Foundation — Plane Detection",
-        "Entrega Mono/Stereoscopic"
+        "Activitat a classe: 1. AR Foundation — Plane Detection"
       ],
-      "deliverable": {
-        "label": "Mono/Stereoscopic",
-        "weight": "10 %"
-      },
       "block": {
         "number": 1,
         "name": "AR Foundation",
@@ -198,13 +193,18 @@
       "stage": "intro-theory",
       "category": "theory",
       "optional": false,
-      "summary": "Kahoot! Repàs setmana passada · Gadgets Immersius · Software per VR · Parallax Barrier",
+      "summary": "Kahoot! Repàs setmana passada · Gadgets Immersius · Software per VR · Parallax Barrier · Entrega Mono/Stereoscopic",
       "contents": [
         "Kahoot! Repàs setmana passada",
         "Gadgets Immersius",
         "Software per VR",
-        "Parallax Barrier"
+        "Parallax Barrier",
+        "Entrega Mono/Stereoscopic"
       ],
+      "deliverable": {
+        "label": "Mono/Stereoscopic",
+        "weight": "10 %"
+      },
       "todos": [],
       "slides": {
         "type": "canva",
