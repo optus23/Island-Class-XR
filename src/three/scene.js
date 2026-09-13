@@ -210,20 +210,58 @@ export function createScene(container, { xr = false } = {}) {
     const r = container.getBoundingClientRect()
     pointer.x = ((clientX - r.left) / r.width) * 2 - 1
     pointer.y = -(((clientY - r.top) / r.height) * 2 - 1)
-    if (drift) {
-      parallaxPointer.x = pointer.x
-      parallaxPointer.y = pointer.y
-    }
+    if (drift) setParallaxAt(clientX, clientY)
     pointerInside = true
+  }
+
+  /** The drift only — no raycast pointer, no `pointerInside`. */
+  function setParallaxAt(clientX, clientY) {
+    const r = container.getBoundingClientRect()
+    parallaxPointer.x = ((clientX - r.left) / r.width) * 2 - 1
+    parallaxPointer.y = -(((clientY - r.top) / r.height) * 2 - 1)
   }
 
   container.addEventListener('pointermove', (e) => {
     setPointerAt(e.clientX, e.clientY, { drift: e.pointerType === 'mouse' })
   })
+
+  /**
+   * THE DRIFT IS TRACKED ON THE WINDOW, THE RAYCAST POINTER ON THE CANVAS, AND
+   * THAT SPLIT IS THE WHOLE FIX.
+   *
+   * The panels live in `#ui`, a SIBLING of `#app` — so a pointermove over the
+   * course index never reaches the canvas's listener, and `#app` fires
+   * `pointerleave` the moment the pointer crosses onto a panel. That handler
+   * used to zero the drift, which snapped the camera back to centre; sweeping
+   * the mouse on and off a panel therefore made the camera lurch every time.
+   * Reported as "si pongo el ratón en la interfaz y lo saco todo el rato, la
+   * cámara se vuelve un poco loca".
+   *
+   * Listening on the window keeps the drift following the mouse over the
+   * panels exactly as it does over the island, so crossing the edge of a panel
+   * is not an event at all. What must NOT follow it there is the raycast
+   * pointer: hovering the legend would otherwise light up whatever node
+   * happens to sit behind it.
+   */
+  window.addEventListener('pointermove', (e) => {
+    if (e.pointerType !== 'mouse') return
+    setParallaxAt(e.clientX, e.clientY)
+  })
+
   container.addEventListener('pointerleave', () => {
+    // Only the picking stops. The drift is the window's business now, and
+    // zeroing it here is exactly what caused the lurch.
     pointerInside = false
-    parallaxPointer.x = 0
-    parallaxPointer.y = 0
+  })
+
+  // Leaving the WINDOW is the one time the drift should ease home — there is
+  // no pointer anywhere to follow. `relatedTarget === null` distinguishes it
+  // from crossing between elements inside the page.
+  document.addEventListener('pointerout', (e) => {
+    if (e.pointerType === 'mouse' && !e.relatedTarget) {
+      parallaxPointer.x = 0
+      parallaxPointer.y = 0
+    }
   })
 
   // --- resize --------------------------------------------------------------
@@ -367,6 +405,16 @@ export function createScene(container, { xr = false } = {}) {
     setPointerAt,
     get pointerInside() {
       return pointerInside
+    },
+    /**
+     * The mouse position the camera DRIFT follows, which is not the same thing
+     * as `pointer` — see the listeners above. Exposed so the dev `__step`
+     * stepper can hand the rig what the real loop hands it; it used to pass a
+     * hardcoded zero, which made the parallax unobservable in any embedded
+     * browser and therefore untestable in exactly the place it was reported.
+     */
+    get parallaxPointer() {
+      return parallaxPointer
     },
     onUpdate: (fn) => updaters.push(fn),
     setVRUpdate: (fn) => {

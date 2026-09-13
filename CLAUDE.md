@@ -844,6 +844,28 @@ Every one of these was diagnosed the hard way. Do not re-derive them.
   axis is inverted. This has now been reported twice; don't re-derive it on
   paper, measure it: `rig.orbit(100, 0)` then compare `camera.position` against
   the camera's own right vector from `matrixWorld.extractBasis`.
+- **THE MOUSE DRIFT IS TRACKED ON THE WINDOW; THE RAYCAST POINTER IS NOT.**
+  The panels live in `#ui`, a SIBLING of `#app`, so a pointermove over the
+  course index never reaches the canvas's listener and `#app` fires
+  `pointerleave` the moment the pointer crosses onto a panel. That handler used
+  to zero the drift, which snapped the camera back to centre — sweeping the
+  mouse on and off a panel made it lurch every time ("la cámara se vuelve un
+  poco loca"). Listening on the window makes crossing a panel edge a non-event.
+  What must NOT follow the pointer there is the raycast pointer and
+  `pointerInside`, or hovering the legend lights up whatever node sits behind
+  it. Only leaving the WINDOW (`pointerout` with a null `relatedTarget`) eases
+  the drift home. The drift stays mouse-only: a finger dragging the camera must
+  not also slide the world.
+  The amounts are deliberately small — `parallax.maxOffset` 1.1 and `maxTilt`
+  0.025, halved on 13 September 2026. It is there to give the island depth, not
+  to move the map.
+- **`__step` must hand the rig the REAL parallax pointer** (`app.parallaxPointer`),
+  which it did not: it passed a hardcoded `{x:0, y:0}`, silently disabling
+  mouse parallax in every embedded browser. Since `document.hidden` is true
+  there and rAF never fires, `__step` is the ONLY way to run the loop — so the
+  one tool for reproducing this bug was the one thing guaranteed to hide it.
+  A stepper that does not drive what the real loop drives is testing a
+  different program.
 - **There is no on-screen camera pad, and adding one back needs a reason.** One
   shipped — a D-pad in the corner driving the same `rig.orbit`/`rig.zoom` — and
   was removed a round later: on a desktop the drag and the wheel already do both

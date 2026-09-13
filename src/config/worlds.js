@@ -129,10 +129,17 @@ export function worldAtX(x) {
   return best
 }
 
-/** Subtle mouse parallax — never free rotation. Tune or zero these out. */
+/**
+ * Subtle mouse parallax — never free rotation. Tune or zero these out.
+ *
+ * HALVED from 2.2 / 0.05 on 13 September 2026: "bajar el movimiento que sufre
+ * la cámara al mover el ratón, a la mitad, para que se mueva muy poquito".
+ * The drift is meant to make the island feel like it has depth, not to move
+ * the map — at the old amount it read as the camera wandering on its own.
+ */
 export const parallax = {
   // Horizontal only — vertical drift fights the raised, near-overhead angle.
-  maxOffset: 2.2, // world units the camera drifts at full pointer deflection
-  maxTilt: 0.05, // radians the world tips at full deflection
+  maxOffset: 1.1, // world units the camera drifts at full pointer deflection
+  maxTilt: 0.025, // radians the world tips at full deflection
   damping: 0.055, // 0..1 per frame — lower is smoother/laggier
 }
