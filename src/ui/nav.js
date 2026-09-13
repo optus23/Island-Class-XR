@@ -41,7 +41,14 @@ export function mountNav({ markerId, onSelect, onSelectWorld, onToggleOverview }
   el.className = 'nav-panel'
   host.appendChild(el)
 
-  let open = window.innerWidth >= 1024
+  // COLLAPSED ON EVERY ENTRY, at every width. It used to open itself on
+  // anything 1024 wide or more, which meant the first thing a desktop visitor
+  // saw after the flight was a list of 28 sessions covering a third of the
+  // island the flight had just spent five seconds revealing. The map is the
+  // point; the index is one click away and the header bar says so.
+  // Deliberately NOT remembered between visits — "plegadas al entrar" is about
+  // how the map opens, so a choice made last time must not change that.
+  let open = false
   let currentMarker = markerId
   let playerLevelId = markerId
   let overview = false

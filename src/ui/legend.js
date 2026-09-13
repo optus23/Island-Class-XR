@@ -60,8 +60,12 @@ export function mountLegend(actions = {}) {
   el.className = 'legend-panel'
   document.getElementById('ui').appendChild(el)
 
-  // Collapsed where screen space is scarce; the map is the point.
-  let open = window.innerWidth >= 900
+  // Collapsed on every entry, at every width — the map is the point, and the
+  // same reasoning as the course index (see `ui/nav.js`). The teacher's
+  // Profesor block lives in here, so this costs whoever holds a token one
+  // click per visit; that is the right trade against two panels covering the
+  // island the moment it appears.
+  let open = false
   let admin = hasAdminToken()
   let overview = false
   let busy = false
