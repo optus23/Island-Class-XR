@@ -76,7 +76,8 @@ export default {
   'tooltip.completed': 'completado',
   'tooltip.current': 'aquí estamos',
   'tooltip.deliverable': '🚩 Entrega: {label}',
-  'tooltip.deliverableSub': '{weight} del curso · fecha límite de esta actividad',
+  'tooltip.deliverableGraded': 'Entrega evaluable · sesión límite para entregarla',
+  'tooltip.deliverableOptional': 'Práctica opcional · sesión límite para entregarla',
 
   'curtain.building': 'Construyendo la isla…',
 

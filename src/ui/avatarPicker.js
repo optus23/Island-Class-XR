@@ -1,25 +1,31 @@
 import { SLOTS, cycle, loadLook, optionFor, saveLook } from '../lib/avatar.js'
 import { t } from '../lib/i18n/index.js'
+import { hudRail, openPanel, onOtherPanelOpen } from './hudRail.js'
+import { avatarPreview } from './avatarPreview.js'
 
 /**
- * "Make it look like me" — the avatar wardrobe.
+ * "Make it look like me" — the avatar wardrobe, the right half of the rail it
+ * shares with the language picker (see `ui/hudRail.js`).
  *
  * A row per slot with an arrow on each side, which is the shape it was asked
  * for and also the right one: five slots of four or five options each is a
  * space you flick through, not one you pick from a grid of twenty swatches.
  *
- * EVERY CHANGE IS LIVE ON THE MAP BEHIND THE PANEL. There is no preview
- * figure and no Save button — the panel is small and sits over one corner, so
- * the actual avatar is visible while you change it, and that beats any
- * preview of it. It is also why nothing here is staged: the choice is this
- * browser's own `localStorage`, so there is no commit to batch and nothing to
- * lose by writing on every press.
+ * EVERY CHANGE IS LIVE ON THE MAP BEHIND THE PANEL, and also in the little
+ * figure at the top of the panel itself. The map avatar was meant to be
+ * enough, but it is only enough while you happen to be looking at it: the
+ * camera follows the class marker, not the panel, so a student dressing
+ * themselves from the far side of the island was changing something they
+ * could not see. The preview costs no GPU — it is an SVG drawn from the same
+ * option list the rows are (see `ui/avatarPreview.js`).
+ *
+ * Nothing here is staged: the choice is this browser's own `localStorage`, so
+ * there is no commit to batch and nothing to lose by writing on every press.
  */
 export function mountAvatarPicker({ onChange }) {
-  const host = document.getElementById('ui')
   const el = document.createElement('div')
   el.className = 'avatar-picker'
-  host.appendChild(el)
+  hudRail().appendChild(el)
 
   let look = loadLook()
   let open = false
@@ -55,6 +61,7 @@ export function mountAvatarPicker({ onChange }) {
         open
           ? `<div class="avatar-card">
                <p class="avatar-head">${t('avatar.title')}</p>
+               <div class="avatar-preview">${avatarPreview(look)}</div>
                <ul class="avatar-list">${rows}</ul>
                <p class="avatar-note">${t('avatar.note')}</p>
              </div>`
@@ -63,6 +70,8 @@ export function mountAvatarPicker({ onChange }) {
 
     el.querySelector('[data-toggle]').addEventListener('click', () => {
       open = !open
+      // One panel open at a time on the rail — see ui/hudRail.js.
+      if (open) openPanel('avatar')
       render()
     })
     el.querySelectorAll('[data-slot]').forEach((b) =>
@@ -75,6 +84,11 @@ export function mountAvatarPicker({ onChange }) {
   }
 
   render()
+  onOtherPanelOpen('avatar', () => {
+    if (!open) return
+    open = false
+    render()
+  })
   // Apply once on mount too: a browser that has chosen before should see its
   // own avatar without opening the panel.
   onChange?.(look)

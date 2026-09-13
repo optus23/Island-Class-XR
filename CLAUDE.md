@@ -58,10 +58,19 @@ These come from the brief and are not negotiable without the user saying so.
   a `gradeWeight` field and a "Peso" row in the portal's assessment strip
   (`ui/portal.js`) and the VR panel's rows (`lib/labels.js`); both are gone, and
   `scripts/validate.mjs` fails the build if `gradeWeight` reappears on a level.
-  **The one exception**: a deliverable's flag (see "Deliverable flags" below)
-  carries `deliverable.weight`, shown only in that flag's own hover tooltip —
-  not always-visible chrome, and about "there is a hand-in due around here",
-  not about how the course is graded.
+  **THERE IS NO EXCEPTION, INCLUDING THE ONE THIS FILE USED TO GRANT.** A
+  deliverable's flag carried a `weight` ("10 %") for one round, printed in its
+  hover tooltip, on the reasoning that a tooltip is not always-visible chrome.
+  That was the rule being broken, not bent, and it came straight back:
+  "estoy viendo que en la entrega has puesto que es el diez por ciento del
+  curso". The flag now carries `deliverable.kind` instead — a WORD, `graded`
+  or `optional` — and `validate` rejects `deliverable.weight` by name.
+- **No dates in the COPY either, not just in the fields.** The same tooltip
+  said "fecha límite de esta actividad". The island has no relationship with
+  the calendar, so what a hand-in has is a **sesión límite** — the last
+  SESSION to hand it in. A student navigating this map moves through sessions;
+  telling them about a date is telling them about something that is not here.
+  Applies to every string in `lib/i18n/*.js`, not only to level data.
 - **No backend, no database.** Everything is static files plus the GitHub
   Contents API for the one marker write.
 - **The admin GitHub token never touches source or the build.** It lives only in
@@ -288,11 +297,16 @@ Changing any of these is a design decision, not a refactor.
   well, warp pipe, cannon, signpost, crates. Close enough that standing on the
   disc feels like arriving somewhere.
 - **Deliverable flags.** A Mario-style pole-and-pennant beside a session that
-  carries a graded hand-in (`three/nodes.js`, `createDeliverableFlag`). Yellow
-  (`palette.flagPending`) while ahead, green (`palette.completed`) once the
-  marker passes it; hoverable, with its own tooltip (label + weight — see the
-  grade-percentage rule above for why the number lives only there).
-  **Which session gets one is `level.deliverable` (`{label, weight}`), set by
+  carries a hand-in (`three/nodes.js`, `createDeliverableFlag`). **The pennant
+  flies its KIND's colour**: gold (`palette.flagPending`) for a graded hand-in,
+  the optional nodes' own lilac (`palette.optional`) for a voluntary practical
+  — so "this one is voluntary" reads from across the map without opening
+  anything, in the colour the map already uses for voluntary. Green
+  (`palette.completed`) once the marker passes it, whichever kind it was.
+  Hoverable, with its own tooltip: the label, then `graded` / `optional` in
+  words and "sesión límite para entregarla". **No percentage and no date** —
+  see the two rules above; both were in this tooltip and both were wrong.
+  **Which session gets one is `level.deliverable` (`{label, kind}`), set by
   hand — never derived from an "Entrega…" bullet in `contents`.** That was
   tried first and put the AR Foundation flag on the block's last exercise,
   which is wrong: the calendar's Deliverables column records the grade a week
@@ -345,6 +359,27 @@ Changing any of these is a design decision, not a refactor.
   outweighs flatness. Scoring the branch's own clearing would be circular — the
   pad would move the placement that decided where to put the pad — which is why
   off-path nodes still get no pad and the score reads the terrain instead.
+  **That is a SCORE, not a lift.** The placement also used to raise the branch
+  to its anchor's height outright (`Math.max(ground, anchor.y)`), which only
+  ever fired when the branch legitimately sat lower — and then left it hanging
+  by exactly that plateau. It floated the re-evaluation castle 2 units the
+  moment it moved onto the cliff beside the final castle. A branch takes its
+  height from `groundHeightAt` and nothing else; `validate` asserts every
+  off-path node sits on its own terrain **across its footprint**, because the
+  centre was never the part that floated.
+  **`offsetAlong` slides a branch up or down the route**, signed along the
+  route's own direction of travel. The perpendicular offset is all an ordinary
+  bonus node needs, but the re-evaluation hangs off the FINAL castle and the
+  only perpendicular there points straight back from it — behind 8 units of
+  plinth and a building taller than the camera, which is the whole of "lo has
+  puesto justo detrás del examen final, y es que prácticamente no se ve". It
+  shifts the whole search, so the side and distance are still chosen and the
+  anchor is still untouched.
+  **Work out "to the right" by MEASURING the screen axes, never from the
+  camera preset.** Deriving them from `camera.offset` got the Z sign wrong and
+  sent the castle off the bottom-right of the frame. Project the anchor, then
+  project it again plus 10 units of world X and of world Z, and read the two
+  screen deltas off the running camera.
   **Mono/Stereoscopic has no class of its own and must not get one back.** It
   used to be session 2, a practical day. The dates stopped fitting the content,
   so the session was deleted and every practical moved one slot earlier; the
@@ -358,6 +393,25 @@ Changing any of these is a design decision, not a refactor.
 - **UI chrome**: solid plates, hard black outline, bright inner rim, plated title
   bars, gold level tiles, Fredoka. Dark, but in the same language as the island.
   The full-screen level portal is a separate, calmer design and is approved as-is.
+- **The language picker and the avatar wardrobe share ONE top-right row**
+  (`ui/hudRail.js`), language first. They had a corner each — avatar below
+  language — and the language menu opens downward, so it dropped its list
+  under a floating button that then sat on top of its own options. Both menus
+  are positioned absolutely off the rail rather than expanding it, or opening
+  the 15rem wardrobe would shove the language button sideways every time.
+  **Only one of the two is open at a time**; they are wide enough to reach
+  across the rail, so two at once overlap whatever the anchoring.
+  On a phone the index (`.nav-panel`) drops BELOW that row rather than sharing
+  the line with it — three panels were laid out as if each had a corner of its
+  own, on a screen with room for one.
+- **The wardrobe shows the figure it is dressing** (`ui/avatarPreview.js`), and
+  it is an **SVG built from the avatar's own boxes**, not a second Three.js
+  scene: a 70px preview is not worth a second renderer and a second render
+  loop next to the island. Every rectangle is the `w, h, x, y` of the matching
+  box in `three/player.js`, so a seasonal hat added to `SLOTS` draws itself
+  here with no change. The map avatar was meant to be enough and is not — the
+  camera follows the class marker, so a student dressing themselves from the
+  far side of the island was changing something they could not see.
 - **The avatar's wardrobe is the student's own, and the headset never comes
   off.** Hat, visor colour, shirt, trousers and shoes are chosen from
   `lib/avatar.js` and kept in that browser's `localStorage` — never in the
@@ -898,6 +952,24 @@ Every one of these was diagnosed the hard way. Do not re-derive them.
 
 **CSS**
 
+- **A SCROLL CONTAINER CLIPS ITS CHILDREN'S SHADOWS, AND A SQUARE ONE CLIPS
+  THEM SQUARE.** The `max-height` + `overflow-y: auto` cap that keeps the
+  legend on a short laptop sat on `.nav-panel`/`.legend-panel` — the square
+  wrapper — while the rounded plate is the `.nav-card`/`.legend-card` inside
+  it. `--xri-edge`'s hard black ring and drop shadow are painted OUTSIDE the
+  plate's box, so they were sliced flush against that square and what was left
+  at each corner was a dark wedge poking past the curve: "las esquinas no
+  acaban de ser redondeadas... se ven como cortadas". Put the cap on the PLATE
+  — an element's own overflow never clips its own shadow — and keep
+  `overflow-x: hidden` there so the header bar still rounds into it.
+  It is invisible until the UI is scaled up, which is why it shipped.
+  **Diagnose this class of bug by colour-coding, not by reasoning.** Three
+  hypotheses (the spread shadow's corner radius, an `outline` instead, the
+  header's own radius) all looked right on paper and all survived a
+  screenshot. Painting the wrapper lime, the plate red and the header blue
+  named the culprit in one frame. And **keep the crop size fixed when
+  comparing two scales** — the same corner looks rounder in a crop that covers
+  more of a smaller panel, which cost a wrong conclusion here.
 - `--iris-r` must be registered with `@property` or the wipe snaps instead of
   animating.
 - Commit pending styles with a **forced reflow**, never `requestAnimationFrame` —

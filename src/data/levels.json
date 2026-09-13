@@ -355,7 +355,7 @@
       ],
       "deliverable": {
         "label": "Mono/Stereoscopic",
-        "weight": "10 %"
+        "kind": "optional"
       },
       "todos": [],
       "slides": {
@@ -531,7 +531,7 @@
       ],
       "deliverable": {
         "label": "AR Foundation",
-        "weight": "10 %"
+        "kind": "graded"
       },
       "slidesPending": true,
       "block": {
@@ -942,7 +942,7 @@
       ],
       "deliverable": {
         "label": "Meta Building Blocks",
-        "weight": "10 %"
+        "kind": "graded"
       },
       "slides": {
         "type": "canva",
@@ -1128,7 +1128,7 @@
       ],
       "deliverable": {
         "label": "Treball Final d'Assignatura — Concept",
-        "weight": "10 %"
+        "kind": "graded"
       },
       "todos": []
     },
@@ -1212,7 +1212,7 @@
       ],
       "deliverable": {
         "label": "Treball Final d'Assignatura — Set Up",
-        "weight": "10 %"
+        "kind": "graded"
       },
       "todos": []
     },
@@ -1371,7 +1371,7 @@
       ],
       "deliverable": {
         "label": "Treball Final d'Assignatura",
-        "weight": "30 %"
+        "kind": "graded"
       },
       "bossTier": "final",
       "todos": []
@@ -1389,6 +1389,7 @@
       "bossTier": "extra",
       "optional": true,
       "anchorAfter": "w3-boss",
+      "offsetAlong": -6,
       "summary": {
         "en": "Re-evaluation exams",
         "es": "Exámenes de reevaluación",

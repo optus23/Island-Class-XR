@@ -73,14 +73,36 @@ body.map-view {
 .nav-panel,
 .legend-panel {
   zoom: var(--ui-scale, 1);
-  /* The cap is DIVIDED by the scale because it is measured inside the zoomed
-     coordinate space: `92vh` in here would come out as 92vh × scale on screen
-     and cap nothing. Divided first, it lands at 92vh after the zoom, at every
-     scale. Without it the teacher's legend — the tallest thing on the map,
-     with the Profesor block open — runs off the bottom of a short laptop the
-     moment the scale goes up, and the "Completar y avanzar" button with it. */
+}
+
+/* THE SCROLL CAP LIVES ON THE PLATE, NOT ON THE WRAPPER AROUND IT.
+   It sat on `.nav-panel`/`.legend-panel` for one round and cut the corners
+   off every panel: `overflow-y: auto` makes the wrapper a scroll container,
+   which clips its children's ink to the wrapper's own box — and the wrapper
+   is square while the plate inside it is round. The plate's hard black ring
+   and its drop shadow are painted OUTSIDE the plate's box, so they were
+   sliced flush against that square, and what was left at each corner was a
+   dark wedge sticking out past the curve. Reported as "las esquinas no
+   acaban de ser redondeadas... se ven como cortadas", and correctly guessed
+   as a side effect of scaling the UI up — it is only visible once the panels
+   are big enough to look at.
+   On `.nav-card`/`.legend-card` the clip is the plate's OWN rounded box, and
+   an element's overflow never clips its own shadow. Same cap, same scroll,
+   nothing amputated.
+
+   The cap is DIVIDED by the scale because it is measured inside the zoomed
+   coordinate space: `92vh` in here would come out as 92vh × scale on screen
+   and cap nothing. Divided first, it lands at 92vh after the zoom, at every
+   scale. Without it the teacher's legend — the tallest thing on the map,
+   with the Profesor block open — runs off the bottom of a short laptop the
+   moment the scale goes up, and the "Completar y avanzar" button with it. */
+.nav-card,
+.legend-card {
   max-height: calc(92vh / var(--ui-scale, 1));
   overflow-y: auto;
+  /* Was `overflow: hidden`, which is what rounds the header bar's top corners
+     into the plate. `hidden` on X keeps exactly that. */
+  overflow-x: hidden;
   overscroll-behavior: contain;
 }
 
@@ -465,7 +487,8 @@ body.map-view {
   border: 0;
   border-radius: 1rem;
   box-shadow: var(--xri-edge);
-  overflow: hidden;
+  /* Overflow is set above, next to the scroll cap — `hidden` on X only, so the
+     header bar still rounds into the plate while the plate can scroll. */
 }
 
 .nav-head {
@@ -694,19 +717,35 @@ body.map-view {
 }
 
 /* ---- Language picker (top-right) ---------------------------------------- */
-.lang-picker {
+/* ---- Top-right rail: language, then avatar ------------------------------
+   ONE ROW, and the scale lives here rather than on each picker — see
+   `ui/hudRail.js` for why they share a row at all. Both menus hang off it
+   ABSOLUTELY: in the flow, opening the 15rem-wide wardrobe would widen the
+   rail and shove the language button sideways every time it was opened. */
+.hud-rail {
   position: absolute;
   top: 0.85rem;
   right: 0.85rem;
   z-index: 21;
   zoom: var(--ui-scale, 1);
+  display: flex;
+  align-items: flex-start;
+  gap: 0.4rem;
 }
+.lang-picker,
+.avatar-picker {
+  position: relative;
+}
+/* The plate is on the SUMMARY, not on the <details>: the open list is
+   positioned out of flow below it, so a plate wrapping both would be a
+   background with nothing in the gap between them. */
 .lang-card {
-  background: var(--xri-plate);
   color: var(--xri-ink);
+}
+.lang-card > summary {
+  background: var(--xri-plate);
   border-radius: 0.7rem;
   box-shadow: var(--xri-edge);
-  overflow: hidden;
 }
 .lang-card > summary {
   display: flex;
@@ -741,7 +780,13 @@ body.map-view {
   font-size: 0.7rem;
 }
 .lang-list {
-  border-top: 1px solid rgb(255 255 255 / 0.08);
+  position: absolute;
+  top: calc(100% + 0.4rem);
+  right: 0;
+  min-width: 100%;
+  background: var(--xri-plate);
+  border-radius: 0.7rem;
+  box-shadow: var(--xri-edge);
   padding: 0.25rem;
 }
 .lang-item {
@@ -763,18 +808,7 @@ body.map-view {
   font-weight: 600;
 }
 
-/* ---- Avatar wardrobe (under the language picker) ------------------------ */
-.avatar-picker {
-  position: absolute;
-  top: 3.6rem;
-  right: 0.85rem;
-  z-index: 21;
-  zoom: var(--ui-scale, 1);
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 0.4rem;
-}
+/* ---- Avatar wardrobe (right of the language picker, on the rail) -------- */
 .avatar-toggle {
   width: 2.1rem;
   height: 2.1rem;
@@ -790,6 +824,9 @@ body.map-view {
   background: #223049;
 }
 .avatar-card {
+  position: absolute;
+  top: calc(100% + 0.4rem);
+  right: 0;
   background: var(--xri-plate);
   color: var(--xri-ink);
   border-radius: 0.7rem;
@@ -797,6 +834,23 @@ body.map-view {
   padding: 0.6rem 0.7rem;
   width: 15rem;
   max-width: calc(100vw - 1.7rem);
+}
+
+/* The live figure at the top of the panel — see `ui/avatarPreview.js`. It is
+   drawn from the same option list as the rows below it, so it restyles on the
+   same keypress they do. */
+.avatar-preview {
+  display: grid;
+  place-items: center;
+  padding: 0.35rem 0 0.5rem;
+}
+.avatar-figure {
+  width: auto;
+  height: 4.4rem;
+  /* The island's own look: hard edges, and a drop so the figure sits on the
+     plate rather than floating over it. */
+  shape-rendering: crispEdges;
+  filter: drop-shadow(0 2px 0 rgb(0 0 0 / 0.45));
 }
 .avatar-head {
   font-size: 0.68rem;
@@ -1008,6 +1062,12 @@ body.map-view {
 @media (max-width: 640px) {
   .nav-panel {
     width: calc(100vw - 1.7rem);
+    /* THE INDEX GOES UNDER THE RAIL, not beside it. At full width it reaches
+       the right-hand edge, so the language and avatar buttons sat ON TOP of
+       the "XR Island" plate — three things laid out as if each had a corner
+       of its own, on a screen with room for one. The rail keeps the top row;
+       the index starts below it. 0.85 (rail top) + 2.1 (button) + 0.45. */
+    top: 3.4rem;
   }
   .legend-panel {
     width: 11rem;
