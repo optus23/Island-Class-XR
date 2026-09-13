@@ -77,6 +77,16 @@ const isText = (v) =>
   typeof v === 'string' || (v && typeof v === 'object' && !Array.isArray(v))
 
 const LANGS = ['en', 'es', 'ca']
+/**
+ * The same rule as `needsTranslation` in `src/lib/i18n/text.js`, restated here
+ * rather than imported: that module reaches `i18n/index.js`, which reads
+ * `localStorage` and `location`, and this script runs under Node.
+ */
+const needsTranslation = (value, lang) => {
+  if (value == null) return false
+  if (typeof value === 'string') return true
+  return !String(value[lang] ?? '').trim()
+}
 const noteUntranslated = (where, value) => {
   if (value == null) return
   if (typeof value === 'string') {
@@ -221,15 +231,31 @@ for (const l of levels) {
     }
     for (const f of ['objective', 'starting_point', 'deliverable']) {
       if (!t[f]) err(`${tat}: missing "${f}"`)
+      else if (!isText(t[f])) err(`${tat}: "${f}" must be a string or {en, es, ca}`)
+      noteUntranslated(`${tat} ${f}`, t[f])
     }
     // `steps`, not `milestones`: an ordered guide the student follows top to
     // bottom, which is what the v3.0 content replaced the achievement list with.
     if (!Array.isArray(t.steps) || t.steps.length === 0) {
       err(`${tat}: steps must be a non-empty array`)
+    } else {
+      // The steps are the longest prose in the course, so they are counted as
+      // ONE line in the outstanding list rather than one per step — 90 entries
+      // saying the same thing is a list nobody reads.
+      if (t.steps.some((s) => !isText(s))) {
+        err(`${tat}: every step must be a string or {en, es, ca}`)
+      }
+      const langs = ['en', 'es', 'ca'].filter((code) =>
+        t.steps.some((s) => needsTranslation(s, code))
+      )
+      if (langs.length) {
+        untranslated.push(`${tat} steps (${t.steps.length}): missing ${langs.join(', ')}`)
+      }
     }
     if (t.milestones) err(`${tat}: "milestones" was renamed to "steps"`)
-    if (t.steps_note !== undefined && typeof t.steps_note !== 'string') {
-      err(`${tat}: "steps_note" must be a string`)
+    if (t.steps_note !== undefined) {
+      if (!isText(t.steps_note)) err(`${tat}: "steps_note" must be a string or {en, es, ca}`)
+      noteUntranslated(`${tat} steps_note`, t.steps_note)
     }
   }
 

@@ -187,6 +187,14 @@ kinds of text have different owners.
   HTML source into the exercises panel. `fetchMarkdown` checks the content
   type AND sniffs the body for a doctype. Do not simplify it back to a status
   check.
+- **EVERY prose field in `levels.json` takes both shapes, the todos included.**
+  `title`, `summary`, `contents`, and a todo's `objective`, `starting_point`,
+  `steps[]`, `steps_note` and `deliverable` all render through `localized()`.
+  The step-by-step guides are the longest text in the course and are still
+  Spanish-only — that is the outstanding work, and it is Marc's to write, so
+  translating one is a DATA edit with no code change behind it. `validate`
+  counts the steps as ONE line per todo rather than one per step; ninety
+  entries saying the same thing is a list nobody reads.
 - **Switching language reloads the page, and that is not laziness.** The
   villagers' name plates, the VR level card and the gaze pad hint are painted
   into GPU textures once; the Marp decks are fetched as compiled HTML.
