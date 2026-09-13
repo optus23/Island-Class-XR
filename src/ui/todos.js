@@ -1,5 +1,6 @@
 import { marked } from 'marked'
 import { t } from '../lib/i18n/index.js'
+import { localized } from '../lib/i18n/text.js'
 
 /**
  * Renders the interactive activities. Never a PDF, never plain text.
@@ -63,8 +64,14 @@ const escape = (s) =>
  *
  * Every menu path in the content keeps its `>` inside backticks, which is what
  * stops `marked` reading `Window > Package Manager` as a blockquote.
+ *
+ * IT GOES THROUGH `localized` FIRST, so every prose field here takes the same
+ * two shapes the rest of the content does — a plain string, or `{en, es, ca}`.
+ * The step-by-step guides are the longest text in the course and are still
+ * Spanish-only; this is what makes translating one a DATA edit rather than a
+ * code change. `npm run validate` prints the outstanding list.
  */
-const md = (s) => marked.parseInline(String(s))
+const md = (s) => marked.parseInline(localized(s))
 
 /** @type {Record<string, (todo:object)=>string>} */
 const renderers = {
@@ -107,7 +114,7 @@ const renderers = {
 
         <div class="mb-4">
           <p class="text-xs uppercase tracking-wide opacity-60 mb-1">
-            ${t('todos.stepGuide')}${todo.steps_note ? ` (${escape(todo.steps_note)})` : ''}
+            ${t('todos.stepGuide')}${todo.steps_note ? ` (${escape(localized(todo.steps_note))})` : ''}
           </p>
           <ul class="text-sm">${steps}</ul>
         </div>
