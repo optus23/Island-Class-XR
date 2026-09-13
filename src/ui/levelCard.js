@@ -1,5 +1,5 @@
 import { cssPalette } from '../config/theme.js'
-import { sessionNumber, sessionsRemaining } from '../lib/levels.js'
+import { sessionNumber, sessionsRemaining, levelTitle } from '../lib/levels.js'
 import { prefersReducedMotion } from '../lib/motion.js'
 import { t } from '../lib/i18n/index.js'
 
@@ -59,7 +59,7 @@ export function showLevelCard(level, { markerId = null } = {}) {
       <p class="text-4xl sm:text-5xl font-extrabold tracking-[0.18em] mb-4">
         ${t('card.world', { world: n.world, index: n.index })}
       </p>
-      <p class="text-lg sm:text-xl opacity-90 max-w-xl mx-auto leading-snug">${level.title}</p>
+      <p class="text-lg sm:text-xl opacity-90 max-w-xl mx-auto leading-snug">${levelTitle(level)}</p>
 
       <p class="mt-8 text-[11px] uppercase tracking-[0.25em] opacity-50">
         ${t('card.sessionOf', { global: n.global, total: n.total, left: lives })}

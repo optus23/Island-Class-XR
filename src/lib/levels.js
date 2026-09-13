@@ -1,5 +1,6 @@
 import raw from '../data/levels.json'
 import { worlds } from '../config/worlds.js'
+import { localized, localizedList } from './i18n/text.js'
 
 /**
  * The level list, plus the derived "where is the class right now" state.
@@ -32,6 +33,17 @@ export const START_MARKER = mainSequence[0]?.id ?? null
 export function levelById(id) {
   return allLevels.find((l) => l.id === id) ?? null
 }
+
+/**
+ * The three pieces of level text that reach a screen, in the reader's
+ * language. EVERY surface goes through these rather than touching
+ * `level.title` directly — the same rule `safeTitle` already had for the
+ * lock, for the same reason: nine surfaces print a session's name, and one
+ * that reads the raw field is one that shows the wrong language.
+ */
+export const levelTitle = (level) => localized(level?.title)
+export const levelSummary = (level) => localized(level?.summary)
+export const levelContents = (level) => localizedList(level?.contents)
 
 /**
  * WHAT IS HIDDEN FROM STUDENTS, AND WHO DECIDES.
@@ -151,7 +163,7 @@ export function deliverableDone(level, markerId) {
  */
 export function safeTitle(level, markerId) {
   if (!level) return ''
-  if (!isLocked(level, markerId)) return level.title
+  if (!isLocked(level, markerId)) return levelTitle(level)
   const n = sessionNumber(level)
   return n ? `Sesión ${n.global}` : 'Actividad extra'
 }

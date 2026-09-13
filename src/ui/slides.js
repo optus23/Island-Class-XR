@@ -1,5 +1,6 @@
 import { renderDeck } from './deck.js'
 import { t } from '../lib/i18n/index.js'
+import { levelTitle, levelContents } from '../lib/levels.js'
 
 /**
  * Slide viewer, in priority order:
@@ -43,8 +44,9 @@ function frame(src, title) {
  * says something rather than showing an empty box.
  */
 function contentsList(level) {
-  if (!level.contents?.length) return ''
-  const items = level.contents
+  const contents = levelContents(level)
+  if (!contents.length) return ''
+  const items = contents
     .map((c) => `<li>${escapeHtml(c)}</li>`)
     .join('')
   return `
@@ -126,7 +128,7 @@ export async function renderSlides(el, level) {
     return
   }
 
-  const title = t('slides.title', { title: level.title })
+  const title = t('slides.title', { title: levelTitle(level) })
 
   if (slides.type === 'canva') {
     el.innerHTML = `

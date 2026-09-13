@@ -30,7 +30,7 @@ import {
 } from './ui/nodeLabel.js'
 import { hasAdminToken, mountLegend } from './ui/legend.js'
 import { writeLockAhead, writeProgress } from './lib/githubData.js'
-import { nextMarker, START_MARKER } from './lib/levels.js'
+import { nextMarker, START_MARKER, levelTitle } from './lib/levels.js'
 import { irisClose, screenPositionOf } from './ui/transition.js'
 import { buildGrandPath, nearestIndexOn, nodeClearings } from './three/paths.js'
 import { clearGroundAround } from './three/terrain.js'
@@ -544,7 +544,7 @@ document.getElementById('ui').appendChild(liveRegion)
 
 function announce(level) {
   if (!level) return
-  liveRegion.textContent = `${level.title}. Mundo ${level.world}.`
+  liveRegion.textContent = `${levelTitle(level)}. ${t('portal.world', { n: level.world })}.`
 }
 
 window.addEventListener('keydown', (e) => {
@@ -634,7 +634,7 @@ function markerReadout(id) {
   if (!level) return null
   const n = sessionNumber(level)
   return {
-    title: level.title,
+    title: levelTitle(level),
     label: n
       ? t('portal.worldSession', { world: n.world, index: n.index, global: n.global, total: n.total })
       : t('portal.optionalLevel'),

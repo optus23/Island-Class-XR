@@ -1,5 +1,5 @@
 import { cssPalette } from '../config/theme.js'
-import { statusFor, sessionNumber } from '../lib/levels.js'
+import { statusFor, sessionNumber, levelTitle, levelSummary } from '../lib/levels.js'
 import { renderSlides } from './slides.js'
 import { renderTodos } from './todos.js'
 import { loadMarkdown, renderMarkdownInto } from './markdown.js'
@@ -211,7 +211,7 @@ export function openPortal(
       <span aria-hidden="true">&larr;</span>
     </button>
 
-    <section role="dialog" aria-modal="true" aria-label="${level.title}">
+    <section role="dialog" aria-modal="true" aria-label="${levelTitle(level)}">
 
       <header class="px-5 sm:px-8 pt-5 pb-4 border-b border-base-content/10"
               style="box-shadow: inset 0 4px 0 0 ${accent}">
@@ -219,8 +219,8 @@ export function openPortal(
           <p class="text-[11px] uppercase tracking-[0.2em] opacity-55 mb-1">
             ${sessionLabel}
           </p>
-          <h2 class="text-2xl sm:text-4xl font-extrabold leading-tight">${level.title}</h2>
-          <p class="text-sm sm:text-base opacity-70 mt-1.5 max-w-3xl">${level.summary ?? ''}</p>
+          <h2 class="text-2xl sm:text-4xl font-extrabold leading-tight">${levelTitle(level)}</h2>
+          <p class="text-sm sm:text-base opacity-70 mt-1.5 max-w-3xl">${levelSummary(level)}</p>
           <div class="flex flex-wrap gap-1.5 mt-3">${badges}</div>
           ${assessmentStrip(level)}
         </div>
