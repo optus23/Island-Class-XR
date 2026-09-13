@@ -41,8 +41,14 @@ import { readLevelFromUrl, setLevelInUrl, onRouteChange } from './lib/router.js'
 import { readSeeAllFromUrl, rememberSeeAll, seeAllChoice } from './lib/teacherView.js'
 import { createVR } from './three/vr.js'
 import { createIntro, introWanted } from './three/intro.js'
+import { initLang, t } from './lib/i18n/index.js'
+import { mountLangPicker } from './ui/langPicker.js'
 
 const container = document.getElementById('app')
+// BEFORE anything renders. The curtain on the next line is already text, and
+// every panel below reads through `t()` — resolve the language first and none
+// of them can be built in the wrong one.
+initLang()
 const curtain = createCurtain()
 /**
  * ONE URL FOR EVERYTHING, AND THE BUTTON IS THE BRIDGE.
@@ -527,7 +533,7 @@ container.tabIndex = 0
 container.setAttribute('role', 'application')
 container.setAttribute(
   'aria-label',
-  'Mapa del curso. Flechas para moverte entre niveles, Enter para abrir el nivel actual.'
+  t('a11y.map')
 )
 
 // Screen readers cannot see the avatar move, so say where it landed.
@@ -629,7 +635,9 @@ function markerReadout(id) {
   const n = sessionNumber(level)
   return {
     title: level.title,
-    label: n ? `Mundo ${n.world}-${n.index} · sesión ${n.global} de ${n.total}` : 'Nivel opcional',
+    label: n
+      ? t('portal.worldSession', { world: n.world, index: n.index, global: n.global, total: n.total })
+      : t('portal.optionalLevel'),
   }
 }
 
@@ -745,6 +753,9 @@ async function boot() {
     onToggleOverview: () => setOverview(!app.rig.isOverview),
   })
 
+  // Top right — the one corner the index and the legend leave free.
+  mountLangPicker()
+
   // Colour key, plus teacher controls when a token is present in this browser.
   legend = mountLegend({
     onToggleOverview: () => setOverview(!app.rig.isOverview),
@@ -752,20 +763,20 @@ async function boot() {
       const next = nextMarker(markerId)
       await writeProgress(next, 'Completado')
       applyMarker(next, { walk: true })
-      return 'Marcador avanzado. El sitio se reconstruye en 1–2 min.'
+      return t('msg.advanced')
     },
     onBack: async () => {
       const i = mainSequence.findIndex((l) => l.id === markerId)
       const prev = mainSequence[Math.max(0, i - 1)]?.id ?? START_MARKER
       await writeProgress(prev, 'Retroceso')
       applyMarker(prev, { walk: true })
-      return 'Marcador retrocedido.'
+      return t('msg.back')
     },
     onReset: async () => {
       await writeProgress(START_MARKER, 'Reinicio')
       // Teleport: from session 27 the walk home crosses the whole island.
       applyMarker(START_MARKER, { walk: true, instant: true })
-      return 'Curso reiniciado.'
+      return t('msg.reset')
     },
     /** The course-wide rule. Written to progress.json; every student gets it. */
     onToggleLock: async (on) => {
@@ -773,8 +784,8 @@ async function boot() {
       setLockAhead(on)
       applyLocks()
       return on
-        ? 'Las sesiones futuras quedan ocultas para los alumnos.'
-        : 'Todas las sesiones son visibles.'
+        ? t('msg.lockOn')
+        : t('msg.lockOff')
     },
     /** Local to this browser: look at the map the way the class sees it. */
     onToggleSeeAll: (seeAll) => {

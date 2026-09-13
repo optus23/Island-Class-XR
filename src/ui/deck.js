@@ -15,6 +15,8 @@
  *
  */
 
+import { t } from '../lib/i18n/index.js'
+
 const cache = new Map()
 let indexPromise = null
 
@@ -98,10 +100,10 @@ export async function renderDeck(el, level) {
            data-stage></div>
 
       <div class="shrink-0 flex items-center gap-2 flex-wrap">
-        <button class="btn btn-sm" data-prev aria-label="Diapositiva anterior">←</button>
-        <button class="btn btn-sm" data-next aria-label="Diapositiva siguiente">→</button>
+        <button class="btn btn-sm" data-prev aria-label="${t('deck.prev')}">←</button>
+        <button class="btn btn-sm" data-next aria-label="${t('deck.next')}">→</button>
         <span class="text-sm tabular-nums opacity-70" data-count></span>
-        <span class="text-xs opacity-50 ml-auto" data-note>Generado desde Markdown (Marp)</span>
+        <span class="text-xs opacity-50 ml-auto" data-note>${t('deck.generated')}</span>
       </div>
     </div>`
 
@@ -225,6 +227,6 @@ export async function renderDeck(el, level) {
   window.addEventListener('resize', onResize)
 
   show(0)
-  el.setAttribute('aria-label', `Presentación: ${esc(deck.title)}`)
+  el.setAttribute('aria-label', t('deck.presentation', { title: esc(deck.title) }))
   return true
 }

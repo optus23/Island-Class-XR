@@ -8,6 +8,7 @@ import {
   markerProgress,
   sessionNumber,
 } from '../lib/levels.js'
+import { t } from '../lib/i18n/index.js'
 
 /**
  * Course index, top-left.
@@ -65,16 +66,16 @@ export function mountNav({ markerId, onSelect, onSelectWorld, onToggleOverview }
             return `
               <li>
                 <button data-level="${l.id}" ${st.locked ? 'disabled' : ''}
-                  title="${st.locked ? 'Se abre cuando la clase llegue aquí' : ''}"
+                  title="${st.locked ? t('nav.lockedTitle') : ''}"
                   class="nav-item ${here ? 'is-here' : ''} ${st.completed ? 'is-done' : ''} ${
                     st.locked ? 'is-locked' : ''
                   }">
                   ${swatch(l, st)}
                   <span class="nav-item__num">${n ? `${n.world}-${n.index}` : '·'}</span>
                   <span class="nav-item__title">${safeTitle(l, currentMarker)}</span>
-                  ${st.locked ? '<span class="nav-item__lock" aria-label="Bloqueado">🔒</span>' : ''}
-                  ${st.current ? '<span class="nav-item__pin" title="Aquí está la clase">📍</span>' : ''}
-                  ${l.optional && !st.locked ? '<span class="nav-item__extra">extra</span>' : ''}
+                  ${st.locked ? `<span class="nav-item__lock" aria-label="${t('nav.locked')}">🔒</span>` : ''}
+                  ${st.current ? `<span class="nav-item__pin" title="${t('nav.classIsHere')}">📍</span>` : ''}
+                  ${l.optional && !st.locked ? `<span class="nav-item__extra">${t('nav.extra')}</span>` : ''}
                 </button>
               </li>`
           })
@@ -103,14 +104,14 @@ export function mountNav({ markerId, onSelect, onSelectWorld, onToggleOverview }
           <span class="nav-head__chev">${open ? '▲' : '▼'}</span>
         </button>
 
-        <div class="nav-progress" title="Sesión ${index + 1} de ${total}">
+        <div class="nav-progress" title="${t('nav.sessionTitle', { n: index + 1, total })}">
           <div class="nav-progress__bar" style="width:${pct}%"></div>
-          <span class="nav-progress__label">Sesión ${index + 1} / ${total}</span>
+          <span class="nav-progress__label">${t('nav.sessionShort', { n: index + 1, total })}</span>
         </div>
 
         <div class="nav-body ${open ? '' : 'is-collapsed'}">
           <button class="nav-overview ${overview ? 'is-on' : ''}" data-overview>
-            <span>${overview ? 'Volver al personaje' : 'Ver la isla entera'}</span>
+            <span>${overview ? t('nav.backToCharacter') : t('nav.wholeIsland')}</span>
             <kbd>M</kbd>
           </button>
           <div class="nav-scroll">${worldSections}</div>

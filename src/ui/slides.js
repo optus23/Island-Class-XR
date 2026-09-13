@@ -1,4 +1,5 @@
 import { renderDeck } from './deck.js'
+import { t } from '../lib/i18n/index.js'
 
 /**
  * Slide viewer, in priority order:
@@ -48,7 +49,7 @@ function contentsList(level) {
     .join('')
   return `
     <div class="mb-5">
-      <h3 class="font-semibold mb-2">Contenido de la sesión</h3>
+      <h3 class="font-semibold mb-2">${t('slides.sessionContent')}</h3>
       <ul class="list-disc ps-5 space-y-1 text-sm opacity-90 max-w-prose">${items}</ul>
     </div>`
 }
@@ -74,7 +75,7 @@ export async function renderSlides(el, level) {
     bar.innerHTML = `
       <a class="btn btn-sm btn-outline" href="${external.replace(/[?&]embed/, '')}"
          target="_blank" rel="noopener noreferrer">
-        ${escapeHtml(level.slidesLink?.label ?? 'Diapositivas de la sesión')} ↗
+        ${escapeHtml(level.slidesLink?.label ?? t('slides.deckLink'))} ↗
       </a>`
     const slot = document.createElement('div')
     slot.className = ''
@@ -103,10 +104,7 @@ export async function renderSlides(el, level) {
            target="_blank" rel="noopener noreferrer">
           ${level.slidesLink.label} ↗
         </a>
-        <p class="text-xs opacity-60 mt-3 max-w-prose">
-          Se abre en Canva, en una pestaña nueva. Si pide permisos, el diseño
-          todavía no es público.
-        </p>
+        <p class="text-xs opacity-60 mt-3 max-w-prose">${t('slides.canvaPrivateNote')}</p>
       </div>`
     return
   }
@@ -121,26 +119,21 @@ export async function renderSlides(el, level) {
         ${contentsList(level)}
         ${
           level.slidesPending
-            ? `<p class="opacity-70 text-sm">
-                 Las diapositivas de esta sesión están en preparación. El contenido
-                 de arriba es lo que se dará; el enlace llegará antes de la clase.
-               </p>`
-            : `<p class="opacity-70 text-sm">
-                 Esta sesión no lleva diapositivas.
-               </p>`
+            ? `<p class="opacity-70 text-sm">${t('slides.pending')}</p>`
+            : `<p class="opacity-70 text-sm">${t('slides.none')}</p>`
         }
       </div>`
     return
   }
 
-  const title = `Diapositivas — ${level.title}`
+  const title = t('slides.title', { title: level.title })
 
   if (slides.type === 'canva') {
     el.innerHTML = `
       <div class="flex flex-col gap-2">
         <div class="w-full max-w-[121vh] mx-auto">${frame(slides.source, title)}</div>
         <a class="btn btn-sm btn-ghost self-start" href="${slides.source}"
-           target="_blank" rel="noopener noreferrer">Abrir en Canva ↗</a>
+           target="_blank" rel="noopener noreferrer">${t('slides.openCanva')}</a>
       </div>`
     return
   }
@@ -156,14 +149,14 @@ export async function renderSlides(el, level) {
         <object data="${url}" type="application/pdf" class="w-full h-full rounded-lg">
           <div class="h-full grid place-items-center text-center p-6">
             <div>
-              <p class="font-semibold mb-2">Tu navegador no puede incrustar PDF.</p>
+              <p class="font-semibold mb-2">${t('slides.pdfNoEmbed')}</p>
               <a class="btn btn-primary btn-sm" href="${url}" target="_blank"
-                 rel="noopener noreferrer">Abrir el PDF ↗</a>
+                 rel="noopener noreferrer">${t('slides.openPdf')}</a>
             </div>
           </div>
         </object>
       </div>
       <a class="btn btn-sm btn-ghost self-start" href="${url}" target="_blank"
-         rel="noopener noreferrer">Abrir en una pestaña ↗</a>
+         rel="noopener noreferrer">${t('slides.openTab')}</a>
     </div>`
 }

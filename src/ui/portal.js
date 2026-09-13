@@ -4,16 +4,20 @@ import { renderSlides } from './slides.js'
 import { renderTodos } from './todos.js'
 import { loadMarkdown, renderMarkdownInto } from './markdown.js'
 import {
-  STAGE_LABELS,
-  CATEGORY_LABELS,
-  BOSS_TIER_LABELS,
-  SUBMISSION_LABELS,
-  GROUP_LABELS,
-  UNDECIDED_TEXT,
+  stageLabel,
+  categoryLabel,
+  bossTierLabel,
+  submissionLabel,
+  groupLabel,
+  undecidedText,
 } from '../lib/labels.js'
+import { t } from '../lib/i18n/index.js'
 
 /** The portal styles the undecided marker; the shared module keeps it plain. */
-const UNDECIDED = `<span class="opacity-60 italic">${UNDECIDED_TEXT}</span>`
+const undecided = () => `<span class="opacity-60 italic">${undecidedText()}</span>`
+/** …and wraps a value that IS the undecided text in the same italics. */
+const orUndecided = (value) =>
+  value === undecidedText() ? undecided() : value
 
 /**
  * The level portal.
@@ -42,18 +46,23 @@ function assessmentStrip(level) {
 
   const b = level.block
   const items = [
-    ['Bloque', `${b.number} · ${b.name} — ejercicio ${b.exercise} de ${b.of}`],
-    ['Entrega', SUBMISSION_LABELS[level.submissionMethod] ?? UNDECIDED],
-    ['Trabajo', GROUP_LABELS[level.groupMode] ?? UNDECIDED],
+    [
+      t('assess.block'),
+      t('assess.blockValue', { number: b.number, name: b.name, exercise: b.exercise, of: b.of }),
+    ],
+    [t('assess.delivery'), orUndecided(submissionLabel(level.submissionMethod))],
+    [t('assess.work'), orUndecided(groupLabel(level.groupMode))],
   ]
 
   if (level.starterRepo) {
-    const branch = `<code class="text-[11px]">${level.starterRepo.branch}</code>`
+    const branch = t('portal.branch', {
+      branch: `<code class="text-[11px]">${level.starterRepo.branch}</code>`,
+    })
     items.push([
-      'Repositorio',
+      t('portal.repository'),
       level.starterRepo.url
-        ? `<a class="link" href="${level.starterRepo.url}" target="_blank" rel="noopener">repo de ejercicios</a> · rama ${branch}`
-        : `rama ${branch} <span class="opacity-60 italic">(pendiente de publicar)</span>`,
+        ? `<a class="link" href="${level.starterRepo.url}" target="_blank" rel="noopener">${t('portal.repoLink')}</a> · ${branch}`
+        : `${branch} <span class="opacity-60 italic">${t('portal.repoPending')}</span>`,
     ])
   }
 
@@ -82,10 +91,10 @@ const FOCUSABLE =
   'a[href], button:not([disabled]), input:not([disabled]), select, textarea, iframe, [tabindex]:not([tabindex="-1"])'
 
 function tabsFor(level) {
-  const slides = { key: 'slides', label: 'Diapositivas' }
-  const todos = { key: 'todos', label: 'Actividades' }
-  const exercises = { key: 'exercises', label: 'Ejercicios' }
-  const bibliography = { key: 'bibliography', label: 'Bibliografía' }
+  const slides = { key: 'slides', label: t('portal.slides') }
+  const todos = { key: 'todos', label: t('portal.activities') }
+  const exercises = { key: 'exercises', label: t('portal.exercises') }
+  const bibliography = { key: 'bibliography', label: t('portal.bibliography') }
 
   // There is no answers tab. The todos ARE the instructions, and the course
   // deliberately does not publish worked solutions.
@@ -99,10 +108,13 @@ function tabsFor(level) {
   // A tab only shows when the level actually has something behind it — an
   // empty "Ejercicios" or "Bibliografía" button that opens on "esta sesión no
   // tiene..." reads as a broken feature, not as an honest empty state.
-  return ordered.filter((t) => {
-    if (t.key === 'todos') return Boolean(level.todos?.length)
-    if (t.key === 'exercises') return Boolean(level.exercises)
-    if (t.key === 'bibliography') return Boolean(level.bibliography)
+  //
+  // `tab`, not `t`: `t` is the translation function in this module now, and
+  // shadowing it here would take every label on the page down with it.
+  return ordered.filter((tab) => {
+    if (tab.key === 'todos') return Boolean(level.todos?.length)
+    if (tab.key === 'exercises') return Boolean(level.exercises)
+    if (tab.key === 'bibliography') return Boolean(level.bibliography)
     return true
   })
 }
@@ -160,16 +172,16 @@ export function openPortal(
 
   const n = sessionNumber(level)
   const sessionLabel = n
-    ? `Mundo ${n.world}-${n.index} · sesión ${n.global} de ${n.total}`
-    : 'Nivel opcional'
+    ? t('portal.worldSession', { world: n.world, index: n.index, global: n.global, total: n.total })
+    : t('portal.optionalLevel')
 
   const tabs = tabsFor(level)
   const badges = [
     `<span class="badge badge-sm" style="background:${accent};color:#0b0f14;border:none">
-       ${CATEGORY_LABELS[level.category] ?? level.category}</span>`,
-    `<span class="badge badge-sm badge-ghost">Mundo ${level.world}</span>`,
-    `<span class="badge badge-sm badge-ghost">${STAGE_LABELS[level.stage] ?? level.stage}</span>`,
-    level.optional ? '<span class="badge badge-sm badge-outline">Opcional</span>' : '',
+       ${categoryLabel(level)}</span>`,
+    `<span class="badge badge-sm badge-ghost">${t('portal.world', { n: level.world })}</span>`,
+    `<span class="badge badge-sm badge-ghost">${stageLabel(level)}</span>`,
+    level.optional ? `<span class="badge badge-sm badge-outline">${t('portal.optional')}</span>` : '',
     // The voluntary "Actitud 10%" activities. The lilac disc says there is
     // something different about the day; this says what.
     level.attitudeGrade
@@ -177,15 +189,15 @@ export function openPortal(
            ${esc(level.attitudeGrade)}</span>`
       : '',
     level.bossTier
-      ? `<span class="badge badge-sm badge-outline">${BOSS_TIER_LABELS[level.bossTier]}</span>`
+      ? `<span class="badge badge-sm badge-outline">${bossTierLabel(level.bossTier)}</span>`
       : '',
     // Not `badge-success`: the "night" DaisyUI theme's success colour is a
     // teal that reads as cyan next to this palette's actual green. Painted
     // from `palette.completed` it matches the green the map itself uses.
     status.completed
-      ? `<span class="badge badge-sm" style="background:${cssPalette.completed};color:#0b0f14;border:none">Completado</span>`
+      ? `<span class="badge badge-sm" style="background:${cssPalette.completed};color:#0b0f14;border:none">${t('portal.completed')}</span>`
       : '',
-    status.current ? '<span class="badge badge-sm badge-warning">Aquí estamos</span>' : '',
+    status.current ? `<span class="badge badge-sm badge-warning">${t('portal.current')}</span>` : '',
   ]
     .filter(Boolean)
     .join('')
@@ -195,7 +207,7 @@ export function openPortal(
   root.innerHTML = `
     <!-- The only thing allowed to overlay the full-screen UI. -->
     <button class="portal-back btn btn-sm btn-circle btn-neutral shadow-lg"
-            data-close aria-label="Volver al mapa" title="Volver al mapa (Esc)">
+            data-close aria-label="${t('portal.back')}" title="${t('portal.backTitle')}">
       <span aria-hidden="true">&larr;</span>
     </button>
 
@@ -258,10 +270,10 @@ export function openPortal(
       renderTodos(panel, level)
       return
     }
-    panel.innerHTML = '<p class="opacity-60">Cargando…</p>'
+    panel.innerHTML = `<p class="opacity-60">${t('portal.loading')}</p>`
     const path = key === 'bibliography' ? level.bibliography : level.exercises
     const emptyLabel =
-      key === 'bibliography' ? 'Este nivel no tiene bibliografía.' : 'Este nivel no tiene ejercicios.'
+      key === 'bibliography' ? t('portal.noBibliography') : t('portal.noExercises')
     const result = await loadMarkdown(path)
     renderMarkdownInto(panel, result, emptyLabel)
   }

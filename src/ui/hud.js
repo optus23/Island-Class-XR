@@ -1,17 +1,12 @@
 import { cssPalette } from '../config/theme.js'
 import { safeTitle, statusFor } from '../lib/levels.js'
+import { categoryLabel } from '../lib/labels.js'
+import { t } from '../lib/i18n/index.js'
 
 /**
  * Small screen-space extras: the hover tooltip and the first-load curtain.
  * Both are pointer-transparent so they never intercept a click meant for the map.
  */
-
-const CATEGORY_LABELS = {
-  theory: 'Teoría',
-  practical: 'Práctica',
-  project: 'Proyecto',
-  boss: 'Examen',
-}
 
 export function createTooltip() {
   const el = document.createElement('div')
@@ -37,12 +32,12 @@ export function createTooltip() {
         // A locked session gives away nothing — not even what KIND of session it
         // is, since "examen" on a date nobody has reached is its own spoiler.
         const tags = st.locked
-          ? ['se abre cuando la clase llegue aquí']
+          ? [t('tooltip.locked')]
           : [
-              CATEGORY_LABELS[level.category] ?? level.category,
-              level.optional ? 'opcional' : null,
-              st.completed ? 'completado' : null,
-              st.current ? 'aquí estamos' : null,
+              categoryLabel(level),
+              level.optional ? t('tooltip.optional') : null,
+              st.completed ? t('tooltip.completed') : null,
+              st.current ? t('tooltip.current') : null,
             ].filter(Boolean)
 
         el.innerHTML = `
@@ -78,10 +73,10 @@ export function createTooltip() {
           <span class="flex items-center gap-2">
             <span class="inline-block w-2.5 h-2.5 rounded-[3px] shrink-0"
                   style="background:${cssPalette.flagPending}"></span>
-            <span class="font-semibold leading-tight">🚩 Entrega: ${d.label}</span>
+            <span class="font-semibold leading-tight">${t('tooltip.deliverable', { label: d.label })}</span>
           </span>
           <span class="block text-[11px] opacity-70 mt-0.5">
-            ${d.weight} del curso · fecha límite de esta actividad
+            ${t('tooltip.deliverableSub', { weight: d.weight })}
           </span>`
       }
       el.classList.remove('hidden')
@@ -106,7 +101,7 @@ export function createCurtain() {
   el.innerHTML = `
     <div class="text-center text-[#123]">
       <div class="text-2xl font-bold tracking-wide">XR Island</div>
-      <div class="mt-2 text-sm opacity-70">Construyendo la isla…</div>
+      <div class="mt-2 text-sm opacity-70">${t('curtain.building')}</div>
     </div>`
   document.body.appendChild(el)
 
