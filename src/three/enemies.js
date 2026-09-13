@@ -89,13 +89,58 @@ export function createEnemies(path, count = 4, nodeIndices = []) {
   // the whole polyline rather than showing nothing.
   if (!gaps.length) gaps.push([0, path.length - 1])
 
+  /**
+   * A CREATURE NEVER CROSSES A CORNER. It walks one straight stretch, up and
+   * back, and the only turn it ever makes is the half-turn at each end.
+   *
+   * Corners were the whole of the "goombas van de espaldas" report. Easing the
+   * turn (see TURN_RATE) fixed the teleport, but a voxel creature pivoting
+   * through 90 degrees mid-stride still reads oddly against a map where
+   * nothing else turns, and it was still the two corner-crossing creatures
+   * that looked wrong. So the spans are cut at the bends instead: measured
+   * over 2000 frames, the two creatures already confined to straight stretches
+   * were exactly the two reported as fine.
+   *
+   * The road is orthogonal, so a corner is simply where the polyline's
+   * direction changes. Splitting here rather than steering at runtime keeps
+   * `update` as cheap as it was.
+   */
+  const CORNER_DOT = 0.98 // below this, consecutive segments are not parallel
+  const corners = []
+  for (let i = 1; i < path.length - 1; i++) {
+    const ax = path[i].x - path[i - 1].x
+    const az = path[i].z - path[i - 1].z
+    const bx = path[i + 1].x - path[i].x
+    const bz = path[i + 1].z - path[i].z
+    const la = Math.hypot(ax, az)
+    const lb = Math.hypot(bx, bz)
+    if (la < 1e-6 || lb < 1e-6) continue
+    if ((ax * bx + az * bz) / (la * lb) < CORNER_DOT) corners.push(i)
+  }
+
+  const straight = []
+  for (const [lo, hi] of gaps) {
+    let start = lo
+    for (const c of corners) {
+      if (c <= start || c >= hi) continue
+      // Stop short of the bend on both sides, so a creature never even reaches
+      // the point where the road turns.
+      if (c - NODE_MARGIN - start > 8) straight.push([start, c - NODE_MARGIN])
+      start = c + NODE_MARGIN
+    }
+    if (hi - start > 8) straight.push([start, hi])
+  }
+  // Keep the old behaviour if the road is so bendy that nothing straight is
+  // long enough — better a turning creature than none at all.
+  const usable = straight.length ? straight : gaps
+
   // Longest first, so a handful of creatures land on the roomiest stretches
   // rather than bunching into whichever gap came first.
-  gaps.sort((a, b) => b[1] - b[0] - (a[1] - a[0]))
+  usable.sort((a, b) => b[1] - b[0] - (a[1] - a[0]))
 
   const creatures = []
   for (let i = 0; i < count; i++) {
-    const [lo, hi] = gaps[i % gaps.length]
+    const [lo, hi] = usable[i % usable.length]
     const span = hi - lo
     const half = Math.min(12 + Math.floor(hash2(i * 3.7, i * 1.9) * 10), Math.floor(span / 2))
     const centre = lo + span / 2
