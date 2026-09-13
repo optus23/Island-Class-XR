@@ -8,7 +8,7 @@ paginate: true
 
 # Ejercicio 2 · Image Tracking en MR
 
-**Bloque 2 — Meta Building Blocks** · 10 % del curso, reparto por ejercicio *por decidir*
+**Bloque 2 — Meta Building Blocks** · entrega evaluable
 **Por grupo** · **Entrega: build (APK)** · Se hace **en clase**
 
 ---

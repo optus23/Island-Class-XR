@@ -39,7 +39,8 @@ const CATEGORIES = ['theory', 'practical', 'project', 'boss']
 const BOSS_TIERS = ['mini', 'final', 'extra']
 const SLIDE_TYPES = ['pdf', 'canva']
 
-// The graded practical blocks — 30% of the course, 10% per block.
+// The three graded practical blocks. What they are WORTH is not recorded
+// anywhere in this repository — see the no-percentages rule in CLAUDE.md.
 // `null` is a legal value for submissionMethod and groupMode and means
 // "not decided yet". It is NOT the same as the field being absent.
 const SUBMISSION_METHODS = ['build', 'video', 'repo']
@@ -151,8 +152,8 @@ for (const l of levels) {
   // The flag beside a session that carries a hand-in. `kind` is a WORD, not a
   // number: it says whether the hand-in counts towards the course or is a
   // voluntary practical, and it picks the pennant's colour. It carried a
-  // `weight` ("10 %") for exactly one round, which printed a grade percentage
-  // in the tooltip — the same rule `gradeWeight` above exists to hold.
+  // `weight` — a percentage — for exactly one round, which put a grade
+  // straight into the tooltip — the same rule `gradeWeight` above exists to hold.
   if (l.deliverable !== undefined) {
     const d = l.deliverable
     if (!d || typeof d !== 'object' || Array.isArray(d)) {
