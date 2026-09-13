@@ -1,5 +1,12 @@
 import '../style.css'
-import { START_MARKER, levelById, mainSequence, markerProgress, sessionNumber } from '../lib/levels.js'
+import {
+  START_MARKER,
+  levelById,
+  mainSequence,
+  markerProgress,
+  sessionNumber,
+  levelTitle,
+} from '../lib/levels.js'
 import {
   PROGRESS_PATH,
   readJsonFile,
@@ -377,7 +384,7 @@ function rosterCard() {
           <span class="flex-1 min-w-0">
             <span class="font-semibold block truncate">${esc(n.name)}</span>
             <span class="text-xs opacity-60 block truncate">
-              ${esc(level ? sessionLabel(level) : n.levelId)}${level ? ` — ${esc(level.title)}` : ''}
+              ${esc(level ? sessionLabel(level) : n.levelId)}${level ? ` — ${esc(levelTitle(level))}` : ''}
             </span>
           </span>
           <button class="btn btn-ghost btn-xs text-error shrink-0"

@@ -8,18 +8,46 @@
   "levels": [
     {
       "id": "w1-01",
-      "title": "Introducció a l'assignatura i continu realitat-virtualitat",
+      "title": {
+        "en": "Course introduction and the reality–virtuality continuum",
+        "es": "Introducción a la asignatura y continuo realidad-virtualidad",
+        "ca": "Introducció a l'assignatura i continu realitat-virtualitat"
+      },
       "world": 1,
       "stage": "intro-theory",
       "category": "theory",
       "optional": false,
-      "summary": "Dinàmica de grup: Presentacions · Introducció Assignatura · Història del Reality-Virtuality Continuum · Immersive virtual environments · Dinàmica de grup: VR Play Session",
+      "summary": {
+        "en": "Group activity: introductions · Course introduction · History of the Reality–Virtuality Continuum · Immersive virtual environments · Group activity: VR play session",
+        "es": "Dinámica de grupo: presentaciones · Introducción a la asignatura · Historia del Reality-Virtuality Continuum · Entornos virtuales inmersivos · Dinámica de grupo: VR play session",
+        "ca": "Dinàmica de grup: Presentacions · Introducció Assignatura · Història del Reality-Virtuality Continuum · Immersive virtual environments · Dinàmica de grup: VR Play Session"
+      },
       "contents": [
-        "Dinàmica de grup: Presentacions",
-        "Introducció Assignatura",
-        "Història del Reality-Virtuality Continuum",
-        "Immersive virtual environments",
-        "Dinàmica de grup: VR Play Session"
+        {
+          "en": "Group activity: introductions",
+          "es": "Dinámica de grupo: presentaciones",
+          "ca": "Dinàmica de grup: Presentacions"
+        },
+        {
+          "en": "Course introduction",
+          "es": "Introducción a la asignatura",
+          "ca": "Introducció Assignatura"
+        },
+        {
+          "en": "History of the Reality–Virtuality Continuum",
+          "es": "Historia del Reality-Virtuality Continuum",
+          "ca": "Història del Reality-Virtuality Continuum"
+        },
+        {
+          "en": "Immersive virtual environments",
+          "es": "Entornos virtuales inmersivos",
+          "ca": "Immersive virtual environments"
+        },
+        {
+          "en": "Group activity: VR play session",
+          "es": "Dinámica de grupo: VR play session",
+          "ca": "Dinàmica de grup: VR Play Session"
+        }
       ],
       "todos": [],
       "slides": {
@@ -30,17 +58,41 @@
     },
     {
       "id": "w1-arf-01",
-      "title": "AR Foundation: pilars i Plane Detection",
+      "title": {
+        "en": "AR Foundation: pillars and plane detection",
+        "es": "AR Foundation: pilares y plane detection",
+        "ca": "AR Foundation: pilars i Plane Detection"
+      },
       "world": 1,
       "stage": "ar-foundation",
       "category": "practical",
       "optional": false,
-      "summary": "News! Notícies VR/MR · Presentació Enunciat (1-1) · Pilars AR Foundation · Activitat a classe: 1. AR Foundation — Plane Detection",
+      "summary": {
+        "en": "News! VR/MR news · Brief walkthrough (1-1) · AR Foundation pillars · In-class activity: 1. AR Foundation — Plane Detection",
+        "es": "News! Noticias VR/MR · Presentación del enunciado (1-1) · Pilares de AR Foundation · Actividad en clase: 1. AR Foundation — Plane Detection",
+        "ca": "News! Notícies VR/MR · Presentació Enunciat (1-1) · Pilars AR Foundation · Activitat a classe: 1. AR Foundation — Plane Detection"
+      },
       "contents": [
-        "News! Notícies VR/MR",
-        "Presentació Enunciat (1-1)",
-        "Pilars AR Foundation",
-        "Activitat a classe: 1. AR Foundation — Plane Detection"
+        {
+          "en": "News! VR/MR news",
+          "es": "News! Noticias VR/MR",
+          "ca": "News! Notícies VR/MR"
+        },
+        {
+          "en": "Brief walkthrough (1-1)",
+          "es": "Presentación del enunciado (1-1)",
+          "ca": "Presentació Enunciat (1-1)"
+        },
+        {
+          "en": "AR Foundation pillars",
+          "es": "Pilares de AR Foundation",
+          "ca": "Pilars AR Foundation"
+        },
+        {
+          "en": "In-class activity: 1. AR Foundation — Plane Detection",
+          "es": "Actividad en clase: 1. AR Foundation — Plane Detection",
+          "ca": "Activitat a classe: 1. AR Foundation — Plane Detection"
+        }
       ],
       "block": {
         "number": 1,
@@ -92,19 +144,51 @@
     },
     {
       "id": "w1-03",
-      "title": "Dispositius, tracking i spatial computing",
+      "title": {
+        "en": "Devices, tracking and spatial computing",
+        "es": "Dispositivos, tracking y spatial computing",
+        "ca": "Dispositius, tracking i spatial computing"
+      },
       "world": 1,
       "stage": "intro-theory",
       "category": "theory",
       "optional": false,
-      "summary": "Kahoot! Repàs setmana passada · Dispositius per a Entorns Virtuals · Conflicte Vergència Acomodació · Tracking Systems · Spatial Computing & AR Cloud · Activitat a classe: Explicació Mono/Stereoscopic",
+      "summary": {
+        "en": "Kahoot! Last week's recap · Devices for virtual environments · Vergence–accommodation conflict · Tracking systems · Spatial computing & AR cloud · In-class activity: Mono/Stereoscopic explained",
+        "es": "Kahoot! Repaso de la semana pasada · Dispositivos para entornos virtuales · Conflicto de vergencia-acomodación · Sistemas de tracking · Spatial computing y AR cloud · Actividad en clase: explicación Mono/Stereoscopic",
+        "ca": "Kahoot! Repàs setmana passada · Dispositius per a Entorns Virtuals · Conflicte Vergència Acomodació · Tracking Systems · Spatial Computing & AR Cloud · Activitat a classe: Explicació Mono/Stereoscopic"
+      },
       "contents": [
-        "Kahoot! Repàs setmana passada",
-        "Dispositius per a Entorns Virtuals",
-        "Conflicte Vergència Acomodació",
-        "Tracking Systems",
-        "Spatial Computing & AR Cloud",
-        "Activitat a classe: Explicació Mono/Stereoscopic"
+        {
+          "en": "Kahoot! Last week's recap",
+          "es": "Kahoot! Repaso de la semana pasada",
+          "ca": "Kahoot! Repàs setmana passada"
+        },
+        {
+          "en": "Devices for virtual environments",
+          "es": "Dispositivos para entornos virtuales",
+          "ca": "Dispositius per a Entorns Virtuals"
+        },
+        {
+          "en": "Vergence–accommodation conflict",
+          "es": "Conflicto de vergencia-acomodación",
+          "ca": "Conflicte Vergència Acomodació"
+        },
+        {
+          "en": "Tracking systems",
+          "es": "Sistemas de tracking",
+          "ca": "Tracking Systems"
+        },
+        {
+          "en": "Spatial computing & AR cloud",
+          "es": "Spatial computing y AR cloud",
+          "ca": "Spatial Computing & AR Cloud"
+        },
+        {
+          "en": "In-class activity: Mono/Stereoscopic explained",
+          "es": "Actividad en clase: explicación Mono/Stereoscopic",
+          "ca": "Activitat a classe: Explicació Mono/Stereoscopic"
+        }
       ],
       "todos": [],
       "slides": {
@@ -114,33 +198,73 @@
     },
     {
       "id": "w1-att-01",
-      "title": "Activitat: Mono/Stereoscopic",
+      "title": {
+        "en": "Activity: Mono/Stereoscopic",
+        "es": "Actividad: Mono/Stereoscopic",
+        "ca": "Activitat: Mono/Stereoscopic"
+      },
       "world": 1,
       "stage": "intro-theory",
       "category": "practical",
       "optional": true,
       "anchorAfter": "w1-03",
       "attitudeGrade": "Actitud · voluntària",
-      "summary": "Actividad voluntaria: se explica en clase en la sesión de dispositivos y tracking, y se entrega desde casa. Cuenta para la nota de actitud.",
+      "summary": {
+        "en": "Voluntary activity: explained in class during the devices and tracking session, and handed in from home. It counts towards the attitude mark.",
+        "es": "Actividad voluntaria: se explica en clase en la sesión de dispositivos y tracking, y se entrega desde casa. Cuenta para la nota de actitud.",
+        "ca": "Activitat voluntària: s'explica a classe a la sessió de dispositius i tracking, i s'entrega des de casa. Compta per a la nota d'actitud."
+      },
       "contents": [
-        "Activitat a classe: Explicació Mono/Stereoscopic",
-        "Feta a casa, voluntària"
+        {
+          "en": "In-class activity: Mono/Stereoscopic explained",
+          "es": "Actividad en clase: explicación Mono/Stereoscopic",
+          "ca": "Activitat a classe: Explicació Mono/Stereoscopic"
+        },
+        {
+          "en": "Done at home, voluntary",
+          "es": "Hecha en casa, voluntaria",
+          "ca": "Feta a casa, voluntària"
+        }
       ],
       "todos": []
     },
     {
       "id": "w1-arf-02",
-      "title": "AR Foundation: Image Tracking i introducció a GitHub",
+      "title": {
+        "en": "AR Foundation: image tracking and an introduction to GitHub",
+        "es": "AR Foundation: image tracking e introducción a GitHub",
+        "ca": "AR Foundation: Image Tracking i introducció a GitHub"
+      },
       "world": 1,
       "stage": "ar-foundation",
       "category": "practical",
       "optional": false,
-      "summary": "News! Notícies VR/MR · Presentació Enunciat (1-2) · Introducció a GitHub · Activitat a classe: 2. AR Foundation — Image Tracking",
+      "summary": {
+        "en": "News! VR/MR news · Brief walkthrough (1-2) · Introduction to GitHub · In-class activity: 2. AR Foundation — Image Tracking",
+        "es": "News! Noticias VR/MR · Presentación del enunciado (1-2) · Introducción a GitHub · Actividad en clase: 2. AR Foundation — Image Tracking",
+        "ca": "News! Notícies VR/MR · Presentació Enunciat (1-2) · Introducció a GitHub · Activitat a classe: 2. AR Foundation — Image Tracking"
+      },
       "contents": [
-        "News! Notícies VR/MR",
-        "Presentació Enunciat (1-2)",
-        "Introducció a GitHub",
-        "Activitat a classe: 2. AR Foundation — Image Tracking"
+        {
+          "en": "News! VR/MR news",
+          "es": "News! Noticias VR/MR",
+          "ca": "News! Notícies VR/MR"
+        },
+        {
+          "en": "Brief walkthrough (1-2)",
+          "es": "Presentación del enunciado (1-2)",
+          "ca": "Presentació Enunciat (1-2)"
+        },
+        {
+          "en": "Introduction to GitHub",
+          "es": "Introducción a GitHub",
+          "ca": "Introducció a GitHub"
+        },
+        {
+          "en": "In-class activity: 2. AR Foundation — Image Tracking",
+          "es": "Actividad en clase: 2. AR Foundation — Image Tracking",
+          "ca": "Activitat a classe: 2. AR Foundation — Image Tracking"
+        }
       ],
       "slides": {
         "type": "canva",
@@ -188,18 +312,46 @@
     },
     {
       "id": "w1-05",
-      "title": "Gadgets immersius, software i parallax barrier",
+      "title": {
+        "en": "Immersive gadgets, software and the parallax barrier",
+        "es": "Gadgets inmersivos, software y parallax barrier",
+        "ca": "Gadgets immersius, software i parallax barrier"
+      },
       "world": 1,
       "stage": "intro-theory",
       "category": "theory",
       "optional": false,
-      "summary": "Kahoot! Repàs setmana passada · Gadgets Immersius · Software per VR · Parallax Barrier · Entrega Mono/Stereoscopic",
+      "summary": {
+        "en": "Kahoot! Last week's recap · Immersive gadgets · Software for VR · Parallax barrier · Mono/Stereoscopic hand-in",
+        "es": "Kahoot! Repaso de la semana pasada · Gadgets inmersivos · Software para VR · Parallax barrier · Entrega Mono/Stereoscopic",
+        "ca": "Kahoot! Repàs setmana passada · Gadgets Immersius · Software per VR · Parallax Barrier · Entrega Mono/Stereoscopic"
+      },
       "contents": [
-        "Kahoot! Repàs setmana passada",
-        "Gadgets Immersius",
-        "Software per VR",
-        "Parallax Barrier",
-        "Entrega Mono/Stereoscopic"
+        {
+          "en": "Kahoot! Last week's recap",
+          "es": "Kahoot! Repaso de la semana pasada",
+          "ca": "Kahoot! Repàs setmana passada"
+        },
+        {
+          "en": "Immersive gadgets",
+          "es": "Gadgets inmersivos",
+          "ca": "Gadgets Immersius"
+        },
+        {
+          "en": "Software for VR",
+          "es": "Software para VR",
+          "ca": "Software per VR"
+        },
+        {
+          "en": "Parallax barrier",
+          "es": "Parallax barrier",
+          "ca": "Parallax Barrier"
+        },
+        {
+          "en": "Mono/Stereoscopic hand-in",
+          "es": "Entrega Mono/Stereoscopic",
+          "ca": "Entrega Mono/Stereoscopic"
+        }
       ],
       "deliverable": {
         "label": "Mono/Stereoscopic",
@@ -213,16 +365,36 @@
     },
     {
       "id": "w1-arf-03",
-      "title": "AR Foundation: funcionalitats addicionals",
+      "title": {
+        "en": "AR Foundation: additional features",
+        "es": "AR Foundation: funcionalidades adicionales",
+        "ca": "AR Foundation: funcionalitats addicionals"
+      },
       "world": 1,
       "stage": "ar-foundation",
       "category": "practical",
       "optional": false,
-      "summary": "News! Notícies VR/MR · Presentació Enunciat (1-3) · Activitat a classe: 3. AR Foundation — Face Detection, Occlusion, Point Clouds…",
+      "summary": {
+        "en": "News! VR/MR news · Brief walkthrough (1-3) · In-class activity: 3. AR Foundation — face detection, occlusion, point clouds…",
+        "es": "News! Noticias VR/MR · Presentación del enunciado (1-3) · Actividad en clase: 3. AR Foundation — face detection, occlusion, point clouds…",
+        "ca": "News! Notícies VR/MR · Presentació Enunciat (1-3) · Activitat a classe: 3. AR Foundation — Face Detection, Occlusion, Point Clouds…"
+      },
       "contents": [
-        "News! Notícies VR/MR",
-        "Presentació Enunciat (1-3)",
-        "Activitat a classe: 3. AR Foundation — Face Detection, Occlusion, Point Clouds…"
+        {
+          "en": "News! VR/MR news",
+          "es": "News! Noticias VR/MR",
+          "ca": "News! Notícies VR/MR"
+        },
+        {
+          "en": "Brief walkthrough (1-3)",
+          "es": "Presentación del enunciado (1-3)",
+          "ca": "Presentació Enunciat (1-3)"
+        },
+        {
+          "en": "In-class activity: 3. AR Foundation — face detection, occlusion, point clouds…",
+          "es": "Actividad en clase: 3. AR Foundation — face detection, occlusion, point clouds…",
+          "ca": "Activitat a classe: 3. AR Foundation — Face Detection, Occlusion, Point Clouds…"
+        }
       ],
       "slides": {
         "type": "canva",
@@ -267,18 +439,46 @@
     },
     {
       "id": "w1-07",
-      "title": "Embodiment, presència i plausibilitat",
+      "title": {
+        "en": "Embodiment, presence and plausibility",
+        "es": "Embodiment, presencia y plausibilidad",
+        "ca": "Embodiment, presència i plausibilitat"
+      },
       "world": 1,
       "stage": "intro-theory",
       "category": "theory",
       "optional": false,
-      "summary": "Kahoot! Repàs setmana passada · Sense of Embodiment · Tele-Presence and Co-Presence · Plausability · Dinàmica de grup Wooclap: Immersion",
+      "summary": {
+        "en": "Kahoot! Last week's recap · Sense of embodiment · Tele-presence and co-presence · Plausibility · Wooclap group activity: immersion",
+        "es": "Kahoot! Repaso de la semana pasada · Sense of embodiment · Telepresencia y copresencia · Plausibilidad · Dinámica de grupo Wooclap: immersion",
+        "ca": "Kahoot! Repàs setmana passada · Sense of Embodiment · Tele-Presence and Co-Presence · Plausability · Dinàmica de grup Wooclap: Immersion"
+      },
       "contents": [
-        "Kahoot! Repàs setmana passada",
-        "Sense of Embodiment",
-        "Tele-Presence and Co-Presence",
-        "Plausability",
-        "Dinàmica de grup Wooclap: Immersion"
+        {
+          "en": "Kahoot! Last week's recap",
+          "es": "Kahoot! Repaso de la semana pasada",
+          "ca": "Kahoot! Repàs setmana passada"
+        },
+        {
+          "en": "Sense of embodiment",
+          "es": "Sense of embodiment",
+          "ca": "Sense of Embodiment"
+        },
+        {
+          "en": "Tele-presence and co-presence",
+          "es": "Telepresencia y copresencia",
+          "ca": "Tele-Presence and Co-Presence"
+        },
+        {
+          "en": "Plausibility",
+          "es": "Plausibilidad",
+          "ca": "Plausability"
+        },
+        {
+          "en": "Wooclap group activity: immersion",
+          "es": "Dinámica de grupo Wooclap: immersion",
+          "ca": "Dinàmica de grup Wooclap: Immersion"
+        }
       ],
       "slides": {
         "type": "canva",
@@ -288,18 +488,46 @@
     },
     {
       "id": "w2-pre-02",
-      "title": "Meta Building Blocks: Passthrough i Grabbable",
+      "title": {
+        "en": "Meta Building Blocks: passthrough and grabbable",
+        "es": "Meta Building Blocks: passthrough y grabbable",
+        "ca": "Meta Building Blocks: Passthrough i Grabbable"
+      },
       "world": 2,
       "stage": "meta-pre-exam",
       "category": "practical",
       "optional": false,
-      "summary": "News! Notícies VR/MR · Presentació Enunciat (2-1) · Pilars Meta All in One SDK · Activitat a classe: 1. Building Blocks — Passthrough and Grabbable Item · Entrega AR Foundation",
+      "summary": {
+        "en": "News! VR/MR news · Brief walkthrough (2-1) · Meta All-in-One SDK pillars · In-class activity: 1. Building Blocks — passthrough and grabbable item · AR Foundation hand-in",
+        "es": "News! Noticias VR/MR · Presentación del enunciado (2-1) · Pilares del Meta All in One SDK · Actividad en clase: 1. Building Blocks — passthrough y grabbable item · Entrega AR Foundation",
+        "ca": "News! Notícies VR/MR · Presentació Enunciat (2-1) · Pilars Meta All in One SDK · Activitat a classe: 1. Building Blocks — Passthrough and Grabbable Item · Entrega AR Foundation"
+      },
       "contents": [
-        "News! Notícies VR/MR",
-        "Presentació Enunciat (2-1)",
-        "Pilars Meta All in One SDK",
-        "Activitat a classe: 1. Building Blocks — Passthrough and Grabbable Item",
-        "Entrega AR Foundation"
+        {
+          "en": "News! VR/MR news",
+          "es": "News! Noticias VR/MR",
+          "ca": "News! Notícies VR/MR"
+        },
+        {
+          "en": "Brief walkthrough (2-1)",
+          "es": "Presentación del enunciado (2-1)",
+          "ca": "Presentació Enunciat (2-1)"
+        },
+        {
+          "en": "Meta All-in-One SDK pillars",
+          "es": "Pilares del Meta All in One SDK",
+          "ca": "Pilars Meta All in One SDK"
+        },
+        {
+          "en": "In-class activity: 1. Building Blocks — passthrough and grabbable item",
+          "es": "Actividad en clase: 1. Building Blocks — passthrough y grabbable item",
+          "ca": "Activitat a classe: 1. Building Blocks — Passthrough and Grabbable Item"
+        },
+        {
+          "en": "AR Foundation hand-in",
+          "es": "Entrega AR Foundation",
+          "ca": "Entrega AR Foundation"
+        }
       ],
       "deliverable": {
         "label": "AR Foundation",
@@ -348,16 +576,36 @@
     },
     {
       "id": "w2-pre-03",
-      "title": "Building Blocks: Hand Tracking",
+      "title": {
+        "en": "Building Blocks: hand tracking",
+        "es": "Building Blocks: hand tracking",
+        "ca": "Building Blocks: Hand Tracking"
+      },
       "world": 2,
       "stage": "meta-pre-exam",
       "category": "practical",
       "optional": false,
-      "summary": "News! Notícies VR/MR · Presentació Enunciat (2-2) · Activitat a classe: 2. Building Blocks — Hand Tracking",
+      "summary": {
+        "en": "News! VR/MR news · Brief walkthrough (2-2) · In-class activity: 2. Building Blocks — hand tracking",
+        "es": "News! Noticias VR/MR · Presentación del enunciado (2-2) · Actividad en clase: 2. Building Blocks — hand tracking",
+        "ca": "News! Notícies VR/MR · Presentació Enunciat (2-2) · Activitat a classe: 2. Building Blocks — Hand Tracking"
+      },
       "contents": [
-        "News! Notícies VR/MR",
-        "Presentació Enunciat (2-2)",
-        "Activitat a classe: 2. Building Blocks — Hand Tracking"
+        {
+          "en": "News! VR/MR news",
+          "es": "News! Noticias VR/MR",
+          "ca": "News! Notícies VR/MR"
+        },
+        {
+          "en": "Brief walkthrough (2-2)",
+          "es": "Presentación del enunciado (2-2)",
+          "ca": "Presentació Enunciat (2-2)"
+        },
+        {
+          "en": "In-class activity: 2. Building Blocks — hand tracking",
+          "es": "Actividad en clase: 2. Building Blocks — hand tracking",
+          "ca": "Activitat a classe: 2. Building Blocks — Hand Tracking"
+        }
       ],
       "slidesPending": true,
       "block": {
@@ -394,17 +642,41 @@
     },
     {
       "id": "w2-02",
-      "title": "Interacció VR/MR i simulator sickness",
+      "title": {
+        "en": "VR/MR interaction and simulator sickness",
+        "es": "Interacción VR/MR y simulator sickness",
+        "ca": "Interacció VR/MR i simulator sickness"
+      },
       "world": 2,
       "stage": "meta-pre-exam",
       "category": "theory",
       "optional": false,
-      "summary": "Kahoot! Repàs setmana passada · Interacció VR/MR · Simulator Sickness · Dinàmica de classe: Pluja d'idees Parcial",
+      "summary": {
+        "en": "Kahoot! Last week's recap · VR/MR interaction · Simulator sickness · Class activity: midterm brainstorm",
+        "es": "Kahoot! Repaso de la semana pasada · Interacción VR/MR · Simulator sickness · Dinámica de clase: lluvia de ideas del parcial",
+        "ca": "Kahoot! Repàs setmana passada · Interacció VR/MR · Simulator Sickness · Dinàmica de classe: Pluja d'idees Parcial"
+      },
       "contents": [
-        "Kahoot! Repàs setmana passada",
-        "Interacció VR/MR",
-        "Simulator Sickness",
-        "Dinàmica de classe: Pluja d'idees Parcial"
+        {
+          "en": "Kahoot! Last week's recap",
+          "es": "Kahoot! Repaso de la semana pasada",
+          "ca": "Kahoot! Repàs setmana passada"
+        },
+        {
+          "en": "VR/MR interaction",
+          "es": "Interacción VR/MR",
+          "ca": "Interacció VR/MR"
+        },
+        {
+          "en": "Simulator sickness",
+          "es": "Simulator sickness",
+          "ca": "Simulator Sickness"
+        },
+        {
+          "en": "Class activity: midterm brainstorm",
+          "es": "Dinámica de clase: lluvia de ideas del parcial",
+          "ca": "Dinàmica de classe: Pluja d'idees Parcial"
+        }
       ],
       "slides": {
         "type": "canva",
@@ -414,15 +686,31 @@
     },
     {
       "id": "w2-post-03",
-      "title": "Building Blocks: funcionalitats addicionals",
+      "title": {
+        "en": "Building Blocks: additional features",
+        "es": "Building Blocks: funcionalidades adicionales",
+        "ca": "Building Blocks: funcionalitats addicionals"
+      },
       "world": 2,
       "stage": "meta-pre-exam",
       "category": "practical",
       "optional": false,
-      "summary": "Presentació Enunciat (2-3) · Activitat a classe: 3. Building Blocks Additional Feature — Effect Mesh, Spatial Anchor…",
+      "summary": {
+        "en": "Brief walkthrough (2-3) · In-class activity: 3. Building Blocks additional feature — effect mesh, spatial anchor…",
+        "es": "Presentación del enunciado (2-3) · Actividad en clase: 3. Building Blocks additional feature — effect mesh, spatial anchor…",
+        "ca": "Presentació Enunciat (2-3) · Activitat a classe: 3. Building Blocks Additional Feature — Effect Mesh, Spatial Anchor…"
+      },
       "contents": [
-        "Presentació Enunciat (2-3)",
-        "Activitat a classe: 3. Building Blocks Additional Feature — Effect Mesh, Spatial Anchor…"
+        {
+          "en": "Brief walkthrough (2-3)",
+          "es": "Presentación del enunciado (2-3)",
+          "ca": "Presentació Enunciat (2-3)"
+        },
+        {
+          "en": "In-class activity: 3. Building Blocks additional feature — effect mesh, spatial anchor…",
+          "es": "Actividad en clase: 3. Building Blocks additional feature — effect mesh, spatial anchor…",
+          "ca": "Activitat a classe: 3. Building Blocks Additional Feature — Effect Mesh, Spatial Anchor…"
+        }
       ],
       "slidesPending": true,
       "block": {
@@ -458,16 +746,36 @@
     },
     {
       "id": "w2-04",
-      "title": "Navegació VR/MR i repàs del parcial",
+      "title": {
+        "en": "VR/MR navigation and the midterm recap",
+        "es": "Navegación VR/MR y repaso del parcial",
+        "ca": "Navegació VR/MR i repàs del parcial"
+      },
       "world": 2,
       "stage": "meta-pre-exam",
       "category": "theory",
       "optional": false,
-      "summary": "Kahoot Final Boss! Repàs Avaluació Parcial · Navegació VR/MR · Gorilla Arm syndrome",
+      "summary": {
+        "en": "Kahoot Final Boss! Midterm recap · VR/MR navigation · Gorilla arm syndrome",
+        "es": "Kahoot Final Boss! Repaso de la evaluación parcial · Navegación VR/MR · Síndrome del brazo de gorila",
+        "ca": "Kahoot Final Boss! Repàs Avaluació Parcial · Navegació VR/MR · Gorilla Arm syndrome"
+      },
       "contents": [
-        "Kahoot Final Boss! Repàs Avaluació Parcial",
-        "Navegació VR/MR",
-        "Gorilla Arm syndrome"
+        {
+          "en": "Kahoot Final Boss! Midterm recap",
+          "es": "Kahoot Final Boss! Repaso de la evaluación parcial",
+          "ca": "Kahoot Final Boss! Repàs Avaluació Parcial"
+        },
+        {
+          "en": "VR/MR navigation",
+          "es": "Navegación VR/MR",
+          "ca": "Navegació VR/MR"
+        },
+        {
+          "en": "Gorilla arm syndrome",
+          "es": "Síndrome del brazo de gorila",
+          "ca": "Gorilla Arm syndrome"
+        }
       ],
       "slides": {
         "type": "canva",
@@ -477,31 +785,67 @@
     },
     {
       "id": "w2-boss",
-      "title": "Examen parcial",
+      "title": {
+        "en": "Midterm exam",
+        "es": "Examen parcial",
+        "ca": "Examen parcial"
+      },
       "world": 2,
       "stage": "mini-boss-midterm",
       "category": "boss",
       "optional": false,
-      "summary": "Examen parcial",
+      "summary": {
+        "en": "Midterm exam",
+        "es": "Examen parcial",
+        "ca": "Examen parcial"
+      },
       "contents": [
-        "Examen parcial"
+        {
+          "en": "Midterm exam",
+          "es": "Examen parcial",
+          "ca": "Examen parcial"
+        }
       ],
       "bossTier": "mini",
       "todos": []
     },
     {
       "id": "w2-05",
-      "title": "Casos d'ús, concept design i presentació",
+      "title": {
+        "en": "Use cases, concept design and the presentation",
+        "es": "Casos de uso, concept design y presentación",
+        "ca": "Casos d'ús, concept design i presentació"
+      },
       "world": 2,
       "stage": "meta-post-exam",
       "category": "theory",
       "optional": false,
-      "summary": "Casos d'ús AR/VR · Concept Design · Mostra d'antics projectes · Activitat a classe: VR Design Slides",
+      "summary": {
+        "en": "AR/VR use cases · Concept design · Showcase of past projects · In-class activity: VR design slides",
+        "es": "Casos de uso AR/VR · Concept design · Muestra de proyectos anteriores · Actividad en clase: VR design slides",
+        "ca": "Casos d'ús AR/VR · Concept Design · Mostra d'antics projectes · Activitat a classe: VR Design Slides"
+      },
       "contents": [
-        "Casos d'ús AR/VR",
-        "Concept Design",
-        "Mostra d'antics projectes",
-        "Activitat a classe: VR Design Slides"
+        {
+          "en": "AR/VR use cases",
+          "es": "Casos de uso AR/VR",
+          "ca": "Casos d'ús AR/VR"
+        },
+        {
+          "en": "Concept design",
+          "es": "Concept design",
+          "ca": "Concept Design"
+        },
+        {
+          "en": "Showcase of past projects",
+          "es": "Muestra de proyectos anteriores",
+          "ca": "Mostra d'antics projectes"
+        },
+        {
+          "en": "In-class activity: VR design slides",
+          "es": "Actividad en clase: VR design slides",
+          "ca": "Activitat a classe: VR Design Slides"
+        }
       ],
       "slides": {
         "type": "canva",
@@ -511,16 +855,36 @@
     },
     {
       "id": "w2-07",
-      "title": "Repte XR i taller d'empresa",
+      "title": {
+        "en": "The XR challenge and the industry workshop",
+        "es": "Reto XR y taller de empresa",
+        "ca": "Repte XR i taller d'empresa"
+      },
       "world": 2,
       "stage": "meta-post-exam",
       "category": "practical",
       "optional": false,
-      "summary": "Explicació Treball Final d'Assignatura: Repte XR · Taller Empresa (?) · Projecte: Resolució de dubtes Concept",
+      "summary": {
+        "en": "Final project explained: the XR challenge · Industry workshop (?) · Project: concept Q&A",
+        "es": "Explicación del trabajo final: reto XR · Taller de empresa (?) · Proyecto: resolución de dudas del concept",
+        "ca": "Explicació Treball Final d'Assignatura: Repte XR · Taller Empresa (?) · Projecte: Resolució de dubtes Concept"
+      },
       "contents": [
-        "Explicació Treball Final d'Assignatura: Repte XR",
-        "Taller Empresa (?)",
-        "Projecte: Resolució de dubtes Concept"
+        {
+          "en": "Final project explained: the XR challenge",
+          "es": "Explicación del trabajo final: reto XR",
+          "ca": "Explicació Treball Final d'Assignatura: Repte XR"
+        },
+        {
+          "en": "Industry workshop (?)",
+          "es": "Taller de empresa (?)",
+          "ca": "Taller Empresa (?)"
+        },
+        {
+          "en": "Project: concept Q&A",
+          "es": "Proyecto: resolución de dudas del concept",
+          "ca": "Projecte: Resolució de dubtes Concept"
+        }
       ],
       "slides": {
         "type": "canva",
@@ -530,19 +894,51 @@
     },
     {
       "id": "w3-xrit-02",
-      "title": "XR Interaction Toolkit: locomoció i interacció",
+      "title": {
+        "en": "XR Interaction Toolkit: locomotion and interaction",
+        "es": "XR Interaction Toolkit: locomoción e interacción",
+        "ca": "XR Interaction Toolkit: locomoció i interacció"
+      },
       "world": 2,
       "stage": "xr-toolkit",
       "category": "practical",
       "optional": false,
-      "summary": "Presentació Enunciat (3-1) · Activitat a classe: 1. XR Interaction Toolkit — Locomoció i Interacció · Unity VR Template demonstration · Introduction to OpenXR / Unity · Introducció a Unity / C# · Entrega Meta Building Blocks",
+      "summary": {
+        "en": "Brief walkthrough (3-1) · In-class activity: 1. XR Interaction Toolkit — locomotion and interaction · Unity VR Template demonstration · Introduction to OpenXR / Unity · Introduction to Unity / C# · Meta Building Blocks hand-in",
+        "es": "Presentación del enunciado (3-1) · Actividad en clase: 1. XR Interaction Toolkit — locomoción e interacción · Demostración de la Unity VR Template · Introducción a OpenXR / Unity · Introducción a Unity / C# · Entrega Meta Building Blocks",
+        "ca": "Presentació Enunciat (3-1) · Activitat a classe: 1. XR Interaction Toolkit — Locomoció i Interacció · Unity VR Template demonstration · Introduction to OpenXR / Unity · Introducció a Unity / C# · Entrega Meta Building Blocks"
+      },
       "contents": [
-        "Presentació Enunciat (3-1)",
-        "Activitat a classe: 1. XR Interaction Toolkit — Locomoció i Interacció",
-        "Unity VR Template demonstration",
-        "Introduction to OpenXR / Unity",
-        "Introducció a Unity / C#",
-        "Entrega Meta Building Blocks"
+        {
+          "en": "Brief walkthrough (3-1)",
+          "es": "Presentación del enunciado (3-1)",
+          "ca": "Presentació Enunciat (3-1)"
+        },
+        {
+          "en": "In-class activity: 1. XR Interaction Toolkit — locomotion and interaction",
+          "es": "Actividad en clase: 1. XR Interaction Toolkit — locomoción e interacción",
+          "ca": "Activitat a classe: 1. XR Interaction Toolkit — Locomoció i Interacció"
+        },
+        {
+          "en": "Unity VR Template demonstration",
+          "es": "Demostración de la Unity VR Template",
+          "ca": "Unity VR Template demonstration"
+        },
+        {
+          "en": "Introduction to OpenXR / Unity",
+          "es": "Introducción a OpenXR / Unity",
+          "ca": "Introduction to OpenXR / Unity"
+        },
+        {
+          "en": "Introduction to Unity / C#",
+          "es": "Introducción a Unity / C#",
+          "ca": "Introducció a Unity / C#"
+        },
+        {
+          "en": "Meta Building Blocks hand-in",
+          "es": "Entrega Meta Building Blocks",
+          "ca": "Entrega Meta Building Blocks"
+        }
       ],
       "deliverable": {
         "label": "Meta Building Blocks",
@@ -595,16 +991,36 @@
     },
     {
       "id": "w3-xrit-03",
-      "title": "XR Interaction Toolkit: hand tracking i gestos",
+      "title": {
+        "en": "XR Interaction Toolkit: hand tracking and gestures",
+        "es": "XR Interaction Toolkit: hand tracking y gestos",
+        "ca": "XR Interaction Toolkit: hand tracking i gestos"
+      },
       "world": 2,
       "stage": "xr-toolkit",
       "category": "practical",
       "optional": false,
-      "summary": "Presentació Enunciat (3-2) · Activitat a classe: 2. XR Interaction Toolkit — Hand Tracking and Gestures · Unity VR Template demonstration",
+      "summary": {
+        "en": "Brief walkthrough (3-2) · In-class activity: 2. XR Interaction Toolkit — hand tracking and gestures · Unity VR Template demonstration",
+        "es": "Presentación del enunciado (3-2) · Actividad en clase: 2. XR Interaction Toolkit — hand tracking y gestos · Demostración de la Unity VR Template",
+        "ca": "Presentació Enunciat (3-2) · Activitat a classe: 2. XR Interaction Toolkit — Hand Tracking and Gestures · Unity VR Template demonstration"
+      },
       "contents": [
-        "Presentació Enunciat (3-2)",
-        "Activitat a classe: 2. XR Interaction Toolkit — Hand Tracking and Gestures",
-        "Unity VR Template demonstration"
+        {
+          "en": "Brief walkthrough (3-2)",
+          "es": "Presentación del enunciado (3-2)",
+          "ca": "Presentació Enunciat (3-2)"
+        },
+        {
+          "en": "In-class activity: 2. XR Interaction Toolkit — hand tracking and gestures",
+          "es": "Actividad en clase: 2. XR Interaction Toolkit — hand tracking y gestos",
+          "ca": "Activitat a classe: 2. XR Interaction Toolkit — Hand Tracking and Gestures"
+        },
+        {
+          "en": "Unity VR Template demonstration",
+          "es": "Demostración de la Unity VR Template",
+          "ca": "Unity VR Template demonstration"
+        }
       ],
       "slides": {
         "type": "canva",
@@ -650,15 +1066,31 @@
     },
     {
       "id": "w2-09",
-      "title": "XRITK Socket XR i concept del projecte",
+      "title": {
+        "en": "XRITK Socket XR and the project concept",
+        "es": "XRITK Socket XR y el concept del proyecto",
+        "ca": "XRITK Socket XR i concept del projecte"
+      },
       "world": 2,
       "stage": "xr-toolkit",
       "category": "practical",
       "optional": false,
-      "summary": "XRITK GitHub Examples: Socket XR · Projecte Final d'Assignatura: Concept",
+      "summary": {
+        "en": "XRITK GitHub examples: Socket XR · Final project: concept",
+        "es": "XRITK GitHub examples: Socket XR · Trabajo final: concept",
+        "ca": "XRITK GitHub Examples: Socket XR · Projecte Final d'Assignatura: Concept"
+      },
       "contents": [
-        "XRITK GitHub Examples: Socket XR",
-        "Projecte Final d'Assignatura: Concept"
+        {
+          "en": "XRITK GitHub examples: Socket XR",
+          "es": "XRITK GitHub examples: Socket XR",
+          "ca": "XRITK GitHub Examples: Socket XR"
+        },
+        {
+          "en": "Final project: concept",
+          "es": "Trabajo final: concept",
+          "ca": "Projecte Final d'Assignatura: Concept"
+        }
       ],
       "slides": {
         "type": "canva",
@@ -668,15 +1100,31 @@
     },
     {
       "id": "w3-01",
-      "title": "Projecte: concept i resolució de dubtes",
+      "title": {
+        "en": "Project: concept and Q&A",
+        "es": "Proyecto: concept y resolución de dudas",
+        "ca": "Projecte: concept i resolució de dubtes"
+      },
       "world": 3,
       "stage": "final-project",
       "category": "project",
       "optional": false,
-      "summary": "Projecte Final d'Assignatura: Concept — Resolució de dubtes · Entrega Treball Final d'Assignatura: Concept",
+      "summary": {
+        "en": "Final project: concept — Q&A · Final project hand-in: concept",
+        "es": "Trabajo final: concept — resolución de dudas · Entrega del trabajo final: concept",
+        "ca": "Projecte Final d'Assignatura: Concept — Resolució de dubtes · Entrega Treball Final d'Assignatura: Concept"
+      },
       "contents": [
-        "Projecte Final d'Assignatura: Concept — Resolució de dubtes",
-        "Entrega Treball Final d'Assignatura: Concept"
+        {
+          "en": "Final project: concept — Q&A",
+          "es": "Trabajo final: concept — resolución de dudas",
+          "ca": "Projecte Final d'Assignatura: Concept — Resolució de dubtes"
+        },
+        {
+          "en": "Final project hand-in: concept",
+          "es": "Entrega del trabajo final: concept",
+          "ca": "Entrega Treball Final d'Assignatura: Concept"
+        }
       ],
       "deliverable": {
         "label": "Treball Final d'Assignatura — Concept",
@@ -686,41 +1134,81 @@
     },
     {
       "id": "w3-02",
-      "title": "Projecte: concept (II)",
+      "title": {
+        "en": "Project: concept (II)",
+        "es": "Proyecto: concept (II)",
+        "ca": "Projecte: concept (II)"
+      },
       "world": 3,
       "stage": "final-project",
       "category": "project",
       "optional": false,
-      "summary": "Projecte Final d'Assignatura: Concept",
+      "summary": {
+        "en": "Final project: concept",
+        "es": "Trabajo final: concept",
+        "ca": "Projecte Final d'Assignatura: Concept"
+      },
       "contents": [
-        "Projecte Final d'Assignatura: Concept"
+        {
+          "en": "Final project: concept",
+          "es": "Trabajo final: concept",
+          "ca": "Projecte Final d'Assignatura: Concept"
+        }
       ],
       "todos": []
     },
     {
       "id": "w3-03",
-      "title": "Projecte: set up de software i hardware",
+      "title": {
+        "en": "Project: software and hardware set-up",
+        "es": "Proyecto: set up de software y hardware",
+        "ca": "Projecte: set up de software i hardware"
+      },
       "world": 3,
       "stage": "final-project",
       "category": "project",
       "optional": false,
-      "summary": "Projecte Final d'Assignatura: Set up Software & Hardware",
+      "summary": {
+        "en": "Final project: software & hardware set-up",
+        "es": "Trabajo final: set up de software y hardware",
+        "ca": "Projecte Final d'Assignatura: Set up Software & Hardware"
+      },
       "contents": [
-        "Projecte Final d'Assignatura: Set up Software & Hardware"
+        {
+          "en": "Final project: software & hardware set-up",
+          "es": "Trabajo final: set up de software y hardware",
+          "ca": "Projecte Final d'Assignatura: Set up Software & Hardware"
+        }
       ],
       "todos": []
     },
     {
       "id": "w3-04",
-      "title": "Projecte: entrega del set up",
+      "title": {
+        "en": "Project: the set-up hand-in",
+        "es": "Proyecto: entrega del set up",
+        "ca": "Projecte: entrega del set up"
+      },
       "world": 3,
       "stage": "final-project",
       "category": "project",
       "optional": false,
-      "summary": "Projecte Final d'Assignatura: Set up Software & Hardware · Entrega Treball Final d'Assignatura: Set Up",
+      "summary": {
+        "en": "Final project: software & hardware set-up · Final project hand-in: set-up",
+        "es": "Trabajo final: set up de software y hardware · Entrega del trabajo final: set up",
+        "ca": "Projecte Final d'Assignatura: Set up Software & Hardware · Entrega Treball Final d'Assignatura: Set Up"
+      },
       "contents": [
-        "Projecte Final d'Assignatura: Set up Software & Hardware",
-        "Entrega Treball Final d'Assignatura: Set Up"
+        {
+          "en": "Final project: software & hardware set-up",
+          "es": "Trabajo final: set up de software y hardware",
+          "ca": "Projecte Final d'Assignatura: Set up Software & Hardware"
+        },
+        {
+          "en": "Final project hand-in: set-up",
+          "es": "Entrega del trabajo final: set up",
+          "ca": "Entrega Treball Final d'Assignatura: Set Up"
+        }
       ],
       "deliverable": {
         "label": "Treball Final d'Assignatura — Set Up",
@@ -730,80 +1218,156 @@
     },
     {
       "id": "w3-05",
-      "title": "Projecte: desenvolupament",
+      "title": {
+        "en": "Project: development",
+        "es": "Proyecto: desarrollo",
+        "ca": "Projecte: desenvolupament"
+      },
       "world": 3,
       "stage": "final-project",
       "category": "project",
       "optional": false,
-      "summary": "Projecte: Desenvolupament",
+      "summary": {
+        "en": "Project: development",
+        "es": "Proyecto: desarrollo",
+        "ca": "Projecte: Desenvolupament"
+      },
       "contents": [
-        "Projecte: Desenvolupament"
+        {
+          "en": "Project: development",
+          "es": "Proyecto: desarrollo",
+          "ca": "Projecte: Desenvolupament"
+        }
       ],
       "todos": []
     },
     {
       "id": "w3-06",
-      "title": "Projecte: desenvolupament (II)",
+      "title": {
+        "en": "Project: development (II)",
+        "es": "Proyecto: desarrollo (II)",
+        "ca": "Projecte: desenvolupament (II)"
+      },
       "world": 3,
       "stage": "final-project",
       "category": "project",
       "optional": false,
-      "summary": "Projecte: Desenvolupament",
+      "summary": {
+        "en": "Project: development",
+        "es": "Proyecto: desarrollo",
+        "ca": "Projecte: Desenvolupament"
+      },
       "contents": [
-        "Projecte: Desenvolupament"
+        {
+          "en": "Project: development",
+          "es": "Proyecto: desarrollo",
+          "ca": "Projecte: Desenvolupament"
+        }
       ],
       "todos": []
     },
     {
       "id": "w3-07",
-      "title": "Projecte: desenvolupament (III)",
+      "title": {
+        "en": "Project: development (III)",
+        "es": "Proyecto: desarrollo (III)",
+        "ca": "Projecte: desenvolupament (III)"
+      },
       "world": 3,
       "stage": "final-project",
       "category": "project",
       "optional": false,
-      "summary": "Projecte: Desenvolupament",
+      "summary": {
+        "en": "Project: development",
+        "es": "Proyecto: desarrollo",
+        "ca": "Projecte: Desenvolupament"
+      },
       "contents": [
-        "Projecte: Desenvolupament"
+        {
+          "en": "Project: development",
+          "es": "Proyecto: desarrollo",
+          "ca": "Projecte: Desenvolupament"
+        }
       ],
       "todos": []
     },
     {
       "id": "w3-08",
-      "title": "Projecte: desenvolupament (IV)",
+      "title": {
+        "en": "Project: development (IV)",
+        "es": "Proyecto: desarrollo (IV)",
+        "ca": "Projecte: desenvolupament (IV)"
+      },
       "world": 3,
       "stage": "final-project",
       "category": "project",
       "optional": false,
-      "summary": "Projecte: Desenvolupament",
+      "summary": {
+        "en": "Project: development",
+        "es": "Proyecto: desarrollo",
+        "ca": "Projecte: Desenvolupament"
+      },
       "contents": [
-        "Projecte: Desenvolupament"
+        {
+          "en": "Project: development",
+          "es": "Proyecto: desarrollo",
+          "ca": "Projecte: Desenvolupament"
+        }
       ],
       "todos": []
     },
     {
       "id": "w3-09",
-      "title": "Projecte: desenvolupament (V)",
+      "title": {
+        "en": "Project: development (V)",
+        "es": "Proyecto: desarrollo (V)",
+        "ca": "Projecte: desenvolupament (V)"
+      },
       "world": 3,
       "stage": "final-project",
       "category": "project",
       "optional": false,
-      "summary": "Projecte: Desenvolupament",
+      "summary": {
+        "en": "Project: development",
+        "es": "Proyecto: desarrollo",
+        "ca": "Projecte: Desenvolupament"
+      },
       "contents": [
-        "Projecte: Desenvolupament"
+        {
+          "en": "Project: development",
+          "es": "Proyecto: desarrollo",
+          "ca": "Projecte: Desenvolupament"
+        }
       ],
       "todos": []
     },
     {
       "id": "w3-boss",
-      "title": "Presentació del treball final",
+      "title": {
+        "en": "Final project presentation",
+        "es": "Presentación del trabajo final",
+        "ca": "Presentació del treball final"
+      },
       "world": 3,
       "stage": "final-boss-presentation",
       "category": "boss",
       "optional": false,
-      "summary": "Presentacions: Treball Final d'Assignatura VR/MR · Entrega Treball Final d'Assignatura",
+      "summary": {
+        "en": "Presentations: VR/MR final project · Final project hand-in",
+        "es": "Presentaciones: trabajo final VR/MR · Entrega del trabajo final",
+        "ca": "Presentacions: Treball Final d'Assignatura VR/MR · Entrega Treball Final d'Assignatura"
+      },
       "contents": [
-        "Presentacions: Treball Final d'Assignatura VR/MR",
-        "Entrega Treball Final d'Assignatura"
+        {
+          "en": "Presentations: VR/MR final project",
+          "es": "Presentaciones: trabajo final VR/MR",
+          "ca": "Presentacions: Treball Final d'Assignatura VR/MR"
+        },
+        {
+          "en": "Final project hand-in",
+          "es": "Entrega del trabajo final",
+          "ca": "Entrega Treball Final d'Assignatura"
+        }
       ],
       "deliverable": {
         "label": "Treball Final d'Assignatura",
@@ -814,16 +1378,28 @@
     },
     {
       "id": "w3-reeval",
-      "title": "Reavaluació",
+      "title": {
+        "en": "Re-evaluation",
+        "es": "Reevaluación",
+        "ca": "Reavaluació"
+      },
       "world": 3,
       "stage": "final-boss-presentation",
       "category": "boss",
       "bossTier": "extra",
       "optional": true,
       "anchorAfter": "w3-boss",
-      "summary": "Exàmens de reavaluació",
+      "summary": {
+        "en": "Re-evaluation exams",
+        "es": "Exámenes de reevaluación",
+        "ca": "Exàmens de reavaluació"
+      },
       "contents": [
-        "Exàmens de reavaluació"
+        {
+          "en": "Re-evaluation exams",
+          "es": "Exámenes de reevaluación",
+          "ca": "Exàmens de reavaluació"
+        }
       ],
       "todos": []
     }

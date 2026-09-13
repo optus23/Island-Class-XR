@@ -61,8 +61,31 @@ clearGroundAround(nodeClearings(levels))
 const errors = []
 const warnings = []
 const fixmes = []
+const untranslated = []
 const err = (m) => errors.push(m)
 const warn = (m) => warnings.push(m)
+
+/**
+ * Content text is EITHER a plain string (one language, not migrated yet) OR
+ * a `{ en, es, ca }` object — see `src/lib/i18n/text.js` for why both are
+ * valid. This says "is it one of those", and `noteUntranslated` below adds
+ * whatever is still missing to a list that is PRINTED, not fatal: unlike the
+ * interface dictionary, the course content is Marc's to write, and a
+ * half-written session must stay committable.
+ */
+const isText = (v) =>
+  typeof v === 'string' || (v && typeof v === 'object' && !Array.isArray(v))
+
+const LANGS = ['en', 'es', 'ca']
+const noteUntranslated = (where, value) => {
+  if (value == null) return
+  if (typeof value === 'string') {
+    untranslated.push(`${where}: not translated (plain string)`)
+    return
+  }
+  const missing = LANGS.filter((code) => !String(value[code] ?? '').trim())
+  if (missing.length) untranslated.push(`${where}: missing ${missing.join(', ')}`)
+}
 
 // --- per-level shape -------------------------------------------------------
 const seen = new Set()
@@ -73,6 +96,12 @@ for (const l of levels) {
   seen.add(l.id)
 
   if (!l.title) err(`${at}: missing title`)
+  else if (!isText(l.title)) err(`${at}: "title" must be a string or {en, es, ca}`)
+  noteUntranslated(`${at} title`, l.title)
+  if (l.summary !== undefined) {
+    if (!isText(l.summary)) err(`${at}: "summary" must be a string or {en, es, ca}`)
+    noteUntranslated(`${at} summary`, l.summary)
+  }
   if (![1, 2, 3].includes(l.world)) err(`${at}: world must be 1, 2 or 3 (got ${l.world})`)
   if (!STAGES.includes(l.stage)) err(`${at}: unknown stage "${l.stage}"`)
   if (!CATEGORIES.includes(l.category)) err(`${at}: unknown category "${l.category}"`)
@@ -133,8 +162,9 @@ for (const l of levels) {
   for (const note of l._fixme ?? []) fixmes.push(`${l.id}: ${note}`)
 
   if (l.contents !== undefined) {
-    if (!Array.isArray(l.contents) || l.contents.some((c) => typeof c !== 'string')) {
-      err(`${at}: "contents" must be an array of strings`)
+    l.contents?.forEach?.((c, i) => noteUntranslated(`${at} contents[${i}]`, c))
+    if (!Array.isArray(l.contents) || l.contents.some((c) => !isText(c))) {
+      err(`${at}: "contents" must be an array of text (a string, or {en, es, ca})`)
     }
   }
   if (l.attitudeGrade !== undefined && typeof l.attitudeGrade !== 'string') {
@@ -615,6 +645,16 @@ if (fixmes.length) {
   for (const f of fixmes) console.log(`  ${f}`)
   console.log('  each is a _fixme on its node; leave them open until decided')
 }
+// Course text still to translate. A LIST, not an error: `en.js`/`es.js`/`ca.js`
+// are mine and must be complete, but the sessions are Marc's to write, and a
+// session half-written in one language has to stay committable. The site falls
+// back to English (see lib/i18n/text.js); this is the outstanding work.
+if (untranslated.length) {
+  console.log(`\n--- still to translate (${untranslated.length}) ---`)
+  for (const u of untranslated.slice(0, 25)) console.log(`  ${u}`)
+  if (untranslated.length > 25) console.log(`  …and ${untranslated.length - 25} more`)
+}
+
 for (const w of warnings) console.warn(`WARN  ${w}`)
 for (const e of errors) console.error(`ERROR ${e}`)
 if (errors.length) {
