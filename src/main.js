@@ -42,6 +42,7 @@ import { readSeeAllFromUrl, rememberSeeAll, seeAllChoice } from './lib/teacherVi
 import { createVR } from './three/vr.js'
 import { createIntro, introWanted } from './three/intro.js'
 import { initLang, t } from './lib/i18n/index.js'
+import { cleanSchedule, effectiveMarker, nextScheduledAt } from './lib/schedule.js'
 import { mountLangPicker } from './ui/langPicker.js'
 
 const container = document.getElementById('app')
@@ -430,6 +431,16 @@ container.addEventListener('contextmenu', (e) => e.preventDefault())
 let nav = null
 let legend = null
 let markerId = null
+/**
+ * The marker as last set BY HAND, kept apart from `markerId` because the
+ * timetable may have moved the effective one forward. `/admin` and the legend
+ * write this one; `markerId` is what the map draws.
+ */
+let manualMarkerId = null
+/** levelId -> local datetime in Madrid. Empty when there is no timetable. */
+let schedule = {}
+/** Cancels the pending "a session is due now" wake-up. */
+let scheduleTimer = null
 // Assigned in boot(). Null until then, and on any device without WebXR.
 let vr = null
 
@@ -617,6 +628,33 @@ function applyMarker(id, { walk = false, instant = false } = {}) {
 }
 
 /**
+ * Sleep until the next scheduled session is due, then open it.
+ *
+ * ONE TIMER SET TO THE EXACT MOMENT, not a poll. A class left open on a
+ * projector all morning should cost nothing until the minute it matters, and
+ * `setInterval` on a tab that is often backgrounded is throttled anyway —
+ * the wake-up would arrive late and jittery.
+ *
+ * It re-arms itself, so a timetable with several entries walks through them
+ * all in one sitting. The clamp is because setTimeout overflows past ~24.8
+ * days and fires IMMEDIATELY if you ask for longer: a term-long gap would
+ * otherwise advance the whole course the moment the page loaded.
+ */
+function armScheduleTimer() {
+  clearTimeout(scheduleTimer)
+  const at = nextScheduledAt(schedule)
+  if (at == null) return
+  const wait = Math.min(Math.max(at - Date.now(), 0) + 1000, 21 * 24 * 60 * 60 * 1000)
+  scheduleTimer = setTimeout(() => {
+    const next = effectiveMarker(mainSequence, schedule, manualMarkerId)
+    // Walking is right here: this is the class moving on, and the avatar IS
+    // where the class is. Nobody is watching at that exact second anyway.
+    if (next !== markerId) applyMarker(next, { walk: true })
+    armScheduleTimer()
+  }, wait)
+}
+
+/**
  * The lock rule changed. Every surface that decides anything from it has to be
  * asked again — the map's colours, the course list's titles, and the plate over
  * the avatar, which may be standing on a session that just became locked.
@@ -702,7 +740,13 @@ async function boot() {
     loadProgress(),
     loadRoster({ validLevelIds: new Set(mainSequence.map((l) => l.id)) }),
   ])
-  markerId = progress.currentLevelId
+  // The timetable, if there is one, moves the marker forward on its own — see
+  // lib/schedule.js. Derived in the reader's browser, so a session opens at
+  // the minute it is due on every phone at once, with no token and no
+  // rebuild. The manual marker still wins whenever it is FURTHER ALONG.
+  schedule = cleanSchedule(progress.schedule, new Set(mainSequence.map((l) => l.id)))
+  manualMarkerId = progress.currentLevelId
+  markerId = effectiveMarker(mainSequence, schedule, manualMarkerId)
   // The course setting first, then this browser's exemption: whoever holds an
   // admin token sees the whole course, which is the "mecanismo para poder
   // visualizar todas" without having to turn the rule off for the class.
@@ -756,11 +800,15 @@ async function boot() {
   // Top right — the one corner the index and the legend leave free.
   mountLangPicker()
 
+  // If a timetable is published, sleep until the next session is due.
+  armScheduleTimer()
+
   // Colour key, plus teacher controls when a token is present in this browser.
   legend = mountLegend({
     onToggleOverview: () => setOverview(!app.rig.isOverview),
     onCompleteHere: async () => {
       const next = nextMarker(markerId)
+      manualMarkerId = next
       await writeProgress(next, 'Completado')
       applyMarker(next, { walk: true })
       return t('msg.advanced')
@@ -768,11 +816,13 @@ async function boot() {
     onBack: async () => {
       const i = mainSequence.findIndex((l) => l.id === markerId)
       const prev = mainSequence[Math.max(0, i - 1)]?.id ?? START_MARKER
+      manualMarkerId = prev
       await writeProgress(prev, 'Retroceso')
       applyMarker(prev, { walk: true })
       return t('msg.back')
     },
     onReset: async () => {
+      manualMarkerId = START_MARKER
       await writeProgress(START_MARKER, 'Reinicio')
       // Teleport: from session 27 the walk home crosses the whole island.
       applyMarker(START_MARKER, { walk: true, instant: true })

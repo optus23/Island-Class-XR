@@ -610,6 +610,37 @@ cover(
   [...blocks].sort((a, b) => a[0] - b[0]).map(([n, m]) => `bloque ${n}: ${m.length}`).join(', ')
 )
 
+// --- the class timetable, if one is published -------------------------------
+// It lives in progress.json and NOT in the level data, which is what keeps the
+// no-dates rule intact — see lib/schedule.js. Checked here because a key
+// naming a session that no longer exists would silently never fire, and a
+// timetable that quietly does nothing is worse than no timetable.
+{
+  const { cleanSchedule, zonedToEpoch } = await import('../src/lib/schedule.js')
+  const progressPath = resolve(here, '../public/progress.json')
+  let progress = null
+  try {
+    progress = JSON.parse(readFileSync(progressPath, 'utf8'))
+  } catch (e) {
+    // Absent is fine (a fresh clone). Unreadable is not — a corrupt
+    // progress.json takes the marker down for the whole class.
+    if (e.code !== 'ENOENT') err(`progress.json: ${e.message}`)
+  }
+  const raw = progress?.schedule
+  if (raw && typeof raw === 'object') {
+    const validIds = new Set(levels.filter((l) => !l.optional).map((l) => l.id))
+    for (const [levelId, when] of Object.entries(raw)) {
+      if (!validIds.has(levelId)) {
+        err(`schedule: "${levelId}" is not a main-path session`)
+      } else if (Number.isNaN(zonedToEpoch(when))) {
+        err(`schedule: "${levelId}" has an unreadable time "${when}"`)
+      }
+    }
+    const kept = Object.keys(cleanSchedule(raw, validIds)).length
+    cover('the published timetable', kept === Object.keys(raw).length, `${kept} session(s) scheduled`)
+  }
+}
+
 // --- the three languages, key for key ---------------------------------------
 // "Cuando modifique algo, se modifique en los tres idiomas" — enforced here
 // rather than hoped for. English is the base; Spanish and Catalan are checked
