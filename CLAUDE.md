@@ -396,6 +396,23 @@ Changing any of these is a design decision, not a refactor.
   activity is now EXPLAINED inside the second theory day (`w1-03`) and handed in
   from home. The lilac node survives unchanged and anchors there — the exercise
   itself was never in question, only the day that carried it.
+- **Boulders, not blocks** (`island.js`, `createRelief`). Rock outcrops on the
+  open ground, well away from the route, to break up the plains the flat
+  terrain leaves behind. They were stacks of grid-aligned cubes painted in the
+  terrace's own `band`, and were duly reported as bugs — "bloques raros que no
+  aportan... yo creo que eran árboles antiguos". Two things did that, and both
+  are the rule now: **they are `biome.boulder`, never `band`** (the palette has
+  carried a stone colour per biome all along and this never used it — a block
+  in the terrace's colour reads as hillside that broke off), and **each outcrop
+  has a yaw of its own.** Everything else in a voxel world is axis-aligned
+  because it was built or grown; the rock is the one thing that was neither, so
+  it is the one thing that must not line up with the grid.
+  **Scenery must be kept off the BUILDINGS, not just off the road.** The only
+  rule was distance from the path, and an off-path node has no path beside it —
+  a rock grew 3.6 units from the re-evaluation castle, whose plinth reaches
+  3.33. `nodeFootprints()` is the keep-out list for every node, on-path and
+  off; it is NOT `nodeClearings()`, which flattens ground and deliberately
+  skips off-path nodes.
 - **Two round crossings** on the route: one water, one a chasm with a dark
   bottom, each with a small wooden bridge. Different sizes and offsets — they
   must not read as one feature mirrored. The island stays **one landmass**; an

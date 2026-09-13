@@ -32,7 +32,7 @@ import { hasAdminToken, mountLegend } from './ui/legend.js'
 import { writeLockAhead, writeProgress } from './lib/githubData.js'
 import { nextMarker, START_MARKER, levelTitle } from './lib/levels.js'
 import { irisClose, screenPositionOf } from './ui/transition.js'
-import { buildGrandPath, nearestIndexOn, nodeClearings } from './three/paths.js'
+import { buildGrandPath, nearestIndexOn, nodeClearings, nodeFootprints } from './three/paths.js'
 import { clearGroundAround } from './three/terrain.js'
 import { createEnemies } from './three/enemies.js'
 import { createVillagers } from './three/villagers.js'
@@ -89,7 +89,7 @@ const tooltip = createTooltip()
 // would flatten the placement logic and leave the geometry untouched.
 clearGroundAround(nodeClearings(allLevels))
 
-const island = createIsland()
+const island = createIsland({ keepOut: nodeFootprints(allLevels) })
 const map = createMapObjects()
 const player = createPlayer()
 
