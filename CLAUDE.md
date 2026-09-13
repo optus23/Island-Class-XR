@@ -307,9 +307,12 @@ Changing any of these is a design decision, not a refactor.
   well, warp pipe, cannon, signpost, crates. Close enough that standing on the
   disc feels like arriving somewhere.
 - **Deliverable flags.** A Mario-style pole-and-pennant beside a session that
-  carries a hand-in (`three/nodes.js`, `createDeliverableFlag`). **The pennant
-  flies its KIND's colour**: gold (`palette.flagPending`) for a graded hand-in,
-  the optional nodes' own lilac (`palette.optional`) for a voluntary practical
+  carries a hand-in (`three/nodes.js`, `createDeliverableFlag`) — **not** the
+  small pennant every castle flies from its own roof, which is a separate
+  flag with its own colour rule; see the Castles bullet below. **This
+  pennant flies its KIND's colour**: orange (`palette.flagPending` — it was
+  gold, Marc's call to move it) for a graded hand-in, the optional nodes' own
+  lilac (`palette.optional`) for a voluntary practical
   — so "this one is voluntary" reads from across the map without opening
   anything, in the colour the map already uses for voluntary. Green
   (`palette.completed`) once the marker passes it, whichever kind it was.
@@ -340,6 +343,13 @@ Changing any of these is a design decision, not a refactor.
   `locked`, because `palette.locked` is a lighter grey and a castle wearing it
   read as a different building. The padlock and the hidden title are what say a
   session is closed; the stone is the material.
+  **Every castle also flies its own small pennant from its roof** — `keepColor`,
+  so `resolveNodeColor()` never touches it, and unrelated to the ground
+  `flagPending` flag above. The final boss's is yellow (`0xf2c14e`, unchanged —
+  it is already the biggest building on the island and needs no picking out).
+  The midterm and the re-evaluation share the `else` branch in
+  `createBossCastle` and so share a colour too: blue (`CASTLE_FLAG_EXAM`,
+  `0x2f6fed`), Marc's call, so the two exam castles read as exams first.
 - **The biome seams are interleaved, not cut.** `biomeKeyAt(x, z)` picks per
   column near a boundary: the seam wanders in Z, a mid-frequency term throws
   fingers of one biome across it, and a per-column hash salts single voxels at

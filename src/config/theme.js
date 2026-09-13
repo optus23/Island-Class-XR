@@ -43,10 +43,13 @@ export const palette = {
   nodeRim: 0xf2c14e,
 
   // The Mario-style flag beside a session that carries a graded deliverable.
-  // Yellow while it is still ahead; turns `completed` green once handed in —
-  // see hasDeliverable()/deliverableDone() in lib/levels.js for which
-  // sessions get one.
-  flagPending: 0xffcc00,
+  // Orange while it is still ahead (Marc's call — it was yellow); turns
+  // `completed` green once handed in — see hasDeliverable()/deliverableDone()
+  // in lib/levels.js for which sessions get one. Distinct from the small
+  // yellow/blue pennant every CASTLE flies from its own roof (see
+  // createBossCastle in three/nodes.js) — a different flag, on a different
+  // session shape, with its own colour rule.
+  flagPending: 0xff8c1a,
 
   // Castle accents: roofs, banners and trim pick this up against the stone.
   bossAccent: 0xb32a2a,

@@ -1107,6 +1107,15 @@ function createOptionalConnectors(placed, positionById) {
  * A voxel castle. The final boss is bigger and gets an extra tower tier than
  * the mini-boss, so the two read differently without breaking the colour rules.
  */
+// The mini-boss (midterm) and the extra boss (re-evaluation) share the same
+// "else" branch below and so share this flag colour too — both are exams in
+// the ordinary run of the course, not the one everyone already sees from
+// across the map. The final boss keeps the yellow every castle flag used to
+// share (0xf2c14e, still hardcoded below, unchanged) precisely because it
+// does NOT need picking out — it is already the biggest building on the
+// island.
+const CASTLE_FLAG_EXAM = 0x2f6fed
+
 function createBossCastle(placement) {
   const isFinal = placement.level.bossTier === 'final'
   // The final boss should dwarf the midterm castle, not merely edge it out.
@@ -1189,7 +1198,7 @@ function createBossCastle(placement) {
     addBox(1.6, 0.95, 0.12, 0.85, 13.2, 0, { color: 0xf2c14e, keepColor: true })
   } else {
     addBox(0.2, 2.0, 0.2, 0, 6.8, 0, { color: WOOD, keepColor: true })
-    addBox(1.3, 0.8, 0.12, 0.7, 7.4, 0, { color: 0xf2c14e, keepColor: true })
+    addBox(1.3, 0.8, 0.12, 0.7, 7.4, 0, { color: CASTLE_FLAG_EXAM, keepColor: true })
   }
 
   const pick = new THREE.Mesh(
