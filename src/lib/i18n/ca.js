@@ -129,7 +129,7 @@ export default {
   'md.pendingBody':
     "Falta el fitxer {path}. Crea'l al repositori i apareixerà aquí sense tocar codi.",
   'md.loadError': 'No s\'ha pogut carregar {path} ({detail}).',
-  'md.fallbackNotice': "Encara sense traduir — es mostra l'original en anglès.",
+  'md.fallbackNotice': "Encara sense traduir — es mostra l'original.",
 
   'card.world': 'MÓN {world}-{index}',
   'card.sessionOf': 'Sessió {global} de {total} · en queden {left}',

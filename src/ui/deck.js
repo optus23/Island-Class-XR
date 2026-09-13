@@ -15,7 +15,7 @@
  *
  */
 
-import { t } from '../lib/i18n/index.js'
+import { t, getLang } from '../lib/i18n/index.js'
 
 const cache = new Map()
 let indexPromise = null
@@ -54,22 +54,36 @@ async function getTheme() {
 /**
  * @returns {Promise<{title:string, slides:Array<{html:string,classes:string[]}>}|null>}
  */
+/**
+ * A deck id is the source file's basename, so a translated exercise
+ * (`w1-arf-01.es.md`) compiles to `w1-arf-01.es`. Prefer the reader's
+ * language, fall back to the base deck — the same rule the prose files
+ * follow in `ui/markdown.js`.
+ */
+async function deckIdFor(levelId) {
+  const index = await loadDeckIndex()
+  const translated = `${levelId}.${getLang()}`
+  if (index[translated]) return translated
+  return index[levelId] ? levelId : null
+}
+
 async function loadDeck(levelId) {
-  if (cache.has(levelId)) return cache.get(levelId)
+  const key = `${getLang()}:${levelId}`
+  if (cache.has(key)) return cache.get(key)
 
   const p = (async () => {
-    const index = await loadDeckIndex()
-    if (!index[levelId]) return null
-    const deck = await getJSON(`decks/${levelId}.json`)
+    const id = await deckIdFor(levelId)
+    if (!id) return null
+    const deck = await getJSON(`decks/${id}.json`)
     return { title: deck.title, slides: deck.slides }
   })()
 
-  cache.set(levelId, p)
+  cache.set(key, p)
   return p
 }
 
 export async function hasDeck(levelId) {
-  return Boolean((await loadDeckIndex())[levelId])
+  return Boolean(await deckIdFor(levelId))
 }
 
 const esc = (s) =>

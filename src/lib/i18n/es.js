@@ -129,7 +129,7 @@ export default {
   'md.pendingBody':
     'Falta el archivo {path}. Créalo en el repositorio y aparecerá aquí sin tocar código.',
   'md.loadError': 'No se pudo cargar {path} ({detail}).',
-  'md.fallbackNotice': 'Todavía sin traducir — se muestra el original en inglés.',
+  'md.fallbackNotice': 'Todavía sin traducir — se muestra el original.',
 
   'card.world': 'MUNDO {world}-{index}',
   'card.sessionOf': 'Sesión {global} de {total} · quedan {left}',
