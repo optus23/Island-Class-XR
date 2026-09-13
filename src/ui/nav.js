@@ -93,7 +93,7 @@ export function mountNav({ markerId, onSelect, onSelectWorld, onToggleOverview }
           <section class="nav-world">
             <button class="nav-world__head" data-world="${w.id}">
               <span class="nav-world__icon">${WORLD_ICON[w.id] ?? '•'}</span>
-              <span class="nav-world__name">${w.name.replace(/^World \d+ — /, '')}</span>
+              <span class="nav-world__name">${localized(w.name)}</span>
               <span class="nav-world__count">${done}/${sessions.length}</span>
             </button>
             <ul>${items}</ul>

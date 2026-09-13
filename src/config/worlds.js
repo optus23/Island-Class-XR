@@ -25,7 +25,16 @@ export const CAMERA_FOV = 40
 export const worlds = [
   {
     id: 1,
-    name: 'World 1 — Foundations & AR',
+    // The block is immersion THEORY (devices, tracking, spatial computing,
+    // gadgets, embodiment/presence/plausibility) plus the AR Foundation
+    // practicals. "Foundations & AR" said neither: it read as a vague
+    // "foundations" AND it collided with the framework's real name.
+    // AR Foundation is a product name and stays in English in all three.
+    name: {
+      en: 'Immersion & AR Foundation',
+      es: 'Inmersión y AR Foundation',
+      ca: 'Immersió i AR Foundation',
+    },
     biome: 'meadow',
     center: [-58, 0, 0],
     // Isometric, from the LEFT looking right.
@@ -52,7 +61,15 @@ export const worlds = [
   },
   {
     id: 2,
-    name: 'World 2 — Meta Building Blocks',
+    // Building Blocks is only half of it — the XR Interaction Toolkit sessions
+    // live in this world too, and the theory is interaction, navigation and
+    // simulator sickness. Both framework names are products; XRIT is the
+    // abbreviation, which is what makes the pair fit on one line.
+    name: {
+      en: 'Meta Building Blocks & XRIT',
+      es: 'Meta Building Blocks y XRIT',
+      ca: 'Meta Building Blocks i XRIT',
+    },
     biome: 'desert',
     center: [0, 0, 0],
     // Frontal.
@@ -77,7 +94,13 @@ export const worlds = [
   },
   {
     id: 3,
-    name: 'World 3 — XR Toolkit & Final Project',
+    // The whole world is the final project; the XR Toolkit sessions are back
+    // in world 2. Nothing to qualify.
+    name: {
+      en: 'Final Project',
+      es: 'Proyecto final',
+      ca: 'Projecte final',
+    },
     biome: 'summit',
     center: [58, 0, 0],
     // Mirror of World 1: isometric, from the RIGHT looking left.
