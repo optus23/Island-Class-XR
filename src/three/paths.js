@@ -489,6 +489,36 @@ export function nearestIndexOn(points, position) {
  * @param {Array<object>} levels every level, as levels.json holds them
  * @param {number} radius world units of flat ground around each disc
  */
+/**
+ * Where every node STANDS — on-path and off — so scenery can be kept off it.
+ *
+ * Not the same list as `nodeClearings` and deliberately so: that one flattens
+ * the ground and only on-path nodes get a pad (an off-path pad would be
+ * circular — see the note on optional branches in CLAUDE.md). This one changes
+ * no terrain; it only says "a building is here".
+ *
+ * It exists because the boulders were kept clear of the ROAD and of nothing
+ * else, and an off-path node has no road next to it. A rock duly grew 3.6
+ * units from the re-evaluation castle, whose plinth reaches 3.33 — close
+ * enough to touch the wall.
+ *
+ * @param {Array<object>} levels every level, as levels.json holds them
+ */
+export function nodeFootprints(levels) {
+  const out = []
+  for (const w of worlds) {
+    for (const p of distributeNodes(w, levels.filter((l) => l.world === w.id))) {
+      const r =
+        p.level.category === 'boss'
+          ? // The plinth reach of each tier, plus room to read as separate.
+            3.5 * (p.level.bossTier === 'final' ? 2.3 : 0.95) + 3
+          : NODE_CLEAR_RADIUS + 2
+      out.push({ x: p.position.x, z: p.position.z, r })
+    }
+  }
+  return out
+}
+
 export function nodeClearings(levels, radius = NODE_CLEAR_RADIUS) {
   const out = []
   for (const w of worlds) {

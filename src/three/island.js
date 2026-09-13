@@ -35,7 +35,7 @@ const BAND_HEIGHT = 1.4 // bright stripe below the lip
 
 const biomeAt = (x, z) => biomes[biomeKeyAt(x, z)] ?? biomes.meadow
 
-export function createIsland() {
+export function createIsland({ keepOut = [] } = {}) {
   const group = new THREE.Group()
 
   const { minX, maxX, minZ, maxZ } = islandBounds()
@@ -122,7 +122,7 @@ export function createIsland() {
   // Scattered dressing and hand-placed corner landmarks share one mesh, so the
   // whole island still costs a single draw call for every prop on it.
   group.add(buildPropMesh([...planProps(cells), ...planLandmarks()]))
-  group.add(createRelief(cells))
+  group.add(createRelief(cells, keepOut))
 
   const backdropGroup = createBackdrop(minX, maxX, minZ)
   group.add(backdropGroup)
@@ -176,31 +176,94 @@ function createVoidPits() {
 }
 
 /**
- * Free-standing blocks and stepped stacks scattered over the ground.
+ * Boulders: rock outcrops scattered over the open ground.
  *
- * The terrain itself is deliberately flat around the route so nodes never sit
- * on a slope, which left large empty plains. These add silhouette and height
- * variation WITHOUT touching the walkable surface, so the map gains
- * verticality without the path becoming unreadable.
+ * The terrain is deliberately flat around the route so nodes never sit on a
+ * slope, which left large empty plains. These add silhouette and height
+ * variation WITHOUT touching the walkable surface.
+ *
+ * THEY USED TO BE STACKS OF PLAIN CUBES IN THE TERRACE'S OWN BAND COLOUR, and
+ * they were reported as bugs — "bloques raros que no aportan... yo creo que
+ * eran árboles antiguos". Two things gave that away and both are fixed here:
+ *
+ *  - THE COLOUR WAS THE TERRACE'S. Painted in `band` over `groundAlt`, a
+ *    block read as a piece of the hillside that had broken off and was now
+ *    standing in a field. The palette has had a `boulder` colour per biome all
+ *    along and this never used it. It does now, and that one change is most of
+ *    the difference between "terrain bug" and "rock".
+ *  - THE SILHOUETTE WAS A GRID-ALIGNED CUBE. Everything else in the voxel
+ *    world is axis-aligned because it is built or grown; a rock is the one
+ *    thing that is neither. Each outcrop now gets a yaw of its own and is
+ *    built from overlapping boxes of different depth and width, so no two read
+ *    as the same object and none of them line up with the terraces behind.
+ *
+ * Still one InstancedMesh, still deterministic from `hash2`, still nowhere
+ * near the road.
  */
-function createRelief(cells) {
+function createRelief(cells, keepOut = []) {
   const group = new THREE.Group()
   const blocks = []
 
   for (const c of cells) {
     // Well clear of the road: these are tall enough to hide the character.
     if (c.pathDist < 13 || c.shore < 0.9) continue
+    // AND CLEAR OF THE BUILDINGS. Distance from the road is not enough: an
+    // off-path node has no road beside it, so nothing stopped a rock growing
+    // against the re-evaluation castle — measured at 3.6 units from a castle
+    // whose plinth reaches 3.33.
+    if (keepOut.some((k) => (c.x - k.x) ** 2 + (c.z - k.z) ** 2 < k.r * k.r)) continue
     const r = hash2(c.x * 1.13, c.z * 2.71)
     if (r < 1 - (1 - 0.975) * CELL_AREA_SCALE) continue
 
-    // A stack of 1-3 cubes, each narrower than the one below.
-    const tiers = 1 + Math.floor(hash2(c.z * 5.3, c.x * 1.9) * 2)
-    let y = c.height
-    for (let i = 0; i < tiers; i++) {
-      const w = (3.2 - i * 0.7) * (0.8 + hash2(c.x + i, c.z) * 0.4)
-      const h = 1.6 + hash2(c.z + i, c.x) * 1.6
-      blocks.push({ x: c.x, z: c.z, w, h, y: y + h / 2, biome: c.biome, tier: i })
-      y += h
+    // One yaw for the whole outcrop, so the pieces read as one rock rather
+    // than as a pile of unrelated boxes. Every offset below is turned by it.
+    const yaw = hash2(c.x * 0.77, c.z * 1.31) * Math.PI * 2
+    const cos = Math.cos(yaw)
+    const sin = Math.sin(yaw)
+    const put = (dx, dz, w, h, d, y, shade) =>
+      blocks.push({
+        x: c.x + dx * cos - dz * sin,
+        z: c.z + dx * sin + dz * cos,
+        w,
+        h,
+        d,
+        y,
+        yaw,
+        biome: c.biome,
+        shade,
+      })
+
+    const scale = 0.75 + hash2(c.x * 2.3, c.z * 0.9) * 0.55
+    const base = c.height
+
+    // The body: wider than it is deep, so it has a long side and a short one.
+    const bw = 2.9 * scale
+    const bd = 2.0 * scale
+    const bh = (1.5 + hash2(c.z * 5.3, c.x * 1.9) * 1.3) * scale
+    put(0, 0, bw, bh, bd, base + bh / 2, 0)
+
+    // A shoulder leaning off one side, and a smaller cap sitting back the
+    // other way. Offset on BOTH axes: a piece centred on the body just makes
+    // a wedding cake, which is what the old stack looked like.
+    const sw = bw * (0.5 + hash2(c.x * 3.1, c.z * 4.2) * 0.25)
+    const sh = bh * (0.55 + hash2(c.z * 3.7, c.x * 2.2) * 0.4)
+    put(bw * 0.28, -bd * 0.18, sw, sh, bd * 0.78, base + sh / 2, -0.08)
+
+    if (hash2(c.x * 6.1, c.z * 3.3) > 0.38) {
+      const cw = bw * 0.52
+      const ch = bh * 0.6
+      put(-bw * 0.16, bd * 0.14, cw, ch, bd * 0.6, base + bh + ch / 2 - 0.15, 0.22)
+    }
+
+    // A pebble or two at the foot. They are what stop an outcrop looking
+    // dropped in: a rock that has been there a while has bits around it.
+    const pebbles = 1 + Math.floor(hash2(c.z * 7.7, c.x * 5.5) * 2)
+    for (let p = 0; p < pebbles; p++) {
+      const a = hash2(c.x * (9.1 + p), c.z * (4.4 + p)) * Math.PI * 2
+      const dist = bw * (0.62 + hash2(c.z * (8.3 + p), c.x * (6.6 + p)) * 0.4)
+      const pw = 0.42 * scale * (0.7 + hash2(c.x + p * 3, c.z + p) * 0.7)
+      const ph = pw * (0.55 + hash2(c.z + p, c.x + p * 2) * 0.5)
+      put(Math.cos(a) * dist, Math.sin(a) * dist, pw, ph, pw * 1.25, base + ph / 2, 0.1)
     }
   }
 
@@ -217,13 +280,23 @@ function createRelief(cells) {
   const sv = new THREE.Vector3()
   const col = new THREE.Color()
   const tmp = new THREE.Color()
+  const up = new THREE.Vector3(0, 1, 0)
   blocks.forEach((b, i) => {
-    sv.set(b.w, b.h, b.w)
+    sv.set(b.w, b.h, b.d)
     p.set(b.x, b.y, b.z)
+    // Turned off the grid. Every other voxel object here is axis-aligned
+    // because it was built or grown; the rock is the one thing that was not.
+    q.setFromAxisAngle(up, b.yaw)
     m.compose(p, q, sv)
     mesh.setMatrixAt(i, m)
-    // Higher tiers catch more light — cheap stylised shading.
-    col.setHex(b.biome.band).lerp(tmp.setHex(b.biome.groundAlt), 0.35 + b.tier * 0.2)
+    // STONE, not the terrace's own band — see the note above `createRelief`.
+    // A little of the biome's deep rock mixed in keeps a boulder in the desert
+    // warm and one in the snow cold, so it still belongs where it stands.
+    col.setHex(b.biome.boulder).lerp(tmp.setHex(b.biome.rockDeep), 0.18)
+    // Cheap stylised shading: the pieces that catch the sky are lighter, the
+    // ones tucked under the body darker.
+    if (b.shade > 0) col.lerp(tmp.setHex(0xffffff), b.shade)
+    else if (b.shade < 0) col.lerp(tmp.setHex(0x000000), -b.shade)
     mesh.setColorAt(i, col)
   })
   mesh.instanceMatrix.needsUpdate = true
