@@ -13,7 +13,9 @@ import {
   readRoster,
   settings,
   writeRoster,
+  writeSchedule,
 } from '../lib/githubData.js'
+import { SCHEDULE_ZONE, cleanSchedule, effectiveMarker } from '../lib/schedule.js'
 import { MAX_NAME, MAX_NPCS, cleanName, makeNpcId } from '../lib/roster.js'
 import { rememberSeeAll, seeAllChoice, seeAllLink } from '../lib/teacherView.js'
 
@@ -88,6 +90,11 @@ let state = {
    */
   seeAll: seeAllChoice() ?? Boolean(settings.token),
   linkCopied: false,
+  /** levelId -> "YYYY-MM-DDTHH:mm", wall clock in Madrid. {} = no timetable. */
+  schedule: {},
+  scheduleDirty: false,
+  scheduleNote: null,
+  scheduleTone: 'info',
 }
 
 /** Names come from a human and land in `innerHTML` below. */
@@ -115,6 +122,12 @@ function sayRoster(note, tone = 'info') {
   render()
 }
 
+function saySchedule(note, tone = 'info') {
+  state.scheduleNote = note
+  state.scheduleTone = tone
+  render()
+}
+
 /**
  * Verify the credentials by reading both public files. Read-only: a mistyped
  * token fails here rather than halfway through a change.
@@ -132,6 +145,9 @@ async function check() {
     const { doc } = await readJsonFile(PROGRESS_PATH)
     if (!doc) throw new Error(`No existe ${PROGRESS_PATH} en la rama ${settings.branch}.`)
     state.currentLevelId = doc.currentLevelId ?? START_MARKER
+    state.schedule = cleanSchedule(doc.schedule, new Set(mainSequence.map((l) => l.id)))
+    state.scheduleDirty = false
+    state.scheduleNote = null
     // Default the picker to where the class is — the teacher is awarding points
     // for today's session — unless today is an exam, which takes no villagers.
     if (!VILLAGER_SESSIONS.some((l) => l.id === state.levelId)) {
@@ -461,6 +477,158 @@ function rosterCard() {
     </div>`
 }
 
+// --- the class timetable ----------------------------------------------------
+
+function setScheduleAt(levelId, value) {
+  const next = { ...state.schedule }
+  if (value) next[levelId] = value
+  else delete next[levelId]
+  state.schedule = next
+  state.scheduleDirty = true
+  state.scheduleNote = null
+  // Deliberately does NOT re-render: redrawing on every change would pull the
+  // focus out of the field being edited, and this form is nothing but fields.
+}
+
+async function saveSchedule() {
+  state.busy = true
+  render()
+  try {
+    const clean = cleanSchedule(state.schedule, new Set(mainSequence.map((l) => l.id)))
+    await writeSchedule(clean)
+    state.schedule = clean
+    state.scheduleDirty = false
+    saySchedule('Calendario publicado. Las sesiones se abrirán solas a su hora.', 'success')
+  } catch (e) {
+    saySchedule(e.message, 'error')
+  } finally {
+    state.busy = false
+    render()
+  }
+}
+
+/**
+ * Fill the rest of the term from the first session that has a time, every N
+ * days at that same time.
+ *
+ * This course is two fixed classes a week. Without this, the alternative is
+ * typing 28 dates by hand — which nobody does twice, and a half-filled
+ * timetable is worse than none, because the marker stops halfway through the
+ * term and nobody knows why.
+ */
+function fillEvery(everyDays) {
+  const fromLevel = mainSequence.find((l) => state.schedule[l.id])
+  if (!fromLevel) {
+    saySchedule('Primero pon fecha y hora a una sesión.', 'error')
+    return
+  }
+  const ids = mainSequence.map((l) => l.id)
+  const from = ids.indexOf(fromLevel.id)
+  const [datePart, timePart] = state.schedule[fromLevel.id].split('T')
+  const next = { ...state.schedule }
+
+  // Stepped as a plain calendar date, so a run crossing the October clock
+  // change still lands at the same WALL-CLOCK time on both sides of it —
+  // which is what "the class is at 10:00" means.
+  const pad = (v) => String(v).padStart(2, '0')
+  let [y, m, d] = datePart.split('-').map(Number)
+  for (let i = from + 1; i < ids.length; i++) {
+    const cursor = new Date(Date.UTC(y, m - 1, d))
+    cursor.setUTCDate(cursor.getUTCDate() + everyDays)
+    y = cursor.getUTCFullYear()
+    m = cursor.getUTCMonth() + 1
+    d = cursor.getUTCDate()
+    next[ids[i]] = y + '-' + pad(m) + '-' + pad(d) + 'T' + timePart
+  }
+  state.schedule = next
+  state.scheduleDirty = true
+  saySchedule(
+    'Rellenadas ' + (ids.length - from - 1) + ' sesiones, cada ' + everyDays +
+      ' días a las ' + timePart + '.',
+    'info'
+  )
+}
+
+function clearSchedule() {
+  state.schedule = {}
+  state.scheduleDirty = true
+  saySchedule('Calendario vacío. Guarda para publicarlo.', 'info')
+}
+
+function scheduleCard() {
+  if (!state.roster) return ''
+
+  // Where the map would put the class RIGHT NOW under this timetable, so the
+  // rule can be seen working before it is published.
+  const derived = effectiveMarker(mainSequence, state.schedule, state.currentLevelId, Date.now())
+
+  const rows = mainSequence
+    .map((l) => {
+      const n = sessionNumber(l)
+      const here = l.id === derived ? 'bg-base-300/60 rounded-md px-1' : ''
+      const num = n ? n.world + '-' + n.index : '·'
+      return `
+        <li class="flex items-center gap-2 ${here}">
+          <span class="text-[11px] tabular-nums opacity-60 w-9 shrink-0">${num}</span>
+          <span class="text-xs truncate flex-1"
+                title="${esc(levelTitle(l))}">${esc(levelTitle(l))}</span>
+          <input type="datetime-local" data-when="${esc(l.id)}"
+                 value="${esc(state.schedule[l.id] ?? '')}"
+                 class="input input-xs input-bordered w-[11.5rem] shrink-0" />
+        </li>`
+    })
+    .join('')
+
+  const noteTone =
+    state.scheduleTone === 'error'
+      ? 'text-error'
+      : state.scheduleTone === 'success'
+        ? 'text-success'
+        : 'opacity-70'
+
+  return `
+    <div class="card bg-base-200 shadow-md p-4 flex flex-col gap-3">
+      <div>
+        <h2 class="font-semibold">Calendario de sesiones</h2>
+        <p class="text-xs opacity-70 mt-1">
+          Opcional. Pon cuándo se abre cada sesión y el mapa avanzará solo a esa
+          hora, en el navegador de cada alumno — sin token, sin sacar el móvil y
+          sin esperar a que el sitio se reconstruya. Hora peninsular
+          (${SCHEDULE_ZONE}).
+        </p>
+        <p class="text-xs opacity-70 mt-1">
+          Si adelantas la clase a mano desde el mapa, manda lo que hayas hecho a
+          mano: el calendario nunca hace retroceder.
+        </p>
+      </div>
+
+      <ul class="flex flex-col gap-1 max-h-72 overflow-y-auto pr-1">${rows}</ul>
+
+      <div class="flex flex-wrap gap-2">
+        <button id="sched-fill-7" class="btn btn-xs btn-outline" ${state.busy ? 'disabled' : ''}>
+          Repetir cada 7 días
+        </button>
+        <button id="sched-fill-3" class="btn btn-xs btn-outline" ${state.busy ? 'disabled' : ''}>
+          Repetir cada 3 días
+        </button>
+        <button id="sched-clear" class="btn btn-xs btn-ghost" ${state.busy ? 'disabled' : ''}>
+          Vaciar
+        </button>
+      </div>
+      <p class="text-[11px] opacity-60 -mt-1">
+        Repetir toma la primera sesión que tenga hora y rellena desde ahí.
+      </p>
+
+      ${state.scheduleNote ? `<p class="text-xs ${noteTone}">${esc(state.scheduleNote)}</p>` : ''}
+
+      <button id="sched-save"
+              class="btn btn-block btn-sm ${state.scheduleDirty ? 'btn-warning' : 'btn-outline'}"
+              ${state.busy || !state.scheduleDirty ? 'disabled' : ''}>
+        ${state.busy ? '…' : 'Publicar calendario'}
+      </button>
+    </div>`
+}
+
 function render() {
   // A column, not `place-items: center`. The page can now be taller than the
   // viewport, and centring an item that overflows falls back to start alignment
@@ -472,6 +640,7 @@ function render() {
         ${viewCard()}
         ${signInCard()}
         ${rosterCard()}
+        ${scheduleCard()}
       </div>
     </main>`
 
@@ -513,6 +682,30 @@ function render() {
       input.select()
     }
   })
+
+  // The timetable, wired BEFORE the roster's early return below. Its own card
+  // decides whether it is on screen; hanging its listeners off an unrelated
+  // guard is how you get a form that renders and does nothing.
+  //
+  // `change` and not `input`: a datetime field fires on every partial edit,
+  // and half a date is not a date.
+  root.querySelectorAll('[data-when]').forEach((input) =>
+    input.addEventListener('change', () => {
+      setScheduleAt(input.dataset.when, input.value)
+      // Enabled in place rather than by re-rendering, so the field that was
+      // just edited keeps focus and the list keeps its scroll position.
+      const save = el('sched-save')
+      if (save) {
+        save.disabled = false
+        save.classList.add('btn-warning')
+        save.classList.remove('btn-outline')
+      }
+    })
+  )
+  el('sched-fill-7')?.addEventListener('click', () => fillEvery(7))
+  el('sched-fill-3')?.addEventListener('click', () => fillEvery(3))
+  el('sched-clear')?.addEventListener('click', clearSchedule)
+  el('sched-save')?.addEventListener('click', saveSchedule)
 
   if (!state.roster) return
 
