@@ -1,5 +1,8 @@
 {
   "currentLevelId": "w1-01",
   "note": "Moved only by the teacher controls. Students read this; they never write it.",
-  "lockAhead": true
+  "lockAhead": true,
+  "schedule": {
+    "w1-01": "2026-09-13T15:42"
+  }
 }
