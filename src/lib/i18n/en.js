@@ -91,7 +91,10 @@ export default {
   'tooltip.completed': 'completed',
   'tooltip.current': 'we are here',
   'tooltip.deliverable': '🚩 Hand-in: {label}',
-  'tooltip.deliverableSub': '{weight} of the course · deadline for this activity',
+  // No percentage and no date: see `showDeliverable` in ui/hud.js. "Last
+  // session", not "deadline" — the island navigates sessions, not a calendar.
+  'tooltip.deliverableGraded': 'Graded hand-in · last session to hand it in',
+  'tooltip.deliverableOptional': 'Optional practical · last session to hand it in',
 
   'curtain.building': 'Building the island…',
 

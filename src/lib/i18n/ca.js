@@ -76,7 +76,8 @@ export default {
   'tooltip.completed': 'completat',
   'tooltip.current': 'som aquí',
   'tooltip.deliverable': '🚩 Entrega: {label}',
-  'tooltip.deliverableSub': '{weight} del curs · data límit d\'aquesta activitat',
+  'tooltip.deliverableGraded': 'Entrega avaluable · sessió límit per lliurar-la',
+  'tooltip.deliverableOptional': 'Pràctica opcional · sessió límit per lliurar-la',
 
   'curtain.building': "Construint l'illa…",
 

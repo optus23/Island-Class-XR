@@ -3,7 +3,13 @@ import { worlds } from '../config/worlds.js'
 import { biomes, palette, world as themeWorld, resolveNodeColor } from '../config/theme.js'
 import { buildWorldCurves, buildConnectors, distributeNodes } from './paths.js'
 import { biomeKeyAt, groundHeightAt, landInset, isLand } from './terrain.js'
-import { levelsForWorld, statusFor, hasDeliverable, deliverableDone } from '../lib/levels.js'
+import {
+  levelsForWorld,
+  statusFor,
+  hasDeliverable,
+  deliverableDone,
+  deliverableKind,
+} from '../lib/levels.js'
 import { prefersReducedMotion } from '../lib/motion.js'
 
 /**
@@ -239,7 +245,14 @@ export function createMapObjects() {
     }
 
     for (const f of flagEntries) {
-      const hex = deliverableDone(f.level, markerId) ? palette.completed : palette.flagPending
+      // Green once handed in, whatever kind it was; otherwise the pennant flies
+      // its kind's colour — gold for a graded hand-in, the optional nodes' own
+      // lilac for a voluntary one.
+      const hex = deliverableDone(f.level, markerId)
+        ? palette.completed
+        : deliverableKind(f.level) === 'optional'
+          ? palette.optional
+          : palette.flagPending
       for (const part of f.parts) part.material.color.setHex(hex)
     }
 
