@@ -1009,6 +1009,7 @@ function createOptionalConnectors(placed, positionById) {
   const dashes = []
   const DASH = 0.55
   const GAP = 0.5
+  const step = DASH + GAP
 
   for (const p of placed) {
     if (p.onPath || !p.anchorId) continue
@@ -1016,25 +1017,68 @@ function createOptionalConnectors(placed, positionById) {
     const to = p.position
     if (!from) continue
 
-    const dir = to.clone().sub(from)
-    const len = dir.length()
-    dir.normalize()
-    const yaw = Math.atan2(dir.x, dir.z)
-    const step = DASH + GAP
-    // Skip the first stride so the dashes start clear of the anchor node.
-    for (let d = NODE_SIZE * 0.7; d < len - NODE_SIZE * 0.5; d += step) {
-      const at = from.clone().addScaledVector(dir, d + DASH / 2)
-      at.y = groundHeightAt(at.x, at.z)
-      dashes.push({ at, yaw })
+    /**
+     * THE LINE TURNS A CORNER RATHER THAN CUTTING A DIAGONAL.
+     *
+     * Every road on this island is orthogonal, so a branch drawn straight from
+     * anchor to node is the only diagonal anywhere and reads as a mistake —
+     * which is exactly what it looked like once the re-evaluation moved out to
+     * the cliff and the line became a long, slightly-off-axis slash. An L is
+     * what was asked for ("puedes hacer un giro con la línea discontinua").
+     *
+     * The SHORT leg goes first, so the line leaves the castle with a small
+     * step aside and then runs dead straight to the node — which is the shape
+     * that reads as "and this one is over there", rather than a dog-leg.
+     * A branch whose offset is essentially along one axis already (every
+     * "Actitud") keeps its single straight line: a one-unit jog would be
+     * the mistake it is trying to avoid.
+     */
+    const dx = to.x - from.x
+    const dz = to.z - from.z
+    const legs = []
+    const JOG = 1.5
+    if (Math.abs(dx) < JOG || Math.abs(dz) < JOG) {
+      legs.push([from, to])
+    } else if (Math.abs(dx) <= Math.abs(dz)) {
+      const corner = new THREE.Vector3(to.x, from.y, from.z)
+      legs.push([from, corner], [corner, to])
+    } else {
+      const corner = new THREE.Vector3(from.x, from.y, to.z)
+      legs.push([from, corner], [corner, to])
+    }
+
+    // Clear of the anchor disc at the very start, and of the node at the very
+    // end; the corner itself is walked through without a gap.
+    const total = legs.reduce((sum, [a, b]) => sum + Math.hypot(b.x - a.x, b.z - a.z), 0)
+    let walked = 0
+    for (const [a, b] of legs) {
+      const seg = Math.hypot(b.x - a.x, b.z - a.z)
+      if (seg < 1e-6) continue
+      const dir = new THREE.Vector3(b.x - a.x, 0, b.z - a.z).normalize()
+      const yaw = Math.atan2(dir.x, dir.z)
+      // Continue the stride across the corner instead of restarting it, or the
+      // dashes bunch up at every bend.
+      let d = walked === 0 ? NODE_SIZE * 0.7 : ((step - (walked % step)) % step)
+      for (; d < seg; d += step) {
+        if (walked + d > total - NODE_SIZE * 0.5) break
+        const at = a.clone().addScaledVector(dir, d + DASH / 2)
+        at.y = groundHeightAt(at.x, at.z)
+        dashes.push({ at, yaw, level: p.level })
+      }
+      walked += seg
     }
   }
 
   const mesh = new THREE.InstancedMesh(
     new THREE.BoxGeometry(0.42, 0.2, DASH),
-    new THREE.MeshLambertMaterial({ color: themeWorld.pathOptional }),
+    // White base: the tint arrives per instance. No `vertexColors` — on an
+    // InstancedMesh with instanceColor that multiplies by a missing attribute
+    // and renders everything black.
+    new THREE.MeshLambertMaterial({ color: 0xffffff }),
     Math.max(1, dashes.length)
   )
   const m = new THREE.Matrix4()
+  const col = new THREE.Color()
   dashes.forEach((d, i) => {
     m.compose(
       new THREE.Vector3(d.at.x, d.at.y + 0.16, d.at.z),
@@ -1042,8 +1086,18 @@ function createOptionalConnectors(placed, positionById) {
       new THREE.Vector3(1, 1, 1)
     )
     mesh.setMatrixAt(i, m)
+    // THE RE-EVALUATION'S LINE IS RED, like its castle. Lilac is the colour of
+    // the voluntary "Actitud" activities, and the re-evaluation is not one —
+    // it is an exam, and `bossAccent` is already the red it is built from.
+    mesh.setColorAt(
+      i,
+      col.setHex(
+        d.level?.bossTier === 'extra' ? palette.bossAccent : themeWorld.pathOptional
+      )
+    )
   })
   mesh.count = dashes.length
+  if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true
   mesh.instanceMatrix.needsUpdate = true
   mesh.frustumCulled = false
   return mesh

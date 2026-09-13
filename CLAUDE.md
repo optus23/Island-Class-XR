@@ -377,6 +377,25 @@ Changing any of these is a design decision, not a refactor.
   height from `groundHeightAt` and nothing else; `validate` asserts every
   off-path node sits on its own terrain **across its footprint**, because the
   centre was never the part that floated.
+  **A DECLARED `offsetDistance` IS THE ANSWER TOO.** The search tries 6..16
+  units, which is right for an "Actitud" beside its class and cannot reach
+  anywhere worth putting the re-evaluation: that one belongs out by the cliff,
+  and the nearest buildable ground there is 26 units from the final castle
+  (measured — further out the terrain starts stepping down to the shore and a
+  castle would sit on a 12-unit height spread). Declared, the search may still
+  pick a side; it may not pick a distance. The field existed and was read into
+  a variable that nothing used.
+  **THE DASHED LINE TURNS A CORNER, IT DOES NOT CUT A DIAGONAL.** Every road
+  here is orthogonal, so a branch drawn straight from anchor to node is the
+  only diagonal on the island and reads as a mistake — obvious once the
+  re-evaluation moved out to the cliff and the line became a long, slightly
+  off-axis slash. It is an L now, short leg first. A branch already square-on
+  (every "Actitud") keeps its single straight line rather than growing a
+  one-unit jog.
+  **The re-evaluation's dashes are RED, not lilac.** Lilac is the voluntary
+  "Actitud" colour and the re-evaluation is not voluntary work, it is an exam —
+  `bossAccent`, the red its own castle is built from. Per-instance colour via
+  `setColorAt`, so `vertexColors` stays OFF (see the InstancedMesh trap).
   **`offsetAlong` slides a branch up or down the route**, signed along the
   route's own direction of travel. The perpendicular offset is all an ordinary
   bonus node needs, but the re-evaluation hangs off the FINAL castle and the

@@ -224,7 +224,16 @@ export function distributeNodes(worldDef, worldLevels) {
     anchor ??= placed[0]
     if (!anchor) return
 
-    const distance = level.offsetDistance ?? 9
+    /**
+     * A DECLARED `offsetDistance` IS THE ANSWER, like `anchorAfter`.
+     * The search below tries 6..16 units, which is right for an "Actitud"
+     * hanging beside its class but cannot reach anywhere worth putting the
+     * re-evaluation: that one belongs out by the cliff, and the nearest
+     * buildable ground there is 26 units from the final castle. Declared, the
+     * search may still choose a SIDE, and `offsetAlong` still slides it along
+     * the route — it may not choose a different distance.
+     */
+    const declaredDistance = level.offsetDistance ?? null
     const axis = anchor.tangent.clone().cross(UP).normalize()
 
     // Which way to branch. A fixed side (or alternating parity) regularly
@@ -288,7 +297,7 @@ export function distributeNodes(worldDef, worldLevels) {
       // slide the node up the slope as well as along it.
       const ahead = node.tangent.clone().setY(0).normalize().multiplyScalar(along)
       for (const dir of dirs) {
-        for (const dist of [6, 7, 8, 9, 10, 12, 14, 16]) {
+        for (const dist of declaredDistance != null ? [declaredDistance] : [6, 7, 8, 9, 10, 12, 14, 16]) {
           const at = node.position.clone().addScaledVector(axis, dir * dist).add(ahead)
           if (!isLand(at.x, at.z)) continue
           // Castles have no room beside them (see nodes.js/villagers.js — the
