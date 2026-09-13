@@ -108,6 +108,16 @@ These come from the brief and are not negotiable without the user saying so.
   answers surface. A solved Unity project may be shared one day; that would be
   a separate repo, discussed first.
 - **Do not authenticate against or embed Atenea Virtual.**
+- **Two licences, and they do not cover the same files.** The SOFTWARE is MIT
+  (`LICENSE`); the COURSE MATERIAL — `public/content/**` and the sessions in
+  `src/data/levels.json` — is CC BY-NC-SA 4.0 (`LICENSE-CONTENT`). Chosen
+  deliberately: the engine should be free for any teacher to fork, and the
+  teaching material should be reusable with attribution but not sellable.
+  **A new file lands on one side of that line, so say which.** Content moving
+  into `src/` or code moving into `public/content/` silently changes its
+  licence, which is why neither should happen. Third-party material is LINKED,
+  never vendored — nothing in this repo is the author's to relicense but his
+  own, and no third-party asset is bundled today (the island is generated).
 - The content is public. The README must keep flagging that it needs a
   copyright / student-data review before publishing.
 
