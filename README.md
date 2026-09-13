@@ -13,6 +13,9 @@ Static site: Three.js + Vite, deployed to GitHub Pages. No backend, no database.
 > **¿Eres profesor y quieres tu propia copia, con tus sesiones?**
 > Salta a [**Forkéalo para tu asignatura**](#forkéalo-para-tu-asignatura), al
 > final. Está escrito para hacerlo a mano, sin saber Three.js.
+>
+> Puedes hacerlo: el **código es MIT** y el **material docente es
+> CC BY-NC-SA 4.0**. Ver [Licencia](#licencia).
 
 ---
 
@@ -1105,3 +1108,28 @@ Three.js + Vite, plain — no React, no React Three Fiber, no game engine. Tailw
 CSS + DaisyUI for the 2D layer, which is CSS classes only and adds no JS runtime.
 `marked` renders the Markdown. That is the whole dependency list, and it is
 deliberately short: this is maintained by one person.
+
+---
+
+## Licencia
+
+Dos licencias, porque son dos cosas distintas.
+
+| | Qué es | Licencia |
+| --- | --- | --- |
+| **El software** | La isla en Three.js, el build, el validador, `/admin`, los estilos, las herramientas y esta documentación | [MIT](LICENSE) |
+| **El material docente** | `public/content/**` y las sesiones de `src/data/levels.json`: enunciados, guías paso a paso, bibliografía, diapositivas | [CC BY-NC-SA 4.0](LICENSE-CONTENT) |
+
+© 2026 Marc Gálvez.
+
+**En corto, si eres profesor y quieres forkearlo:** el motor es tuyo para lo que
+quieras, sin condiciones. El material del curso puedes usarlo y adaptarlo para
+tu asignatura **citando la fuente**, sin uso comercial, y publicando tu versión
+con esta misma licencia. Dar clase con él en tu universidad es el caso normal y
+entra de lleno; venderlo o meterlo en un producto, no.
+
+**Lo que enlaza este repositorio no es suyo y no va incluido.** Las barajas de
+Canva, los papers, las páginas de libros y la documentación de terceros están
+enlazadas, no licenciadas aquí: quien reutilice el curso tiene que resolver ese
+material por su cuenta. Ver también
+[Content is public — review before publishing](#content-is-public--review-before-publishing).

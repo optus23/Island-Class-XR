@@ -1,0 +1,60 @@
+Course material — Creative Commons Attribution-NonCommercial-ShareAlike 4.0
+International (CC BY-NC-SA 4.0)
+
+Copyright (c) 2026 Marc Gálvez
+SPDX-License-Identifier: CC-BY-NC-SA-4.0
+
+Human-readable summary:  https://creativecommons.org/licenses/by-nc-sa/4.0/
+Full legal code:         https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode
+
+
+WHAT THIS COVERS
+
+The teaching material — the sessions, the exercises, the step-by-step guides,
+the reading lists and the slides:
+
+  public/content/**          exercises, bibliography, slides
+  src/data/levels.json       the sessions themselves: titles, summaries,
+                             contents, activities and their step guides
+
+Everything else in this repository — the Three.js island, the build, the
+validator, /admin, the stylesheet, the tooling and the documentation — is
+software and is under the MIT License. See LICENSE.
+
+
+WHAT YOU MAY DO
+
+  Share    — copy and redistribute it in any medium or format
+  Adapt    — remix, transform and build upon it
+
+for as long as you follow these terms:
+
+  Attribution      Credit Marc Gálvez, link to this repository and to the
+                   licence, and say if you changed anything. Do it in a way
+                   that does not suggest the author endorses you or your use.
+
+  NonCommercial    Not primarily intended for, or directed towards, commercial
+                   advantage or monetary compensation. Teaching this material
+                   in a course your institution charges tuition for is the
+                   ordinary academic case and is fine; selling it, putting it
+                   behind a paywall of your own, or packaging it into a product
+                   is not. If in doubt, ask.
+
+  ShareAlike       If you remix or build upon it, distribute your version under
+                   this same licence.
+
+  No extra terms   You may not apply legal terms or technical measures that
+                   legally restrict others from doing anything the licence
+                   permits.
+
+
+NOT COVERED BY THIS LICENCE
+
+Third-party material that this repository merely LINKS TO — Canva decks, papers,
+book pages, vendor documentation, videos — is not the author's to license and
+is not licensed here. Anyone reusing this course must clear that material
+themselves. The linked works remain under their own terms.
+
+No warranties are given. The licence may not give you all of the permissions
+necessary for your intended use — other rights such as publicity, privacy or
+moral rights may limit how you use the material.
