@@ -161,8 +161,18 @@ Do not add or remove sessions without re-reading it.
 note here used to say so. They are not any more: as of 12 September 2026 Fall is
 the one the user maintains and Spring is a stale copy of the older shape — it
 still carries the Mono/Stereoscopic practical as its own session. Reconciling
-Fall from Spring would undo this round. Both tables hang off the same board;
-Fall is the first one, headed "Fall Semester".
+Fall from Spring would undo this round.
+
+**TELL THEM APART BY THE DATES, NEVER BY THE ORDER THE API RETURNS THEM.** This
+note used to say "Fall is the first one" — the first one *on the board*. The
+MCP fetch does NOT return them in board order: it hands back Spring first, and
+a whole round was spent mapping deliverables off the wrong table before the
+user spotted it. **Fall runs September 2026 → February 2027 (id
+`Fs4xFx5ucnFJE2uJEfSKmk`); Spring runs February → June 2027 (id
+`QwVyWF7fJsj6hMhewGzsfR`).** Fetch the table, look at the first date, and only
+then believe it. They differ in ways that matter: Spring lists an "Entrega
+Presentació (Actitud 10%)" that Fall does not have at all, and puts the
+Mono/Stereoscopic hand-in one row earlier than Fall does.
 
 **Counted off the Fall table, 12 September 2026**: 31 rows = 28 sessions, two
 holidays and the re-evaluation. **12 sessions → the midterm castle (session 13)
