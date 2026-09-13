@@ -659,6 +659,19 @@ Every one of these was diagnosed the hard way. Do not re-derive them.
   next to the session. Both now sample across 1.6, which is also `ROAD_FOOT`, so
   the border, the cream, the treads, the node discs and the villagers are all on
   one surface. They keep their own WIDTHS; only the probe is shared.
+- **AND EACH RIBBON IS PADDED BY ITS OWN HALF-WIDTH. THAT PAD *IS* THE CORNER
+  TILE.** There is no corner geometry and none is needed: consecutive runs meet
+  at a shared point (measured, the gap is 0.000), so two runs each padded by
+  their own half-width contribute exactly half of the corner square and their
+  union is that square. The cream was given the BORDER's pad — 1.6 while being
+  1.2 wide — on the worry that a shorter one would leave the border's overlap
+  showing at a bend. **It does not, and the longer one is a bug**: it sticks two
+  tongues of cream 0.4 deep out of every corner, and those tongues reach exactly
+  the border's outer edge, so the brown outline was covered by its own road and
+  vanished for a couple of units at every single bend. Reported off four photos.
+  Counted: of the 46 outward corner edges on the route, **44 had no outline at
+  all**; with each pad matched to its own width, every one of them does, at a
+  constant 0.4. If you ever change a ribbon's width, change its pad with it.
 - **Treads may not stand on a session disc either.** They had never been checked
   against that rule. Unifying the ribbon heights created one new step exactly at
   w3-03 and put a wooden slab on the circle — caught by raycasting straight down
