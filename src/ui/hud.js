@@ -22,13 +22,19 @@ export function createTooltip() {
       if (level.id !== shownFor) {
         shownFor = level.id
         const st = statusFor(level, markerId)
+        // Boss rows read from `bossAccent` (the castle's roof/trim red), not
+        // `boss` (the castle's stone grey) — that grey is the building
+        // material, this swatch is a marker, and the palette already keeps
+        // the two separate for exactly that reason.
         const accent = st.locked
           ? cssPalette.locked
           : level.optional
             ? cssPalette.optional
             : st.completed
               ? cssPalette.completed
-              : cssPalette[level.category] ?? cssPalette.theory
+              : level.category === 'boss'
+                ? cssPalette.bossAccent
+                : cssPalette[level.category] ?? cssPalette.theory
         // A locked session gives away nothing — not even what KIND of session it
         // is, since "examen" on a date nobody has reached is its own spoiler.
         const tags = st.locked

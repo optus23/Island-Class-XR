@@ -26,11 +26,17 @@ let api = null
 const WORLD_ICON = { 1: '🌱', 2: '🏜️', 3: '🏔️' }
 
 function swatch(level, status) {
+  // Boss rows read from `bossAccent` (the castle's roof/trim red), not `boss`
+  // (the castle's stone grey) — that grey is the building material, this dot
+  // is a marker, and the palette already keeps the two separate for exactly
+  // that reason.
   const color = level.optional
     ? cssPalette.optional
     : status.completed
       ? cssPalette.completed
-      : cssPalette[level.category] ?? cssPalette.theory
+      : level.category === 'boss'
+        ? cssPalette.bossAccent
+        : cssPalette[level.category] ?? cssPalette.theory
   const shape = level.category === 'boss' ? 'nav-dot--boss' : ''
   return `<span class="nav-dot ${shape}" style="background:${color}"></span>`
 }
