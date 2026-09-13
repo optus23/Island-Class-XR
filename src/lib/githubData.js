@@ -237,6 +237,23 @@ export async function writeProgress(levelId, label = 'Actualización') {
   return levelId
 }
 
+/**
+ * Publishes the class timetable.
+ *
+ * Same read-modify-write as everything else in this file, so it cannot
+ * clobber the marker someone moved from the map thirty seconds ago. See
+ * `lib/schedule.js` for what the timetable is and why it lives here rather
+ * than anywhere near the level data.
+ */
+export async function writeSchedule(schedule) {
+  const entries = Object.keys(schedule ?? {}).length
+  await patchProgress(
+    { schedule: schedule ?? {} },
+    `chore(progress): calendario de sesiones (${entries})`
+  )
+  return schedule ?? {}
+}
+
 
 // --- the roster of honoured students ---------------------------------------
 

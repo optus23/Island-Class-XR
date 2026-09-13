@@ -19,9 +19,12 @@ export async function loadProgress() {
       // Absent means OFF. A course that has been running with everything
       // visible must not have half of it disappear because a new field shipped.
       lockAhead: data.lockAhead === true,
+      // Absent means "no timetable", and the marker is whatever the teacher
+      // last set by hand — which is how the course ran before this existed.
+      schedule: data.schedule && typeof data.schedule === 'object' ? data.schedule : {},
     }
   } catch (e) {
     console.warn('progress.json unavailable, starting at the first level:', e.message)
-    return { currentLevelId: START_MARKER, lockAhead: false }
+    return { currentLevelId: START_MARKER, lockAhead: false, schedule: {} }
   }
 }

@@ -27,9 +27,31 @@ user a colleague of theirs should not read. The teacher-facing documentation is
 These come from the brief and are not negotiable without the user saying so.
 
 - **No dates anywhere in map data.** No schedules, no holidays, no week numbers.
-  The single exception is the manual progress marker in `public/progress.json`,
-  moved by hand from `/admin`. `scripts/validate.mjs` fails the build on a stray
-  `date` / `week` / `deadline` field.
+  `scripts/validate.mjs` fails the build on a stray `date` / `week` /
+  `deadline` field in a level. **Read that as "in MAP DATA", because that is
+  what it says and what it protects**: `levels.json` describes the shape of
+  the course, not when it happens.
+  The exceptions both live in `public/progress.json`, the hand-moved file
+  `/admin` writes and everyone else reads — teacher state, never map data:
+  1. the manual progress marker, and
+  2. **the optional class timetable** (`schedule`, added 13 September 2026 at
+     Marc's request — he asked for it twice and I flagged the tension twice
+     before building it). `levelId -> "YYYY-MM-DDTHH:mm"`, wall clock in
+     Europe/Madrid. See `lib/schedule.js`.
+     - **The marker is DERIVED, not advanced.** Every browser works out where
+       the class is from the published timetable, so a session opens at the
+       minute it is due on every student's phone at once — no token, no
+       commit, no two-minute rebuild. That was the point: "no tener que cada
+       día sacar el móvil y poner el token y darle a completar".
+     - **A manual marker further along always wins.** A timetable is a plan;
+       pressing "Completar y avanzar" because the class got ahead must not be
+       undone by the clock five minutes later.
+     - Times are Madrid wall clock resolved through `Intl`, so 10:00 is 10:00
+       in October and in March alike, and the "repeat every N days" filler
+       steps plain calendar dates for the same reason.
+     - `validate` rejects a schedule key that is not a main-path session: an
+       entry that can never fire is worse than no entry, because the marker
+       stops halfway through the term and nobody knows why.
 - **No grade percentages anywhere in map data, either.** The island is for
   activities, not for grades — Marc publishes the real weighting separately, in
   each block's own guía docente on the university's platform. There used to be
