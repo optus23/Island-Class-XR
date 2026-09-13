@@ -149,8 +149,7 @@ export default {
   'md.pendingBody':
     'The file {path} is missing. Create it in the repository and it will show up here without touching any code.',
   'md.loadError': '{path} could not be loaded ({detail}).',
-  'md.fallbackNotice':
-    'Not translated yet — showing the English original.',
+  'md.fallbackNotice': 'Not translated yet — showing the original.',
 
   // --- the card on the way into a level -----------------------------------
   'card.world': 'WORLD {world}-{index}',

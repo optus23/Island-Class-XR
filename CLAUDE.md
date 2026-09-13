@@ -132,6 +132,51 @@ and neither may be rolled back.
 
 ---
 
+## Three languages
+
+English is the base. Everything a reader sees resolves through one of two
+mechanisms, and they are deliberately NOT the same mechanism, because the two
+kinds of text have different owners.
+
+| | Interface chrome | Course content |
+| --- | --- | --- |
+| Where | `src/lib/i18n/{en,es,ca}.js` | `levels.json`, `public/content/**.md` |
+| Read through | `t('portal.slides')` | `levelTitle()` / `loadMarkdown()` |
+| Shape | flat key → string | `{en, es, ca}`, or a plain string |
+| Missing a language | **fails the build** | listed by `validate`, falls back |
+
+- **`en.js` is the file that must be complete.** `validate` compares the three
+  key sets in BOTH directions on every build: a key added to one and forgotten
+  in the others fails, and so does a stale key left after a rename. That is
+  what "cuando modifique algo, se modifique en los tres idiomas" means here.
+  It is checked — delete a Catalan key and the build stops.
+- **Content is allowed to be half-translated, on purpose.** A plain string is
+  how a new session gets written: add the line in whatever language it comes
+  to you in, the site shows it in all three, `validate` prints it under "still
+  to translate". Requiring three up front would mean a half-written session
+  cannot be committed, which is how a course ends up edited in a scratch file.
+- **`.md` files translate by SUFFIX**: `w1-01.md` is the base,
+  `w1-01.es.md` and `w1-01.ca.md` are the translations, and they sort next to
+  each other so a missing one is visible in the folder listing. A compiled
+  Marp deck follows the same rule — `w1-arf-01.es.md` builds `w1-arf-01.es`.
+- **A 404 IS NOT THE ONLY WAY A TRANSLATION IS MISSING.** The dev server
+  answers an unknown path with `index.html` and a 200, so the first cut of
+  the loader thought every translation existed and rendered the page's own
+  HTML source into the exercises panel. `fetchMarkdown` checks the content
+  type AND sniffs the body for a doctype. Do not simplify it back to a status
+  check.
+- **Switching language reloads the page, and that is not laziness.** The
+  villagers' name plates, the VR level card and the gaze pad hint are painted
+  into GPU textures once; the Marp decks are fetched as compiled HTML.
+  Re-rendering the panels leaves every one of those speaking the old
+  language. A reload is the only thing that cannot half-apply. The opening
+  flight is skipped when `?lang=` is present, since that is a re-entry.
+- The flags in the picker are **inline SVG** (`ui/flags.js`). Windows does not
+  render regional-indicator flag emoji at all — Chrome draws 🇬🇧 as the letters
+  "GB" — and Catalonia has no flag emoji to render in the first place.
+
+---
+
 ## How the map is built
 
 Nothing is hardcoded per node. Reshape a world by editing data, not geometry.
