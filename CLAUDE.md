@@ -717,6 +717,27 @@ Every one of these was diagnosed the hard way. Do not re-derive them.
   pad registered afterwards moves the placement logic and leaves the geometry
   untouched. `validate` registers the same ones and asserts the invariant.
 
+**The patrolling creatures**
+
+- **A CREATURE NEVER CROSSES A CORNER.** Its patrol span is cut at every bend
+  in the road, so it walks one straight stretch up and back and the only turn
+  it ever makes is the half-turn at each end. Verified by measuring the settled
+  heading over 3000 frames: each of the four now holds exactly TWO headings,
+  180 degrees apart, and there is no 90-degree turn anywhere on the island.
+  This is Marc's own suggestion after the easing below did not fully settle it
+  — "que solo caminen hacia adelante y hacia atrás, que no giren hacia la
+  derecha ni izquierda en ningún momento" — and the measurements had already
+  pointed the same way: the two creatures he reported as fine were exactly the
+  two whose spans happened to be straight. Splitting the spans at build time
+  also keeps `update` as cheap as it was.
+- **They EASE their facing, along the SHORTEST arc.** They used to turn in zero
+  frames. The facing was never WRONG — measured over 2000 frames it disagreed
+  with the direction of travel for at most one frame, the frame it reverses on
+  — but a rotation nobody can see is one the eye invents, and it invents the
+  long way round. That is the whole of "hace 270 grados sin querer". Re-wrap
+  the difference through `atan2(sin, cos)` before easing or a turn across the
+  +/-pi seam unwinds the wrong way. Still needed for the 180 at each end.
+
 **Villagers, and anything else that walks off the road**
 
 - **A dynamic `import()` in the console is a SECOND copy of the module, and
