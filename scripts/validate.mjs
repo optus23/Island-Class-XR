@@ -100,6 +100,22 @@ const noteUntranslated = (where, value) => {
   if (missing.length) untranslated.push(`${where}: missing ${missing.join(', ')}`)
 }
 
+// --- the course header -----------------------------------------------------
+// `title` is a NAME ("XR Island") and stays one string in every language. The
+// two lines under it describe the subject — the nav panel's subtitle and the
+// intro plate's tagline — and both are read by a student, so both translate.
+// They were plain strings and stayed Spanish under an English interface.
+if (data.course) {
+  if (typeof data.course.title !== 'string' || !data.course.title.trim()) {
+    err('course: "title" must be a non-empty string — it is a name, not translated text')
+  }
+  for (const f of ['subtitle', 'tagline']) {
+    if (data.course[f] === undefined) continue
+    if (!isText(data.course[f])) err(`course: "${f}" must be a string or {en, es, ca}`)
+    noteUntranslated(`course ${f}`, data.course[f])
+  }
+}
+
 // --- per-level shape -------------------------------------------------------
 const seen = new Set()
 for (const l of levels) {
