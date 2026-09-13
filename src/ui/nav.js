@@ -107,6 +107,13 @@ export function mountNav({ markerId, onSelect, onSelectWorld, onToggleOverview }
       })
       .join('')
 
+    // tagline, not subtitle: the header bar is a single nowrap line and
+    // subtitle is the full official mouthful — both course names in full,
+    // saying "realidad" three times — which just ran off the edge under an
+    // ellipsis. tagline is the short form intro.js already uses for the
+    // same reason. NOTE: no backticks in the template literal below — one
+    // inside an HTML comment here ends it early and breaks the build several
+    // lines later (see CLAUDE.md's tooling traps).
     el.innerHTML = `
       <div class="nav-card">
         <button class="nav-head" data-toggle aria-expanded="${open}">
@@ -115,7 +122,7 @@ export function mountNav({ markerId, onSelect, onSelectWorld, onToggleOverview }
             <span class="nav-head__title">${course.title}</span>
             <!-- The course NAME stays put — it is a name. The line under it
                  describes the subject, so it follows the reader's language. -->
-            <span class="nav-head__sub">${localized(course.subtitle)}</span>
+            <span class="nav-head__sub">${localized(course.tagline) || localized(course.subtitle)}</span>
           </span>
           <span class="nav-head__chev">${open ? '▲' : '▼'}</span>
         </button>
