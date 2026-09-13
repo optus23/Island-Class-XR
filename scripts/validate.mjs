@@ -580,6 +580,32 @@ cover(
   [...blocks].sort((a, b) => a[0] - b[0]).map(([n, m]) => `bloque ${n}: ${m.length}`).join(', ')
 )
 
+// --- the three languages, key for key ---------------------------------------
+// "Cuando modifique algo, se modifique en los tres idiomas" — enforced here
+// rather than hoped for. English is the base; Spanish and Catalan are checked
+// against it in BOTH directions, so a key added to one and forgotten in the
+// others fails the build, and so does a stale key left behind after a rename.
+{
+  const { dictionaries } = await import('../src/lib/i18n/index.js')
+  const base = Object.keys(dictionaries.en).sort()
+  for (const code of ['es', 'ca']) {
+    const keys = new Set(Object.keys(dictionaries[code]))
+    const missing = base.filter((k) => !keys.has(k))
+    const extra = [...keys].filter((k) => !dictionaries.en[k]).sort()
+    if (missing.length) err(`i18n ${code}: missing ${missing.length} key(s) — ${missing.join(', ')}`)
+    if (extra.length) err(`i18n ${code}: has ${extra.length} key(s) English does not — ${extra.join(', ')}`)
+    // An empty string renders as a blank label, which reads as a broken panel
+    // rather than as an untranslated one. Better to leave the English in.
+    const blank = base.filter((k) => keys.has(k) && !String(dictionaries[code][k]).trim())
+    if (blank.length) err(`i18n ${code}: blank value for ${blank.join(', ')}`)
+  }
+  cover(
+    'the three languages agree',
+    errors.every((e) => !e.startsWith('i18n')),
+    `${base.length} keys × en/es/ca`
+  )
+}
+
 // --- report ----------------------------------------------------------------
 console.log(`\n${levels.length} levels, ${totalNodes} nodes placed.`)
 if (fixmes.length) {

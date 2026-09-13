@@ -693,6 +693,76 @@ body.map-view {
   font-size: 0.7rem;
 }
 
+/* ---- Language picker (top-right) ---------------------------------------- */
+.lang-picker {
+  position: absolute;
+  top: 0.85rem;
+  right: 0.85rem;
+  z-index: 21;
+  zoom: var(--ui-scale, 1);
+}
+.lang-card {
+  background: var(--xri-plate);
+  color: var(--xri-ink);
+  border-radius: 0.7rem;
+  box-shadow: var(--xri-edge);
+  overflow: hidden;
+}
+.lang-card > summary {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.6rem;
+  cursor: pointer;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  list-style: none;
+  user-select: none;
+}
+/* Safari still draws its own marker without this. */
+.lang-card > summary::-webkit-details-marker {
+  display: none;
+}
+.lang-card > summary:hover {
+  background: rgb(255 255 255 / 0.06);
+}
+.lang-flag {
+  display: block;
+  flex: none;
+  width: 1.25rem;
+  height: 0.75rem;
+  border-radius: 1px;
+  /* A thin dark edge so a pale flag does not dissolve into the plate. */
+  box-shadow: 0 0 0 1px rgb(0 0 0 / 0.45);
+}
+.lang-chev {
+  opacity: 0.6;
+  font-size: 0.7rem;
+}
+.lang-list {
+  border-top: 1px solid rgb(255 255 255 / 0.08);
+  padding: 0.25rem;
+}
+.lang-item {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  width: 100%;
+  padding: 0.35rem 0.5rem;
+  border-radius: 0.45rem;
+  font-size: 0.75rem;
+  text-align: left;
+  white-space: nowrap;
+}
+.lang-item:hover {
+  background: rgb(255 255 255 / 0.08);
+}
+.lang-item.is-on {
+  background: rgb(255 255 255 / 0.12);
+  font-weight: 600;
+}
+
 /* ---- Legend + teacher controls (bottom-right) --------------------------- */
 .legend-panel {
   position: absolute;

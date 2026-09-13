@@ -1,5 +1,6 @@
 import { cssPalette } from '../config/theme.js'
 import { sessionNumber, statusFor } from '../lib/levels.js'
+import { t } from '../lib/i18n/index.js'
 
 /**
  * The small plate that floats over the avatar when you walk onto a node.
@@ -99,11 +100,11 @@ export function showNodeLabel(level, { markerId = null } = {}) {
 
   node.innerHTML = `
     <span class="node-label__tag" style="background:${accent}">
-      ${n ? `${n.world}-${n.index}` : 'EXTRA'}
+      ${n ? `${n.world}-${n.index}` : t('label.extra')}
     </span>
     <span class="node-label__title">${level.title}</span>
-    <span class="node-label__hint"><kbd>Enter</kbd> entrar</span>`
-  node.setAttribute('aria-label', `Entrar en ${level.title}`)
+    <span class="node-label__hint"><kbd>Enter</kbd> ${t('label.enter')}</span>`
+  node.setAttribute('aria-label', t('label.enterAria', { title: level.title }))
   node.classList.add('is-visible')
 }
 

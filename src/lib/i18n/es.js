@@ -1,0 +1,154 @@
+/**
+ * Castellano. Mirror of `en.js` — same keys, no more, no fewer.
+ * `scripts/validate.mjs` fails the build if the two ever drift apart.
+ */
+export default {
+  'stage.intro-theory': 'Introducción y teoría',
+  'stage.ar-foundation': 'AR Foundation',
+  'stage.meta-pre-exam': 'Meta Building Blocks (antes del parcial)',
+  'stage.mini-boss-midterm': 'Examen parcial',
+  'stage.meta-post-exam': 'Meta Building Blocks (después del parcial)',
+  'stage.xr-toolkit': 'XR Interaction Toolkit',
+  'stage.final-project': 'Proyecto final',
+  'stage.final-boss-presentation': 'Presentación final',
+
+  'category.theory': 'Teoría',
+  'category.practical': 'Práctica',
+  'category.project': 'Proyecto',
+  'category.boss': 'Examen',
+
+  'bossTier.mini': 'Jefe intermedio',
+  'bossTier.final': 'Jefe final',
+  'bossTier.extra': 'Extra',
+
+  'submission.build': 'Build (APK), no vídeo',
+  'submission.video': 'Vídeo',
+  'submission.repo': 'Repositorio',
+
+  'group.individual': 'Individual',
+  'group.individual-within-group': 'Individual, dentro del grupo',
+  'group.per-group': 'Por grupo',
+  'group.per-group-per-block': 'Por grupo · los grupos se rehacen cada bloque',
+
+  'common.undecided': 'por decidir',
+
+  'assess.block': 'Bloque',
+  'assess.delivery': 'Entrega',
+  'assess.work': 'Trabajo',
+  'assess.blockValue': '{number} · {name} — ejercicio {exercise} de {of}',
+
+  'nav.lockedTitle': 'Se abre cuando la clase llegue aquí',
+  'nav.locked': 'Bloqueado',
+  'nav.classIsHere': 'Aquí está la clase',
+  'nav.extra': 'extra',
+  'nav.sessionTitle': 'Sesión {n} de {total}',
+  'nav.sessionShort': 'Sesión {n} / {total}',
+  'nav.backToCharacter': 'Volver al personaje',
+  'nav.wholeIsland': 'Ver la isla entera',
+
+  'legend.title': 'Leyenda',
+  'legend.row.completed': 'Completado',
+  'legend.row.theory': 'Teoría',
+  'legend.row.practical': 'Práctica',
+  'legend.row.project': 'Proyecto en equipo',
+  'legend.row.boss': 'Examen',
+  'legend.row.optional': 'Actitud / extra',
+  'legend.row.locked': 'Aún no disponible',
+  'legend.fullMap': 'Mapa completo (vista cenital)',
+  'legend.backToCharacter': 'Volver al personaje',
+  'legend.teacher': 'Profesor',
+  'legend.classIsAt': 'La clase está en',
+  'legend.completeAdvance': 'Completar y avanzar',
+  'legend.back': 'Retroceder',
+  'legend.reset': 'Reiniciar curso',
+  'legend.adminLinkFull': 'Panel de profesor · alumnos y token →',
+  'legend.adminLink': 'Panel de profesor →',
+  'legend.hideFuture': 'Ocultar las sesiones futuras',
+  'legend.seeAsStudent': 'Ver el mapa como un alumno',
+  'legend.saving': 'Guardando…',
+  'legend.done': 'Hecho.',
+  'legend.error': 'Error.',
+
+  'lang.label': 'Idioma',
+
+  'tooltip.locked': 'se abre cuando la clase llegue aquí',
+  'tooltip.optional': 'opcional',
+  'tooltip.completed': 'completado',
+  'tooltip.current': 'aquí estamos',
+  'tooltip.deliverable': '🚩 Entrega: {label}',
+  'tooltip.deliverableSub': '{weight} del curso · fecha límite de esta actividad',
+
+  'curtain.building': 'Construyendo la isla…',
+
+  'portal.slides': 'Diapositivas',
+  'portal.activities': 'Actividades',
+  'portal.exercises': 'Ejercicios',
+  'portal.bibliography': 'Bibliografía',
+  'portal.back': 'Volver al mapa',
+  'portal.backTitle': 'Volver al mapa (Esc)',
+  'portal.worldSession': 'Mundo {world}-{index} · sesión {global} de {total}',
+  'portal.optionalLevel': 'Nivel opcional',
+  'portal.world': 'Mundo {n}',
+  'portal.optional': 'Opcional',
+  'portal.completed': 'Completado',
+  'portal.current': 'Aquí estamos',
+  'portal.loading': 'Cargando…',
+  'portal.noExercises': 'Este nivel no tiene ejercicios.',
+  'portal.noBibliography': 'Este nivel no tiene bibliografía.',
+  'portal.repository': 'Repositorio',
+  'portal.repoLink': 'repo de ejercicios',
+  'portal.branch': 'rama {branch}',
+  'portal.repoPending': '(pendiente de publicar)',
+
+  'slides.sessionContent': 'Contenido de la sesión',
+  'slides.deckLink': 'Diapositivas de la sesión',
+  'slides.openCanva': 'Abrir en Canva ↗',
+  'slides.canvaPrivateNote':
+    'Se abre en Canva, en una pestaña nueva. Si pide permisos, el diseño todavía no es público.',
+  'slides.pending':
+    'Las diapositivas de esta sesión están en preparación. El contenido de arriba es lo que se dará; el enlace llegará antes de la clase.',
+  'slides.none': 'Esta sesión no lleva diapositivas.',
+  'slides.pdfNoEmbed': 'Tu navegador no puede incrustar PDF.',
+  'slides.openPdf': 'Abrir el PDF ↗',
+  'slides.openTab': 'Abrir en una pestaña ↗',
+  'slides.title': 'Diapositivas — {title}',
+
+  'deck.prev': 'Diapositiva anterior',
+  'deck.next': 'Diapositiva siguiente',
+  'deck.generated': 'Generado desde Markdown (Marp)',
+  'deck.presentation': 'Presentación: {title}',
+
+  'todos.objective': 'Objetivo',
+  'todos.startingPoint': 'Punto de partida',
+  'todos.stepGuide': 'Guía paso a paso',
+  'todos.delivery': 'Entrega',
+  'todos.none': 'Este nivel no tiene actividades interactivas.',
+  'todos.unsupported': 'Tipo de actividad no soportado todavía: "{type}".',
+
+  'md.pendingTitle': 'Pendiente de escribir',
+  'md.pendingBody':
+    'Falta el archivo {path}. Créalo en el repositorio y aparecerá aquí sin tocar código.',
+  'md.loadError': 'No se pudo cargar {path} ({detail}).',
+  'md.fallbackNotice': 'Todavía sin traducir — se muestra el original en inglés.',
+
+  'card.world': 'MUNDO {world}-{index}',
+  'card.sessionOf': 'Sesión {global} de {total} · quedan {left}',
+
+  'label.extra': 'EXTRA',
+  'label.enter': 'entrar',
+  'label.enterAria': 'Entrar en {title}',
+
+  'msg.advanced': 'Marcador avanzado. El sitio se reconstruye en 1–2 min.',
+  'msg.back': 'Marcador retrocedido.',
+  'msg.reset': 'Curso reiniciado.',
+  'msg.lockOn': 'Las sesiones futuras quedan ocultas para los alumnos.',
+  'msg.lockOff': 'Todas las sesiones son visibles.',
+
+  'a11y.map':
+    'Mapa del curso. Flechas para moverte entre niveles, Enter para abrir el nivel actual.',
+
+  'vr.worldSession': 'MUNDO {world}-{index}  ·  SESIÓN {global} DE {total}',
+  'vr.optionalLevel': 'NIVEL OPCIONAL',
+  'vr.holdGaze': 'Mantén la mirada',
+  'vr.trigger': 'Gatillo',
+}
