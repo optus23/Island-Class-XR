@@ -656,6 +656,73 @@ function armScheduleTimer() {
 }
 
 /**
+ * Re-read `progress.json` and act on whatever it now says.
+ *
+ * THE TIMETABLE IS WORTHLESS WITHOUT THIS, and it shipped without it. The
+ * marker, the lock rule and the timetable were read exactly ONCE, at boot —
+ * so a browser that already had the map open when the timetable was published
+ * never learned it existed, and no timer was ever armed in it. The promise was
+ * "se abre a la vez en el móvil de cada alumno"; what it actually did was
+ * "…on every browser that happens to load the page afterwards". A teacher
+ * publishing a timetable from /admin with the map open on the projector — the
+ * exact thing this feature is for — saw nothing happen, ever.
+ *
+ * It also covers the two cases a one-shot read cannot:
+ *  - a laptop that was ASLEEP through a scheduled time. `setTimeout` does not
+ *    fire while suspended; on wake the clock has moved and we re-derive.
+ *  - the teacher pressing "Completar y avanzar" on their phone while the class
+ *    watches the projector. The projector now follows.
+ *
+ * Cheap on purpose: `progress.json` is a few hundred bytes, and this runs on
+ * waking and on a slow heartbeat, never per frame.
+ */
+let refreshing = false
+async function refreshProgress() {
+  if (refreshing) return
+  refreshing = true
+  try {
+    const progress = await loadProgress()
+    schedule = cleanSchedule(progress.schedule, new Set(mainSequence.map((l) => l.id)))
+    manualMarkerId = progress.currentLevelId
+
+    // Only touch the map when something actually changed. This runs once a
+    // minute; repainting every node and every list row each time would be a
+    // steady cost for nothing on a page that is mostly sitting still.
+    if (progress.lockAhead !== lockAheadSetting()) {
+      setLockAhead(progress.lockAhead)
+      applyLocks()
+    }
+
+    const next = effectiveMarker(mainSequence, schedule, manualMarkerId)
+    if (next !== markerId) applyMarker(next, { walk: true })
+    // Always re-arm: the timetable we just read may name a different next time
+    // from the one the pending timer was set for.
+    armScheduleTimer()
+  } catch {
+    // Offline, or Pages mid-deploy. The map keeps running on what it has and
+    // the next heartbeat tries again — this must never take the island down.
+  } finally {
+    refreshing = false
+  }
+}
+
+/** How often to re-read the marker while the page is visible. */
+const PROGRESS_POLL_MS = 60 * 1000
+
+function watchProgress() {
+  setInterval(() => {
+    if (!document.hidden) refreshProgress()
+  }, PROGRESS_POLL_MS)
+  // The moment the tab comes back is the moment its clock is most likely to be
+  // wrong — a phone in a pocket, a laptop reopened between classes.
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) refreshProgress()
+  })
+  window.addEventListener('focus', () => refreshProgress())
+  window.addEventListener('online', () => refreshProgress())
+}
+
+/**
  * The lock rule changed. Every surface that decides anything from it has to be
  * asked again — the map's colours, the course list's titles, and the plate over
  * the avatar, which may be standing on a session that just became locked.
@@ -803,8 +870,11 @@ async function boot() {
   // Under it, and deliberately small: a wardrobe is not course furniture.
   mountAvatarPicker({ onChange: (look) => player.applyLook(look) })
 
-  // If a timetable is published, sleep until the next session is due.
+  // If a timetable is published, sleep until the next session is due — and
+  // keep re-reading progress.json, or a browser that was already open when the
+  // timetable was published would never find out. See refreshProgress().
   armScheduleTimer()
+  watchProgress()
 
   // Colour key, plus teacher controls when a token is present in this browser.
   legend = mountLegend({

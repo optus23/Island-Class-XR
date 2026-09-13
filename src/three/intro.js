@@ -1,6 +1,7 @@
 import * as THREE from 'three'
 import { createClouds } from './clouds.js'
 import { course } from '../lib/levels.js'
+import { localized } from '../lib/i18n/text.js'
 import { prefersReducedMotion } from '../lib/motion.js'
 
 /**
@@ -116,11 +117,15 @@ function paintTitle(ctx) {
   ctx.fillText(title, CANVAS_W / 2, 108)
 
   // `tagline`, not `subtitle`. The nav panel's subtitle is the full official
-  // mouthful — "Realidad Virtual y Realidad Aumentada · Entornos de Realidad
-  // Virtual" — which says "realidad" three times and reads as filler at title
-  // size over a whole screen. The tagline is the short form, and it exists for
-  // exactly this one surface.
-  const tagline = course.tagline ?? course.subtitle
+  // mouthful — both course names in full — which says "realidad" three times
+  // and reads as filler at title size over a whole screen. The tagline is the
+  // short form, and it exists for exactly this one surface.
+  //
+  // Localised: the course NAME is a name and stays put, but the line under it
+  // describes the subject and has to speak the reader's language, here and in
+  // the nav panel alike. It is baked into a texture, which is one more reason
+  // switching language reloads the page.
+  const tagline = localized(course.tagline) || localized(course.subtitle)
   let size = 46
   ctx.font = `500 ${size}px ${FONT}`
   while (size > 20 && ctx.measureText(tagline).width > CANVAS_W - 90) {

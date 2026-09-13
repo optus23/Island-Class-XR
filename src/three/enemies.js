@@ -28,6 +28,27 @@ const PARTS = [
 ]
 
 const SPEED = 2.6 // world units per second
+
+/**
+ * How fast a creature turns to face where it is going, per second of easing.
+ *
+ * THEY USED TO TURN IN ZERO FRAMES, AND THAT IS THE WHOLE BUG BEHIND
+ * "algunos goombas van de espaldas" / "hace 270 grados sin querer".
+ * The facing was never wrong — measured over 2000 frames, the direction a
+ * creature faced disagreed with the direction it moved for at most ONE frame,
+ * every time, which is just the frame it reverses on. What it did instead was
+ * TELEPORT: a 90-degree corner, or a 180-degree turnaround, arrived complete in
+ * a single frame. A rotation nobody can see is a rotation the eye invents, and
+ * it invents the long way round — so a right-angle corner reads as a violent
+ * spin the wrong way. The two creatures reported are exactly the two whose
+ * patrol crosses a bend; the two on straight stretches only ever snap 180 at
+ * the ends, where a reversal is expected and reads fine.
+ *
+ * So they now EASE, the way the avatar already does (`player.js` slerps at
+ * 0.18) — and along the SHORTEST arc, which is the part that makes a 90-degree
+ * corner a 90-degree turn instead of a 270-degree one.
+ */
+const TURN_RATE = 9
 /**
  * Clearance between the road surface and the bottom of the lowest box.
  *
@@ -83,6 +104,10 @@ export function createEnemies(path, count = 4, nodeIndices = []) {
       to: Math.min(hi, centre + half),
       at: centre,
       dir: hash2(i * 5.1, i * 2.3) > 0.5 ? 1 : -1,
+      // The eased facing. `null` until the first frame, which then snaps it to
+      // wherever the creature is actually pointing — otherwise every creature
+      // would spin up from due north as the map opens.
+      yaw: null,
       phase: hash2(i * 1.3, i * 4.7) * Math.PI * 2,
       scale: 0.85 + hash2(i * 2.9, i * 0.7) * 0.3,
     })
@@ -134,7 +159,25 @@ export function createEnemies(path, count = 4, nodeIndices = []) {
       const a = path[i]
       const b = path[i + 1]
       const bob = still ? 0 : Math.abs(Math.sin(t * 5 + c.phase)) * 0.16
-      const yaw = Math.atan2(b.x - a.x, b.z - a.z) + (c.dir < 0 ? Math.PI : 0)
+      const target = Math.atan2(b.x - a.x, b.z - a.z) + (c.dir < 0 ? Math.PI : 0)
+      if (c.yaw == null || still) {
+        // Reduced motion means no turning animation either — and on the first
+        // frame there is nothing to ease from.
+        c.yaw = target
+      } else {
+        // THE SHORTEST ARC, ALWAYS. Re-wrapping the difference through atan2 of
+        // its own sine and cosine folds it into (-pi, pi], so a turn across the
+        // +/-pi seam goes the short way instead of unwinding 270 degrees the
+        // other. This one line is the difference between "gira 90" and the
+        // reported "gira 270 sin querer" — plain subtraction is what produced
+        // the long way round.
+        const d = target - c.yaw
+        const shortest = Math.atan2(Math.sin(d), Math.cos(d))
+        // Frame-rate independent easing: a dropped frame turns further, rather
+        // than the whole turn taking longer on a slow machine.
+        c.yaw += shortest * (1 - Math.exp(-TURN_RATE * dt))
+      }
+      const yaw = c.yaw
       q.setFromAxisAngle(up, yaw)
 
       const bx = a.x + (b.x - a.x) * frac
