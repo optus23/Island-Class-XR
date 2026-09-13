@@ -227,12 +227,19 @@ export function createCameraRig() {
     // Apply the viewer's clamped orbit and zoom on top of the preset.
     const shaped = offset.clone()
     if (orbitYaw !== 0) shaped.applyAxisAngle(THREE.Object3D.DEFAULT_UP, orbitYaw)
+
+    // Horizontal direction BEFORE this frame's pitch tilt — the boundary the
+    // pitch below is not allowed to rotate past. Captured here, not derived
+    // from the post-pitch vector, which is the whole fix (see below).
+    const preHorizX = shaped.x
+    const preHorizZ = shaped.z
+
     if (orbitPitch !== 0) {
       pitchAxis.set(shaped.z, 0, -shaped.x)
       if (pitchAxis.lengthSq() > 1e-6) shaped.applyAxisAngle(pitchAxis.normalize(), orbitPitch)
     }
 
-    // Never let the view direction reach vertical.
+    // Never let the view direction reach vertical, or cross it.
     //
     // lookAt() has no defined roll when forward is parallel to up: on the far
     // side of straight-down it picks the opposite one, so the whole island
@@ -240,17 +247,31 @@ export function createCameraRig() {
     // angle is only ~15 degrees off vertical and the pitch nudge is 26, so
     // tilting up in the overview walked straight into it.
     //
-    // Keeping a floor under the offset's horizontal component holds the camera
-    // a few degrees short of the pole, where lookAt stays continuous.
-    const minHoriz = shaped.length() * MIN_HORIZONTAL
-    const horiz = Math.hypot(shaped.x, shaped.z)
-    if (horiz < minHoriz) {
-      if (horiz < 1e-4) shaped.z = minHoriz
-      else {
-        const k = minHoriz / horiz
-        shaped.x *= k
-        shaped.z *= k
+    // A floor on the FINAL horizontal magnitude alone does not stop that: the
+    // rotation above still sweeps the vector straight through the pole first
+    // and only gets rescaled afterwards, so the camera visibly spins round
+    // during the crossing — fast, but not the instant snap the comment above
+    // describes, which is what made this look "fixed" while still doing it.
+    // Clamping against the direction from BEFORE this frame's pitch (rather
+    // than whatever direction the rotation left the vector pointing in)
+    // stops it exactly at the floor on the approach side, so it can never
+    // cross in the first place.
+    const length = shaped.length()
+    const minHoriz = length * MIN_HORIZONTAL
+    const preHorizLen = Math.hypot(preHorizX, preHorizZ)
+    const crossedOrTooClose =
+      shaped.x * preHorizX + shaped.z * preHorizZ < 0 || Math.hypot(shaped.x, shaped.z) < minHoriz
+    if (crossedOrTooClose) {
+      if (preHorizLen < 1e-4) {
+        shaped.z = minHoriz
+      } else {
+        const k = minHoriz / preHorizLen
+        shaped.x = preHorizX * k
+        shaped.z = preHorizZ * k
       }
+      // Keep the same offset length the preset/zoom intended — only the split
+      // between "up" and "out" changes at the floor.
+      shaped.y = Math.sqrt(Math.max(length * length - minHoriz * minHoriz, 0))
     }
 
     // The overview is a fixed framing of the whole island, so the viewer's own
