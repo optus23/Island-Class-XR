@@ -8,7 +8,7 @@ paginate: true
 
 # Ejercicio 3 · Exploración libre
 
-**Bloque 1 — AR Foundation** · 10 % del curso, reparto por ejercicio *por decidir*
+**Bloque 1 — AR Foundation** · entrega evaluable
 (este ejercicio es el de **más peso** del bloque)
 **Por grupo** · los grupos se rehacen cada bloque · **Entrega: build (APK)**
 

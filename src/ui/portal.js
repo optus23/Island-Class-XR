@@ -182,7 +182,7 @@ export function openPortal(
     `<span class="badge badge-sm badge-ghost">${t('portal.world', { n: level.world })}</span>`,
     `<span class="badge badge-sm badge-ghost">${stageLabel(level)}</span>`,
     level.optional ? `<span class="badge badge-sm badge-outline">${t('portal.optional')}</span>` : '',
-    // The voluntary "Actitud 10%" activities. The lilac disc says there is
+    // The voluntary "Actitud" activities. The lilac disc says there is
     // something different about the day; this says what.
     level.attitudeGrade
       ? `<span class="badge badge-sm" style="background:${cssPalette.attitude};color:#0b0f14;border:none">

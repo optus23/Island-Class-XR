@@ -161,7 +161,7 @@ export function deliverableDone(level, markerId) {
  * This is the whole of what the flag says about weighting, and it is a WORD,
  * not a number — the island is for activities, never for marks; the real
  * weighting lives in each block's guía docente. The tooltip used to print
- * "10 % del curso" and that was the rule being broken, not bent.
+ * a percentage of the course, and that was the rule being broken, not bent.
  *
  * It also picks the pennant's colour: `optional` flies the same lilac the
  * voluntary "Actitud" nodes wear, so a voluntary hand-in reads as voluntary

@@ -8,7 +8,7 @@ paginate: true
 
 # Ejercicio 2 · Image Tracking
 
-**Bloque 1 — AR Foundation** · 10 % del curso, reparto por ejercicio *por decidir*
+**Bloque 1 — AR Foundation** · entrega evaluable
 **Por grupo** · los grupos se rehacen cada bloque · **Entrega: build (APK)**
 
 ---

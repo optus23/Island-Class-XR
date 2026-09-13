@@ -150,10 +150,12 @@ Everything a session shows lives in **one entry** in
 | **PDF** deck | `slides: { "type": "pdf", "source": "content/slides/<id>.pdf" }` | Drop the file at `public/content/slides/<id>.pdf` |
 | **External** deck | `slidesLink: { "url": "https://…", "label": "…" }` | A button, not an embed. For anything that refuses to be framed |
 | **Deck not made yet** | `slidesPending: true` | The portal says the slides are being prepared instead of "no lleva diapositivas". `validate` errors if it survives the deck arriving |
-| **Exercises** | `exercises: "content/exercises/<id>.md"` | Plain Markdown at `public/content/exercises/<id>.md` |
+| **Exercises** | `exercises: "content/exercises/<id>.md"` | Plain Markdown at `public/content/exercises/<id>.md`. The tab hides itself when a session has none |
+| **Bibliography** | `bibliography: "content/bibliography/<id>.md"` | Same idea, its own tab: the reading behind a theory session. Also hidden when absent |
 | **Activities** | `todos: [ … ]` | `objective-task` objects — objective, starting point, numbered `steps`, deliverable. Optional `steps_note` qualifies the guide |
 | **Generated deck** | `marp: true` in the exercise Markdown | Slides built from that Markdown at build time — see below. Beats a `slides` block |
-| **Graded exercise** | `block`, `submissionMethod`, `groupMode`, `gradeWeight` | Only on the 8 exercises of the three practical blocks — see below |
+| **Graded exercise** | `block`, `submissionMethod`, `groupMode` | Only on the 8 exercises of the three practical blocks — see below |
+| **Hand-in flag** | `deliverable: { "label": "…", "kind": "graded" \| "optional" }` | Plants a flag beside the session — see below |
 
 Getting a Canva embed link: open the deck → **Share** → **More** → **Embed** →
 copy the URL from the `src="…"` of the snippet. It looks like
@@ -168,6 +170,51 @@ npm run placeholders && npm run validate
 `placeholders` creates any missing Markdown/PDF files so nothing 404s, and
 never overwrites what already exists. `validate` checks the whole model and
 also runs as part of `build`, so a broken `levels.json` cannot reach Pages.
+
+---
+
+## Three languages
+
+The site ships in **English, Spanish and Catalan**, with a flag picker in the
+top-right corner. English is the base. There are two mechanisms, on purpose,
+because the two kinds of text have different owners.
+
+| | Interface chrome | Your course content |
+| --- | --- | --- |
+| Where | `src/lib/i18n/{en,es,ca}.js` | `levels.json`, `public/content/**.md` |
+| Shape | flat key → string | `{ "en": …, "es": …, "ca": … }`, **or a plain string** |
+| A language missing | **fails the build** | listed by `validate`, falls back |
+
+**Your content is allowed to be half-translated, and that is the point.** Write
+a new session in whatever language it comes to you in:
+
+```jsonc
+"title": "Gadgets immersius",                                   // fine
+"title": { "en": "Immersive gadgets", "ca": "Gadgets…" }         // also fine
+```
+
+The site shows the plain string in all three languages, and
+`npm run validate` prints it under **"still to translate"** so you know what is
+outstanding. Requiring all three up front would mean a half-written session
+cannot be committed at all, which is how a course ends up being edited in a
+scratch file. Every prose field takes both shapes — `title`, `summary`,
+`contents`, and a todo's `objective`, `starting_point`, `steps`, `steps_note`
+and `deliverable` — so translating a step-by-step guide is a data edit with no
+code behind it.
+
+Markdown translates **by filename suffix**: `w1-01.md` is the base,
+`w1-01.es.md` and `w1-01.ca.md` sit next to it, so a missing one is visible in
+the folder listing. Generated Marp decks follow the same rule.
+
+**The interface dictionary is the strict half.** `validate` compares the three
+key sets in both directions on every build: add a key to `en.js` and forget it
+in `ca.js` and the build stops. If you fork this for a course in other
+languages, edit those three files (or add a fourth to `LANGS`) — the rest of
+the site reads them through `t('key')` and needs no change.
+
+Picking a language **reloads the page**. That is deliberate: some text is baked
+into GPU textures (the villagers' name plates, the VR card) and re-rendering the
+panels alone would leave those speaking the old language.
 
 ---
 
@@ -264,19 +311,24 @@ it — there are no live AI calls in the browser and no API keys on the client.
 
 ### Graded exercises (the three practical blocks)
 
-Eight levels carry the graded exercises of the **Blue Goblin** blocks — 30 % of
-the course, 10 % per block. They are ordinary `practical` levels plus four
-fields:
+Eight levels carry the graded exercises of the **Blue Goblin** blocks. They are
+ordinary `practical` levels plus four fields:
 
 ```jsonc
 {
   "block": { "number": 1, "name": "AR Foundation", "exercise": 1, "of": 3 },
   "submissionMethod": "build",              // build | video | repo | null
   "groupMode": "per-group-per-block",       // individual | individual-within-group | per-group | per-group-per-block
-  "gradeWeight": { "block": "10 %", "exercise": null },
   "starterRepo": { "url": null, "branch": "01-plane-detection" }  // block 1 only
 }
 ```
+
+> **The map carries no marks.** There is no field for what an exercise is
+> worth, and `npm run validate` fails the build if a `gradeWeight` (or a
+> `deliverable.weight`) shows up on a level. The weighting belongs in your own
+> guía docente, on your university's platform, where students are used to
+> finding it and where you can change it without a deploy. The island is for
+> the activities themselves.
 
 Where they sit:
 
@@ -290,12 +342,34 @@ Block 2 straddles the midterm castle on purpose: exercises 1 and 2 are the short
 in-class ones and sit before it, exercise 3 is the heavy one that finishes at
 home and sits after.
 
+### Hand-in flags
+
+A session that carries a hand-in gets a Mario-style flag planted beside it:
+
+```jsonc
+"deliverable": { "label": "AR Foundation", "kind": "graded" }   // or "optional"
+```
+
+- **Gold** while the class has not reached it, **green** once it has. A
+  `kind: "optional"` flag flies **lilac** instead — the colour the map already
+  uses for voluntary work — so "this one is not compulsory" reads from across
+  the island.
+- Hovering it names the hand-in and says *entrega evaluable* or *práctica
+  opcional*, plus that this is the **last session** to hand it in.
+- **Put it on the session the hand-in is DUE, not the one that teaches the
+  work.** Those are usually different: a block's exercises finish on one day
+  and the hand-in falls a week or so later, on whatever class lands there. The
+  field is set by hand for exactly that reason — nothing derives it from the
+  session's own text.
+- The flag is decoration with a tooltip. It is never clickable and never opens
+  anything, so it cannot be confused with the session disc beside it.
+
 **`null` is a real value here and means "not decided yet".** The field being
 *absent* is an error; the field being `null` renders as *«por decidir»* in the
-portal. `gradeWeight.exercise` is null on all eight — the per-exercise split is
-an open decision and must not be guessed. Every open decision is flagged with a
-`_fixme` on its own node and printed by **every** `npm run validate` run, so it
-cannot quietly become permanent by being forgotten.
+portal — `submissionMethod` is null on block 3 for exactly that reason. Every
+open decision is also flagged with a `_fixme` on its own node and printed by
+**every** `npm run validate` run, so it cannot quietly become permanent by
+being forgotten.
 
 `starterRepo` points at a **separate** student repository — the Unity project
 never lands in this repo, and the relationship between the two is a link, not a
@@ -475,6 +549,24 @@ teclear nombres y no hay nada que mirar mientras lo haces.
 Completion is derived from this single marker — there is deliberately no
 per-level `completed` flag, because two sources of truth would drift.
 
+### Optional: let the sessions open themselves
+
+If you would rather not move the marker by hand every week, `/admin` has a
+**timetable**: a date and time for each session, in Madrid wall-clock time.
+Publish it once and every browser works out for itself where the class is, so a
+session opens at the minute it is due — on every student's phone at once, with
+no token, no commit and no rebuild.
+
+- It lives in `public/progress.json`, next to the marker, as `schedule`.
+  **It is teacher state, not map data** — `levels.json` still holds no dates at
+  all, and `validate` still fails the build on one.
+- **The manual marker wins whenever it is further along.** A timetable is a
+  plan; pressing *Completar y avanzar* because the class got ahead must not be
+  undone by the clock five minutes later. Going back is still a manual act.
+- Times are resolved through `Intl`, so 10:00 is 10:00 in October and in March
+  alike, and there is a *"repeat every N days"* filler for a weekly slot.
+- Leave it empty and nothing changes: the marker is yours to move.
+
 ### Hiding the sessions ahead
 
 The same Profesor block carries a switch, **Ocultar las sesiones futuras**. With
@@ -557,6 +649,27 @@ la pantalla o pulsando cualquier tecla.
 Los números del plano (altura de salida, ritmo, cuándo empieza la inclinación)
 están todos arriba de `src/three/intro.js`, cada uno con el motivo por el que
 vale lo que vale.
+
+---
+
+## El vestuario del avatar
+
+The button next to the language picker opens a small wardrobe: **hat, visor
+colour, shirt, trousers and shoes**, an arrow either side of each, with a live
+figure at the top of the panel showing the result.
+
+- **It is that browser's own `localStorage` and nothing else.** No backend
+  holds it, nothing about it reaches you or another student, and two people on
+  the same map see their own figure their own way. There is no Save button
+  because there is nothing to save anywhere else.
+- **The headset never comes off.** It is half of what tells the avatar apart
+  from the villagers pacing the discs; the lens *colour* is a choice, the
+  headset is not. It is an XR course.
+- **Adding an option is one line** in `SLOTS` in
+  [`src/lib/avatar.js`](src/lib/avatar.js) — a pumpkin for Halloween, a santa
+  hat in December. It appears in the picker, and in the preview figure, with no
+  other change: the preview is an SVG drawn from the same box the 3D figure
+  uses. Give the label a key in all three `i18n` files or the build will say so.
 
 ---
 
@@ -935,7 +1048,12 @@ que subiste aunque luego lo borres**.
 | Forma de los caminos y de la isla | `src/config/worlds.js` |
 | Diapositivas en PDF | `public/content/slides/` |
 | Ejercicios en Markdown | `public/content/exercises/` |
+| Bibliografía en Markdown | `public/content/bibliography/` |
+| Textos de la interfaz (3 idiomas) | `src/lib/i18n/{en,es,ca}.js` |
+| Traducir un ejercicio | El mismo archivo con `.es.md` / `.ca.md` |
+| Ropa del avatar | `src/lib/avatar.js` (`SLOTS`) |
 | Por dónde va la clase | El bloque Profesor, en el mapa |
+| Horario automático de sesiones | `/admin/` |
 | Alumnos destacados | `/admin/` |
 
 ```bash
