@@ -1,6 +1,7 @@
 import * as THREE from 'three'
 import { world as themeWorld } from '../config/theme.js'
 import { prefersReducedMotion } from '../lib/motion.js'
+import { loadLook, optionFor } from '../lib/avatar.js'
 
 /**
  * The student avatar: a little voxel figure that hops from node to node along
@@ -31,17 +32,59 @@ export function createPlayer() {
     return mesh
   }
 
-  box(1.1, 1.0, 0.8, themeWorld.player, 0, 1.05, 0) // torso
-  const head = box(0.9, 0.8, 0.85, 0xffd9b3, 0, 1.95, 0) // head
-  box(1.15, 0.28, 0.95, themeWorld.player, 0, 2.42, 0.02) // cap
-  // It is an XR course, so the character is wearing a headset.
-  box(1.0, 0.52, 0.34, 0x22272e, 0, 1.98, 0.44) // visor
-  box(0.78, 0.3, 0.1, 0x4cc9f0, 0, 1.99, 0.62) // lens glow
+  const torso = box(1.1, 1.0, 0.8, themeWorld.player, 0, 1.05, 0)
+  box(0.9, 0.8, 0.85, 0xffd9b3, 0, 1.95, 0) // head
+  // Legs, between the torso and the feet. They were missing — the figure went
+  // straight from shirt to shoes — and there is no "trousers" to choose
+  // without them.
+  const legs = box(0.86, 0.42, 0.62, 0x3a4a5c, 0, 0.5, 0)
+  // THE HEADSET IS NOT OPTIONAL. It is half of what tells the avatar apart
+  // from the villagers pacing the discs; see lib/avatar.js. The lens colour
+  // is a choice, the headset is not.
+  box(1.0, 0.52, 0.34, 0x22272e, 0, 1.98, 0.44) // visor shell
+  const lens = box(0.78, 0.3, 0.1, 0x4cc9f0, 0, 1.99, 0.62)
   box(1.02, 0.2, 0.8, 0x3b434d, 0, 2.16, 0.06) // strap
-  box(0.34, 0.22, 0.36, 0x2b2118, -0.34, 0.15, 0.05) // feet
-  box(0.34, 0.22, 0.36, 0x2b2118, 0.34, 0.15, 0.05)
+  const shoeL = box(0.34, 0.22, 0.36, 0x2b2118, -0.34, 0.15, 0.05)
+  const shoeR = box(0.34, 0.22, 0.36, 0x2b2118, 0.34, 0.15, 0.05)
   box(0.3, 0.65, 0.3, 0xffd9b3, -0.68, 1.15, 0) // arms
   box(0.3, 0.65, 0.3, 0xffd9b3, 0.68, 1.15, 0)
+
+  /**
+   * The hat is the only part that can be absent, so it is the only one that
+   * gets built and thrown away rather than recoloured. Kept in a variable so
+   * `applyLook` can replace it without touching anything else.
+   */
+  let hat = null
+
+  /**
+   * Restyle in place. Colours are swapped on the existing materials and only
+   * the hat is rebuilt, so changing a shirt does not rebuild the figure — and
+   * does not interrupt a hop that is halfway through.
+   */
+  function applyLook(look) {
+    torso.material.color.setHex(optionFor('shirt', look).color)
+    legs.material.color.setHex(optionFor('trousers', look).color)
+    lens.material.color.setHex(optionFor('visor', look).color)
+    const shoe = optionFor('shoes', look).color
+    shoeL.material.color.setHex(shoe)
+    shoeR.material.color.setHex(shoe)
+
+    if (hat) {
+      body.remove(hat)
+      hat.geometry.dispose()
+      hat.material.dispose()
+      hat = null
+    }
+    const choice = optionFor('hat', look)
+    if (choice?.box) {
+      const [w, h, d, x, y, z] = choice.box
+      // `color: null` means "match the shirt" — that is what the original cap
+      // did, and it is still the default.
+      hat = box(w, h, d, choice.color ?? optionFor('shirt', look).color, x, y, z)
+    }
+  }
+
+  applyLook(loadLook())
 
   /** @type {THREE.Vector3[]} */
   let waypoints = []
@@ -172,6 +215,7 @@ export function createPlayer() {
     snapTo,
     cancel,
     update,
+    applyLook,
     get isMoving() {
       return moving
     },
