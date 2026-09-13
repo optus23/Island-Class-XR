@@ -1,6 +1,7 @@
 import { cssPalette } from '../config/theme.js'
 import { sessionNumber, sessionsRemaining } from '../lib/levels.js'
 import { prefersReducedMotion } from '../lib/motion.js'
+import { t } from '../lib/i18n/index.js'
 
 /**
  * The Mario level-start card: a dark screen with "MUNDO 1-3", the session
@@ -56,12 +57,12 @@ export function showLevelCard(level, { markerId = null } = {}) {
       </div>
 
       <p class="text-4xl sm:text-5xl font-extrabold tracking-[0.18em] mb-4">
-        MUNDO ${n.world}-${n.index}
+        ${t('card.world', { world: n.world, index: n.index })}
       </p>
       <p class="text-lg sm:text-xl opacity-90 max-w-xl mx-auto leading-snug">${level.title}</p>
 
       <p class="mt-8 text-[11px] uppercase tracking-[0.25em] opacity-50">
-        Sesión ${n.global} de ${n.total} · quedan ${lives}
+        ${t('card.sessionOf', { global: n.global, total: n.total, left: lives })}
       </p>
     </div>`
 

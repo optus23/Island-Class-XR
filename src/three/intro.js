@@ -355,5 +355,16 @@ export function createIntro({ camera, scene, avatar }) {
 
 /** Whether the flight should play at all. The caller owns the reasons. */
 export function introWanted({ deepLinked = false, xrEager = false } = {}) {
-  return !deepLinked && !xrEager && !prefersReducedMotion()
+  // A `?lang=` in the address bar means we have just come back from the
+  // language picker, which reloads the page (see lib/i18n/index.js). That is
+  // a re-entry, not a first visit: sitting through the flight again every
+  // time you try a language is exactly the kind of thing that makes someone
+  // stop trying them.
+  let switchedLanguage = false
+  try {
+    switchedLanguage = new URLSearchParams(location.search).has('lang')
+  } catch {
+    /* no URL access — treat it as a normal visit */
+  }
+  return !deepLinked && !xrEager && !switchedLanguage && !prefersReducedMotion()
 }

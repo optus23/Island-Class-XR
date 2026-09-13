@@ -2,6 +2,7 @@ import * as THREE from 'three'
 import { safeTitle, sessionNumber, statusFor } from '../lib/levels.js'
 import { cssPalette } from '../config/theme.js'
 import { stageLabel, categoryLabel, assessmentRows } from '../lib/labels.js'
+import { t } from '../lib/i18n/index.js'
 
 /**
  * The level card, inside the headset.
@@ -136,7 +137,9 @@ export function createVRPanel() {
     ctx.font = `600 26px ${FONT}`
     ctx.fillStyle = DIM
     ctx.fillText(
-      n ? `MUNDO ${n.world}-${n.index}  ·  SESIÓN ${n.global} DE ${n.total}` : 'NIVEL OPCIONAL',
+      n
+        ? t('vr.worldSession', { world: n.world, index: n.index, global: n.global, total: n.total })
+        : t('vr.optionalLevel'),
       L,
       y
     )
@@ -190,7 +193,7 @@ export function createVRPanel() {
     // built for, and telling those viewers to pull one is telling them the
     // thing does not work. `byGaze` comes from whether the session reported
     // any controllers at all.
-    const act = byGaze ? 'Mantén la mirada' : 'Gatillo'
+    const act = byGaze ? t('vr.holdGaze') : t('vr.trigger')
     const hint = st.current ? `${act} para ENTRAR` : `${act} para ir aquí`
     ctx.fillText(hint, L, CANVAS_H - 34)
 

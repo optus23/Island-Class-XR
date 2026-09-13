@@ -1,6 +1,7 @@
 import { cssPalette } from '../config/theme.js'
 import { locksActive } from '../lib/levels.js'
 import { seeAllChoice } from '../lib/teacherView.js'
+import { t } from '../lib/i18n/index.js'
 
 /**
  * Bottom-right colour key, plus the teacher's controls.
@@ -39,14 +40,7 @@ const BUILD_ID = typeof __BUILD_ID__ === 'string' ? __BUILD_ID__ : 'dev'
 
 // Same order as resolveNodeColor resolves them, so the legend reads as the
 // rule it describes rather than as an arbitrary list.
-const ROWS = [
-  ['completed', 'Completado'],
-  ['theory', 'Teoría'],
-  ['practical', 'Práctica'],
-  ['project', 'Proyecto en equipo'],
-  ['boss', 'Examen'],
-  ['optional', 'Actitud / extra'], // voluntary activities and the re-evaluation
-]
+const ROW_KEYS = ['completed', 'theory', 'practical', 'project', 'boss', 'optional']
 
 export function hasAdminToken() {
   try {
@@ -79,7 +73,10 @@ export function mountLegend(actions = {}) {
     // "Bloqueado" only appears when there is something grey on the map to
     // explain. Listing it to a class that can see everything just invents a
     // rule they are not subject to.
-    const rows = locksActive() ? [...ROWS, ['locked', 'Aún no disponible']] : ROWS
+    const rows = (locksActive() ? [...ROW_KEYS, 'locked'] : ROW_KEYS).map((key) => [
+      key,
+      t(`legend.row.${key}`),
+    ])
 
     // Who gets the Profesor block: a token holder, or a browser that has been
     // handed the token-free view. `seeAllChoice()` and not `actions.seeAll()`,
@@ -99,13 +96,13 @@ export function mountLegend(actions = {}) {
     el.innerHTML = `
       <div class="legend-card">
         <button class="legend-head" data-toggle>
-          <span>Leyenda</span>
+          <span>${t('legend.title')}</span>
           <span class="legend-head__chev">${open ? '▾' : '▸'}</span>
         </button>
 
         <div class="${open ? '' : 'is-collapsed'}">
           <button class="legend-btn legend-map ${overview ? 'is-primary' : ''}" data-act="overview">
-            ${overview ? 'Volver al personaje' : 'Mapa completo (vista cenital)'}
+            ${overview ? t('legend.backToCharacter') : t('legend.fullMap')}
             <kbd>M</kbd>
           </button>
           <ul class="legend-list">${swatches}</ul>
@@ -113,11 +110,11 @@ export function mountLegend(actions = {}) {
           ${
             teacher
               ? `<div class="legend-admin">
-                   <p class="legend-admin__title">Profesor</p>
+                   <p class="legend-admin__title">${t('legend.teacher')}</p>
                    ${
                      admin && marker
                        ? `<div class="legend-admin__marker">
-                            <span class="legend-admin__marker-label">La clase está en</span>
+                            <span class="legend-admin__marker-label">${t('legend.classIsAt')}</span>
                             <strong>${marker.title}</strong>
                             <span class="legend-admin__marker-sub">${marker.label}</span>
                           </div>`
@@ -127,27 +124,27 @@ export function mountLegend(actions = {}) {
                      admin
                        ? `<div class="legend-admin__grid">
                             <button class="legend-btn is-primary" data-act="complete" ${busy ? 'disabled' : ''}>
-                              Completar y avanzar
+                              ${t('legend.completeAdvance')}
                             </button>
                             <button class="legend-btn" data-act="back" ${busy ? 'disabled' : ''}>
-                              Retroceder
+                              ${t('legend.back')}
                             </button>
                             <button class="legend-btn is-danger" data-act="reset" ${busy ? 'disabled' : ''}>
-                              Reiniciar curso
+                              ${t('legend.reset')}
                             </button>
                           </div>`
                        : ''
                    }
                    <a class="legend-btn legend-admin__link"
                       href="${import.meta.env.BASE_URL}admin/">
-                     ${admin ? 'Panel de profesor · alumnos y token →' : 'Panel de profesor →'}
+                     ${admin ? t('legend.adminLinkFull') : t('legend.adminLink')}
                    </a>
                    ${
                      admin
                        ? `<label class="legend-switch">
                             <input type="checkbox" data-switch="lock"
                                    ${actions.lockAhead?.() ? 'checked' : ''} ${busy ? 'disabled' : ''} />
-                            <span>Ocultar las sesiones futuras</span>
+                            <span>${t('legend.hideFuture')}</span>
                           </label>`
                        : ''
                    }
@@ -155,7 +152,7 @@ export function mountLegend(actions = {}) {
                      <input type="checkbox" data-switch="student"
                             ${actions.seeAll?.() ? '' : 'checked'}
                             ${actions.lockAhead?.() ? '' : 'disabled'} />
-                     <span>Ver el mapa como un alumno</span>
+                     <span>${t('legend.seeAsStudent')}</span>
                    </label>
                    ${note ? `<p class="legend-admin__note">${note}</p>` : ''}
                  </div>`
@@ -186,12 +183,12 @@ export function mountLegend(actions = {}) {
           return
         }
         busy = true
-        note = 'Guardando…'
+        note = t('legend.saving')
         render()
         try {
           note = await actions.onToggleLock?.(input.checked)
         } catch (e) {
-          note = e?.message ?? 'Error.'
+          note = e?.message ?? t('legend.error')
         } finally {
           busy = false
           render()
@@ -212,13 +209,13 @@ export function mountLegend(actions = {}) {
         }[b.dataset.act]
         if (!fn) return
         busy = true
-        note = 'Guardando…'
+        note = t('legend.saving')
         render()
         try {
           const msg = await fn()
-          note = msg ?? 'Hecho.'
+          note = msg ?? t('legend.done')
         } catch (e) {
-          note = e?.message ?? 'Error.'
+          note = e?.message ?? t('legend.error')
         } finally {
           busy = false
           render()

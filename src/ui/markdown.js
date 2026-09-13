@@ -1,4 +1,5 @@
 import { marked } from 'marked'
+import { t } from '../lib/i18n/index.js'
 
 /**
  * Loads a Markdown file from the repo's public content folder and renders it.
@@ -65,13 +66,12 @@ export function renderMarkdownInto(el, result, emptyLabel) {
   if (result.reason === 'missing') {
     el.innerHTML = `
       <div class="rounded-lg border border-dashed border-base-content/30 p-4">
-        <p class="font-semibold mb-1">Pendiente de escribir</p>
+        <p class="font-semibold mb-1">${t('md.pendingTitle')}</p>
         <p class="opacity-70 text-sm">
-          Falta el archivo <code class="text-xs">${result.path}</code>.
-          Créalo en el repositorio y aparecerá aquí sin tocar código.
+          ${t('md.pendingBody', { path: `<code class="text-xs">${result.path}</code>` })}
         </p>
       </div>`
     return
   }
-  el.innerHTML = `<p class="text-error">No se pudo cargar ${result.path} (${result.detail}).</p>`
+  el.innerHTML = `<p class="text-error">${t('md.loadError', { path: result.path, detail: result.detail })}</p>`
 }

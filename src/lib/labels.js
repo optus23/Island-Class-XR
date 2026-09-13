@@ -1,3 +1,5 @@
+import { t } from './i18n/index.js'
+
 /**
  * The human-readable names for the level model's enum-ish fields.
  *
@@ -6,60 +8,41 @@
  * says the new name and the other quietly keeps the old one — the same reason
  * every colour lives in `config/theme.js`.
  *
+ * The words themselves moved again, into `lib/i18n/`, once the site had three
+ * languages: what is left here is the MAPPING from the data model's enum to a
+ * translation key, which is the part that belongs next to the model. Look up
+ * `stage.intro-theory` in `i18n/en.js` to read the English.
+ *
  * Plain strings only, no markup: the 2D portal writes them into HTML and the
  * VR panel paints them onto a canvas, and a `<span>` would end up drawn
  * literally on the second one.
  */
 
-export const STAGE_LABELS = {
-  'intro-theory': 'Introducción y teoría',
-  'ar-foundation': 'AR Foundation',
-  'meta-pre-exam': 'Meta Building Blocks (antes del parcial)',
-  'mini-boss-midterm': 'Examen parcial',
-  'meta-post-exam': 'Meta Building Blocks (después del parcial)',
-  'xr-toolkit': 'XR Interaction Toolkit',
-  'final-project': 'Proyecto final',
-  'final-boss-presentation': 'Presentación final',
-}
+/** `en.js` holds `stage.<id>`, `category.<id>`, and so on for each of these. */
+export const stageLabel = (level) =>
+  level?.stage ? t(`stage.${level.stage}`) : ''
+export const categoryLabel = (level) =>
+  level?.category ? t(`category.${level.category}`) : ''
+export const bossTierLabel = (tier) => (tier ? t(`bossTier.${tier}`) : '')
 
-export const CATEGORY_LABELS = {
-  theory: 'Teoría',
-  practical: 'Práctica',
-  project: 'Proyecto',
-  boss: 'Examen',
-}
+/**
+ * `null` means the brief has not decided yet and says so out loud — an empty
+ * slot is a question still open, not an oversight, so it must never render as
+ * blank.
+ */
+export const submissionLabel = (method) =>
+  method ? t(`submission.${method}`) : t('common.undecided')
 
-export const BOSS_TIER_LABELS = {
-  mini: 'Jefe intermedio',
-  final: 'Jefe final',
-  extra: 'Extra',
-}
-
-// The graded practical blocks. `null` means the brief has not decided yet and
-// says so out loud — an empty slot here is a question still open, not an
-// oversight, so it must never render as blank.
-export const SUBMISSION_LABELS = {
-  build: 'Build (APK), no vídeo',
-  video: 'Vídeo',
-  repo: 'Repositorio',
-}
-
-export const GROUP_LABELS = {
-  individual: 'Individual',
-  'individual-within-group': 'Individual, dentro del grupo',
-  'per-group': 'Por grupo',
-  // Every graded block is group work, and the groups are not fixed for the
-  // term: a block may be started with a different line-up from the last one.
-  // That is the part a student has to be told, so it is in the label rather
-  // than in a footnote nobody reads.
-  'per-group-per-block': 'Por grupo · los grupos se rehacen cada bloque',
-}
+/**
+ * Every graded block is group work, and the groups are not fixed for the term:
+ * a block may be started with a different line-up from the last one. That is
+ * the part a student has to be told, so it is in the label rather than in a
+ * footnote nobody reads — see `group.per-group-per-block`.
+ */
+export const groupLabel = (mode) => (mode ? t(`group.${mode}`) : t('common.undecided'))
 
 /** What an undecided field reads as, in plain text. */
-export const UNDECIDED_TEXT = 'por decidir'
-
-export const stageLabel = (level) => STAGE_LABELS[level?.stage] ?? level?.stage ?? ''
-export const categoryLabel = (level) => CATEGORY_LABELS[level?.category] ?? level?.category ?? ''
+export const undecidedText = () => t('common.undecided')
 
 /**
  * The assessment rows for a graded block exercise, as `[label, value]` pairs of
@@ -73,8 +56,11 @@ export function assessmentRows(level) {
   const b = level.block
 
   return [
-    ['Bloque', `${b.number} · ${b.name} — ejercicio ${b.exercise} de ${b.of}`],
-    ['Entrega', SUBMISSION_LABELS[level.submissionMethod] ?? UNDECIDED_TEXT],
-    ['Trabajo', GROUP_LABELS[level.groupMode] ?? UNDECIDED_TEXT],
+    [
+      t('assess.block'),
+      t('assess.blockValue', { number: b.number, name: b.name, exercise: b.exercise, of: b.of }),
+    ],
+    [t('assess.delivery'), submissionLabel(level.submissionMethod)],
+    [t('assess.work'), groupLabel(level.groupMode)],
   ]
 }

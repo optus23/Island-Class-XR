@@ -1,4 +1,5 @@
 import { marked } from 'marked'
+import { t } from '../lib/i18n/index.js'
 
 /**
  * Renders the interactive activities. Never a PDF, never plain text.
@@ -91,7 +92,7 @@ const renderers = {
                data-todo-card="${escape(todo.id)}">
         <div class="flex items-start justify-between gap-4 mb-3">
           <div>
-            <span class="badge badge-sm badge-primary mb-2">Objetivo</span>
+            <span class="badge badge-sm badge-primary mb-2">${t('todos.objective')}</span>
             <h4 class="text-lg font-semibold leading-snug">${md(todo.objective)}</h4>
           </div>
           <span class="badge badge-ghost whitespace-nowrap" data-progress-for="${escape(todo.id)}">
@@ -100,19 +101,19 @@ const renderers = {
         </div>
 
         <div class="mb-4">
-          <p class="text-xs uppercase tracking-wide opacity-60 mb-1">Punto de partida</p>
+          <p class="text-xs uppercase tracking-wide opacity-60 mb-1">${t('todos.startingPoint')}</p>
           <p class="text-sm">${md(todo.starting_point)}</p>
         </div>
 
         <div class="mb-4">
           <p class="text-xs uppercase tracking-wide opacity-60 mb-1">
-            Guía paso a paso${todo.steps_note ? ` (${escape(todo.steps_note)})` : ''}
+            ${t('todos.stepGuide')}${todo.steps_note ? ` (${escape(todo.steps_note)})` : ''}
           </p>
           <ul class="text-sm">${steps}</ul>
         </div>
 
         <div>
-          <p class="text-xs uppercase tracking-wide opacity-60 mb-1">Entrega</p>
+          <p class="text-xs uppercase tracking-wide opacity-60 mb-1">${t('todos.delivery')}</p>
           <p class="text-sm">${md(todo.deliverable)}</p>
         </div>
       </article>`
@@ -123,20 +124,17 @@ export function renderTodos(el, level) {
   const todos = level.todos ?? []
   if (!todos.length) {
     el.innerHTML = `
-      <p class="opacity-70">
-        Este nivel no tiene actividades interactivas.
-        Añádelas en <code class="text-xs">todos</code> dentro de levels.json.
-      </p>`
+      <p class="opacity-70">${t('todos.none')}</p>`
     return
   }
 
   el.innerHTML = todos
-    .map((t) => {
-      const render = renderers[t.type]
+    .map((item) => {
+      const render = renderers[item.type]
       if (!render) {
-        return `<p class="text-warning">Tipo de actividad no soportado todavía: "${escape(t.type)}".</p>`
+        return `<p class="text-warning">${t('todos.unsupported', { type: escape(item.type) })}</p>`
       }
-      return render(t)
+      return render(item)
     })
     .join('')
 
