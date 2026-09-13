@@ -1397,7 +1397,9 @@
       "bossTier": "extra",
       "optional": true,
       "anchorAfter": "w3-boss",
-      "offsetAlong": -6,
+      "offsetAlong": -4,
+      "offsetDistance": 26,
+      "offsetSide": "right",
       "summary": {
         "en": "Re-evaluation exams",
         "es": "Exámenes de reevaluación",
