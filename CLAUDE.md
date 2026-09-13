@@ -59,7 +59,7 @@ These come from the brief and are not negotiable without the user saying so.
   (`ui/portal.js`) and the VR panel's rows (`lib/labels.js`); both are gone, and
   `scripts/validate.mjs` fails the build if `gradeWeight` reappears on a level.
   **THERE IS NO EXCEPTION, INCLUDING THE ONE THIS FILE USED TO GRANT.** A
-  deliverable's flag carried a `weight` ("10 %") for one round, printed in its
+  deliverable's flag carried a `weight` — a percentage — for one round, printed in its
   hover tooltip, on the reasoning that a tooltip is not always-visible chrome.
   That was the rule being broken, not bent, and it came straight back:
   "estoy viendo que en la entrega has puesto que es el diez por ciento del

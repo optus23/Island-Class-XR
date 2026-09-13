@@ -27,7 +27,7 @@ export const palette = {
   // this red turned both castles solid red. Grey stone, red details.
   boss: 0x4a5058, // dark stone
 
-  // The two voluntary "Actitud 10%" activities. They are their OWN nodes now,
+  // The voluntary "Actitud" activities. They are their OWN nodes now,
   // hanging off the class day on a dashed connector — not a recolouring of the
   // day, which is a normal practice/theory class and must look like one. So
   // this is only the badge colour in the portal; the disc gets `optional`.

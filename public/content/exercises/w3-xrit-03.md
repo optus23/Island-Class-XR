@@ -8,7 +8,7 @@ paginate: true
 
 # Ejercicio 2 · Hand tracking y gestos
 
-**Bloque 3 — XR Interaction Toolkit** · 10 % del curso, reparto por ejercicio *por decidir*
+**Bloque 3 — XR Interaction Toolkit** · entrega evaluable
 **Por grupo** · **Entrega: pendiente de definir** · Se hace **en clase**
 
 ---
