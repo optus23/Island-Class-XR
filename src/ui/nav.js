@@ -9,6 +9,7 @@ import {
   sessionNumber,
 } from '../lib/levels.js'
 import { t } from '../lib/i18n/index.js'
+import { localized } from '../lib/i18n/text.js'
 
 /**
  * Course index, top-left.
@@ -99,7 +100,9 @@ export function mountNav({ markerId, onSelect, onSelectWorld, onToggleOverview }
           <span class="nav-head__mark">XR</span>
           <span class="nav-head__text">
             <span class="nav-head__title">${course.title}</span>
-            <span class="nav-head__sub">${course.subtitle}</span>
+            <!-- The course NAME stays put — it is a name. The line under it
+                 describes the subject, so it follows the reader's language. -->
+            <span class="nav-head__sub">${localized(course.subtitle)}</span>
           </span>
           <span class="nav-head__chev">${open ? '▲' : '▼'}</span>
         </button>

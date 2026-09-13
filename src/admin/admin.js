@@ -15,7 +15,13 @@ import {
   writeRoster,
   writeSchedule,
 } from '../lib/githubData.js'
-import { SCHEDULE_ZONE, cleanSchedule, effectiveMarker } from '../lib/schedule.js'
+import {
+  SCHEDULE_ZONE,
+  cleanSchedule,
+  effectiveMarker,
+  nextScheduledAt,
+  zonedToEpoch,
+} from '../lib/schedule.js'
 import { MAX_NAME, MAX_NPCS, cleanName, makeNpcId } from '../lib/roster.js'
 import { rememberSeeAll, seeAllChoice, seeAllLink } from '../lib/teacherView.js'
 
@@ -555,6 +561,84 @@ function clearSchedule() {
   saySchedule('Calendario vacío. Guarda para publicarlo.', 'info')
 }
 
+/**
+ * What the timetable is doing right now, in one block.
+ *
+ * THIS EXISTS BECAUSE THE FEATURE FAILED SILENTLY AND LOOKED BROKEN. A session
+ * was scheduled for four minutes' time, the minute came, and nothing moved —
+ * because the session scheduled was the one the class was ALREADY on, and the
+ * rule is "whichever is further along wins". Correct, invisible, and
+ * indistinguishable from a bug. So the card now says where the class is, where
+ * the timetable would put it, when the next one opens, and — the important one
+ * — when an entry cannot move anything at all.
+ */
+function scheduleStatus(derived, now) {
+  const fmt = (ms) =>
+    new Intl.DateTimeFormat('es-ES', {
+      timeZone: SCHEDULE_ZONE,
+      weekday: 'short',
+      day: 'numeric',
+      month: 'short',
+      hour: '2-digit',
+      minute: '2-digit',
+    }).format(new Date(ms))
+
+  const ids = mainSequence.map((l) => l.id)
+  const title = (id) => {
+    const l = mainSequence.find((x) => x.id === id)
+    const n = l && sessionNumber(l)
+    return l ? `${n ? n.world + '-' + n.index + ' · ' : ''}${levelTitle(l)}` : id
+  }
+
+  const lines = []
+  lines.push(
+    `<p class="text-xs">La clase está en <strong>${esc(title(derived))}</strong>${
+      derived !== state.currentLevelId
+        ? ` <span class="opacity-60">(a mano: ${esc(title(state.currentLevelId))}; manda el calendario)</span>`
+        : ''
+    }</p>`
+  )
+
+  // Entries that have already come due but sit at or behind the marker. These
+  // are the ones that do nothing, and not saying so is what cost a round.
+  const inert = Object.entries(state.schedule).filter(([id, when]) => {
+    const at = zonedToEpoch(when)
+    return !Number.isNaN(at) && at <= now && ids.indexOf(id) <= ids.indexOf(derived)
+  })
+  const onMarker = inert.filter(([id]) => ids.indexOf(id) === ids.indexOf(derived))
+  if (onMarker.length) {
+    lines.push(
+      `<p class="text-xs text-warning">La hora de <strong>${esc(title(onMarker[0][0]))}</strong> ya ha pasado
+       y esa sesión ya estaba abierta, así que el calendario no tenía nada que mover.
+       Para verlo funcionar, pon hora a una sesión <em>posterior</em> a la actual.</p>`
+    )
+  }
+
+  const at = nextScheduledAt(state.schedule, now)
+  if (at == null) {
+    lines.push(
+      `<p class="text-xs opacity-70">No queda ninguna sesión pendiente en el calendario.</p>`
+    )
+  } else {
+    const mins = Math.round((at - now) / 60000)
+    const inWords = mins < 60 ? `en ${mins} min` : mins < 1440 ? `en ${Math.round(mins / 60)} h` : `en ${Math.round(mins / 1440)} días`
+    const nextId = Object.entries(state.schedule)
+      .filter(([, w]) => zonedToEpoch(w) === at)
+      .map(([id]) => id)[0]
+    lines.push(
+      `<p class="text-xs">La próxima se abre sola: <strong>${esc(title(nextId))}</strong>
+       — ${esc(fmt(at))} (${inWords}).</p>`
+    )
+  }
+
+  lines.push(
+    `<p class="text-[11px] opacity-60">Ahora mismo son las ${esc(fmt(now))} en ${SCHEDULE_ZONE}.
+     Si esa hora no es la tuya, el reloj del dispositivo va mal, no el calendario.</p>`
+  )
+
+  return `<div class="rounded-md bg-base-300/40 px-3 py-2 flex flex-col gap-1">${lines.join('')}</div>`
+}
+
 function scheduleCard() {
   if (!state.roster) return ''
 
@@ -562,16 +646,28 @@ function scheduleCard() {
   // rule can be seen working before it is published.
   const derived = effectiveMarker(mainSequence, state.schedule, state.currentLevelId, Date.now())
 
+  const now = Date.now()
   const rows = mainSequence
     .map((l) => {
       const n = sessionNumber(l)
       const here = l.id === derived ? 'bg-base-300/60 rounded-md px-1' : ''
       const num = n ? n.world + '-' + n.index : '·'
+      // Say out loud what this row is doing RIGHT NOW. Without it the card is
+      // 28 inputs and no way to tell whether the thing agrees with you — which
+      // is how a timetable that was working looked broken.
+      const when = state.schedule[l.id]
+      const at = when ? zonedToEpoch(when) : NaN
+      let mark = ''
+      if (when && !Number.isNaN(at)) {
+        mark = at <= now ? '<span class="text-success shrink-0" title="ya ha pasado">●</span>'
+                         : '<span class="opacity-40 shrink-0" title="pendiente">○</span>'
+      }
       return `
         <li class="flex items-center gap-2 ${here}">
           <span class="text-[11px] tabular-nums opacity-60 w-9 shrink-0">${num}</span>
           <span class="text-xs truncate flex-1"
                 title="${esc(levelTitle(l))}">${esc(levelTitle(l))}</span>
+          ${mark || '<span class="w-2 shrink-0"></span>'}
           <input type="datetime-local" data-when="${esc(l.id)}"
                  value="${esc(state.schedule[l.id] ?? '')}"
                  class="input input-xs input-bordered w-[11.5rem] shrink-0" />
@@ -601,6 +697,8 @@ function scheduleCard() {
           mano: el calendario nunca hace retroceder.
         </p>
       </div>
+
+      ${scheduleStatus(derived, now)}
 
       <ul class="flex flex-col gap-1 max-h-72 overflow-y-auto pr-1">${rows}</ul>
 
