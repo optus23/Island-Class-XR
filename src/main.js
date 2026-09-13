@@ -676,21 +676,73 @@ function armScheduleTimer() {
  * Cheap on purpose: `progress.json` is a few hundred bytes, and this runs on
  * waking and on a slow heartbeat, never per frame.
  */
+/**
+ * What THIS browser last wrote to `progress.json`, until the deployed file
+ * agrees with it.
+ *
+ * THE WRITE AND THE READ DO NOT GO TO THE SAME PLACE, and forgetting that is
+ * what made the marker jump backwards on its own. "Completar y avanzar" writes
+ * a COMMIT through the GitHub API; `loadProgress` reads the file GitHub PAGES
+ * is serving, and Pages does not serve the new one until Actions has rebuilt
+ * the site — a minute or two later. So for that minute or two the teacher's
+ * own browser polls, reads its own previous value, and helpfully "corrects"
+ * itself: the avatar walks BACKWARDS from 1-5 to 1-3, and then forward again
+ * when the deploy lands. Reported exactly that way, including the version that
+ * fires the moment you switch back to the tab — that is the `focus` handler
+ * doing the same read a minute early.
+ *
+ * It had nothing to do with anyone else watching. A second viewer only ever
+ * READS the deployed file, so two people always see the same thing; the fight
+ * was between one tab and its own pending commit.
+ *
+ * So a write is remembered, and while the deployed file still disagrees with
+ * it the poll keeps this browser's own value. The grace period is a safety
+ * valve, not a timeout to rely on: if a deploy genuinely fails, the map should
+ * eventually believe the server rather than a write that never landed.
+ */
+let pendingWrite = null
+const WRITE_GRACE_MS = 15 * 60 * 1000
+
+/** Called by every control that writes progress.json, with the new state. */
+function notePendingWrite(currentLevelId, lockAhead = lockAheadSetting()) {
+  pendingWrite = { currentLevelId, lockAhead, at: Date.now() }
+}
+
 let refreshing = false
 async function refreshProgress() {
   if (refreshing) return
   refreshing = true
   try {
     const progress = await loadProgress()
+    // The timetable is never written from the map, so it is always safe to
+    // take whatever the server says.
     schedule = cleanSchedule(progress.schedule, new Set(mainSequence.map((l) => l.id)))
-    manualMarkerId = progress.currentLevelId
+
+    let remoteMarker = progress.currentLevelId
+    let remoteLock = progress.lockAhead
+    if (pendingWrite) {
+      const agrees =
+        progress.currentLevelId === pendingWrite.currentLevelId &&
+        progress.lockAhead === pendingWrite.lockAhead
+      if (agrees || Date.now() - pendingWrite.at > WRITE_GRACE_MS) {
+        pendingWrite = null
+      } else {
+        // Still mid-deploy: what we are reading is the file from BEFORE our
+        // own press. Keep ours.
+        remoteMarker = pendingWrite.currentLevelId
+        remoteLock = pendingWrite.lockAhead
+      }
+    }
+
+    manualMarkerId = remoteMarker
 
     // Only touch the map when something actually changed. This runs once a
     // minute; repainting every node and every list row each time would be a
     // steady cost for nothing on a page that is mostly sitting still.
-    if (progress.lockAhead !== lockAheadSetting()) {
-      setLockAhead(progress.lockAhead)
+    if (remoteLock !== lockAheadSetting()) {
+      setLockAhead(remoteLock)
       applyLocks()
+      legend?.refreshLock?.()
     }
 
     const next = effectiveMarker(mainSequence, schedule, manualMarkerId)
@@ -882,6 +934,9 @@ async function boot() {
     onCompleteHere: async () => {
       const next = nextMarker(markerId)
       manualMarkerId = next
+      // Remember it until the deployed file catches up, or the next poll reads
+      // the pre-press file and walks the avatar back. See notePendingWrite().
+      notePendingWrite(next)
       await writeProgress(next, 'Completado')
       applyMarker(next, { walk: true })
       return t('msg.advanced')
@@ -890,12 +945,14 @@ async function boot() {
       const i = mainSequence.findIndex((l) => l.id === markerId)
       const prev = mainSequence[Math.max(0, i - 1)]?.id ?? START_MARKER
       manualMarkerId = prev
+      notePendingWrite(prev)
       await writeProgress(prev, 'Retroceso')
       applyMarker(prev, { walk: true })
       return t('msg.back')
     },
     onReset: async () => {
       manualMarkerId = START_MARKER
+      notePendingWrite(START_MARKER)
       await writeProgress(START_MARKER, 'Reinicio')
       // Teleport: from session 27 the walk home crosses the whole island.
       applyMarker(START_MARKER, { walk: true, instant: true })
@@ -903,6 +960,7 @@ async function boot() {
     },
     /** The course-wide rule. Written to progress.json; every student gets it. */
     onToggleLock: async (on) => {
+      notePendingWrite(manualMarkerId, on)
       await writeLockAhead(on)
       setLockAhead(on)
       applyLocks()
@@ -1022,6 +1080,18 @@ async function boot() {
     window.__villagers = villagers
     window.__selectLevel = selectLevel
     window.__setOverview = setOverview
+    // The LOCAL half of "Completar y avanzar" — move the marker and remember
+    // the write — without the GitHub commit. It is what makes the
+    // stale-read-walks-the-avatar-backwards bug reproducible on a dev server,
+    // where there is no Pages deploy to lag behind.
+    window.__simulateWrite = (levelId) => {
+      manualMarkerId = levelId
+      notePendingWrite(levelId)
+      applyMarker(levelId, { walk: true, instant: true })
+      return { marker: markerId, pendingWrite }
+    }
+    window.__refreshProgress = refreshProgress
+    window.__markerState = () => ({ markerId, manualMarkerId, pendingWrite })
     // Drives frames by hand — the only way to exercise animation in embedded
     // browsers where rAF never fires because document.hidden stays true.
     window.__step = (frames = 60, dt = 1 / 60) => {

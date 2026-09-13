@@ -240,6 +240,14 @@ export function mountLegend(actions = {}) {
       marker = info
       if (admin) render()
     },
+    /**
+     * The course-wide lock changed somewhere else — another tab, another
+     * device, or the periodic re-read of progress.json. The checkbox reads
+     * `actions.lockAhead()` live, so it only needs a repaint.
+     */
+    refreshLock() {
+      if (admin) render()
+    },
     /** Re-check the token, e.g. after the teacher signs in on /admin. */
     refreshAdmin() {
       const next = hasAdminToken()
