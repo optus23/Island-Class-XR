@@ -1,5 +1,5 @@
 import { cssPalette } from '../config/theme.js'
-import { safeTitle, statusFor, deliverableKind } from '../lib/levels.js'
+import { safeTitle, sessionNumber, statusFor, deliverableKind } from '../lib/levels.js'
 import { categoryLabel } from '../lib/labels.js'
 import { t } from '../lib/i18n/index.js'
 
@@ -40,10 +40,21 @@ export function createTooltip() {
               st.current ? t('tooltip.current') : null,
             ].filter(Boolean)
 
+        // The world-index (e.g. "1-1") is the same number the plate over the
+        // avatar already shows when you stand on the node — not a spoiler
+        // (see sessionNumber's own doc comment), so it is safe here too even
+        // while the title itself is masked.
+        const n = sessionNumber(level)
         el.innerHTML = `
           <span class="flex items-center gap-2">
             <span class="inline-block w-2.5 h-2.5 rounded-[3px] shrink-0"
                   style="background:${accent}"></span>
+            ${
+              n
+                ? `<span class="shrink-0 rounded px-1 py-px text-[10px] font-bold leading-tight"
+                         style="background:${accent};color:#08101a">${n.world}-${n.index}</span>`
+                : ''
+            }
             <span class="font-semibold leading-tight">
               ${st.locked ? '🔒 ' : ''}${safeTitle(level, markerId)}
             </span>
