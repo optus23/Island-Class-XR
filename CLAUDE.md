@@ -350,6 +350,16 @@ Changing any of these is a design decision, not a refactor.
 - **UI chrome**: solid plates, hard black outline, bright inner rim, plated title
   bars, gold level tiles, Fredoka. Dark, but in the same language as the island.
   The full-screen level portal is a separate, calmer design and is approved as-is.
+- **The avatar's wardrobe is the student's own, and the headset never comes
+  off.** Hat, visor colour, shirt, trousers and shoes are chosen from
+  `lib/avatar.js` and kept in that browser's `localStorage` — never in the
+  repository, never seen by anyone else. **The headset is not a choice**: it
+  is half of what tells the avatar apart from the villagers pacing the discs
+  (see the next bullet), so letting someone take it off and pick a
+  villager-ish shirt would let them make a second classmate out of
+  themselves. The lens COLOUR is a choice; the headset is not. Adding a
+  seasonal extra — a santa hat in December — is one line in the `hat` list
+  and appears in the picker with nothing else changed.
 - **The honoured students are villagers, not a second avatar.** A voxel
   classmate pacing a slow, lopsided circuit beside the session they earned, with
   a name plate over their head. They must never be mistaken for the AVATAR, which
