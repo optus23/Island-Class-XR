@@ -83,7 +83,6 @@ export default {
 
   'portal.slides': 'Diapositives',
   'portal.activities': 'Instruccions',
-  'portal.exercises': 'Exercicis',
   'portal.bibliography': 'Bibliografia',
   'portal.back': 'Tornar al mapa',
   'portal.backTitle': 'Tornar al mapa (Esc)',
@@ -94,7 +93,6 @@ export default {
   'portal.completed': 'Completat',
   'portal.current': 'Som aquí',
   'portal.loading': 'Carregant…',
-  'portal.noExercises': 'Aquest nivell no té exercicis.',
   'portal.noBibliography': 'Aquest nivell no té bibliografia.',
   'portal.repository': 'Repositori',
   'portal.repoLink': "repositori d'exercicis",
@@ -102,7 +100,6 @@ export default {
   'portal.repoPending': '(pendent de publicar)',
 
   'slides.sessionContent': 'Contingut de la sessió',
-  'slides.deckLink': 'Diapositives de la sessió',
   'slides.openCanva': 'Obrir a Canva ↗',
   'slides.canvaPrivateNote':
     "S'obre a Canva, en una pestanya nova. Si demana permisos, el disseny encara no és públic.",

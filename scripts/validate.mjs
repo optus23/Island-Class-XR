@@ -43,7 +43,11 @@ const SLIDE_TYPES = ['pdf', 'canva']
 // anywhere in this repository — see the no-percentages rule in CLAUDE.md.
 // `null` is a legal value for submissionMethod and groupMode and means
 // "not decided yet". It is NOT the same as the field being absent.
-const SUBMISSION_METHODS = ['build', 'video', 'repo']
+// 'none' is not a missing value: it says this exercise is NOT handed in on its
+// own. Block 1's hand-in happens once, at the end of the block, so exercises
+// 1-1 and 1-2 have nothing to submit and the portal drops the row entirely.
+// `null` still means "not decided yet" and renders as «por decidir».
+const SUBMISSION_METHODS = ['build', 'video', 'repo', 'none']
 /** Must agree with `deliverableKind` in `src/lib/levels.js`. */
 const DELIVERABLE_KINDS = ['graded', 'optional']
 const GROUP_MODES = [
@@ -270,10 +274,18 @@ for (const l of levels) {
       warn(`${tat}: type "${t.type}" has no renderer yet`)
       continue
     }
-    for (const f of ['objective', 'starting_point', 'deliverable']) {
+    for (const f of ['objective', 'starting_point']) {
       if (!t[f]) err(`${tat}: missing "${f}"`)
       else if (!isText(t[f])) err(`${tat}: "${f}" must be a string or {en, es, ca}`)
       noteUntranslated(`${tat} ${f}`, t[f])
+    }
+    // OPTIONAL, and absent is a real answer: an exercise that is not handed in
+    // on its own has nothing to put here. It was required until 16 September
+    // 2026, which is why every exercise in block 1 carried one — and block 1
+    // has a single hand-in, at the end. Absent, the portal drops the section.
+    if (t.deliverable !== undefined) {
+      if (!isText(t.deliverable)) err(`${tat}: "deliverable" must be a string or {en, es, ca}`)
+      noteUntranslated(`${tat} deliverable`, t.deliverable)
     }
     // `steps`, not `milestones`: an ordered guide the student follows top to
     // bottom, which is what the v3.0 content replaced the achievement list with.

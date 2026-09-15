@@ -8,8 +8,8 @@ paginate: true
 
 # Ejercicio 2 · Image Tracking
 
-**Bloque 1 — AR Foundation** · entrega evaluable
-**Individual** · **Entrega: build (APK)**
+**Bloque 1 — AR Foundation**
+**Individual**
 
 ---
 
@@ -46,12 +46,12 @@ Dos marcadores, dos objetos distintos. No vale el mismo prefab dos veces.
 
 ---
 
-## Entrega
+## Qué debe quedar hecho
 
-**APK** más los **dos marcadores en PDF o PNG**, listos para imprimir. Sin las
-imágenes el ejercicio no se puede corregir: nadie tiene tu carta.
+La app funcionando, más los **dos marcadores en PDF o PNG** listos para
+imprimir. Sin las imágenes no hay forma de probarlo: nadie tiene tu carta.
 
-En el `README`, qué imagen invoca a qué goblin.
+Apúntate qué imagen invoca a qué goblin — lo necesitarás al cerrar el bloque.
 
 
 ---

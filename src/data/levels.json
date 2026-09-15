@@ -109,35 +109,34 @@
         "of": 3
       },
       "groupMode": "individual",
-      "submissionMethod": "build",
+      "submissionMethod": "none",
       "exercises": "content/exercises/w1-arf-01.md",
       "todos": [
         {
           "id": "w1-arf-01-t1",
           "type": "objective-task",
-          "objective": "Blue Goblin está en la escena desde el primer frame. Replica la mecánica del vídeo del profesor —tocar un plano detectado instancia un modelo 3D— y usa ese objeto para enfrentarte a él o para camelarlo, según la historia que tú quieras contar. El modelo lo eliges tú, de donde quieras.",
-          "starting_point": "Proyecto Unity nuevo, montado desde cero en clase: AR Foundation se instala durante la sesión. Móvil Android o iOS propio, con cable de datos. El modelo de Blue Goblin se reparte en clase.",
+          "objective": "Blue Goblin is in the scene from the very first frame. Reproduce the mechanic from the video shown in class — tapping a detected plane spawns a 3D model — and use that object to face him down or to win him over, whichever story you want to tell. The model is yours to choose, from wherever you like.",
+          "starting_point": "A brand-new Unity project, built from scratch in class: AR Foundation is installed during the session. Your own Android or iOS phone, with a data cable. The Blue Goblin model is handed out in class.",
           "steps": [
-            "Crea un proyecto Unity nuevo con la plantilla 3D que usemos en clase, y cambia la plataforma a Android o iOS en `File > Build Settings`.",
-            "`Window > Package Manager > Unity Registry` — instala **AR Foundation** y el proveedor de tu plataforma: **ARCore XR Plugin** para Android o **ARKit XR Plugin** para iOS.",
-            "`Edit > Project Settings > XR Plug-in Management` → pestaña Android/iOS → activa la casilla del proveedor correspondiente.",
-            "En Android, `Edit > Project Settings > Player > Other Settings`: en **Rendering** desmarca *Auto Graphics API* y quita **Vulkan** (ARCore solo soporta OpenGLES3); en **Configuration** pon el **Scripting Backend** en **IL2CPP** y marca **ARM64**. Sin esto la build falla o arranca en negro.",
-            "`Project Settings > XR Plug-in Management > Project Validation`, pestaña Android: recorre la lista y usa el botón **Fix** donde lo haya. Ahí sale la versión mínima de Android que pide tu combinación de Editor y plug-in — hazle caso a eso antes que a cualquier número leído por ahí.",
-            "Borra la **Main Camera** por defecto y añade, con clic derecho en la Hierarchy, `XR > AR Session` y `XR > XR Origin (Mobile AR)` — el XR Origin ya trae su propia Main Camera dentro de Camera Offset.",
-            "Importa el modelo de Blue Goblin y déjalo puesto en la escena: tiene que estar ahí desde el primer frame, antes de que toques nada.",
-            "Selecciona el **XR Origin** en la Hierarchy → `Add Component` → **AR Plane Manager**.",
-            "En AR Plane Manager, arrastra un prefab de plano al campo **Plane Prefab** (puedes usar el que trae el paquete) para ver en pantalla qué está detectando el dispositivo mientras pruebas.",
-            "Sobre el mismo XR Origin, `Add Component` → **AR Raycast Manager**.",
-            "Crea un script (p. ej. `TapToPlace.cs`) y engánchalo a un GameObject de la escena; referencia en él el AR Raycast Manager (y opcionalmente el AR Plane Manager).",
-            "Lee el toque de pantalla con el Input System (`Touchscreen.current` o `EnhancedTouch.Touch`).",
-            "Al detectar un toque, llama a `raycastManager.Raycast(pos, hits, TrackableType.PlaneWithinPolygon)`; si devuelve `true` y hay al menos un resultado, usa `hits[0].pose` para la posición/rotación.",
-            "Instancia tu prefab con `Instantiate(prefab, hit.pose.position, hit.pose.rotation)`.",
-            "Ajusta la escala real del modelo: junto a un objeto de referencia de 1 metro en la escena, debe verse a tamaño real (1 unidad de Unity = 1 metro).",
-            "Evita apilar copias: antes de instanciar, comprueba si ya existe un objeto instanciado y decide si lo reemplazas o bloqueas una segunda instanciación.",
-            "Conecta visualmente el objeto instanciado con Blue Goblin: que la escena cuente tu versión (ataque, distracción, encantamiento) sin que tengas que explicarla.",
-            "`File > Build Settings` → **Build and Run** con el móvil conectado, y prueba en el dispositivo físico — el Play Mode del editor no simula detección real de planos."
-          ],
-          "deliverable": "APK, no vídeo. Nómbralo `bloque1-ej1-<apellido>.apk`. Acompáñalo de un README con qué modelo has usado, de dónde sale y con qué licencia, y cómo se enfrenta a Blue Goblin."
+            "Create a new Unity project with the 3D template we use in class, then switch the platform to Android or iOS under `File > Build Settings`.",
+            "`Window > Package Manager > Unity Registry` — install **AR Foundation** and your platform provider: **ARCore XR Plugin** for Android, **ARKit XR Plugin** for iOS.",
+            "`Edit > Project Settings > XR Plug-in Management` → Android/iOS tab → tick the provider checkbox.",
+            "On Android, `Edit > Project Settings > Player > Other Settings`: under **Rendering** untick *Auto Graphics API* and remove **Vulkan** (ARCore only supports OpenGLES3); under **Configuration** set the **Scripting Backend** to **IL2CPP** and tick **ARM64**. Without this the build either fails or starts up black.",
+            "`Project Settings > XR Plug-in Management > Project Validation`, Android tab: work down the list and press **Fix** wherever it offers one. This is where the minimum Android version for your Editor and plug-in comes from — trust it over any number you read elsewhere.",
+            "Delete the default **Main Camera**, then right-click in the Hierarchy and add `XR > AR Session` and `XR > XR Origin (Mobile AR)` — the XR Origin brings its own Main Camera inside Camera Offset.",
+            "Import the Blue Goblin model and leave it placed in the scene: he has to be there from the first frame, before anyone touches anything.",
+            "Select the **XR Origin** in the Hierarchy → `Add Component` → **AR Plane Manager**.",
+            "In the AR Plane Manager, drag a plane prefab into the **Plane Prefab** field, so you can see on screen what the device is detecting while you test.",
+            "On the same XR Origin, `Add Component` → **AR Raycast Manager**.",
+            "Create a script (say `TapToPlace.cs`) and attach it to a GameObject in the scene. Give it a reference to the AR Raycast Manager, the prefab to spawn, and one reusable `List<ARRaycastHit>`.",
+            "Read the screen tap with the Input System (`Touchscreen.current`, or `EnhancedTouch.Touch`). Act on the frame the finger goes **down**, not while it stays down.",
+            "On a tap, call `raycastManager.Raycast(pos, hits, TrackableType.PlaneWithinPolygon)`; if it returns `true` and there is at least one result, take the position and rotation from `hits[0].pose`.",
+            "Spawn your prefab with `Instantiate(prefab, hit.pose.position, hit.pose.rotation)`.",
+            "Get the real-world scale right: next to a 1-metre reference object in the scene it has to read at true size (1 Unity unit = 1 metre).",
+            "Stop copies from piling up: before spawning, check whether one already exists and decide whether you move it or block the second one.",
+            "Connect the spawned object to Blue Goblin visually: let the scene tell your version — attack, distraction, bribery — without you having to explain it.",
+            "`File > Build Settings` → **Build and Run** with the phone connected, and test on the physical device — the editor Play Mode does not simulate real plane detection."
+          ]
         }
       ],
       "slides": {
@@ -281,7 +280,7 @@
         "of": 3
       },
       "groupMode": "individual",
-      "submissionMethod": "build",
+      "submissionMethod": "none",
       "exercises": "content/exercises/w1-arf-02.md",
       "todos": [
         {
@@ -305,8 +304,7 @@
             "Prueba con los dos marcadores a la vez delante de la cámara del móvil: deben salir dos goblins distintos, cada uno sobre el suyo.",
             "Genera el PDF/PNG de los dos marcadores para imprimir, comprobando que el tamaño impreso coincide con el configurado en la librería.",
             "Build APK y prueba con los marcadores impresos (o en otra pantalla) con luz normal de aula."
-          ],
-          "deliverable": "APK más los dos marcadores en PDF o PNG listos para imprimir. En el README: qué imagen invoca a qué goblin."
+          ]
         }
       ]
     },

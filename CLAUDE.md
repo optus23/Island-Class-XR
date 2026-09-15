@@ -111,6 +111,16 @@ These come from the brief and are not negotiable without the user saying so.
   hand-in itself is uploaded on the university's own platform, on the session
   the deliverable flag stands on. Same reasoning as the no-grades rule: what
   lives here is the shape of the course, not its bookkeeping.
+  **A BLOCK HANDS IN ONCE, AT THE END — NOT ONCE PER EXERCISE.** Block 1's
+  hand-in is at session 2-1, after all three exercises are done, so 1-1 and
+  1-2 submit nothing at all and **every reference to a hand-in is out of
+  them**: "elimina la entrega de esto. Todas las referencias a una entrega,
+  elimínalo." Two mechanisms carry that, and both were added for it:
+  `submissionMethod: "none"` — which is NOT `null`, that still means "not
+  decided yet" and prints «por decidir» — drops the Delivery row from the
+  assessment strip, and a todo's `deliverable` is now OPTIONAL, dropping its
+  section from the card. **"Cómo se evalúa" slides are out too**: "no hace
+  falta explicar aquí evaluaciones".
 - **Block 1 has NO starter repository, and no text may promise one.** It was
   going to be a repo with a branch per exercise — `01-plane-detection`,
   `02-image-tracking`, `03-libre` — and `starterRepo.url` sat at `null` for
@@ -554,20 +564,37 @@ Changing any of these is a design decision, not a refactor.
   teacher's view from the map, and the person being shown the island is exactly
   the one who does not know `/admin` exists.
 - **Bosses** close the screen through a horned silhouette instead of a circle.
-- **The todos tab is called INSTRUCCIONES, and the practical session's Marp
-  deck WALKS THE SAME STEPS, one slide each.** Renamed from "Actividades" on
-  16 September 2026, Marc's call: what is in there is not an activity, it is
-  the instruction sheet for the exercise, and the projected deck is the same
-  sheet opened out — "explica cada paso (todo) en una diapositiva, puedes
-  explayarte todo lo que quieras para que quede claro". The tab is the
-  checklist the student ticks off in their own time; the deck is what the
-  class is walked through. **The numbering MUST agree between the two.** The
-  deck's troubleshooting slide says "paso 4", the student in the room says
-  "me he quedado en el 12", and both mean a row of `todos[].steps` — so
-  adding a slide means adding the step to `levels.json` too, and the
-  Instrucciones counter (`0/18`) is the number to check it against. The key
-  is still `portal.activities` in all three `i18n` files; only the words
-  changed.
+- **THE PORTAL HAS THREE TABS, AND SLIDES IS ALWAYS FIRST: Slides,
+  Instructions, Bibliography.** Settled 16 September 2026 after shipping it
+  wrong: "deberían de quedar tres tabs solo... En el de Slides ha de estar
+  Canva, en el de Instructions ha de estar el MARP". A theory day and a
+  practical day open the same way, because that is the order a session happens
+  in — lecture, then instructions, then reading. There was a fourth,
+  "Ejercicios", and practical days used to lead with the todos instead of the
+  slides; both are gone.
+  - **SLIDES IS THE LECTURE AND ONLY THE LECTURE** — the Canva, embedded.
+    The generated Marp deck used to win this panel and pushed the session's
+    own Canva down to a small outline link above it, which is how "pon la
+    diapositiva de Canva" got asked for a deck that was already in the data
+    under the exact id sent. A link button is not "puesta".
+  - **INSTRUCTIONS IS THE MARP DECK ON TOP OF THE CHECKLIST**, and they are the
+    same document at two speeds: the deck is what the class is walked through,
+    the list under it is the same steps to tick off afterwards. **The numbering
+    MUST agree between the two** — the troubleshooting slide says "step 4", the
+    student in the room says "I'm stuck on 12", and both mean a row of
+    `todos[].steps`. Adding a slide means adding the step to `levels.json`, and
+    the counter (`0/18`) is what you check it against.
+  - **A level's `exercises` file is now ONLY the deck's source.** It no longer
+    renders as prose anywhere. Every level that has one compiles to a deck
+    (8 of 8, checked), so nothing was lost — but a new exercise file WITHOUT
+    `marp: true` at the top is invisible. That is the trap now.
+  - The i18n key is still `portal.activities`; only the words changed. It was
+    "Actividades"/"Activities" until this round.
+  - **The course is taught in ENGLISH, and day 2 is the first content written
+    that way.** "La plataforma está en inglés y yo estoy leyendo aquí cosas en
+    español." `DEFAULT_LANG` has always been `en`; the level prose had not
+    caught up. `w1-arf-01`'s todo is English now, the rest of the course is
+    still Spanish, and `validate` lists all of it under "still to translate".
 - **The level portal is ONE scrolling page.** Header, tags, tabs and content all
   scroll away together; only the back button stays (it is `position: fixed`, and
   without it a phone user has no way out — there is no Escape key). Three

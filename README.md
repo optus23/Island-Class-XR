@@ -153,10 +153,10 @@ Everything a session shows lives in **one entry** in
 | **PDF** deck | `slides: { "type": "pdf", "source": "content/slides/<id>.pdf" }` | Drop the file at `public/content/slides/<id>.pdf` |
 | **External** deck | `slidesLink: { "url": "https://…", "label": "…" }` | A button, not an embed. For anything that refuses to be framed |
 | **Deck not made yet** | `slidesPending: true` | The portal says the slides are being prepared instead of "no lleva diapositivas". `validate` errors if it survives the deck arriving |
-| **Exercises** | `exercises: "content/exercises/<id>.md"` | Plain Markdown at `public/content/exercises/<id>.md`. The tab hides itself when a session has none |
+| **Exercise deck** | `exercises: "content/exercises/<id>.md"` | The **source of the session's Marp deck**, at `public/content/exercises/<id>.md`. It needs `marp: true` at the top or it renders nowhere — see below |
 | **Bibliography** | `bibliography: "content/bibliography/<id>.md"` | Same idea, its own tab: the reading behind a theory session. Also hidden when absent |
 | **Instructions** | `todos: [ … ]` | `objective-task` objects — objective, starting point, numbered `steps`, deliverable. Optional `steps_note` qualifies the guide |
-| **Generated deck** | `marp: true` in the exercise Markdown | Slides built from that Markdown at build time — see below. Beats a `slides` block |
+| **Generated deck** | `marp: true` in the exercise Markdown | Slides built from that Markdown at build time, shown in the **Instructions** tab above the checklist — see below |
 | **Graded exercise** | `block`, `submissionMethod`, `groupMode` | Only on the 8 exercises of the three practical blocks — see below |
 | **Hand-in flag** | `deliverable: { "label": "…", "kind": "graded" \| "optional" }` | Plants a flag beside the session — see below |
 
@@ -321,7 +321,7 @@ ordinary `practical` levels plus three fields, and an optional fourth:
 ```jsonc
 {
   "block": { "number": 1, "name": "AR Foundation", "exercise": 1, "of": 3 },
-  "submissionMethod": "build",              // build | video | repo | null
+  "submissionMethod": "build",              // build | video | repo | none | null
   "groupMode": "per-group-per-block",       // individual | individual-within-group | per-group | per-group-per-block
   "starterRepo": { "url": null, "branch": "01-plane-detection" }  // optional; omit it entirely if there is no starter project
 }
@@ -368,7 +368,9 @@ A session that carries a hand-in gets a Mario-style flag planted beside it:
 - The flag is decoration with a tooltip. It is never clickable and never opens
   anything, so it cannot be confused with the session disc beside it.
 
-**`null` is a real value here and means "not decided yet".** The field being
+**`"none"` and `null` are different answers.** `"none"` means this exercise is
+not handed in on its own — the block hands in once, at the end — and the portal
+drops the Delivery row entirely. `null` means "not decided yet". The field being
 *absent* is an error; the field being `null` renders as *«por decidir»* in the
 portal — `submissionMethod` is null on block 3 for exactly that reason. Every
 open decision is also flagged with a `_fixme` on its own node and printed by
@@ -422,7 +424,8 @@ The rules, in full:
 
 | | |
 | --- | --- |
-| Opt in | `marp: true` in the front-matter. Without it the file stays plain prose in the *Ejercicios* tab. |
+| Opt in | `marp: true` in the front-matter. **Without it the file renders nowhere** — there is no prose tab any more. |
+| Where it shows | the **Instructions** tab, above the session's step checklist. Never in *Slides*: that tab is the lecture (the Canva). |
 | New slide | a line with `---` between slides. |
 | Title slide | `<!-- _class: lead -->` — centred, larger, with a glow. |
 | Theme | `xr-island`, in [`scripts/marp-theme.css`](scripts/marp-theme.css). One theme for every deck; don't set another. |
@@ -971,12 +974,15 @@ llevar `?embed`. Si copias el enlace de *edición* (lleva `/edit`), la validaci�
 lo rechaza — y menos mal, porque cualquiera podría editarte las diapositivas.
 
 **Ejercicios**: Markdown en `public/content/exercises/`, enlazado desde la sesión
-con `"exercises": "content/exercises/<id>.md"`. Si le pones `marp: true` en la
-cabecera, ese mismo archivo se convierte en una presentación dentro de la web
-— ver [Slides generated from Markdown](#slides-generated-from-markdown-marp).
+con `"exercises": "content/exercises/<id>.md"`. **Ponle `marp: true` en la
+cabecera**: ese archivo se convierte en la presentación que sale en la pestaña
+*Instructions*, encima de la lista de pasos. Sin esa línea no se ve en ninguna
+parte — ver [Slides generated from Markdown](#slides-generated-from-markdown-marp).
 
 **Tareas** de la sesión, en `todos`: objetivo, punto de partida, guía paso a paso
-y entrega. Los cuatro campos son obligatorios y `steps` no puede estar vacío. Es
+y, si la hay, entrega. Objetivo, punto de partida y `steps` son obligatorios;
+`deliverable` es opcional y se omite cuando el ejercicio no se entrega por su
+cuenta. `steps` no puede estar vacío. Es
 una lista **ordenada** y se numera sola, así que escríbela como se sigue: paso 1,
 paso 2. Cada paso admite `**negrita**` y `` `código` `` — mete las rutas de menú
 entre comillas invertidas. Las casillas que marca el alumno se quedan en **su**

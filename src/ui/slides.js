@@ -1,19 +1,21 @@
-import { renderDeck } from './deck.js'
 import { t } from '../lib/i18n/index.js'
 import { levelTitle, levelContents } from '../lib/levels.js'
 
 /**
  * Slide viewer, in priority order:
  *
- *   1. a deck GENERATED from the level's Marp markdown, if one was built
- *   2. a Canva embed, for decks that need animation or video
- *   3. a PDF committed to this repo, so it also works offline in class
+ *   1. a Canva embed, for decks that need animation or video
+ *   2. a PDF committed to this repo, so it also works offline in class
+ *   3. an external link, for anything that refuses to be framed
  *
- * The generated deck wins because it is opt-in at the source: a deck only
- * exists when Marc put `marp: true` in that level's exercise markdown, so its
- * presence IS the instruction to prefer it. Everything else is unchanged — the
- * Canva URL must still be the public Share → Embed link, and validate.mjs
- * still rejects edit links so a private deck cannot reach the published site.
+ * THIS TAB IS THE LECTURE, AND ONLY THE LECTURE. The generated Marp deck used
+ * to win here, which put the exercise walkthrough under "Diapositivas" and
+ * demoted the session's own Canva to a small link button above it — reported
+ * as the Canva simply not being there at all. The deck now renders in the
+ * Instructions tab, above the checklist it walks through; see `ui/todos.js`.
+ *
+ * The Canva URL must be the public Share → Embed link, and validate.mjs
+ * rejects edit links so a private deck cannot reach the published site.
  */
 
 /**
@@ -62,38 +64,9 @@ const escapeHtml = (s) =>
   ))
 
 export async function renderSlides(el, level) {
-  // 1. Generated deck. Returns false when this level has none.
-  //
-  //    A practical day can legitimately have BOTH: the calendar's Classes
-  //    column carries the lecture deck (Canva) *and* "+ TODO's (Marp)", which
-  //    are different documents. The deck still owns the panel — it is the one
-  //    you work through in class — but the Canva goes above it as a link
-  //    rather than being silently dropped, which is what happened when the
-  //    first calendar links landed.
-  const external = level.slides?.source ?? level.slidesLink?.url
-  if (external) {
-    const bar = document.createElement('div')
-    bar.className = 'mb-2 shrink-0'
-    bar.innerHTML = `
-      <a class="btn btn-sm btn-outline" href="${external.replace(/[?&]embed/, '')}"
-         target="_blank" rel="noopener noreferrer">
-        ${escapeHtml(level.slidesLink?.label ?? t('slides.deckLink'))} ↗
-      </a>`
-    const slot = document.createElement('div')
-    slot.className = ''
-    const wrap = document.createElement('div')
-    wrap.className = 'flex flex-col'
-    wrap.append(bar, slot)
-    el.replaceChildren(wrap)
-    if (await renderDeck(slot, level)) return
-    el.replaceChildren() // no deck after all — fall through to the normal paths
-  } else if (await renderDeck(el, level)) {
-    return
-  }
-
   const slides = level.slides
 
-  // 2. A link off the calendar's Classes column. These are canva.link
+  // 1. A link off the calendar's Classes column. These are canva.link
   //    shortlinks, which Canva refuses to render inside an iframe when the
   //    design is private — so this is a LINK and a contents list, never a dead
   //    embed showing "Este diseño es privado". A level gets a real `slides`
@@ -111,7 +84,7 @@ export async function renderSlides(el, level) {
     return
   }
 
-  // 3. No deck. Two different nothings, and they must not read the same:
+  // 2. No deck. Two different nothings, and they must not read the same:
   //    a session whose deck is not written yet is waiting on something, while a
   //    project day has no deck by design and never will. Saying "todavía" to the
   //    second one promises slides that are never coming.
