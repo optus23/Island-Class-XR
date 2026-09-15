@@ -89,15 +89,39 @@ These come from the brief and are not negotiable without the user saying so.
   no points, no counters, no emails, no dates — the no-calendar rule covers it
   and `validate` enforces both. The repository is public, so `/admin` says in as
   many words to use a nickname or a first name plus an initial.
-- **Every graded exercise in blocks 1, 2 and 3 is group work, and the groups are
-  re-formed each block.** That is `groupMode: "per-group-per-block"`, and the
-  label says the re-forming out loud because it is the part students ask about.
-  Block 1 was individual-within-group until 12 September 2026; nothing is
-  individual any more. The enum lives in three places that must agree —
-  `GROUP_MODES` in `validate.mjs`, `GROUP_LABELS` in `lib/labels.js`, and the
-  data. **The reason the groups may change is the hardware count, and the
-  hardware count is not published**: do not write the number of headsets into
-  the repository, the decks or the map.
+- **Block 1 is two INDIVIDUAL exercises and a group one. Blocks 2 and 3 are
+  group work throughout, and those groups are re-formed each block.** So 1-1
+  and 1-2 are `groupMode: "individual"`, and 1-3 is `"per-group-per-block"`
+  and **engloba the other two** — the group picks one member's project and
+  carries it to the end, which is why its own text is the only one in the
+  block written in vosotros. Blocks 2 and 3 stay `"per-group-per-block"`, and
+  that label says the re-forming out loud because it is the part students ask
+  about. **This has moved twice, so do not "restore" it from an older note**:
+  individual-within-group until 12 September 2026, group throughout until
+  16 September 2026, then this split, Marc's call — "las actividades 1-1, 1-2
+  son individuales. La 1-3 es en grupo y engloba las otras dos". The enum lives
+  in three places that must agree — `GROUP_MODES` in `validate.mjs`,
+  `groupLabel` in `lib/labels.js` (which maps each value to a `group.*` key in
+  `lib/i18n/`, so a new mode is four edits, not one), and the data. **The
+  reason the groups may change is the hardware count, and the hardware count is
+  not published**: do not write the number of headsets into the repository, the
+  decks or the map.
+- **The island ANNOUNCES a hand-in; it does not collect one and it does not
+  grade one.** "En XR Island simplemente avisamos, pero no evaluamos" — the
+  hand-in itself is uploaded on the university's own platform, on the session
+  the deliverable flag stands on. Same reasoning as the no-grades rule: what
+  lives here is the shape of the course, not its bookkeeping.
+- **Block 1 has NO starter repository, and no text may promise one.** It was
+  going to be a repo with a branch per exercise — `01-plane-detection`,
+  `02-image-tracking`, `03-libre` — and `starterRepo.url` sat at `null` for
+  weeks while the portal said "pendiente de publicar". On 16 September 2026 the
+  call went the other way: **the students build the Unity project from scratch
+  in class**, AR Foundation install included, so `starterRepo` is gone from the
+  three block-1 levels and every reference to a branch is out of their
+  `starting_point`, `deliverable` and decks. The FIELD survives in the model
+  (`validate.mjs`, `portal.js`, and the README documents it) because a fork may
+  want it. **An absent `starterRepo` is the right shape here, not a `url` of
+  `null`**: null renders a branch name the student cannot clone.
 - **No live in-browser AI calls, no API keys on the client.** The slide decks
   are a Markdown→HTML pipeline run at build time, not generation.
 - **The course publishes no answers.** The todos are the instructions and that
@@ -530,6 +554,20 @@ Changing any of these is a design decision, not a refactor.
   teacher's view from the map, and the person being shown the island is exactly
   the one who does not know `/admin` exists.
 - **Bosses** close the screen through a horned silhouette instead of a circle.
+- **The todos tab is called INSTRUCCIONES, and the practical session's Marp
+  deck WALKS THE SAME STEPS, one slide each.** Renamed from "Actividades" on
+  16 September 2026, Marc's call: what is in there is not an activity, it is
+  the instruction sheet for the exercise, and the projected deck is the same
+  sheet opened out — "explica cada paso (todo) en una diapositiva, puedes
+  explayarte todo lo que quieras para que quede claro". The tab is the
+  checklist the student ticks off in their own time; the deck is what the
+  class is walked through. **The numbering MUST agree between the two.** The
+  deck's troubleshooting slide says "paso 4", the student in the room says
+  "me he quedado en el 12", and both mean a row of `todos[].steps` — so
+  adding a slide means adding the step to `levels.json` too, and the
+  Instrucciones counter (`0/18`) is the number to check it against. The key
+  is still `portal.activities` in all three `i18n` files; only the words
+  changed.
 - **The level portal is ONE scrolling page.** Header, tags, tabs and content all
   scroll away together; only the back button stays (it is `position: fixed`, and
   without it a phone user has no way out — there is no Escape key). Three

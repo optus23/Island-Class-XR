@@ -100,7 +100,7 @@ export default {
 
   // --- level portal -------------------------------------------------------
   'portal.slides': 'Slides',
-  'portal.activities': 'Activities',
+  'portal.activities': 'Instructions',
   'portal.exercises': 'Exercises',
   'portal.bibliography': 'Bibliography',
   'portal.back': 'Back to the map',

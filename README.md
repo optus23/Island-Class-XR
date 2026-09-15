@@ -155,7 +155,7 @@ Everything a session shows lives in **one entry** in
 | **Deck not made yet** | `slidesPending: true` | The portal says the slides are being prepared instead of "no lleva diapositivas". `validate` errors if it survives the deck arriving |
 | **Exercises** | `exercises: "content/exercises/<id>.md"` | Plain Markdown at `public/content/exercises/<id>.md`. The tab hides itself when a session has none |
 | **Bibliography** | `bibliography: "content/bibliography/<id>.md"` | Same idea, its own tab: the reading behind a theory session. Also hidden when absent |
-| **Activities** | `todos: [ … ]` | `objective-task` objects — objective, starting point, numbered `steps`, deliverable. Optional `steps_note` qualifies the guide |
+| **Instructions** | `todos: [ … ]` | `objective-task` objects — objective, starting point, numbered `steps`, deliverable. Optional `steps_note` qualifies the guide |
 | **Generated deck** | `marp: true` in the exercise Markdown | Slides built from that Markdown at build time — see below. Beats a `slides` block |
 | **Graded exercise** | `block`, `submissionMethod`, `groupMode` | Only on the 8 exercises of the three practical blocks — see below |
 | **Hand-in flag** | `deliverable: { "label": "…", "kind": "graded" \| "optional" }` | Plants a flag beside the session — see below |
@@ -273,10 +273,11 @@ and **errors** if one still carries the flag after its deck lands, so the note
 cannot rot into a lie. A project or exam day, which will never have a deck, just
 leaves all four fields out.
 
-### Activities (`todos`)
+### Instructions (`todos`)
 
-Native interactive activities — never a PDF, never plain text. The type today is
-`objective-task`:
+Native interactive instructions — never a PDF, never plain text. They are the
+portal's **Instrucciones** tab, a checklist the student ticks off. The type
+today is `objective-task`:
 
 ```jsonc
 {
@@ -315,14 +316,14 @@ it — there are no live AI calls in the browser and no API keys on the client.
 ### Graded exercises (the three practical blocks)
 
 Eight levels carry the graded exercises of the **Blue Goblin** blocks. They are
-ordinary `practical` levels plus four fields:
+ordinary `practical` levels plus three fields, and an optional fourth:
 
 ```jsonc
 {
   "block": { "number": 1, "name": "AR Foundation", "exercise": 1, "of": 3 },
   "submissionMethod": "build",              // build | video | repo | null
   "groupMode": "per-group-per-block",       // individual | individual-within-group | per-group | per-group-per-block
-  "starterRepo": { "url": null, "branch": "01-plane-detection" }  // block 1 only
+  "starterRepo": { "url": null, "branch": "01-plane-detection" }  // optional; omit it entirely if there is no starter project
 }
 ```
 
@@ -374,13 +375,19 @@ open decision is also flagged with a `_fixme` on its own node and printed by
 **every** `npm run validate` run, so it cannot quietly become permanent by
 being forgotten.
 
-`starterRepo` points at a **separate** student repository — the Unity project
-never lands in this repo, and the relationship between the two is a link, not a
-dependency. One branch per exercise, each branched from the previous one, so the
-last branch holds the complete project. It does not exist yet: `url` is `null`
-and the portal shows *«pendiente de publicar»*. Creating that repo and filling
-the same `url` into the three block-1 nodes is the entire job — no code
-changes.
+`starterRepo` is **optional**, and points at a **separate** student repository
+— the Unity project never lands in this repo, and the relationship between the
+two is a link, not a dependency. One branch per exercise, each branched from the
+previous one, so the last branch holds the complete project. `url` may be `null`
+while the repo is being prepared, and the portal then shows
+*«pendiente de publicar»* beside the branch name.
+
+**This course does not use it.** The block-1 exercises were going to ship as a
+repository with one branch each; the repository was never created and the call
+went the other way — the students build the Unity project from scratch in class,
+AR Foundation install included, so the field is simply absent from those levels.
+Leave it out rather than leaving a `url` of `null` in place: a branch name with
+no repository behind it is a promise the portal keeps making.
 
 ### Slides generated from Markdown (Marp)
 

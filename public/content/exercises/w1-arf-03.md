@@ -10,7 +10,7 @@ paginate: true
 
 **Bloque 1 — AR Foundation** · entrega evaluable
 (este ejercicio es el de **más peso** del bloque)
-**Por grupo** · los grupos se rehacen cada bloque · **Entrega: build (APK)**
+**Por grupo** · engloba los ejercicios 1 y 2 · **Entrega: build (APK)**
 
 ---
 
@@ -33,8 +33,9 @@ feature que no hayamos usado en clase**:
 - *mesh scanning / occlusion* — que se esconda detrás de los muebles de verdad
 - cualquier otra del catálogo
 
-Intégrala **en el mismo proyecto** de los ejercicios 1 y 2 y úsala para contar el
-desenlace. Puedes combinar varias: **si todas funcionan, sube la nota**.
+Este ejercicio es **en grupo**: partid de uno de vuestros proyectos de los
+ejercicios 1 y 2, integradla **en él** y usadla para contar el desenlace.
+Podéis combinar varias: **si todas funcionan, sube la nota**.
 
 
 ---
@@ -51,11 +52,11 @@ desenlace. Puedes combinar varias: **si todas funcionan, sube la nota**.
 
 ## Entrega
 
-**APK con el bloque entero integrado**, desde la rama `03-libre` — que al
-terminar contiene la suma de los tres ejercicios.
+**APK con el bloque entero integrado** — al terminar contiene la suma de los
+tres ejercicios.
 
-En el `README`: qué features has añadido, en qué dispositivo lo has probado, y
-un párrafo con el final de tu Blue Goblin.
+En el `README`: qué features habéis añadido, en qué dispositivo lo habéis
+probado, y un párrafo con el final de vuestro Blue Goblin.
 
 
 ---
