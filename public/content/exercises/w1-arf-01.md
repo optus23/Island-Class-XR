@@ -67,7 +67,7 @@ once your model and its textures are in there.
 
 - **Scripting Backend → IL2CPP**
 - untick **Auto Graphics API**, and leave **OpenGLES3** as the only entry
-- **Minimum API Level → 19** · on iOS, minimum version **11**
+- **Minimum API Level → 24** (Android 7.0) · on iOS, minimum version **11**
 
 **ARCore does not run on Vulkan.** Leave it in the Graphics APIs list and the
 app compiles, installs, opens — and shows a **black screen**, with no error
