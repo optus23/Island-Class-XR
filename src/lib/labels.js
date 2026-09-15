@@ -55,12 +55,16 @@ export function assessmentRows(level) {
   if (!level?.block) return []
   const b = level.block
 
+  // 'none' drops the delivery row rather than printing a value: see the same
+  // rule in `ui/portal.js`, which this must not drift from.
   return [
     [
       t('assess.block'),
       t('assess.blockValue', { number: b.number, name: b.name, exercise: b.exercise, of: b.of }),
     ],
-    [t('assess.delivery'), submissionLabel(level.submissionMethod)],
+    ...(level.submissionMethod === 'none'
+      ? []
+      : [[t('assess.delivery'), submissionLabel(level.submissionMethod)]]),
     [t('assess.work'), groupLabel(level.groupMode)],
   ]
 }

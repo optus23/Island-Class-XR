@@ -1,6 +1,7 @@
 import { marked } from 'marked'
 import { t } from '../lib/i18n/index.js'
 import { localized } from '../lib/i18n/text.js'
+import { renderDeck } from './deck.js'
 
 /**
  * Renders the interactive activities. Never a PDF, never plain text.
@@ -119,23 +120,42 @@ const renderers = {
           <ul class="text-sm">${steps}</ul>
         </div>
 
-        <div>
+        ${
+          todo.deliverable
+            ? `<div>
           <p class="text-xs uppercase tracking-wide opacity-60 mb-1">${t('todos.delivery')}</p>
           <p class="text-sm">${md(todo.deliverable)}</p>
-        </div>
+        </div>`
+            : ''
+        }
       </article>`
   },
 }
 
-export function renderTodos(el, level) {
+export async function renderTodos(el, level) {
   const todos = level.todos ?? []
+
+  // The generated deck goes ON TOP of the checklist, and this is the tab it
+  // belongs to. It used to live under "Diapositivas", which put the exercise
+  // walkthrough where the lecture belongs and pushed the session's own Canva
+  // down to a link button. They are the same document at two speeds: the deck
+  // is what the class is walked through, the list under it is the same steps
+  // to tick off afterwards — so the numbering of the two MUST agree.
+  el.innerHTML = `<div data-deck-slot></div><div data-list-slot></div>`
+  const deckSlot = el.querySelector('[data-deck-slot]')
+  const listSlot = el.querySelector('[data-list-slot]')
+
+  if (await renderDeck(deckSlot, level)) deckSlot.className = 'mb-8'
+  else deckSlot.remove()
+
   if (!todos.length) {
-    el.innerHTML = `
-      <p class="opacity-70">${t('todos.none')}</p>`
+    if (!el.querySelector('[data-deck]')) {
+      listSlot.innerHTML = `<p class="opacity-70">${t('todos.none')}</p>`
+    }
     return
   }
 
-  el.innerHTML = todos
+  listSlot.innerHTML = todos
     .map((item) => {
       const render = renderers[item.type]
       if (!render) {

@@ -6,344 +6,279 @@ paginate: true
 
 <!-- _class: lead -->
 
-# Ejercicio 1 · Plane Detection
+# Exercise 1 · Plane Detection
 
-**Bloque 1 — AR Foundation** · entrega evaluable
-**Individual** · **Entrega: build (APK)**
-
----
-
-## La historia
-
-Un goblin azul se ha colado en el despacho del profesor. Nadie sabe cómo entró.
-De momento se limita a estar ahí, mirándote desde la mesa a través de la cámara
-del móvil.
-
-En clase has visto un vídeo en el que el profesor toca la pantalla y aparece un
-objeto sobre la superficie que la cámara ha detectado. **Ese vídeo es el
-enunciado**: tienes que llegar al mismo resultado con tu propia idea.
+**Block 1 — AR Foundation**
+**Individual** · eighteen steps, from an empty project to a phone
 
 ---
 
-## Qué tienes que hacer
+## Step 1 · New project, and the platform first
 
-El proyecto lo montas hoy en clase desde cero: Unity nuevo, AR Foundation
-instalado y Blue Goblin puesto en la escena. Sobre eso, añade la mecánica:
+Create a new Unity project with the 3D template we use in class.
 
-> Al tocar un plano detectado, se instancia un modelo 3D en ese punto.
+Before installing anything else: `File > Build Settings`, select **Android**
+(or **iOS**) and press **Switch Platform**.
 
-El modelo lo eliges tú, de donde quieras (Sketchfab, Poly Pizza, el asset store,
-lo que tengas). Lo único que se te pide es que **represente cómo te enfrentas a
-Blue Goblin o cómo lo camelas**, según la historia que quieras contar. Una espada,
-una jaula, un pastel, un altavoz enorme: da igual, mientras se entienda.
-
----
-
-## Requisitos mínimos
-
-- Detección de planos activa y **visible**: hay que ver en pantalla qué está
-  reconociendo el dispositivo.
-- El objeto aparece **donde tocas**, no en el centro de la pantalla ni en el
-  origen del mundo.
-- Escala real. Sobre una mesa, tu objeto mide centímetros.
-- Blue Goblin sigue en escena y pasa algo entre él y lo que instancias.
+Do it now, not at the end. Switching platform reimports every asset in the
+project. On an empty project that takes seconds; once your model, your textures
+and your prefabs are in there it can cost you several minutes of class time.
 
 ---
 
-## El camino de hoy
+## Step 2 · Install AR Foundation
 
-Dieciocho pasos, en cuatro tramos. Si te pierdes, mira en qué tramo estás.
+`Window > Package Manager`, select **Unity Registry** at the top left, and
+find:
 
-1. **El proyecto** (pasos 1–7) — Unity, AR Foundation y la escena mínima.
-2. **Ver el mundo** (8–10) — detectar planos y poder lanzar rayos contra ellos.
-3. **El toque** (11–14) — leer el dedo y poner un objeto donde ha caído.
-4. **Que se lo crea** (15–18) — escala, limpieza, historia y móvil.
+- **AR Foundation** — the common layer, the one you write code against.
+- **Google ARCore XR Plugin** (Android) or **Apple ARKit XR Plugin** (iOS) —
+  the provider, the one that actually talks to the phone.
 
-Los tres primeros tramos son mecánicos. El cuarto es donde se decide la nota.
-
----
-
-## Paso 1 · Proyecto nuevo y plataforma
-
-Crea un proyecto Unity nuevo con la plantilla 3D que usemos en clase.
-
-Lo primero de todo, antes de instalar nada: `File > Build Settings`, selecciona
-**Android** (o **iOS**) y pulsa **Switch Platform**.
-
-Hazlo ahora y no al final. Cambiar de plataforma reimporta todos los assets del
-proyecto, y hacerlo con el proyecto vacío tarda segundos; hacerlo cuando ya
-tienes tu modelo, tus texturas y tus prefabs dentro puede costarte varios
-minutos de reloj de clase.
+AR Foundation on its own **does no AR**: it defines the interface, and the
+provider implements it. That is why you need both. We use the **5.1** line,
+which is what the manual linked in this session's bibliography documents.
 
 ---
 
-## Paso 2 · Instalar AR Foundation
+## Step 3 · Enable the XR provider
 
-`Window > Package Manager`, arriba a la izquierda selecciona **Unity Registry**,
-y busca:
+`Edit > Project Settings > XR Plug-in Management` → **Android** (or **iOS**)
+tab → tick the provider's checkbox.
 
-- **AR Foundation** — la capa común, la que usarás desde el código.
-- **Google ARCore XR Plugin** (Android) o **Apple ARKit XR Plugin** (iOS) — el
-  proveedor, quien habla de verdad con el sistema del móvil.
+Two things to watch:
 
-AR Foundation por sí sola **no hace AR**: define la interfaz, y el proveedor la
-implementa. Por eso hacen falta las dos. Usamos la línea **5.1**, que es la que
-documenta el manual enlazado en la bibliografía de la sesión.
-
----
-
-## Paso 3 · Activar el proveedor XR
-
-`Edit > Project Settings > XR Plug-in Management` → pestaña **Android** (o
-**iOS**) → marca la casilla del proveedor.
-
-Dos cuidados:
-
-- La pestaña de Android **solo aparece** si tienes el módulo de Android
-  instalado desde el Unity Hub. Si no la ves, ese es el motivo.
-- Activar aquí la casilla **instala el paquete si te falta**. Instalarlo desde
-  el Package Manager, en cambio, **no** lo activa. Instalado y activado son dos
-  cosas distintas, y este es el despiste número uno del día.
+- The Android tab **only appears** if you installed the Android module from
+  Unity Hub. If you cannot see it, that is why.
+- Ticking the box here **installs the package if you are missing it**.
+  Installing it from the Package Manager, on the other hand, does **not**
+  enable it. Installed and enabled are two different things, and this is the
+  single most common slip of the day.
 
 ---
 
-## Paso 4 · Ajustes de Player (Android)
+## Step 4 · Player settings (Android)
 
 `Edit > Project Settings > Player > Other Settings`:
 
-- En **Rendering**: desmarca *Auto Graphics API* y **quita Vulkan** de la lista.
-  ARCore solo funciona con **OpenGLES3**.
-- En **Configuration**: **Scripting Backend → IL2CPP**, y marca **ARM64** en
-  *Target Architectures*. ARM64 necesita IL2CPP, en ese orden.
+- Under **Rendering**: untick *Auto Graphics API* and **remove Vulkan** from
+  the list. ARCore only works with **OpenGLES3**.
+- Under **Configuration**: **Scripting Backend → IL2CPP**, and tick **ARM64**
+  in *Target Architectures*. ARM64 needs IL2CPP, in that order.
 
-Con Vulkan puesto, la app compila y arranca **en negro**: cámara muerta y ni un
-error en pantalla. Es el fallo más difícil de diagnosticar de toda la sesión.
-
----
-
-## Paso 5 · Comprobarlo con Project Validation
-
-`Project Settings > XR Plug-in Management > Project Validation`, pestaña
-**Android**.
-
-Es una lista de comprobaciones que Unity hace sola sobre tu proyecto, y la
-mayoría trae un botón **Fix** que corrige el ajuste por ti. Ahí sale, entre
-otras, la versión mínima de Android que pide tu combinación de Editor y
-plug-in — que cambia según versiones, así que no te fíes de un número leído por
-ahí: mira lo que dice tu proyecto.
-
-Activa *Show all* para ver también las comprobaciones que ya pasan.
+Leave Vulkan in and the app compiles, installs, and starts up **black**: dead
+camera, not one error on screen. It is the hardest failure of the whole session
+to diagnose.
 
 ---
 
-## Paso 6 · La escena mínima
+## Step 5 · Check it with Project Validation
 
-Borra la **Main Camera** que trae la escena por defecto.
+`Project Settings > XR Plug-in Management > Project Validation`, **Android**
+tab.
 
-Clic derecho en la Hierarchy y añade:
+It is a list of checks Unity runs against your own project, and most of them
+come with a **Fix** button that corrects the setting for you. Among them is the
+minimum Android version your combination of Editor and plug-in requires — which
+changes between versions, so do not trust a number you read somewhere: read
+what your project says.
 
-- `XR > AR Session` — enciende y configura el AR en el dispositivo.
-- `XR > XR Origin (Mobile AR)` — es quien convierte el tracking del móvil en
-  coordenadas de Unity. Trae dentro `Camera Offset > Main Camera`, y **esa** es
-  la cámara que verás por pantalla.
-
-Sin cualquiera de los dos, el AR no arranca. Y si dejas las dos cámaras, acabas
-viendo la escena desde la que no se mueve.
-
----
-
-## Paso 7 · Poner a Blue Goblin
-
-Importa el modelo de Blue Goblin y déjalo colocado en la escena.
-
-Tiene que estar ahí **desde el primer frame**, antes de que el usuario toque
-nada: la historia empieza con él ya presente, no con él apareciendo.
-
-Colócalo a un par de metros del origen, no encima de él. El XR Origin arranca
-donde esté el móvil al abrir la app, así que un objeto en (0,0,0) sale pegado a
-la cara de quien la abre.
+Turn on *Show all* to see the checks that already pass.
 
 ---
 
-## Paso 8 · AR Plane Manager
+## Step 6 · The minimum scene
 
-Selecciona el **XR Origin** en la Hierarchy → `Add Component` → **AR Plane
+Delete the **Main Camera** the default scene ships with.
+
+Right-click in the Hierarchy and add:
+
+- `XR > AR Session` — switches AR on and configures it on the device.
+- `XR > XR Origin (Mobile AR)` — turns the phone's tracking into Unity
+  coordinates. It contains `Camera Offset > Main Camera`, and **that** is the
+  camera you will be looking through.
+
+Without either one, AR never starts. And if you leave both cameras in, you end
+up watching the scene through the one that does not move.
+
+---
+
+## Step 7 · Put Blue Goblin in
+
+Import the Blue Goblin model and leave him placed in the scene.
+
+He has to be there **from the first frame**, before the user touches anything:
+the story opens with him already present, not with him appearing.
+
+Put him a couple of metres from the origin, not on top of it. The XR Origin
+starts wherever the phone is when the app opens, so an object at (0,0,0) lands
+in the face of whoever opens it.
+
+---
+
+## Step 8 · AR Plane Manager
+
+Select the **XR Origin** in the Hierarchy → `Add Component` → **AR Plane
 Manager**.
 
-Este componente escanea lo que ve la cámara y va creando un GameObject por cada
-superficie plana que reconoce: la mesa, el suelo, una pared. Se llaman
-*trackables*, y crecen y se fusionan entre ellos mientras te mueves.
+This component scans what the camera sees and creates one GameObject per flat
+surface it recognises: the table, the floor, a wall. They are called
+*trackables*, and they grow and merge into each other as you move.
 
-Va sobre el XR Origin, y no sobre la cámara ni sobre un objeto suelto, porque
-los planos tienen que nacer en el mismo espacio de coordenadas que el tracking.
-
----
-
-## Paso 9 · Plane Prefab: ver lo que ve
-
-En el AR Plane Manager, arrastra un prefab de plano al campo **Plane Prefab**.
-Puedes usar el que traen los samples.
-
-Esto dibuja en pantalla los planos detectados, y **es un requisito del
-ejercicio**, no una ayuda de depuración: quien corrija tiene que ver qué está
-reconociendo el dispositivo.
-
-Además te ahorra media hora. Sin esto, cuando un toque no ponga nada, no sabrás
-si falla tu código o es que esa mesa nunca llegó a detectarse.
+It goes on the XR Origin, not on the camera and not on some loose object,
+because the planes have to be born in the same coordinate space as the
+tracking.
 
 ---
 
-## Paso 10 · AR Raycast Manager
+## Step 9 · Plane Prefab: see what it sees
 
-Sobre el mismo XR Origin, `Add Component` → **AR Raycast Manager**.
+In the AR Plane Manager, drag a plane prefab into the **Plane Prefab** field.
+You can use the one from the samples.
 
-Un raycast normal de física choca con *colliders*. Este no: lanza el rayo contra
-los **trackables** de AR — los planos que acaba de encontrar el paso anterior —
-que no tienen ningún collider.
+This draws the detected planes on screen, and it is a **requirement of the
+exercise**, not a debugging aid: whoever looks at your build has to see what
+the device is recognising.
 
-Es la pieza que traduce «el usuario ha tocado este píxel de la pantalla» a «ese
-píxel cae sobre este punto de la mesa de verdad».
-
----
-
-## Paso 11 · El script
-
-Crea un script (por ejemplo `TapToPlace.cs`) y engánchalo a un GameObject de la
-escena — vale un objeto vacío llamado `Placement`, o el propio XR Origin.
-
-Dentro necesitas, como mínimo:
-
-- una referencia al **AR Raycast Manager**, arrastrada desde el Inspector,
-- el **prefab** que vas a instanciar,
-- una `List<ARRaycastHit>` reutilizable, creada una sola vez como campo de la
-  clase y no dentro del `Update`.
+It also saves you half an hour. Without it, when a tap spawns nothing, you have
+no way of telling whether your code is broken or that table was never detected.
 
 ---
 
-## Paso 12 · Leer el toque
+## Step 10 · AR Raycast Manager
 
-Lee el dedo con el **Input System**: `Touchscreen.current`, o
-`UnityEngine.InputSystem.EnhancedTouch.Touch` si quieres varios dedos.
+On the same XR Origin, `Add Component` → **AR Raycast Manager**.
 
-Dos cuidados que ahorran bugs raros:
+An ordinary physics raycast hits *colliders*. This one does not: it casts
+against the AR **trackables** — the planes the previous step just found — which
+have no collider at all.
 
-- Comprueba que `Touchscreen.current` no es `null` antes de usarlo — en el
-  editor no hay pantalla táctil, y ahí es donde se te cae.
-- Actúa en el frame en que el dedo **empieza** a tocar (`wasPressedThisFrame`),
-  no mientras sigue apoyado, o instanciarás un objeto por frame.
+It is the piece that translates "the user touched this pixel of the screen"
+into "that pixel lands on this point of the real table".
 
 ---
 
-## Paso 13 · El raycast contra el plano
+## Step 11 · The script
 
-Con la posición de pantalla del toque:
+Create a script (say `TapToPlace.cs`) and attach it to a GameObject in the
+scene — an empty called `Placement` will do, or the XR Origin itself.
+
+Inside it you need, as a minimum:
+
+- a reference to the **AR Raycast Manager**, dragged in from the Inspector,
+- the **prefab** you are going to spawn,
+- one reusable `List<ARRaycastHit>`, created once as a field of the class and
+  not inside `Update`.
+
+---
+
+## Step 12 · Read the tap
+
+Read the finger with the **Input System**: `Touchscreen.current`, or
+`UnityEngine.InputSystem.EnhancedTouch.Touch` if you want several fingers.
+
+Two things that save you strange bugs:
+
+- Check `Touchscreen.current` is not `null` before using it — there is no touch
+  screen in the editor, and that is exactly where it falls over.
+- Act on the frame the finger **goes down** (`wasPressedThisFrame`), not while
+  it stays down, or you will spawn one object per frame.
+
+---
+
+## Step 13 · The raycast against the plane
+
+With the screen position of the tap:
 
 ```csharp
 if (raycastManager.Raycast(pos, hits, TrackableType.PlaneWithinPolygon))
 {
     var pose = hits[0].pose;
-    // pose.position y pose.rotation son el punto y la orientación reales
+    // pose.position and pose.rotation are the real point and orientation
 }
 ```
 
-`PlaneWithinPolygon` limita el impacto a la **superficie realmente detectada**.
-Con `PlaneEstimated`, el rayo choca con el plano matemático infinito y te pondrá
-objetos flotando más allá del borde de la mesa.
+`PlaneWithinPolygon` limits the hit to the **surface actually detected**. With
+`PlaneEstimated`, the ray hits the infinite mathematical plane instead and will
+put objects floating out past the edge of the table.
 
 ---
 
-## Paso 14 · Instanciar
+## Step 14 · Spawn it
 
 ```csharp
 Instantiate(prefab, pose.position, pose.rotation);
 ```
 
-La rotación de la pose ya viene alineada con el plano, así que tu objeto se
-apoya sobre la mesa en vez de quedarse tumbado o girado.
+The pose's rotation already comes aligned with the plane, so your object rests
+on the table instead of lying down or facing sideways.
 
-Si tu modelo sale de lado, el problema casi nunca es el código: es el pivote del
-modelo. Arréglalo metiéndolo dentro de un GameObject vacío, con el hijo rotado y
-centrado, y usa el padre como prefab.
-
----
-
-## Paso 15 · Escala real
-
-Pon en la escena un cubo de 1×1×1 como referencia — en Unity **1 unidad = 1
-metro** — y ajusta tu modelo contra él.
-
-Es el paso que más gente se salta y el que más canta al corregir: un modelo
-descargado de internet puede venir a escala de centímetros o de kilómetros, y en
-AR eso no se disimula. Sobre una mesa de verdad, tu objeto tiene que medir
-**centímetros**.
-
-Comprueba la escala del **prefab**, no solo la del modelo en la carpeta.
+If your model comes out sideways, the problem is almost never the code — it is
+the model's pivot. Fix it by nesting the model inside an empty GameObject, with
+the child rotated and centred, and use the parent as your prefab.
 
 ---
 
-## Paso 16 · No apilar copias
+## Step 15 · Real-world scale
 
-Tal como está, cada toque instancia otro objeto. A los diez toques tienes una
-torre.
+Put a 1×1×1 cube in the scene as a reference — in Unity **1 unit = 1 metre** —
+and size your model against it.
 
-Decide qué quieres y escríbelo:
+This is the step most people skip and the one that shows most: a model
+downloaded off the internet can arrive at centimetre scale or at kilometre
+scale, and in AR that does not go unnoticed. On a real table, your object is
+**centimetres** across.
 
-- **Uno solo**: guarda la referencia del que ya existe y muévelo con
-  `transform.SetPositionAndRotation`, en vez de crear otro.
-- **Varios, con límite**: lleva la cuenta y bloquea a partir de N.
-
-Cualquiera de las dos vale. Lo que no vale es no haberlo decidido.
-
----
-
-## Paso 17 · La historia
-
-Conecta visualmente el objeto que instancias con Blue Goblin: que se le acerque,
-que lo asuste, que lo ilumine, que lo atrape, que lo convenza.
-
-Este es el paso que separa un ejercicio entregado de un ejercicio bueno, y no
-lleva código nuevo: es dónde colocas las cosas, qué mira a qué, y qué pasa en
-los dos segundos siguientes al toque.
-
-La prueba es sencilla: **si hay que explicarlo al lado, no cuenta**.
+Check the scale on the **prefab**, not just on the model in the folder.
 
 ---
 
-## Paso 18 · Al móvil
+## Step 16 · Do not stack copies
 
-`File > Build Settings` → **Build and Run**, con el móvil conectado por cable y
-la depuración USB activada.
+As it stands, every tap spawns another object. Ten taps and you have a tower.
 
-Pruébalo **en el dispositivo físico**, y déjate tiempo para ello: la primera
-build de un proyecto con IL2CPP es lenta, y no es el momento de descubrirlo.
+Decide what you want and write it down in code:
 
-El Play Mode del editor no simula detección real de planos. Ahí siempre parece
-que funciona.
+- **Just one**: keep the reference to the one that exists and move it with
+  `transform.SetPositionAndRotation` instead of creating another.
+- **Several, up to a limit**: count them and block past N.
 
----
-
-## Si algo no funciona
-
-- **Pantalla negra** → Vulkan sigue en Graphics APIs (paso 4).
-- **No detecta nada** → falta luz, o la superficie es lisa y uniforme; ARCore
-  necesita textura. Prueba sobre una mesa con cosas encima.
-- **El objeto sale gigante, o no se ve** → escala (paso 15).
-- **Sale en el centro y no donde tocas** → no estás usando `hits[0].pose`.
-- **Compila pero no arranca** → pasa por Project Validation (paso 5).
+Either is fine. What is not fine is not having decided.
 
 ---
 
-## Entrega
+## Step 17 · The story
 
-**Un APK**, no un vídeo. Se instala en un móvil para corregirlo, así que tiene
-que arrancar solo. Nómbralo `bloque1-ej1-<apellido>.apk`.
+Connect the object you spawn to Blue Goblin visually: let it come at him,
+scare him, light him up, trap him, talk him round.
 
-En un `README` junto al APK, tres líneas: qué modelo has usado, de dónde sale y
-con qué licencia, y qué le hace a Blue Goblin.
+This is the step that separates a submitted exercise from a good one, and it
+takes no new code: it is where you put things, what faces what, and what
+happens in the two seconds after the tap.
+
+The test is simple: **if it needs explaining alongside, it does not count.**
 
 ---
 
-## Cómo se evalúa
+## Step 18 · Onto the phone
 
-Que la mecánica funcione en un móvil real. Que la escala y el anclaje sean
-creíbles. Que la escena cuente algo sin que tengas que explicarlo al lado.
+`File > Build Settings` → **Build and Run**, phone connected by cable with USB
+debugging on.
+
+Test it **on the physical device**, and leave yourself time for it: the first
+build of an IL2CPP project is slow, and that is not the moment to find out.
+
+The editor's Play Mode does not simulate real plane detection. In there it
+always looks like it works.
+
+---
+
+## If something does not work
+
+- **Black screen** → Vulkan is still in Graphics APIs (step 4).
+- **Nothing gets detected** → not enough light, or the surface is smooth and
+  uniform; ARCore needs texture. Try a table with things on it.
+- **The object is huge, or invisible** → scale (step 15).
+- **It lands in the centre instead of where you tapped** → you are not using
+  `hits[0].pose`.
+- **It builds but will not start** → go through Project Validation (step 5).

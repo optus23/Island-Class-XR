@@ -101,7 +101,6 @@ export default {
   // --- level portal -------------------------------------------------------
   'portal.slides': 'Slides',
   'portal.activities': 'Instructions',
-  'portal.exercises': 'Exercises',
   'portal.bibliography': 'Bibliography',
   'portal.back': 'Back to the map',
   'portal.backTitle': 'Back to the map (Esc)',
@@ -112,7 +111,6 @@ export default {
   'portal.completed': 'Completed',
   'portal.current': 'We are here',
   'portal.loading': 'Loading…',
-  'portal.noExercises': 'This level has no exercises.',
   'portal.noBibliography': 'This level has no bibliography.',
   'portal.repository': 'Repository',
   'portal.repoLink': 'exercise repository',
@@ -121,7 +119,6 @@ export default {
 
   // --- slides -------------------------------------------------------------
   'slides.sessionContent': 'What this session covers',
-  'slides.deckLink': 'Slides for this session',
   'slides.openCanva': 'Open in Canva ↗',
   'slides.canvaPrivateNote':
     'Opens in Canva, in a new tab. If it asks for permission, the design is not public yet.',

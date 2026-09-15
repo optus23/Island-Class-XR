@@ -50,9 +50,15 @@ function assessmentStrip(level) {
       t('assess.block'),
       t('assess.blockValue', { number: b.number, name: b.name, exercise: b.exercise, of: b.of }),
     ],
-    [t('assess.delivery'), orUndecided(submissionLabel(level.submissionMethod))],
     [t('assess.work'), orUndecided(groupLabel(level.groupMode))],
   ]
+
+  // No delivery row on an exercise that is not handed in on its own. The
+  // block's hand-in happens once, at the end, and saying "Entrega: APK" on
+  // every exercise in it promises three.
+  if (level.submissionMethod !== 'none') {
+    items.splice(1, 0, [t('assess.delivery'), orUndecided(submissionLabel(level.submissionMethod))])
+  }
 
   if (level.starterRepo) {
     const branch = t('portal.branch', {
@@ -93,27 +99,28 @@ const FOCUSABLE =
 function tabsFor(level) {
   const slides = { key: 'slides', label: t('portal.slides') }
   const todos = { key: 'todos', label: t('portal.activities') }
-  const exercises = { key: 'exercises', label: t('portal.exercises') }
   const bibliography = { key: 'bibliography', label: t('portal.bibliography') }
 
   // There is no answers tab. The todos ARE the instructions, and the course
   // deliberately does not publish worked solutions.
 
-  // Practical levels lead with the activities; everything else leads with slides.
-  const ordered =
-    level.category === 'practical' && level.todos?.length
-      ? [todos, slides, exercises, bibliography]
-      : [slides, todos, exercises, bibliography]
+  // THREE TABS, AND SLIDES IS ALWAYS THE FIRST. A theory day and a practical
+  // day now open the same way — lecture, then instructions, then reading —
+  // because that is the order a session actually happens in. There was a
+  // fourth, "Ejercicios", rendering the exercise markdown as prose while the
+  // same file's compiled deck sat under "Diapositivas": one document in two
+  // places, and neither where you would look for it. The deck moved into
+  // Instructions (`ui/todos.js`) and the prose tab went away with it.
+  const ordered = [slides, todos, bibliography]
 
   // A tab only shows when the level actually has something behind it — an
-  // empty "Ejercicios" or "Bibliografía" button that opens on "esta sesión no
-  // tiene..." reads as a broken feature, not as an honest empty state.
+  // empty "Bibliografía" button that opens on "esta sesión no tiene..." reads
+  // as a broken feature, not as an honest empty state.
   //
   // `tab`, not `t`: `t` is the translation function in this module now, and
   // shadowing it here would take every label on the page down with it.
   return ordered.filter((tab) => {
-    if (tab.key === 'todos') return Boolean(level.todos?.length)
-    if (tab.key === 'exercises') return Boolean(level.exercises)
+    if (tab.key === 'todos') return Boolean(level.todos?.length || level.exercises)
     if (tab.key === 'bibliography') return Boolean(level.bibliography)
     return true
   })
@@ -267,15 +274,12 @@ export function openPortal(
       return
     }
     if (key === 'todos') {
-      renderTodos(panel, level)
+      await renderTodos(panel, level)
       return
     }
     panel.innerHTML = `<p class="opacity-60">${t('portal.loading')}</p>`
-    const path = key === 'bibliography' ? level.bibliography : level.exercises
-    const emptyLabel =
-      key === 'bibliography' ? t('portal.noBibliography') : t('portal.noExercises')
-    const result = await loadMarkdown(path)
-    renderMarkdownInto(panel, result, emptyLabel)
+    const result = await loadMarkdown(level.bibliography)
+    renderMarkdownInto(panel, result, t('portal.noBibliography'))
   }
 
   buttons.forEach((b) => b.addEventListener('click', () => show(b.dataset.tab)))
