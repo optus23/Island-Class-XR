@@ -564,6 +564,29 @@ Changing any of these is a design decision, not a refactor.
   teacher's view from the map, and the person being shown the island is exactly
   the one who does not know `/admin` exists.
 - **Bosses** close the screen through a horned silhouette instead of a circle.
+- **BLOCK 1 WRITES NO CODE, AND THE EXERCISE COMES OFF MARC'S OWN DECK.** The
+  students are not ready to write a raycast — "eso de que ellos escriben un
+  script y tal, aún no están preparados, así que no lo pongas". Day 2 starts
+  from Unity's **AR Mobile** template (Unity Hub → *Core*), which already
+  carries the spawner, the object menu and the UI, and the whole exercise is
+  done in the **Inspector**: duplicate `CubeVariant`, swap its `Visuals` mesh
+  and material, drag the prefab into `Object Spawner`'s **Object Prefabs**
+  list, duplicate `Button (Cube)` and change the `SetObjectToSpawn` index.
+  **Two rounds were spent writing the wrong exercise** — first installing AR
+  Foundation package by package, then a hand-written `TapToPlace.cs` — because
+  the exercise was reasoned about instead of asked for. Marc has a deck per
+  session with the TODOs numbered on it; **ask for it before writing steps.**
+  - **THE STEPS ARE HIS TODO NUMBERS, NOT A BETTER SET.** Day 2 is TODO 1–8 and
+    the checklist says `0/8`, because a student holding the projected deck has
+    to be able to say "I'm stuck on 6" and have it mean the same thing in both
+    places. Expanding each one with the why and the gotcha is welcome; renumbering
+    is not.
+  - **BLUE GOBLIN IS NARRATIVE, NOT AN ASSET IN THEIR PROJECT.** "Una narrativa
+    chorra para que los alumnos tengan un punto de innovación." A goblin got
+    into Marc's house in the intro; what the STUDENT builds is a 3D object of
+    their own choosing — the "solution to deal with the blue goblin". Do not
+    write the goblin into the starting scene, and do not require a particular
+    model: the choice is the point.
 - **THE PORTAL HAS THREE TABS, AND SLIDES IS ALWAYS FIRST: Slides,
   Instructions, Bibliography.** Settled 16 September 2026 after shipping it
   wrong: "deberían de quedar tres tabs solo... En el de Slides ha de estar

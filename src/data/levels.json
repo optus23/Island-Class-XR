@@ -115,27 +115,17 @@
         {
           "id": "w1-arf-01-t1",
           "type": "objective-task",
-          "objective": "Blue Goblin is in the scene from the very first frame. Reproduce the mechanic from the video shown in class — tapping a detected plane spawns a 3D model — and use that object to face him down or to win him over, whichever story you want to tell. The model is yours to choose, from wherever you like.",
-          "starting_point": "A brand-new Unity project, built from scratch in class: AR Foundation is installed during the session. Your own Android or iOS phone, with a data cable. The Blue Goblin model is handed out in class.",
+          "objective": "Create an augmented reality app with Unity AR Foundation that spawns a 3D object of your own choosing onto a detected plane — your solution for dealing with the blue goblin. You start from Unity's **AR Mobile** template, so there is no code to write today: prefabs, the Inspector, and one button.",
+          "starting_point": "A Unity **2022 LTS** install with the **Android Build Support** module (or **iOS Build Support**), your own phone with a data cable, and a 3D model you like. The template already carries the spawning logic — you will not be writing scripts.",
           "steps": [
-            "Create a new Unity project with the 3D template we use in class, then switch the platform to Android or iOS under `File > Build Settings`.",
-            "`Window > Package Manager > Unity Registry` — install **AR Foundation** and your platform provider: **ARCore XR Plugin** for Android, **ARKit XR Plugin** for iOS.",
-            "`Edit > Project Settings > XR Plug-in Management` → Android/iOS tab → tick the provider checkbox.",
-            "On Android, `Edit > Project Settings > Player > Other Settings`: under **Rendering** untick *Auto Graphics API* and remove **Vulkan** (ARCore only supports OpenGLES3); under **Configuration** set the **Scripting Backend** to **IL2CPP** and tick **ARM64**. Without this the build either fails or starts up black.",
-            "`Project Settings > XR Plug-in Management > Project Validation`, Android tab: work down the list and press **Fix** wherever it offers one. This is where the minimum Android version for your Editor and plug-in comes from — trust it over any number you read elsewhere.",
-            "Delete the default **Main Camera**, then right-click in the Hierarchy and add `XR > AR Session` and `XR > XR Origin (Mobile AR)` — the XR Origin brings its own Main Camera inside Camera Offset.",
-            "Import the Blue Goblin model and leave it placed in the scene: he has to be there from the first frame, before anyone touches anything.",
-            "Select the **XR Origin** in the Hierarchy → `Add Component` → **AR Plane Manager**.",
-            "In the AR Plane Manager, drag a plane prefab into the **Plane Prefab** field, so you can see on screen what the device is detecting while you test.",
-            "On the same XR Origin, `Add Component` → **AR Raycast Manager**.",
-            "Create a script (say `TapToPlace.cs`) and attach it to a GameObject in the scene. Give it a reference to the AR Raycast Manager, the prefab to spawn, and one reusable `List<ARRaycastHit>`.",
-            "Read the screen tap with the Input System (`Touchscreen.current`, or `EnhancedTouch.Touch`). Act on the frame the finger goes **down**, not while it stays down.",
-            "On a tap, call `raycastManager.Raycast(pos, hits, TrackableType.PlaneWithinPolygon)`; if it returns `true` and there is at least one result, take the position and rotation from `hits[0].pose`.",
-            "Spawn your prefab with `Instantiate(prefab, hit.pose.position, hit.pose.rotation)`.",
-            "Get the real-world scale right: next to a 1-metre reference object in the scene it has to read at true size (1 Unity unit = 1 metre).",
-            "Stop copies from piling up: before spawning, check whether one already exists and decide whether you move it or block the second one.",
-            "Connect the spawned object to Blue Goblin visually: let the scene tell your version — attack, distraction, bribery — without you having to explain it.",
-            "`File > Build Settings` → **Build and Run** with the phone connected, and test on the physical device — the editor Play Mode does not simulate real plane detection."
+            "**Unity Hub → New project → the `AR Mobile` template** (under *Core*). Check your Editor first: **2022 LTS**, with the **Android** module installed — OpenJDK and Android SDK & NDK Tools — or **iOS Build Support**. Without the module the platform does not even appear later on.",
+            "**`Window > Package Manager` → Packages: In Project** → make sure everything is up to date, in particular **AR Foundation** and the **Google ARCore XR Plugin** (or **Apple ARKit XR Plugin**). Then `File > Build Settings` → **Android** (or **iOS**) → **Switch Platform**. Do it now: switching later reimports every asset you have added by then.",
+            "**`Project Settings > Player > Other Settings`**: set the **Scripting Backend** to **IL2CPP**; untick **Auto Graphics API** and leave **OpenGLES3** as the only entry in Graphics APIs; set the **Minimum API Level** to **19**. On iOS, minimum version **11**. ARCore does not run on Vulkan: leave it in that list and the app installs, opens **black**, and reports nothing.",
+            "**`Project Settings > XR Plug-in Management`** → Android tab → confirm **Google ARCore** is ticked (**Apple ARKit** on iOS). In the project and enabled are two different things, and this is the most common slip of the day.",
+            "**Your prefab.** In `Assets > MobileARTemplateAssets > Prefabs`, **duplicate `CubeVariant`** and rename it after your object. Inside its **`Visuals`** child, swap the **Mesh Filter** mesh and the **Material**, then redo the **Mesh Collider** with **Convex** ticked. **Put the parent pivot at the floor of the model** — that point is what lands on the plane, so a pivot in the middle buries half your object in the table.",
+            "**Object Spawner.** Expand the **XR Origin** prefab in the Hierarchy and select the GameObject called **`Object Spawner`**. In the Inspector its **Object Spawner** script holds the demo prefabs in the **Object Prefabs** list: press **+** to add one more element and **drag your prefab** into it. Write down the index it lands on — the next step needs it.",
+            "**Your button.** Under `UI > Object Menu Animator > Object Menu > Scroll View > Viewport > Content`, **duplicate `Button (Cube)`** and rename it. In its **Button** component, under **On Click**, set the parameter of `ARTemplateMenuManager.SetObjectToSpawn` to **your prefab index** in the Object Prefabs list — **7** in the example, the eighth element, because the list counts from zero. Then **add a second event**: drag in the **`SelectionBox`** object, choose **GameObject.SetActive**, and tick the checkbox.",
+            "**Build the APK.** `File > Build Settings` → check your scene is in the **Scenes In Build** list (*Add Open Scenes* if it is not) → **Build**, and pick a destination folder. Install the APK on your phone and try it on a real surface with some texture to it — a bare, uniform table gives ARCore nothing to hold on to."
           ]
         }
       ],
