@@ -82,7 +82,7 @@ export default {
   'curtain.building': 'Construyendo la isla…',
 
   'portal.slides': 'Diapositivas',
-  'portal.activities': 'Actividades',
+  'portal.activities': 'Instrucciones',
   'portal.exercises': 'Ejercicios',
   'portal.bibliography': 'Bibliografía',
   'portal.back': 'Volver al mapa',

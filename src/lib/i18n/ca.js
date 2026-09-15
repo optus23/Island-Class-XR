@@ -82,7 +82,7 @@ export default {
   'curtain.building': "Construint l'illa…",
 
   'portal.slides': 'Diapositives',
-  'portal.activities': 'Activitats',
+  'portal.activities': 'Instruccions',
   'portal.exercises': 'Exercicis',
   'portal.bibliography': 'Bibliografia',
   'portal.back': 'Tornar al mapa',
