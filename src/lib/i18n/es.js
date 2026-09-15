@@ -83,7 +83,6 @@ export default {
 
   'portal.slides': 'Diapositivas',
   'portal.activities': 'Instrucciones',
-  'portal.exercises': 'Ejercicios',
   'portal.bibliography': 'Bibliografía',
   'portal.back': 'Volver al mapa',
   'portal.backTitle': 'Volver al mapa (Esc)',
@@ -94,7 +93,6 @@ export default {
   'portal.completed': 'Completado',
   'portal.current': 'Aquí estamos',
   'portal.loading': 'Cargando…',
-  'portal.noExercises': 'Este nivel no tiene ejercicios.',
   'portal.noBibliography': 'Este nivel no tiene bibliografía.',
   'portal.repository': 'Repositorio',
   'portal.repoLink': 'repo de ejercicios',
@@ -102,7 +100,6 @@ export default {
   'portal.repoPending': '(pendiente de publicar)',
 
   'slides.sessionContent': 'Contenido de la sesión',
-  'slides.deckLink': 'Diapositivas de la sesión',
   'slides.openCanva': 'Abrir en Canva ↗',
   'slides.canvaPrivateNote':
     'Se abre en Canva, en una pestaña nueva. Si pide permisos, el diseño todavía no es público.',
