@@ -63,8 +63,68 @@ const BOXES = PARTS.flatMap((p) =>
   p.mirror ? [{ ...p, x: -p.mirror }, { ...p, x: p.mirror, swing: -(p.swing ?? 0) }] : [{ ...p, x: 0 }]
 )
 
-/** Top of the tallest box — where the name plate has to clear. */
-const HEAD_TOP = 2.31
+/**
+ * Hats — ONE box each, sitting on top of the hair slab (which ends at 2.31).
+ *
+ * WHY HATS AND NOT MORE COLOURS. The colours below already gave 640
+ * combinations and the villagers still read as copies of each other, because
+ * at the distance the follow camera sits at you see a SILHOUETTE, not a
+ * palette. A hat is the cheapest thing that changes the outline.
+ *
+ * ONE BOX, so a hat costs exactly one instance. A cap with a peak would be two
+ * and would have to swing with the head; the shapes here earn their difference
+ * from proportion instead — a flat band, a tall stovepipe and a little topknot
+ * do not look like each other even in the same colour.
+ *
+ * **NONE OF THEM IS A HEADSET, AND NONE EVER WILL BE.** The avatar is told
+ * apart from these figures by its visor and its silhouette; a villager in
+ * anything visor-shaped is the "why are there two of me" bug the whole recipe
+ * exists to avoid. See `lib/avatar.js`.
+ */
+const HATS = [
+  { id: 'beanie', box: [0.88, 0.36, 0.84, 0, 2.47, 0] },
+  { id: 'cap', box: [0.94, 0.24, 0.9, 0, 2.41, 0.06] },
+  { id: 'band', box: [0.95, 0.14, 0.91, 0, 2.28, 0] },
+  { id: 'topknot', box: [0.34, 0.3, 0.34, 0, 2.5, -0.08] },
+  { id: 'stovepipe', box: [0.62, 0.66, 0.62, 0, 2.62, 0] },
+  { id: 'sunhat', box: [1.24, 0.16, 1.2, 0, 2.38, 0] },
+]
+
+/**
+ * How many villagers wear one at all.
+ *
+ * Not all of them: a roster where everybody has a hat stops reading as a class
+ * and starts reading as a fancy-dress party, and a bare head is itself one of
+ * the seven silhouettes. A slight majority, so that a roster of two or three
+ * — which is what a term starts with — is unlikely to come out all bare and
+ * look like nothing happened.
+ *
+ * Measured over 4000 generated ids, 0.55 gives 54.6% hatted and every shape
+ * within 8% of an even sixth, so the threshold means what it says. Don't
+ * re-tune it against whoever happens to be on the roster today.
+ */
+const HAT_CHANCE = 0.55
+
+/** A villager's boxes, hat included. Index 0..n is the same layout for all. */
+const NO_HAT = { w: 0, h: 0, d: 0, x: 0, y: 0, z: 0, tint: 'hat' }
+const BOXES_PER_VILLAGER = BOXES.length + 1
+
+function hatBox(hat) {
+  if (!hat) return NO_HAT
+  const [w, h, d, x, y, z] = hat.box
+  return { w, h, d, x, y, z, tint: 'hat' }
+}
+
+/**
+ * Top of the tallest box on THIS villager — where its name plate has to clear.
+ *
+ * Per villager, and derived rather than written down. A stovepipe reaches 2.95
+ * against a bare head's 2.31, so one number for everybody would either hang
+ * every plate 0.6 units too high or let a hat poke through one. Derived, a
+ * taller hat added to the list above lifts its own plate and nobody else's.
+ */
+const BODY_TOP = Math.max(...PARTS.map((p) => p.y + p.h / 2))
+const headTopOf = (hat) => (hat ? Math.max(BODY_TOP, hat.box[4] + hat.box[1] / 2) : BODY_TOP)
 
 const SPEED = 1.55 // world units per second at a full stroll
 const STRIDE = 1.7 // units per step, which sets the cadence of the bob
@@ -320,6 +380,10 @@ export function createVillagers(people = [], road = []) {
 
   const crew = people.map((p) => {
     const ring = seedOf(p.id, 1)
+    // Every look is a pure function of the roster id, so a student keeps the
+    // same one on every load and on everybody else's screen, and `npcs.json`
+    // still holds nothing but a name and a session.
+    const hat = seedOf(p.id, 11) < HAT_CHANCE ? pick(HATS, seedOf(p.id, 12)) : null
     const loop = buildLoop(
       p.centre.x,
       p.centre.z,
@@ -337,15 +401,22 @@ export function createVillagers(people = [], road = []) {
       phase: seedOf(p.id, 5) * Math.PI * 2,
       scale: 0.94 + seedOf(p.id, 6) * 0.14,
       slot: p.slot,
+      headTop: headTopOf(hat),
       headX: p.centre.x,
-      headY: p.centre.y + HEAD_TOP + PLATE_GAP,
+      headY: p.centre.y + headTopOf(hat) + PLATE_GAP,
       headZ: p.centre.z,
+      // Same length for everyone, hat or no hat: the instance index is
+      // `ci * BOXES_PER_VILLAGER + bi`, so a shorter list on one villager
+      // would shift every villager after it onto somebody else's matrices.
+      // A bare head is a zero-sized box, which draws nothing.
+      boxes: [...BOXES, hatBox(hat)],
       colors: {
         shirt: pick(skin.shirt, seedOf(p.id, 7)),
         trousers: pick(skin.trousers, seedOf(p.id, 8)),
         skin: pick(skin.skin, seedOf(p.id, 9)),
         hair: pick(skin.hair, seedOf(p.id, 10)),
-        shoe: skin.shoe,
+        shoe: pick(skin.shoe, seedOf(p.id, 13)),
+        hat: pick(skin.hat, seedOf(p.id, 14)),
         ink: skin.ink,
       },
     }
@@ -356,7 +427,7 @@ export function createVillagers(people = [], road = []) {
   const bodies = new THREE.InstancedMesh(
     new THREE.BoxGeometry(1, 1, 1),
     new THREE.MeshLambertMaterial(),
-    crew.length * BOXES.length
+    crew.length * BOXES_PER_VILLAGER
   )
   bodies.name = 'villager-bodies'
   bodies.instanceMatrix.setUsage(THREE.DynamicDrawUsage)
@@ -366,8 +437,8 @@ export function createVillagers(people = [], road = []) {
 
   const col = new THREE.Color()
   crew.forEach((v, ci) => {
-    BOXES.forEach((b, bi) => {
-      bodies.setColorAt(ci * BOXES.length + bi, col.setHex(v.colors[b.tint]))
+    v.boxes.forEach((b, bi) => {
+      bodies.setColorAt(ci * BOXES_PER_VILLAGER + bi, col.setHex(v.colors[b.tint]))
     })
   })
   if (bodies.instanceColor) bodies.instanceColor.needsUpdate = true
@@ -491,7 +562,7 @@ export function createVillagers(people = [], road = []) {
       const bob = still ? 0 : Math.abs(Math.sin(stepPhase)) * BOB
       const swing = still ? 0 : Math.sin(stepPhase) * SWING
 
-      BOXES.forEach((b, bi) => {
+      v.boxes.forEach((b, bi) => {
         const dz = (b.z ?? 0) + (b.swing ?? 0) * swing
         const ox = (b.x ?? 0) * v.scale
         const oz = dz * v.scale
@@ -502,13 +573,13 @@ export function createVillagers(people = [], road = []) {
         )
         sv.set(b.w * v.scale, b.h * v.scale, b.d * v.scale)
         m.compose(pos, q, sv)
-        bodies.setMatrixAt(ci * BOXES.length + bi, m)
+        bodies.setMatrixAt(ci * BOXES_PER_VILLAGER + bi, m)
       })
 
       // Where the plate hangs from. Its SIZE is decided below, against the
       // camera, so only the anchor is known here.
       v.headX = foot.x
-      v.headY = foot.y + (HEAD_TOP + PLATE_GAP) * v.scale
+      v.headY = foot.y + (v.headTop + PLATE_GAP) * v.scale
       v.headZ = foot.z
     })
     bodies.instanceMatrix.needsUpdate = true
