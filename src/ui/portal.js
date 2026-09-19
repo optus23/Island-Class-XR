@@ -122,6 +122,12 @@ function tabsFor(level) {
   return ordered.filter((tab) => {
     if (tab.key === 'todos') return Boolean(level.todos?.length || level.exercises)
     if (tab.key === 'bibliography') return Boolean(level.bibliography)
+    // `slidesHidden` is the only way this tab goes away, and it has to be said
+    // out loud per level. It CANNOT be inferred from "has no deck": thirteen
+    // levels have none — every project day, both exams, the re-evaluation —
+    // and for those the panel's contents list is the only thing the session
+    // has. Hiding it there would leave the portal with no tabs at all.
+    if (tab.key === 'slides') return !level.slidesHidden
     return true
   })
 }

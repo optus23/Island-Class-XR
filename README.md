@@ -153,6 +153,7 @@ Everything a session shows lives in **one entry** in
 | **PDF** deck | `slides: { "type": "pdf", "source": "content/slides/<id>.pdf" }` | Drop the file at `public/content/slides/<id>.pdf` |
 | **External** deck | `slidesLink: { "url": "https://…", "label": "…" }` | A button, not an embed. For anything that refuses to be framed |
 | **Deck not made yet** | `slidesPending: true` | The portal says the slides are being prepared instead of "no lleva diapositivas". `validate` errors if it survives the deck arriving |
+| **No Slides tab at all** | `slidesHidden: true` | Removes the tab from that level. For a session whose only material is its Instructions deck |
 | **Exercise deck** | `exercises: "content/exercises/<id>.md"` | The **source of the session's Marp deck**, at `public/content/exercises/<id>.md`. It needs `marp: true` at the top or it renders nowhere — see below |
 | **Bibliography** | `bibliography: "content/bibliography/<id>.md"` | Same idea, its own tab: the reading behind a theory session. Also hidden when absent |
 | **Instructions** | `todos: [ … ]` | `objective-task` objects — objective, starting point, numbered `steps`, deliverable. Optional `steps_note` qualifies the guide |
@@ -272,6 +273,15 @@ it is being prepared instead. `validate` lists every pending level on each build
 and **errors** if one still carries the flag after its deck lands, so the note
 cannot rot into a lie. A project or exam day, which will never have a deck, just
 leaves all four fields out.
+
+**`slidesHidden: true` removes the tab entirely**, for a session whose only
+material is the deck in its *Instructions* tab and which is never going to have
+a lecture of its own. This is deliberately a per-level statement and not
+something the portal infers from "has no deck": most levels with no deck — every
+project day, both exams, the re-evaluation — still want the tab, because the
+contents list inside it is the only thing those sessions have to show.
+`validate` rejects the flag next to a deck, and rejects a level whose every tab
+is hidden, since that portal would open with nothing in it.
 
 ### Instructions (`todos`)
 

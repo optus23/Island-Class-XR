@@ -268,6 +268,26 @@ for (const l of levels) {
     }
   }
 
+  // "This session has no lecture of its own", said out loud, which is the only
+  // thing that takes the Slides tab away. Absent is NOT the same statement:
+  // thirteen levels have no deck and still want the tab, because the contents
+  // list inside it is all the session has.
+  if (l.slidesHidden !== undefined) {
+    if (l.slidesHidden !== true) err(`${at}: "slidesHidden" is a flag — true, or absent`)
+    if (l.slides || l.slidesLink || l.slidesPending) {
+      err(`${at}: has "slidesHidden" AND a deck (or slidesPending) — pick one`)
+    }
+  }
+
+  // A level with no tabs at all opens on an empty panel with no way to reach
+  // anything. Mirrors `tabsFor` in ui/portal.js; if that gains a tab, so does
+  // this.
+  const tabs =
+    (l.slidesHidden ? 0 : 1) +
+    (l.todos?.length || l.exercises ? 1 : 0) +
+    (l.bibliography ? 1 : 0)
+  if (tabs === 0) err(`${at}: every tab is hidden — the portal would open empty`)
+
   for (const t of l.todos ?? []) {
     const tat = `${at} todo "${t.id}"`
     if (t.type !== 'objective-task') {

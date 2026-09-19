@@ -607,6 +607,15 @@ Changing any of these is a design decision, not a refactor.
     student in the room says "I'm stuck on 12", and both mean a row of
     `todos[].steps`. Adding a slide means adding the step to `levels.json`, and
     the counter (`0/18`) is what you check it against.
+  - **THE SLIDES TAB GOES AWAY ONLY WHEN A LEVEL SAYS SO**, with
+    `slidesHidden: true`. Added 20 September 2026 for `w1-arf-02`, whose only
+    material is its Instructions deck and which was carrying a placeholder
+    Canva shared with `w1-arf-03`. **Do NOT turn this into "hide it when there
+    is no deck"**: thirteen levels have no deck — every project day, both
+    exams, the re-evaluation — and for those the panel's contents list is the
+    ONLY thing the session has, so the rule would leave `w3-02` and its
+    neighbours with no tabs at all. `validate` rejects the flag beside a deck,
+    and rejects a level whose every tab is hidden.
   - **A level's `exercises` file is now ONLY the deck's source.** It no longer
     renders as prose anywhere. Every level that has one compiles to a deck
     (8 of 8, checked), so nothing was lost — but a new exercise file WITHOUT

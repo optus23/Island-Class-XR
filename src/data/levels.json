@@ -287,10 +287,6 @@
           "ca": "Activitat a classe: 2. AR Foundation — Image Tracking"
         }
       ],
-      "slides": {
-        "type": "canva",
-        "source": "https://www.canva.com/design/DAHHUg9bRnE/aMSHYnSQXgr-muOpollVCA/view?embed"
-      },
       "block": {
         "number": 1,
         "name": "AR Foundation",
@@ -324,7 +320,8 @@
             "Build APK y prueba con los marcadores impresos (o en otra pantalla) con luz normal de aula."
           ]
         }
-      ]
+      ],
+      "slidesHidden": true
     },
     {
       "id": "w1-05",
