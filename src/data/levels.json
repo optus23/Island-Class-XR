@@ -220,7 +220,34 @@
           "ca": "Feta a casa, voluntària"
         }
       ],
-      "todos": []
+      "todos": [
+        {
+          "id": "w1-att-01-t1",
+          "type": "objective-task",
+          "objective": "Record the same 360° shot twice from Unity — once monoscopic, once stereoscopic — and watch both in a Meta Quest 3 to see what stereoscopy actually adds.",
+          "starting_point": "Unity with the **3D (Built-In Render Pipeline)** template — stereo 360 does not work on URP or HDRP. A Meta Quest 3, and a YouTube account if you take the YouTube route.",
+          "steps": [
+            "Create a new Unity project with the **3D (Built-In Render Pipeline)** template.",
+            "`Window > Package Manager` → **Unity Registry** → install **Recorder**.",
+            "Open `Window > General > Recorder > Recorder window`.",
+            "Press **+ Add Recorder** and choose **Movie**.",
+            "Set **Playback** to **Constant**, and **Target FPS** to **30**.",
+            "Under Capture, set **Source** to **360 View** and **Camera** to **MainCamera**.",
+            "Set **Output Dimensions** to **4096 × 2048**, and leave **Cube Map Size** at **2048**.",
+            "Leave **Record in Stereo** unchecked — this first take is the monoscopic one.",
+            "Set the format to **H.264 MP4**, Quality **High**.",
+            "In **File Name**, add the **`<Take>`** wildcard from the **+ Wildcards** menu, and choose a Path.",
+            "Tick **Exit Play Mode**, just under START RECORDING.",
+            "Make sure the scene has objects **both close to and far from** the camera.",
+            "Press **START RECORDING** and move the camera through the scene — slowly, and **without ever rotating it**.",
+            "Tick **Record in Stereo** and record **the same move again**.",
+            "Download the **Spatial Media Metadata Injector** and inject the metadata: *spherical* into both files, plus *stereoscopic 3D (top/bottom)* into the stereo one.",
+            "Upload both to YouTube — or copy them onto the headset — and **compare them on the Quest 3**."
+          ],
+          "deliverable": "The two videos, monoscopic and stereoscopic, plus a few lines on what you noticed between them. A YouTube link is the easiest way to hand them over."
+        }
+      ],
+      "exercises": "content/exercises/w1-att-01.md"
     },
     {
       "id": "w1-arf-02",
