@@ -68,6 +68,8 @@ clearGroundAround(nodeClearings(levels))
 const errors = []
 const warnings = []
 const fixmes = []
+/** `slidesLabelKey` -> the level that asked for it, checked against i18n below. */
+const labelKeys = new Map()
 const untranslated = []
 const err = (m) => errors.push(m)
 const warn = (m) => warnings.push(m)
@@ -277,6 +279,19 @@ for (const l of levels) {
     if (l.slides || l.slidesLink || l.slidesPending) {
       err(`${at}: has "slidesHidden" AND a deck (or slidesPending) — pick one`)
     }
+  }
+
+  // Renames the first tab on this level alone. It is an i18n KEY and not a
+  // word, because a literal would be the one label on the page that cannot be
+  // translated; that the key exists in all three is checked further down,
+  // where the dictionaries are already loaded.
+  if (l.slidesLabelKey !== undefined) {
+    if (typeof l.slidesLabelKey !== 'string' || !l.slidesLabelKey) {
+      err(`${at}: "slidesLabelKey" must be an i18n key, as a string`)
+    } else {
+      labelKeys.set(l.slidesLabelKey, at)
+    }
+    if (l.slidesHidden) err(`${at}: has "slidesHidden" AND "slidesLabelKey" — a hidden tab needs no name`)
   }
 
   // A level with no tabs at all opens on an empty panel with no way to reach
@@ -794,6 +809,11 @@ cover(
     // rather than as an untranslated one. Better to leave the English in.
     const blank = base.filter((k) => keys.has(k) && !String(dictionaries[code][k]).trim())
     if (blank.length) err(`i18n ${code}: blank value for ${blank.join(', ')}`)
+  }
+  // A level naming a key that does not exist would render the key itself as
+  // the tab's label — "portal.activity" in the chrome, live on the site.
+  for (const [key, at] of labelKeys) {
+    if (!(key in dictionaries.en)) err(`${at}: slidesLabelKey "${key}" is not an i18n key`)
   }
   cover(
     'the three languages agree',

@@ -97,7 +97,12 @@ const FOCUSABLE =
   'a[href], button:not([disabled]), input:not([disabled]), select, textarea, iframe, [tabindex]:not([tabindex="-1"])'
 
 function tabsFor(level) {
-  const slides = { key: 'slides', label: t('portal.slides') }
+  // A level may rename this tab — `w1-att-01` calls it "Activity", because
+  // what its panel holds is the session's own description and not one slide.
+  // A KEY, never a free string: every label a reader sees resolves through
+  // `i18n`, so a literal here would be the one word on the page that cannot
+  // be translated. `validate` checks the key exists in all three.
+  const slides = { key: 'slides', label: t(level.slidesLabelKey ?? 'portal.slides') }
   const todos = { key: 'todos', label: t('portal.activities') }
   const bibliography = { key: 'bibliography', label: t('portal.bibliography') }
 

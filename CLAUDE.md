@@ -616,6 +616,13 @@ Changing any of these is a design decision, not a refactor.
     ONLY thing the session has, so the rule would leave `w3-02` and its
     neighbours with no tabs at all. `validate` rejects the flag beside a deck,
     and rejects a level whose every tab is hidden.
+  - **A LEVEL MAY RENAME THAT TAB, with `slidesLabelKey`** — an **i18n key**,
+    never a literal, or it becomes the one label on the page that cannot be
+    translated. `w1-att-01` calls it "Activity" (`portal.activity`) because its
+    panel holds the session's own description and not one slide. Per level, and
+    deliberately not a rule derived from "has no deck": see the bullet above for
+    why that rule breaks thirteen other levels. `validate` rejects a key that is
+    not in `en.js`, and rejects a label on a hidden tab.
   - **A level's `exercises` file is now ONLY the deck's source.** It no longer
     renders as prose anywhere. Every level that has one compiles to a deck
     (8 of 8, checked), so nothing was lost — but a new exercise file WITHOUT
