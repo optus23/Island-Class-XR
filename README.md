@@ -155,6 +155,7 @@ Everything a session shows lives in **one entry** in
 | **Deck not made yet** | `slidesPending: true` | The portal says the slides are being prepared instead of "no lleva diapositivas". `validate` errors if it survives the deck arriving |
 | **No Slides tab at all** | `slidesHidden: true` | Removes the tab from that level. For a session whose only material is its Instructions deck |
 | **A different name for it** | `slidesLabelKey: "portal.activity"` | Renames the first tab on that level. An **i18n key**, not a word, so it still reads in all three languages |
+| **What to hand in** | `handIn: { note, items }` | A card on that first panel: a paragraph and a bulleted list, both `{en, es, ca}`. Only for a session that is handed in on its own |
 | **Exercise deck** | `exercises: "content/exercises/<id>.md"` | The **source of the session's Marp deck**, at `public/content/exercises/<id>.md`. It needs `marp: true` at the top or it renders nowhere — see below |
 | **Bibliography** | `bibliography: "content/bibliography/<id>.md"` | Same idea, its own tab: the reading behind a theory session. Also hidden when absent |
 | **Instructions** | `todos: [ … ]` | `objective-task` objects — objective, starting point, numbered `steps`, deliverable. Optional `steps_note` qualifies the guide |

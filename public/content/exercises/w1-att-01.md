@@ -29,9 +29,16 @@ By the end you will be able to:
 The point is not the recording. The point is the **comparison**: two files of
 the same scene that differ in exactly one thing.
 
+**Unity is the route walked here, not the only one allowed.** Any software that
+can render those two 360 videos with their spatial metadata is fine — the
+sixteen steps below simply take the one path everyone in the room already has
+installed.
+
 ---
 
 ## ⚠ Read this before you create the project
+
+*(Unity route only — if you are rendering these elsewhere, skip to step 15.)*
 
 **Pick the `3D (Built-In Render Pipeline)` template.** Not Universal 3D, not
 HDRP.

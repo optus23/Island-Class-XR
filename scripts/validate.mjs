@@ -281,6 +281,34 @@ for (const l of levels) {
     }
   }
 
+  // What the level asks the student to hand over, shown on the first panel.
+  // Prose, so it takes the same two shapes everything else does and shows up
+  // in the "still to translate" list when it is only in one language.
+  if (l.handIn !== undefined) {
+    const h = l.handIn
+    if (!h || typeof h !== 'object' || Array.isArray(h)) {
+      err(`${at}: "handIn" must be an object — { note, items }`)
+    } else {
+      for (const k of Object.keys(h)) {
+        if (!['note', 'items'].includes(k)) err(`${at}: unknown handIn field "${k}"`)
+      }
+      if (h.note !== undefined) {
+        if (!isText(h.note)) err(`${at}: handIn.note must be a string or {en, es, ca}`)
+        noteUntranslated(`${at} handIn.note`, h.note)
+      }
+      if (h.items !== undefined) {
+        if (!Array.isArray(h.items) || !h.items.length || h.items.some((i) => !isText(i))) {
+          err(`${at}: handIn.items must be a non-empty array of text`)
+        } else {
+          h.items.forEach((i, n) => noteUntranslated(`${at} handIn.items[${n}]`, i))
+        }
+      }
+      if (h.note === undefined && h.items === undefined) {
+        err(`${at}: "handIn" is empty — give it a note, items, or drop it`)
+      }
+    }
+  }
+
   // Renames the first tab on this level alone. It is an i18n KEY and not a
   // word, because a literal would be the one label on the page that cannot be
   // translated; that the key exists in all three is checked further down,

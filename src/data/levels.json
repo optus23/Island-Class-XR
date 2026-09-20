@@ -244,11 +244,34 @@
             "Download the **Spatial Media Metadata Injector** and inject the metadata: *spherical* into both files, plus *stereoscopic 3D (top/bottom)* into the stereo one.",
             "Upload both to YouTube — or copy them onto the headset — and **compare them on the Quest 3**."
           ],
-          "deliverable": "The two videos, monoscopic and stereoscopic, plus a few lines on what you noticed between them. A YouTube link is the easiest way to hand them over."
+          "deliverable": {
+            "en": "Two YouTube links: the stereoscopic video and the monoscopic one, both with the metadata injected.",
+            "es": "Dos enlaces de YouTube: el vídeo estereoscópico y el monoscópico, los dos con los metadatos inyectados.",
+            "ca": "Dos enllaços de YouTube: el vídeo estereoscòpic i el monoscòpic, tots dos amb les metadades injectades."
+          }
         }
       ],
       "exercises": "content/exercises/w1-att-01.md",
-      "slidesLabelKey": "portal.activity"
+      "slidesLabelKey": "portal.activity",
+      "handIn": {
+        "note": {
+          "en": "The exercise invites you to use Unity Engine and its Recorder package, but you may use any other software to render the two 360 videos — monoscopic and stereoscopic — with their spatial metadata. This activity forms part of the attitude and participation assessment.\n\nPlease share the YouTube links in the hand-in folder.",
+          "es": "El ejercicio propone usar Unity Engine y su paquete Recorder, pero puedes usar cualquier otro software para renderizar los dos vídeos 360 — monoscópico y estereoscópico — con sus metadatos espaciales. Esta actividad forma parte de la evaluación de actitud y participación.\n\nPor favor, comparte los enlaces de YouTube en la carpeta de entrega.",
+          "ca": "L'exercici convida a utilitzar Unity Engine per fer ús del «Recorder package», però es pot fer servir un altre software per renderitzar els dos vídeos monoscòpic i estereoscòpic 360 amb metadades espacials. Aquesta activitat forma part de l'avaluació d'actitud i participació.\n\nSi us plau, comparteix els enllaços dels vídeos de YouTube a la carpeta de lliurament."
+        },
+        "items": [
+          {
+            "en": "YouTube URL — stereo video, with the metadata injected",
+            "es": "URL de YouTube — vídeo estéreo, con los metadatos inyectados",
+            "ca": "URL de YouTube — vídeo estèreo, amb les metadades injectades"
+          },
+          {
+            "en": "YouTube URL — mono video, with the metadata injected",
+            "es": "URL de YouTube — vídeo mono, con los metadatos inyectados",
+            "ca": "URL de YouTube — vídeo mono, amb les metadades injectades"
+          }
+        ]
+      }
     },
     {
       "id": "w1-arf-02",

@@ -616,6 +616,15 @@ Changing any of these is a design decision, not a refactor.
     ONLY thing the session has, so the rule would leave `w3-02` and its
     neighbours with no tabs at all. `validate` rejects the flag beside a deck,
     and rejects a level whose every tab is hidden.
+  - **`handIn` PUTS THE HAND-IN ON THE FIRST PANEL**, which is a different job
+    from the todo's `deliverable` and not a duplicate of it. The deliverable is
+    the last line of a walkthrough, read once the work is done, in Instructions;
+    `handIn` is what a student sees the moment the level opens, before deciding
+    whether to start — what it is for and what they owe. Only a session handed
+    in on its OWN gets one: a block exercise does not, because block 1 hands in
+    once at the end. Today that is `w1-att-01` alone. It renders on every
+    branch of `renderSlides`, deck or no deck, so it cannot silently vanish
+    when a Canva is added later.
   - **A LEVEL MAY RENAME THAT TAB, with `slidesLabelKey`** — an **i18n key**,
     never a literal, or it becomes the one label on the page that cannot be
     translated. `w1-att-01` calls it "Activity" (`portal.activity`) because its
