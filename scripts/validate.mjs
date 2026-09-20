@@ -5,7 +5,7 @@
  * Run with `npm run validate`. It is the fastest way to find out that a level
  * you just added broke the map — no browser needed.
  */
-import { readFileSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { dirname, resolve } from 'node:path'
 import { worlds } from '../src/config/worlds.js'
@@ -859,6 +859,38 @@ if (fixmes.length) {
   for (const f of fixmes) console.log(`  ${f}`)
   console.log('  each is a _fixme on its node; leave them open until decided')
 }
+// A DECK IS COURSE TEXT TOO, and for four rounds nothing said so.
+//
+// The level's own prose shows up in the list below the moment it is a plain
+// string, but the Marp deck beside it is a FILE, and a missing `<id>.es.md`
+// looked exactly like a deck that did not need one. The viewer falls back to
+// the base file, so a reader who picked Catalan quietly got English and the
+// build said nothing. Reported as "las instrucciones estan solo en ingles".
+//
+// ITS OWN SECTION, not a line in the list below: that list is truncated at 25
+// and the decks would sort to the bottom of it, which is where this was hiding
+// in the first place.
+{
+  const missingDecks = []
+  for (const l of levels) {
+    if (!l.exercises) continue
+    const base = l.exercises.replace(/\.md$/, '')
+    const missing = ['es', 'ca'].filter(
+      (code) => !existsSync(resolve(here, '../public', `${base}.${code}.md`))
+    )
+    if (missing.length) missingDecks.push(`${l.id}: missing ${missing.join(', ')}`)
+  }
+  // A LIST, never an error, for the same reason the prose one is not: a
+  // session half-written in one language has to stay committable. Failing the
+  // build here would mean blocks 2 and 3 cannot be drafted at all.
+  if (missingDecks.length) {
+    console.log(`
+--- decks still to translate (${missingDecks.length}) ---`)
+    for (const d of missingDecks) console.log(`  ${d}`)
+    console.log('  a deck translates by SUFFIX: w1-arf-01.md -> w1-arf-01.es.md')
+  }
+}
+
 // Course text still to translate. A LIST, not an error: `en.js`/`es.js`/`ca.js`
 // are mine and must be complete, but the sessions are Marc's to write, and a
 // session half-written in one language has to stay committable. The site falls
