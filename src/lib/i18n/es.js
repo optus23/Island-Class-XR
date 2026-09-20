@@ -101,6 +101,8 @@ export default {
   'portal.repoPending': '(pendiente de publicar)',
 
   'slides.sessionContent': 'Contenido de la sesión',
+  'slides.handIn': 'Entrega',
+  'slides.handInList': 'Qué hay que entregar',
   'slides.openCanva': 'Abrir en Canva ↗',
   'slides.canvaPrivateNote':
     'Se abre en Canva, en una pestaña nueva. Si pide permisos, el diseño todavía no es público.',

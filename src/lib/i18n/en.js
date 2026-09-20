@@ -120,6 +120,8 @@ export default {
 
   // --- slides -------------------------------------------------------------
   'slides.sessionContent': 'What this session covers',
+  'slides.handIn': 'Hand-in',
+  'slides.handInList': 'What to hand in',
   'slides.openCanva': 'Open in Canva ↗',
   'slides.canvaPrivateNote':
     'Opens in Canva, in a new tab. If it asks for permission, the design is not public yet.',

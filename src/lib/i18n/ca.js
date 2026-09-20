@@ -101,6 +101,8 @@ export default {
   'portal.repoPending': '(pendent de publicar)',
 
   'slides.sessionContent': 'Contingut de la sessió',
+  'slides.handIn': 'Lliurament',
+  'slides.handInList': 'Què cal lliurar',
   'slides.openCanva': 'Obrir a Canva ↗',
   'slides.canvaPrivateNote':
     "S'obre a Canva, en una pestanya nova. Si demana permisos, el disseny encara no és públic.",

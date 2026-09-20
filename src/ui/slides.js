@@ -1,4 +1,5 @@
 import { t } from '../lib/i18n/index.js'
+import { localized } from '../lib/i18n/text.js'
 import { levelTitle, levelContents } from '../lib/levels.js'
 
 /**
@@ -58,6 +59,38 @@ function contentsList(level) {
     </div>`
 }
 
+/**
+ * What this session asks the student to hand over, on the panel that opens
+ * first.
+ *
+ * It lives HERE and not in the todo's `deliverable`, which renders in the
+ * Instructions tab, because those two answer different questions. The
+ * deliverable is the last line of a walkthrough — you read it having done the
+ * work. This is what a student sees the moment the level opens, before
+ * deciding whether to start: what it is for, and what they owe at the end.
+ *
+ * Only a level that carries a hand-in of its own gets one. A block exercise
+ * does not: block 1 hands in ONCE, at the end of the block.
+ */
+function handInBlock(level) {
+  const hand = level.handIn
+  if (!hand) return ''
+  const items = (hand.items ?? [])
+    .map((i) => `<li>${escapeHtml(localized(i))}</li>`)
+    .join('')
+  return `
+    <div class="mt-6 rounded-xl border border-base-content/15 bg-base-200/50 p-4">
+      <p class="text-xs uppercase tracking-wide opacity-60 mb-2">${t('slides.handIn')}</p>
+      ${hand.note ? `<p class="text-sm max-w-prose whitespace-pre-line">${escapeHtml(localized(hand.note))}</p>` : ''}
+      ${
+        items
+          ? `<p class="text-xs uppercase tracking-wide opacity-60 mt-4 mb-1">${t('slides.handInList')}</p>
+             <ul class="list-disc ps-5 space-y-1 text-sm">${items}</ul>`
+          : ''
+      }
+    </div>`
+}
+
 const escapeHtml = (s) =>
   String(s).replace(/[&<>"']/g, (c) => (
     { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
@@ -80,6 +113,7 @@ export async function renderSlides(el, level) {
           ${level.slidesLink.label} ↗
         </a>
         <p class="text-xs opacity-60 mt-3 max-w-prose">${t('slides.canvaPrivateNote')}</p>
+        ${handInBlock(level)}
       </div>`
     return
   }
@@ -102,6 +136,7 @@ export async function renderSlides(el, level) {
       <div class="p-1">
         ${contentsList(level)}
         ${note}
+        ${handInBlock(level)}
       </div>`
     return
   }
@@ -114,6 +149,7 @@ export async function renderSlides(el, level) {
         <div class="w-full max-w-[121vh] mx-auto">${frame(slides.source, title)}</div>
         <a class="btn btn-sm btn-ghost self-start" href="${slides.source}"
            target="_blank" rel="noopener noreferrer">${t('slides.openCanva')}</a>
+        ${handInBlock(level)}
       </div>`
     return
   }
@@ -138,5 +174,6 @@ export async function renderSlides(el, level) {
       </div>
       <a class="btn btn-sm btn-ghost self-start" href="${url}" target="_blank"
          rel="noopener noreferrer">${t('slides.openTab')}</a>
+      ${handInBlock(level)}
     </div>`
 }
