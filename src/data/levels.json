@@ -247,7 +247,8 @@
           "deliverable": "The two videos, monoscopic and stereoscopic, plus a few lines on what you noticed between them. A YouTube link is the easiest way to hand them over."
         }
       ],
-      "exercises": "content/exercises/w1-att-01.md"
+      "exercises": "content/exercises/w1-att-01.md",
+      "slidesLabelKey": "portal.activity"
     },
     {
       "id": "w1-arf-02",

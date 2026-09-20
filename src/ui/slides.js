@@ -89,14 +89,19 @@ export async function renderSlides(el, level) {
   //    project day has no deck by design and never will. Saying "todavía" to the
   //    second one promises slides that are never coming.
   if (!slides?.source) {
+    // A THIRD nothing: a level that renamed this tab away from "Slides" is not
+    // waiting for a deck and is not missing one — it decided the panel is about
+    // something else. Saying "this session has no slides" under a tab headed
+    // "Activity" answers a question nobody asked.
+    const note = level.slidesLabelKey
+      ? ''
+      : level.slidesPending
+        ? `<p class="opacity-70 text-sm">${t('slides.pending')}</p>`
+        : `<p class="opacity-70 text-sm">${t('slides.none')}</p>`
     el.innerHTML = `
       <div class="p-1">
         ${contentsList(level)}
-        ${
-          level.slidesPending
-            ? `<p class="opacity-70 text-sm">${t('slides.pending')}</p>`
-            : `<p class="opacity-70 text-sm">${t('slides.none')}</p>`
-        }
+        ${note}
       </div>`
     return
   }

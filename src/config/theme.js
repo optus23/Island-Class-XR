@@ -137,10 +137,23 @@ export const flowers = [0xffffff, 0xff8fab, 0xffd166, 0xef476f, 0xf7a8d8]
  */
 export const villagers = {
   shirt: [0x4cc9f0, 0xffd166, 0x9d4edd, 0x38b000, 0xf77f00, 0x4361ee, 0xe0e1dd, 0x2ec4b6],
-  trousers: [0x3a4a5c, 0x2b3440, 0x5b4636, 0x44506b],
+  trousers: [0x3a4a5c, 0x2b3440, 0x5b4636, 0x44506b, 0x6c757d, 0x4a3b52],
   skin: [0xffd9b3, 0xf1c27d, 0xc68642, 0x8d5524],
   hair: [0x2b2118, 0x5b3a29, 0x8b5e34, 0xd9b26f, 0x3d4a57],
-  shoe: 0x2b2118,
+  // A LIST, not the one black it used to be. Colour alone was never going to
+  // tell two villagers apart at the distance the follow camera sits at — the
+  // silhouette does that, which is what the hats below are for — but a roster
+  // of identical black shoes was one more thing making them read as copies.
+  shoe: [0x2b2118, 0xe8e3d8, 0x8b5e34, 0x44506b],
+  /**
+   * Hats, and `three/villagers.js` holds their SHAPES — this is only the
+   * colour each one can come in.
+   *
+   * No red anywhere in this file, hats included: `world.player` is
+   * 0xef476f and the avatar owns it. And there is no visor here and never
+   * will be, for the same reason the headset never comes off the avatar.
+   */
+  hat: [0x22272e, 0x7d3823, 0x2d6a4f, 0x1b4965, 0xe8e3d8, 0xc9a227, 0x5c4d7d],
   ink: 0x22272e, // eyes
   /** The name plate above their head, in the UI chrome's language. */
   plate: '#161d29',
