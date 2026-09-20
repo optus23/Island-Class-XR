@@ -115,17 +115,57 @@
         {
           "id": "w1-arf-01-t1",
           "type": "objective-task",
-          "objective": "Create an augmented reality app with Unity AR Foundation that spawns a 3D object of your own choosing onto a detected plane — your solution for dealing with the blue goblin. You start from Unity's **AR Mobile** template, so there is no code to write today: prefabs, the Inspector, and one button.",
-          "starting_point": "A Unity **2022 LTS** install with the **Android Build Support** module (or **iOS Build Support**), your own phone with a data cable, and a 3D model you like. The template already carries the spawning logic — you will not be writing scripts.",
+          "objective": {
+            "en": "Create an augmented reality app with Unity AR Foundation that spawns a 3D object of your own choosing onto a detected plane — your solution for dealing with the blue goblin. You start from Unity's **AR Mobile** template, so there is no code to write today: prefabs, the Inspector, and one button.",
+            "es": "Crea una app de realidad aumentada con Unity AR Foundation que instancie sobre un plano detectado un objeto 3D elegido por ti: tu solución para lidiar con el blue goblin. Partes de la plantilla **AR Mobile** de Unity, así que hoy no hay que escribir código: prefabs, el Inspector y un botón.",
+            "ca": "Crea una app de realitat augmentada amb Unity AR Foundation que instanciï sobre un pla detectat un objecte 3D triat per tu: la teva solució per encarar el blue goblin. Parteixes de la plantilla **AR Mobile** d'Unity, així que avui no cal escriure codi: prefabs, l'Inspector i un botó."
+          },
+          "starting_point": {
+            "en": "A Unity **2022 LTS** install with the **Android Build Support** module (or **iOS Build Support**), your own phone with a data cable, and a 3D model you like. The template already carries the spawning logic — you will not be writing scripts.",
+            "es": "Una instalación de Unity **2022 LTS** con el módulo **Android Build Support** (o **iOS Build Support**), tu propio móvil con cable de datos, y un modelo 3D que te guste. La plantilla ya trae la lógica de instanciado: no vas a escribir scripts.",
+            "ca": "Una instal·lació d'Unity **2022 LTS** amb el mòdul **Android Build Support** (o **iOS Build Support**), el teu mòbil amb cable de dades, i un model 3D que t'agradi. La plantilla ja porta la lògica d'instanciació: no escriuràs scripts."
+          },
           "steps": [
-            "**Unity Hub → New project → the `AR Mobile` template** (under *Core*). Check your Editor first: **2022 LTS**, with the **Android** module installed — OpenJDK and Android SDK & NDK Tools — or **iOS Build Support**. Without the module the platform does not even appear later on.",
-            "**`Window > Package Manager` → Packages: In Project** → make sure everything is up to date, in particular **AR Foundation** and the **Google ARCore XR Plugin** (or **Apple ARKit XR Plugin**). Then `File > Build Settings` → **Android** (or **iOS**) → **Switch Platform**. Do it now: switching later reimports every asset you have added by then.",
-            "**`Project Settings > Player > Other Settings`**: set the **Scripting Backend** to **IL2CPP**; untick **Auto Graphics API** and leave **OpenGLES3** as the only entry in Graphics APIs; set the **Minimum API Level** to **24** (Android 7.0) — ARCore does not run below that. On iOS, minimum version **11**. ARCore does not run on Vulkan: leave it in that list and the app installs, opens **black**, and reports nothing.",
-            "**`Project Settings > XR Plug-in Management`** → Android tab → confirm **Google ARCore** is ticked (**Apple ARKit** on iOS). In the project and enabled are two different things, and this is the most common slip of the day.",
-            "**Your prefab.** In `Assets > MobileARTemplateAssets > Prefabs`, **duplicate `CubeVariant`** and rename it after your object. Inside its **`Visuals`** child, swap the **Mesh Filter** mesh and the **Material**, then redo the **Mesh Collider** with **Convex** ticked. **Put the parent pivot at the floor of the model** — that point is what lands on the plane, so a pivot in the middle buries half your object in the table.",
-            "**Object Spawner.** Expand the **XR Origin** prefab in the Hierarchy and select the GameObject called **`Object Spawner`**. In the Inspector its **Object Spawner** script holds the demo prefabs in the **Object Prefabs** list: press **+** to add one more element and **drag your prefab** into it. Write down the index it lands on — the next step needs it.",
-            "**Your button.** Under `UI > Object Menu Animator > Object Menu > Scroll View > Viewport > Content`, **duplicate `Button (Cube)`** and rename it. In its **Button** component, under **On Click**, set the parameter of `ARTemplateMenuManager.SetObjectToSpawn` to **your prefab index** in the Object Prefabs list — **7** in the example, the eighth element, because the list counts from zero. Then **add a second event**: drag in the **`SelectionBox`** object, choose **GameObject.SetActive**, and tick the checkbox.",
-            "**Build the APK.** `File > Build Settings` → check your scene is in the **Scenes In Build** list (*Add Open Scenes* if it is not) → **Build**, and pick a destination folder. Install the APK on your phone and try it on a real surface with some texture to it — a bare, uniform table gives ARCore nothing to hold on to."
+            {
+              "en": "**Unity Hub → New project → the `AR Mobile` template** (under *Core*). Check your Editor first: **2022 LTS**, with the **Android** module installed — OpenJDK and Android SDK & NDK Tools — or **iOS Build Support**. Without the module the platform does not even appear later on.",
+              "es": "**Unity Hub → New project → la plantilla `AR Mobile`** (en *Core*). Comprueba antes tu Editor: **2022 LTS**, con el módulo **Android** instalado —OpenJDK y Android SDK & NDK Tools— o **iOS Build Support**. Sin el módulo, la plataforma ni aparece más adelante.",
+              "ca": "**Unity Hub → New project → la plantilla `AR Mobile`** (a *Core*). Comprova abans el teu Editor: **2022 LTS**, amb el mòdul **Android** instal·lat —OpenJDK i Android SDK & NDK Tools— o **iOS Build Support**. Sense el mòdul, la plataforma ni apareix més endavant."
+            },
+            {
+              "en": "**`Window > Package Manager` → Packages: In Project** → make sure everything is up to date, in particular **AR Foundation** and the **Google ARCore XR Plugin** (or **Apple ARKit XR Plugin**). Then `File > Build Settings` → **Android** (or **iOS**) → **Switch Platform**. Do it now: switching later reimports every asset you have added by then.",
+              "es": "**`Window > Package Manager` → Packages: In Project** → comprueba que todo está actualizado, en particular **AR Foundation** y el **Google ARCore XR Plugin** (o **Apple ARKit XR Plugin**). Luego `File > Build Settings` → **Android** (o **iOS**) → **Switch Platform**. Hazlo ya: cambiar más tarde reimporta todos los assets que hayas añadido.",
+              "ca": "**`Window > Package Manager` → Packages: In Project** → comprova que tot està actualitzat, en particular **AR Foundation** i el **Google ARCore XR Plugin** (o **Apple ARKit XR Plugin**). Després `File > Build Settings` → **Android** (o **iOS**) → **Switch Platform**. Fes-ho ara: canviar més tard reimporta tots els assets que hi hagis afegit."
+            },
+            {
+              "en": "**`Project Settings > Player > Other Settings`**: set the **Scripting Backend** to **IL2CPP**; untick **Auto Graphics API** and leave **OpenGLES3** as the only entry in Graphics APIs; set the **Minimum API Level** to **24** (Android 7.0) — ARCore does not run below that. On iOS, minimum version **11**. ARCore does not run on Vulkan: leave it in that list and the app installs, opens **black**, and reports nothing.",
+              "es": "**`Project Settings > Player > Other Settings`**: pon el **Scripting Backend** en **IL2CPP**; desmarca **Auto Graphics API** y deja **OpenGLES3** como única entrada en Graphics APIs; pon el **Minimum API Level** en **24** (Android 7.0), que es el suelo de ARCore. En iOS, versión mínima **11**. ARCore no funciona con Vulkan: si lo dejas en esa lista la app se instala, abre **en negro** y no informa de nada.",
+              "ca": "**`Project Settings > Player > Other Settings`**: posa el **Scripting Backend** a **IL2CPP**; desmarca **Auto Graphics API** i deixa **OpenGLES3** com a única entrada a Graphics APIs; posa el **Minimum API Level** a **24** (Android 7.0), que és el mínim d'ARCore. A iOS, versió mínima **11**. ARCore no funciona amb Vulkan: si el deixes en aquesta llista l'app s'instal·la, obre **en negre** i no informa de res."
+            },
+            {
+              "en": "**`Project Settings > XR Plug-in Management`** → Android tab → confirm **Google ARCore** is ticked (**Apple ARKit** on iOS). In the project and enabled are two different things, and this is the most common slip of the day.",
+              "es": "**`Project Settings > XR Plug-in Management`** → pestaña Android → confirma que **Google ARCore** está marcado (**Apple ARKit** en iOS). Estar en el proyecto y estar activado son dos cosas distintas, y este es el despiste número uno del día.",
+              "ca": "**`Project Settings > XR Plug-in Management`** → pestanya Android → confirma que **Google ARCore** està marcat (**Apple ARKit** a iOS). Ser al projecte i estar activat són dues coses diferents, i aquest és el despist número u del dia."
+            },
+            {
+              "en": "**Your prefab.** In `Assets > MobileARTemplateAssets > Prefabs`, **duplicate `CubeVariant`** and rename it after your object. Inside its **`Visuals`** child, swap the **Mesh Filter** mesh and the **Material**, then redo the **Mesh Collider** with **Convex** ticked. **Put the parent pivot at the floor of the model** — that point is what lands on the plane, so a pivot in the middle buries half your object in the table.",
+              "es": "**Tu prefab.** En `Assets > MobileARTemplateAssets > Prefabs`, **duplica `CubeVariant`** y renómbralo con el nombre de tu objeto. Dentro de su hijo **`Visuals`**, cambia el mesh del **Mesh Filter** y el **Material**, y rehaz el **Mesh Collider** con **Convex** marcado. **Pon el pivote del padre en el suelo del modelo**: ese punto es el que aterriza en el plano, así que un pivote en el centro entierra medio objeto en la mesa.",
+              "ca": "**El teu prefab.** A `Assets > MobileARTemplateAssets > Prefabs`, **duplica `CubeVariant`** i reanomena'l amb el nom del teu objecte. Dins del seu fill **`Visuals`**, canvia el mesh del **Mesh Filter** i el **Material**, i refés el **Mesh Collider** amb **Convex** marcat. **Posa el pivot del pare al terra del model**: aquest punt és el que aterra al pla, així que un pivot al centre enterra mig objecte a la taula."
+            },
+            {
+              "en": "**Object Spawner.** Expand the **XR Origin** prefab in the Hierarchy and select the GameObject called **`Object Spawner`**. In the Inspector its **Object Spawner** script holds the demo prefabs in the **Object Prefabs** list: press **+** to add one more element and **drag your prefab** into it. Write down the index it lands on — the next step needs it.",
+              "es": "**Object Spawner.** Despliega el prefab **XR Origin** en la Hierarchy y selecciona el GameObject **`Object Spawner`**. En el Inspector, su script **Object Spawner** guarda los prefabs de la demo en la lista **Object Prefabs**: pulsa **+** para añadir un elemento más y **arrastra tu prefab** dentro. Apunta el índice en el que cae: el paso siguiente lo necesita.",
+              "ca": "**Object Spawner.** Desplega el prefab **XR Origin** a la Hierarchy i selecciona el GameObject **`Object Spawner`**. A l'Inspector, el seu script **Object Spawner** guarda els prefabs de la demo a la llista **Object Prefabs**: prem **+** per afegir un element més i **arrossega-hi el teu prefab**. Apunta l'índex on cau: el pas següent el necessita."
+            },
+            {
+              "en": "**Your button.** Under `UI > Object Menu Animator > Object Menu > Scroll View > Viewport > Content`, **duplicate `Button (Cube)`** and rename it. In its **Button** component, under **On Click**, set the parameter of `ARTemplateMenuManager.SetObjectToSpawn` to **your prefab index** in the Object Prefabs list — **7** in the example, the eighth element, because the list counts from zero. Then **add a second event**: drag in the **`SelectionBox`** object, choose **GameObject.SetActive**, and tick the checkbox.",
+              "es": "**Tu botón.** En `UI > Object Menu Animator > Object Menu > Scroll View > Viewport > Content`, **duplica `Button (Cube)`** y renómbralo. En su componente **Button**, dentro de **On Click**, pon el parámetro de `ARTemplateMenuManager.SetObjectToSpawn` con **el índice de tu prefab** en la lista Object Prefabs: **7** en el ejemplo, el octavo elemento, porque la lista cuenta desde cero. Después **añade un segundo evento**: arrastra el objeto **`SelectionBox`**, elige **GameObject.SetActive** y marca la casilla.",
+              "ca": "**El teu botó.** A `UI > Object Menu Animator > Object Menu > Scroll View > Viewport > Content`, **duplica `Button (Cube)`** i reanomena'l. Al seu component **Button**, dins d'**On Click**, posa el paràmetre de `ARTemplateMenuManager.SetObjectToSpawn` amb **l'índex del teu prefab** a la llista Object Prefabs: **7** a l'exemple, el vuitè element, perquè la llista compta des de zero. Després **afegeix un segon esdeveniment**: arrossega l'objecte **`SelectionBox`**, tria **GameObject.SetActive** i marca la casella."
+            },
+            {
+              "en": "**Build the APK.** `File > Build Settings` → check your scene is in the **Scenes In Build** list (*Add Open Scenes* if it is not) → **Build**, and pick a destination folder. Install the APK on your phone and try it on a real surface with some texture to it — a bare, uniform table gives ARCore nothing to hold on to.",
+              "es": "**Haz el APK.** `File > Build Settings` → comprueba que tu escena está en la lista **Scenes In Build** (*Add Open Scenes* si no lo está) → **Build**, y elige una carpeta de destino. Instala el APK en tu móvil y pruébalo sobre una superficie real con algo de textura: una mesa lisa y uniforme no le da a ARCore nada a lo que agarrarse.",
+              "ca": "**Fes l'APK.** `File > Build Settings` → comprova que la teva escena és a la llista **Scenes In Build** (*Add Open Scenes* si no hi és) → **Build**, i tria una carpeta de destinació. Instal·la l'APK al mòbil i prova'l sobre una superfície real amb una mica de textura: una taula llisa i uniforme no li dóna a ARCore res on agafar-se."
+            }
           ]
         }
       ],
@@ -224,25 +264,97 @@
         {
           "id": "w1-att-01-t1",
           "type": "objective-task",
-          "objective": "Record the same 360° shot twice from Unity — once monoscopic, once stereoscopic — and watch both in a Meta Quest 3 to see what stereoscopy actually adds.",
-          "starting_point": "Unity with the **3D (Built-In Render Pipeline)** template — stereo 360 does not work on URP or HDRP. A Meta Quest 3, and a YouTube account if you take the YouTube route.",
+          "objective": {
+            "en": "Record the same 360° shot twice from Unity — once monoscopic, once stereoscopic — and watch both in a Meta Quest 3 to see what stereoscopy actually adds.",
+            "es": "Graba dos veces la misma toma 360° desde Unity —una monoscópica y otra estereoscópica— y míralas las dos en unas Meta Quest 3 para ver qué añade de verdad la estereoscopía.",
+            "ca": "Grava dues vegades la mateixa presa 360° des d'Unity —una de monoscòpica i una d'estereoscòpica— i mira-les totes dues amb unes Meta Quest 3 per veure què hi afegeix de debò l'estereoscòpia."
+          },
+          "starting_point": {
+            "en": "Unity with the **3D (Built-In Render Pipeline)** template — stereo 360 does not work on URP or HDRP. A Meta Quest 3, and a YouTube account if you take the YouTube route.",
+            "es": "Unity con la plantilla **3D (Built-In Render Pipeline)** — el 360 en estéreo no funciona con URP ni HDRP. Unas Meta Quest 3, y una cuenta de YouTube si eliges esa vía.",
+            "ca": "Unity amb la plantilla **3D (Built-In Render Pipeline)** — el 360 en estèreo no funciona amb URP ni HDRP. Unes Meta Quest 3, i un compte de YouTube si tries aquesta via."
+          },
           "steps": [
-            "Create a new Unity project with the **3D (Built-In Render Pipeline)** template.",
-            "`Window > Package Manager` → **Unity Registry** → install **Recorder**.",
-            "Open `Window > General > Recorder > Recorder window`.",
-            "Press **+ Add Recorder** and choose **Movie**.",
-            "Set **Playback** to **Constant**, and **Target FPS** to **30**.",
-            "Under Capture, set **Source** to **360 View** and **Camera** to **MainCamera**.",
-            "Set **Output Dimensions** to **4096 × 2048**, and leave **Cube Map Size** at **2048**.",
-            "Leave **Record in Stereo** unchecked — this first take is the monoscopic one.",
-            "Set the format to **H.264 MP4**, Quality **High**.",
-            "In **File Name**, add the **`<Take>`** wildcard from the **+ Wildcards** menu, and choose a Path.",
-            "Tick **Exit Play Mode**, just under START RECORDING.",
-            "Make sure the scene has objects **both close to and far from** the camera.",
-            "Press **START RECORDING** and move the camera through the scene — slowly, and **without ever rotating it**.",
-            "Tick **Record in Stereo** and record **the same move again**.",
-            "Download the **Spatial Media Metadata Injector** and inject the metadata: *spherical* into both files, plus *stereoscopic 3D (top/bottom)* into the stereo one.",
-            "Upload both to YouTube — or copy them onto the headset — and **compare them on the Quest 3**."
+            {
+              "en": "Create a new Unity project with the **3D (Built-In Render Pipeline)** template.",
+              "es": "Crea un proyecto Unity nuevo con la plantilla **3D (Built-In Render Pipeline)**.",
+              "ca": "Crea un projecte Unity nou amb la plantilla **3D (Built-In Render Pipeline)**."
+            },
+            {
+              "en": "`Window > Package Manager` → **Unity Registry** → install **Recorder**.",
+              "es": "`Window > Package Manager` → **Unity Registry** → instala **Recorder**.",
+              "ca": "`Window > Package Manager` → **Unity Registry** → instal·la **Recorder**."
+            },
+            {
+              "en": "Open `Window > General > Recorder > Recorder window`.",
+              "es": "Abre `Window > General > Recorder > Recorder window`.",
+              "ca": "Obre `Window > General > Recorder > Recorder window`."
+            },
+            {
+              "en": "Press **+ Add Recorder** and choose **Movie**.",
+              "es": "Pulsa **+ Add Recorder** y elige **Movie**.",
+              "ca": "Prem **+ Add Recorder** i tria **Movie**."
+            },
+            {
+              "en": "Set **Playback** to **Constant**, and **Target FPS** to **30**.",
+              "es": "Pon **Playback** en **Constant** y **Target FPS** en **30**.",
+              "ca": "Posa **Playback** a **Constant** i **Target FPS** a **30**."
+            },
+            {
+              "en": "Under Capture, set **Source** to **360 View** and **Camera** to **MainCamera**.",
+              "es": "En Capture, pon **Source** en **360 View** y **Camera** en **MainCamera**.",
+              "ca": "A Capture, posa **Source** a **360 View** i **Camera** a **MainCamera**."
+            },
+            {
+              "en": "Set **Output Dimensions** to **4096 × 2048**, and leave **Cube Map Size** at **2048**.",
+              "es": "Pon **Output Dimensions** en **4096 × 2048** y deja **Cube Map Size** en **2048**.",
+              "ca": "Posa **Output Dimensions** a **4096 × 2048** i deixa **Cube Map Size** a **2048**."
+            },
+            {
+              "en": "Leave **Record in Stereo** unchecked — this first take is the monoscopic one.",
+              "es": "Deja **Record in Stereo** sin marcar: esta primera toma es la monoscópica.",
+              "ca": "Deixa **Record in Stereo** sense marcar: aquesta primera presa és la monoscòpica."
+            },
+            {
+              "en": "Set the format to **H.264 MP4**, Quality **High**.",
+              "es": "Pon el formato en **H.264 MP4**, Quality **High**.",
+              "ca": "Posa el format a **H.264 MP4**, Quality **High**."
+            },
+            {
+              "en": "In **File Name**, add the **`<Take>`** wildcard from the **+ Wildcards** menu, and choose a Path.",
+              "es": "En **File Name**, añade el comodín **`<Take>`** desde el menú **+ Wildcards**, y elige un Path.",
+              "ca": "A **File Name**, afegeix el comodí **`<Take>`** des del menú **+ Wildcards**, i tria un Path."
+            },
+            {
+              "en": "Tick **Exit Play Mode**, just under START RECORDING.",
+              "es": "Marca **Exit Play Mode**, justo debajo de START RECORDING.",
+              "ca": "Marca **Exit Play Mode**, just a sota de START RECORDING."
+            },
+            {
+              "en": "Make sure the scene has objects **both close to and far from** the camera.",
+              "es": "Asegúrate de que la escena tiene objetos **cerca y lejos** de la cámara.",
+              "ca": "Assegura't que l'escena té objectes **a prop i lluny** de la càmera."
+            },
+            {
+              "en": "Press **START RECORDING** and move the camera through the scene — slowly, and **without ever rotating it**.",
+              "es": "Pulsa **START RECORDING** y mueve la cámara por la escena: despacio, y **sin rotarla en ningún momento**.",
+              "ca": "Prem **START RECORDING** i mou la càmera per l'escena: a poc a poc, i **sense girar-la en cap moment**."
+            },
+            {
+              "en": "Tick **Record in Stereo** and record **the same move again**.",
+              "es": "Marca **Record in Stereo** y graba **el mismo movimiento otra vez**.",
+              "ca": "Marca **Record in Stereo** i grava **el mateix moviment un altre cop**."
+            },
+            {
+              "en": "Download the **Spatial Media Metadata Injector** and inject the metadata: *spherical* into both files, plus *stereoscopic 3D (top/bottom)* into the stereo one.",
+              "es": "Descarga el **Spatial Media Metadata Injector** e inyecta los metadatos: *spherical* en los dos ficheros, y además *stereoscopic 3D (top/bottom)* en el estéreo.",
+              "ca": "Descarrega el **Spatial Media Metadata Injector** i injecta les metadades: *spherical* als dos fitxers, i a més *stereoscopic 3D (top/bottom)* a l'estèreo."
+            },
+            {
+              "en": "Upload both to YouTube — or copy them onto the headset — and **compare them on the Quest 3**.",
+              "es": "Sube los dos a YouTube —o cópialos a las gafas— y **compáralos en las Quest 3**.",
+              "ca": "Puja'ls tots dos a YouTube —o copia'ls a les ulleres— i **compara'ls a les Quest 3**."
+            }
           ],
           "deliverable": {
             "en": "Two YouTube links: the stereoscopic video and the monoscopic one, both with the metadata injected.",
@@ -324,24 +436,92 @@
         {
           "id": "w1-arf-02-t1",
           "type": "objective-task",
-          "objective": "Los primos verdes de Blue Goblin se han repartido por objetos que tienes a mano. Elige tú las imágenes físicas que hacen de marcador —una carta, una portada, una pegatina— y monta el seguimiento para que cada marcador invoque a su goblin. Mínimo dos marcadores distintos.",
-          "starting_point": "Tu proyecto del ejercicio 1, continuado. Necesitas las dos imágenes físicas encima de la mesa antes de empezar.",
+          "objective": {
+            "en": "Blue Goblin's green cousins have scattered themselves across objects you have to hand. You pick the physical images that act as markers — a playing card, a book cover, a sticker — and set up the tracking so each marker summons its own goblin. At least two different markers.",
+            "es": "Los primos verdes de Blue Goblin se han repartido por objetos que tienes a mano. Elige tú las imágenes físicas que hacen de marcador —una carta, una portada, una pegatina— y monta el seguimiento para que cada marcador invoque a su goblin. Mínimo dos marcadores distintos.",
+            "ca": "Els cosins verds del Blue Goblin s'han repartit per objectes que tens a mà. Tria tu les imatges físiques que fan de marcador —una carta, una portada, un adhesiu— i munta el seguiment perquè cada marcador invoqui el seu goblin. Mínim dos marcadors diferents."
+          },
+          "starting_point": {
+            "en": "Your project from exercise 1, carried on. You need the two physical images on the table before you start.",
+            "es": "Tu proyecto del ejercicio 1, continuado. Necesitas las dos imágenes físicas encima de la mesa antes de empezar.",
+            "ca": "El teu projecte de l'exercici 1, continuat. Necessites les dues imatges físiques sobre la taula abans de començar."
+          },
           "steps": [
-            "Captura o prepara 2 imágenes en alta resolución (JPG/PNG), rectas, sin reflejos, e impórtalas a `Assets`.",
-            "Clic derecho en el Project window → `Create > XR > Reference Image Library`.",
-            "Selecciona la librería creada, en el Inspector pulsa **+** por cada imagen, y arrastra cada una al campo correspondiente.",
-            "Para cada entrada, rellena el tamaño físico real (ancho/alto en metros) — sin ese dato el goblin sale a escala arbitraria.",
-            "Revisa la puntuación de calidad que el editor muestra al procesar cada imagen; si sale baja, sustitúyela por otra con más contraste y detalle irregular.",
-            "Selecciona el XR Origin → `Add Component` → **AR Tracked Image Manager**.",
-            "Arrastra la Reference Image Library al campo **Serialized Library**.",
-            "Ajusta **Max Number Of Moving Images** a 2.",
-            "Crea un prefab distinto por marcador (o uno genérico que decida internamente qué mostrar).",
-            "En un script, suscríbete al evento `trackedImagesChanged` del manager (`manager.trackedImagesChanged += OnChanged`).",
-            "En el callback, recorre `args.added` y `args.updated`: por cada `ARTrackedImage`, usa `trackedImage.referenceImage.name` para identificar el marcador, e instancia/posiciona el prefab correspondiente en `trackedImage.transform`.",
-            "En `args.removed` (o comprobando `trackedImage.trackingState != TrackingState.Tracking`), decide si ocultas, destruyes o dejas quieto el objeto — evita que parpadee cada frame.",
-            "Prueba con los dos marcadores a la vez delante de la cámara del móvil: deben salir dos goblins distintos, cada uno sobre el suyo.",
-            "Genera el PDF/PNG de los dos marcadores para imprimir, comprobando que el tamaño impreso coincide con el configurado en la librería.",
-            "Build APK y prueba con los marcadores impresos (o en otra pantalla) con luz normal de aula."
+            {
+              "en": "Capture or prepare 2 high-resolution images (JPG/PNG), straight on and free of glare, and import them into `Assets`.",
+              "es": "Captura o prepara 2 imágenes en alta resolución (JPG/PNG), rectas, sin reflejos, e impórtalas a `Assets`.",
+              "ca": "Captura o prepara 2 imatges en alta resolució (JPG/PNG), rectes, sense reflexos, i importa-les a `Assets`."
+            },
+            {
+              "en": "Right-click in the Project window → `Create > XR > Reference Image Library`.",
+              "es": "Clic derecho en el Project window → `Create > XR > Reference Image Library`.",
+              "ca": "Clic dret a la Project window → `Create > XR > Reference Image Library`."
+            },
+            {
+              "en": "Select the library you just created, press **+** in the Inspector for each image, and drag each one into its field.",
+              "es": "Selecciona la librería creada, en el Inspector pulsa **+** por cada imagen, y arrastra cada una al campo correspondiente.",
+              "ca": "Selecciona la biblioteca creada, a l'Inspector prem **+** per cada imatge, i arrossega cadascuna al camp corresponent."
+            },
+            {
+              "en": "For each entry, fill in the real physical size (width/height in metres) — without it the goblin comes out at an arbitrary scale.",
+              "es": "Para cada entrada, rellena el tamaño físico real (ancho/alto en metros) — sin ese dato el goblin sale a escala arbitraria.",
+              "ca": "Per a cada entrada, omple la mida física real (amplada/alçada en metres) — sense aquesta dada el goblin surt a escala arbitrària."
+            },
+            {
+              "en": "Check the quality score the editor shows as it processes each image; if it comes out low, swap it for one with more contrast and more irregular detail.",
+              "es": "Revisa la puntuación de calidad que el editor muestra al procesar cada imagen; si sale baja, sustitúyela por otra con más contraste y detalle irregular.",
+              "ca": "Revisa la puntuació de qualitat que l'editor mostra en processar cada imatge; si surt baixa, substitueix-la per una altra amb més contrast i detall irregular."
+            },
+            {
+              "en": "Select the XR Origin → `Add Component` → **AR Tracked Image Manager**.",
+              "es": "Selecciona el XR Origin → `Add Component` → **AR Tracked Image Manager**.",
+              "ca": "Selecciona el XR Origin → `Add Component` → **AR Tracked Image Manager**."
+            },
+            {
+              "en": "Drag the Reference Image Library into the **Serialized Library** field.",
+              "es": "Arrastra la Reference Image Library al campo **Serialized Library**.",
+              "ca": "Arrossega la Reference Image Library al camp **Serialized Library**."
+            },
+            {
+              "en": "Set **Max Number Of Moving Images** to 2.",
+              "es": "Ajusta **Max Number Of Moving Images** a 2.",
+              "ca": "Ajusta **Max Number Of Moving Images** a 2."
+            },
+            {
+              "en": "Make a different prefab per marker (or one generic prefab that decides internally what to show).",
+              "es": "Crea un prefab distinto por marcador (o uno genérico que decida internamente qué mostrar).",
+              "ca": "Crea un prefab diferent per marcador (o un de genèric que decideixi internament què mostrar)."
+            },
+            {
+              "en": "In a script, subscribe to the manager's `trackedImagesChanged` event (`manager.trackedImagesChanged += OnChanged`).",
+              "es": "En un script, suscríbete al evento `trackedImagesChanged` del manager (`manager.trackedImagesChanged += OnChanged`).",
+              "ca": "En un script, subscriu-te a l'esdeveniment `trackedImagesChanged` del manager (`manager.trackedImagesChanged += OnChanged`)."
+            },
+            {
+              "en": "In the callback, walk `args.added` and `args.updated`: for each `ARTrackedImage`, use `trackedImage.referenceImage.name` to identify the marker, and spawn/position the matching prefab on `trackedImage.transform`.",
+              "es": "En el callback, recorre `args.added` y `args.updated`: por cada `ARTrackedImage`, usa `trackedImage.referenceImage.name` para identificar el marcador, e instancia/posiciona el prefab correspondiente en `trackedImage.transform`.",
+              "ca": "Al callback, recorre `args.added` i `args.updated`: per cada `ARTrackedImage`, fes servir `trackedImage.referenceImage.name` per identificar el marcador, i instancia/posiciona el prefab corresponent a `trackedImage.transform`."
+            },
+            {
+              "en": "In `args.removed` (or by checking `trackedImage.trackingState != TrackingState.Tracking`), decide whether you hide, destroy or leave the object where it is — stop it flickering every frame.",
+              "es": "En `args.removed` (o comprobando `trackedImage.trackingState != TrackingState.Tracking`), decide si ocultas, destruyes o dejas quieto el objeto — evita que parpadee cada frame.",
+              "ca": "A `args.removed` (o comprovant `trackedImage.trackingState != TrackingState.Tracking`), decideix si amagues, destrueixes o deixes quiet l'objecte — evita que parpellegi cada frame."
+            },
+            {
+              "en": "Try both markers in front of the phone camera at once: two different goblins should appear, each on its own.",
+              "es": "Prueba con los dos marcadores a la vez delante de la cámara del móvil: deben salir dos goblins distintos, cada uno sobre el suyo.",
+              "ca": "Prova els dos marcadors alhora davant de la càmera del mòbil: han de sortir dos goblins diferents, cadascun sobre el seu."
+            },
+            {
+              "en": "Export the two markers as PDF/PNG for printing, checking that the printed size matches the one set in the library.",
+              "es": "Genera el PDF/PNG de los dos marcadores para imprimir, comprobando que el tamaño impreso coincide con el configurado en la librería.",
+              "ca": "Genera el PDF/PNG dels dos marcadors per imprimir, comprovant que la mida impresa coincideix amb la configurada a la biblioteca."
+            },
+            {
+              "en": "Build the APK and test with the printed markers (or on another screen) under normal classroom light.",
+              "es": "Build APK y prueba con los marcadores impresos (o en otra pantalla) con luz normal de aula.",
+              "ca": "Fes la build de l'APK i prova amb els marcadors impresos (o en una altra pantalla) amb llum normal d'aula."
+            }
           ]
         }
       ],
@@ -450,23 +630,83 @@
         {
           "id": "w1-arf-03-t1",
           "type": "objective-task",
-          "objective": "Elige del repositorio público de samples de AR Foundation al menos una feature que no hayamos usado —light estimation, face tracking, mesh scanning, occlusion, lo que te llame— e intégrala en el mismo proyecto para inventar el desenlace de Blue Goblin. Puedes combinar varias. La historia se evalúa igual que el código.",
-          "starting_point": "El proyecto de los ejercicios 1 y 2. Esta actividad es en grupo y engloba las dos anteriores: partid de uno de vuestros proyectos y llevadlo hasta el final entre todos. Catálogo de referencia: `Unity-Technologies/arfoundation-samples`.",
-          "steps_note": "proceso general — la feature exacta la eliges tú",
+          "objective": {
+            "en": "Pick at least one feature we have not used from AR Foundation's public samples repository — light estimation, face tracking, mesh scanning, occlusion, whatever appeals — and integrate it into the same project to invent Blue Goblin's ending. You can combine several. The story is marked the same as the code.",
+            "es": "Elige del repositorio público de samples de AR Foundation al menos una feature que no hayamos usado —light estimation, face tracking, mesh scanning, occlusion, lo que te llame— e intégrala en el mismo proyecto para inventar el desenlace de Blue Goblin. Puedes combinar varias. La historia se evalúa igual que el código.",
+            "ca": "Tria del repositori públic de samples d'AR Foundation com a mínim una feature que no hàgim fet servir —light estimation, face tracking, mesh scanning, occlusion, la que et cridi— i integra-la al mateix projecte per inventar el desenllaç del Blue Goblin. En pots combinar unes quantes. La història s'avalua igual que el codi."
+          },
+          "starting_point": {
+            "en": "The project from exercises 1 and 2. This activity is done as a group and takes in both of them: start from one of your projects and carry it to the end between you. Reference catalogue: `Unity-Technologies/arfoundation-samples`.",
+            "es": "El proyecto de los ejercicios 1 y 2. Esta actividad es en grupo y engloba las dos anteriores: partid de uno de vuestros proyectos y llevadlo hasta el final entre todos. Catálogo de referencia: `Unity-Technologies/arfoundation-samples`.",
+            "ca": "El projecte dels exercicis 1 i 2. Aquesta activitat és en grup i engloba les dues anteriors: partiu d'un dels vostres projectes i porteu-lo fins al final entre tots. Catàleg de referència: `Unity-Technologies/arfoundation-samples`."
+          },
+          "steps_note": {
+            "en": "the general process — the exact feature is your choice",
+            "es": "proceso general — la feature exacta la eliges tú",
+            "ca": "procés general — la feature exacta la tries tu"
+          },
           "steps": [
-            "Descarga o clona `Unity-Technologies/arfoundation-samples` (Code → Download ZIP, o `git clone`).",
-            "Ábrelo en Unity y localiza en `Assets/Scenes` la escena de ejemplo de la feature que te interese.",
-            "Ejecuta esa escena tal cual en tu propio dispositivo antes de tocar nada — algunas features (face tracking, profundidad, occlusion) no están disponibles en todos los modelos de móvil.",
-            "Identifica en esa escena qué Managers son necesarios (p. ej. AR Face Manager, AR Occlusion Manager, AR Human Body Manager) y qué scripts van sobre ellos.",
-            "En tu propio proyecto, añade esos mismos Managers al XR Origin ya existente — no dupliques XR Origin ni AR Session.",
-            "Copia solo los scripts y prefabs estrictamente necesarios de la muestra, no la escena completa.",
-            "Revisa permisos: algunas features requieren permisos extra en el manifiesto Android (`Player Settings > Publishing Settings > Custom Main Manifest`); Unity suele añadirlos solo al activar el manager, pero conviene comprobarlo.",
-            "Verifica que plane detection e image tracking (ejercicios 1 y 2) siguen funcionando después de integrar la nueva feature.",
-            "Diseña el desenlace de Blue Goblin usando la feature: qué pasa visualmente, cuándo se dispara, qué lo activa — que se vea en la app, no que haya que explicarlo en el README.",
-            "Si combinas varias features, prueba que cada una funciona por separado y que conviven en la misma sesión AR.",
-            "Build APK final, probado en frío: instalar, abrir y recorrer las tres partes del bloque sin reiniciar."
+            {
+              "en": "Download or clone `Unity-Technologies/arfoundation-samples` (Code → Download ZIP, or `git clone`).",
+              "es": "Descarga o clona `Unity-Technologies/arfoundation-samples` (Code → Download ZIP, o `git clone`).",
+              "ca": "Descarrega o clona `Unity-Technologies/arfoundation-samples` (Code → Download ZIP, o `git clone`)."
+            },
+            {
+              "en": "Open it in Unity and find, under `Assets/Scenes`, the sample scene for the feature you are interested in.",
+              "es": "Ábrelo en Unity y localiza en `Assets/Scenes` la escena de ejemplo de la feature que te interese.",
+              "ca": "Obre'l a Unity i localitza a `Assets/Scenes` l'escena d'exemple de la feature que t'interessi."
+            },
+            {
+              "en": "Run that scene as it is on your own device before touching anything — some features (face tracking, depth, occlusion) are not available on every phone model.",
+              "es": "Ejecuta esa escena tal cual en tu propio dispositivo antes de tocar nada — algunas features (face tracking, profundidad, occlusion) no están disponibles en todos los modelos de móvil.",
+              "ca": "Executa aquesta escena tal qual al teu dispositiu abans de tocar res — algunes features (face tracking, profunditat, occlusion) no estan disponibles a tots els models de mòbil."
+            },
+            {
+              "en": "Work out from that scene which Managers are needed (AR Face Manager, AR Occlusion Manager, AR Human Body Manager…) and which scripts sit on them.",
+              "es": "Identifica en esa escena qué Managers son necesarios (p. ej. AR Face Manager, AR Occlusion Manager, AR Human Body Manager) y qué scripts van sobre ellos.",
+              "ca": "Identifica en aquesta escena quins Managers calen (p. ex. AR Face Manager, AR Occlusion Manager, AR Human Body Manager) i quins scripts hi van a sobre."
+            },
+            {
+              "en": "In your own project, add those same Managers to the XR Origin that is already there — do not duplicate the XR Origin or the AR Session.",
+              "es": "En tu propio proyecto, añade esos mismos Managers al XR Origin ya existente — no dupliques XR Origin ni AR Session.",
+              "ca": "Al teu projecte, afegeix aquests mateixos Managers al XR Origin que ja hi ha — no dupliquis ni XR Origin ni AR Session."
+            },
+            {
+              "en": "Copy only the scripts and prefabs you strictly need from the sample, not the whole scene.",
+              "es": "Copia solo los scripts y prefabs estrictamente necesarios de la muestra, no la escena completa.",
+              "ca": "Copia només els scripts i prefabs estrictament necessaris de la mostra, no l'escena sencera."
+            },
+            {
+              "en": "Check permissions: some features need extra entries in the Android manifest (`Player Settings > Publishing Settings > Custom Main Manifest`); Unity usually adds them when you enable the manager, but it is worth confirming.",
+              "es": "Revisa permisos: algunas features requieren permisos extra en el manifiesto Android (`Player Settings > Publishing Settings > Custom Main Manifest`); Unity suele añadirlos solo al activar el manager, pero conviene comprobarlo.",
+              "ca": "Revisa permisos: algunes features demanen permisos extra al manifest d'Android (`Player Settings > Publishing Settings > Custom Main Manifest`); Unity sol afegir-los en activar el manager, però convé comprovar-ho."
+            },
+            {
+              "en": "Check that plane detection and image tracking (exercises 1 and 2) still work after integrating the new feature.",
+              "es": "Verifica que plane detection e image tracking (ejercicios 1 y 2) siguen funcionando después de integrar la nueva feature.",
+              "ca": "Verifica que plane detection i image tracking (exercicis 1 i 2) continuen funcionant després d'integrar la nova feature."
+            },
+            {
+              "en": "Design Blue Goblin's ending around the feature: what happens on screen, when it fires, what triggers it — it has to be visible in the app, not explained in the README.",
+              "es": "Diseña el desenlace de Blue Goblin usando la feature: qué pasa visualmente, cuándo se dispara, qué lo activa — que se vea en la app, no que haya que explicarlo en el README.",
+              "ca": "Dissenya el desenllaç del Blue Goblin fent servir la feature: què passa visualment, quan es dispara, què l'activa — que es vegi a l'app, no que calgui explicar-ho al README."
+            },
+            {
+              "en": "If you combine several features, test that each one works on its own and that they live together in the same AR session.",
+              "es": "Si combinas varias features, prueba que cada una funciona por separado y que conviven en la misma sesión AR.",
+              "ca": "Si combines diverses features, prova que cadascuna funciona per separat i que conviuen a la mateixa sessió AR."
+            },
+            {
+              "en": "Final APK, tested cold: install, open and walk through the three parts of the block without restarting.",
+              "es": "Build APK final, probado en frío: instalar, abrir y recorrer las tres partes del bloque sin reiniciar.",
+              "ca": "Build APK final, provat en fred: instal·lar, obrir i recórrer les tres parts del bloc sense reiniciar."
+            }
           ],
-          "deliverable": "APK con el bloque entero integrado. En el README: features añadidas, dispositivo de prueba y, en un párrafo, cómo termina vuestro Blue Goblin."
+          "deliverable": {
+            "en": "An APK with the whole block integrated. In the README: the features you added, the device you tested on, and a paragraph on how your Blue Goblin ends.",
+            "es": "APK con el bloque entero integrado. En el README: features añadidas, dispositivo de prueba y, en un párrafo, cómo termina vuestro Blue Goblin.",
+            "ca": "APK amb el bloc sencer integrat. Al README: features afegides, dispositiu de prova i, en un paràgraf, com acaba el vostre Blue Goblin."
+          }
         }
       ]
     },

@@ -6,64 +6,64 @@ paginate: true
 
 <!-- _class: lead -->
 
-# Ejercicio 3 · Exploración libre
+# Exercise 3 · Free exploration
 
-**Bloque 1 — AR Foundation** · entrega evaluable
-(este ejercicio es el de **más peso** del bloque)
-**Por grupo** · engloba los ejercicios 1 y 2 · **Entrega: build (APK)**
-
----
-
-## La historia
-
-Hasta aquí has seguido instrucciones. El final de Blue Goblin en el móvil **lo
-escribes tú**. ¿Se va? ¿Se queda? ¿Se hace amigo tuyo? ¿Se lo lleva un primo
-verde? Lo que decidas es lo que se corrige.
-
+**Block 1 — AR Foundation** · assessed hand-in
+(this is the **heaviest** exercise of the block)
+**Per group** · takes in exercises 1 and 2 · **Hand-in: build (APK)**
 
 ---
 
-## Qué tienes que hacer
+## The story
 
-Del repositorio público de *samples* de AR Foundation, elige **al menos una
-feature que no hayamos usado en clase**:
-
-- *light estimation* — que tu objeto reciba la luz real de la habitación
-- *face tracking* — el goblin sobre tu propia cara
-- *mesh scanning / occlusion* — que se esconda detrás de los muebles de verdad
-- cualquier otra del catálogo
-
-Este ejercicio es **en grupo**: partid de uno de vuestros proyectos de los
-ejercicios 1 y 2, integradla **en él** y usadla para contar el desenlace.
-Podéis combinar varias: **si todas funcionan, sube la nota**.
+Up to here you have been following instructions. Blue Goblin's ending on the
+phone is **yours to write**. Does he leave? Does he stay? Does he become your
+friend? Does a green cousin carry him off? Whatever you decide is what gets
+marked.
 
 
 ---
 
-## Requisitos mínimos
+## What you have to do
 
-- Al menos una feature nueva, distinta de plane detection e image tracking.
-- Los ejercicios 1 y 2 **siguen funcionando** después de integrarla.
-- El desenlace se ve **dentro de la app**. Un final que solo está en el `README`
-  no cuenta como final.
+From AR Foundation's public *samples* repository, pick **at least one feature
+we have not used in class**:
 
+- *light estimation* — your object lit by the real light in the room
+- *face tracking* — the goblin on your own face
+- *mesh scanning / occlusion* — it hides behind the real furniture
+- any other one from the catalogue
 
----
-
-## Entrega
-
-**APK con el bloque entero integrado** — al terminar contiene la suma de los
-tres ejercicios.
-
-En el `README`: qué features habéis añadido, en qué dispositivo lo habéis
-probado, y un párrafo con el final de vuestro Blue Goblin.
+This exercise is done **as a group**: start from one of your projects from
+exercises 1 and 2, integrate it **into that one**, and use it to tell the
+ending. You can combine several: **if they all work, it pushes the mark up**.
 
 
 ---
 
-## Cómo se evalúa
+## Minimum requirements
 
-Que la feature elegida funcione de verdad en tu dispositivo, no en el editor.
-Que la integración no rompa lo anterior. Y el **storytelling**: aquí puntúa
-explícitamente.
+- At least one new feature, different from plane detection and image tracking.
+- Exercises 1 and 2 **still work** after you integrate it.
+- The ending is visible **inside the app**. An ending that only exists in the
+  `README` does not count as an ending.
 
+
+---
+
+## Hand-in
+
+**An APK with the whole block integrated** — by the end it contains the sum of
+all three exercises.
+
+In the `README`: which features you added, which device you tested on, and a
+paragraph with your Blue Goblin's ending.
+
+
+---
+
+## How it is assessed
+
+That the feature you chose really works on your device, not in the editor. That
+integrating it does not break what came before. And the **storytelling**: here
+it counts explicitly.
