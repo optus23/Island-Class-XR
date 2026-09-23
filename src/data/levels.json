@@ -525,7 +525,10 @@
           ]
         }
       ],
-      "slidesHidden": true,
+      "slides": {
+        "type": "canva",
+        "source": "https://www.canva.com/design/DAHHUg9bRnE/aMSHYnSQXgr-muOpollVCA/view?embed"
+      },
       "bibliography": "content/bibliography/w1-arf-02.md"
     },
     {
