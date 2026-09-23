@@ -181,8 +181,11 @@ OLD bundle, which is still on Pages and still works. A shipped fix and a stale
 page look identical from the outside. One round was spent re-diagnosing
 something that was already fixed. Ask for the build id first.
 
-Merge-to-main permission runs until **14 September 2026** — days away as of the
-last round; after that, commits go to `develop` and the user merges the PR.
+**Merge-to-main is granted PER ROUND, and the grant expired on 14 September
+2026.** Since then Marc has said "haz tú el merge a main" round after round and
+it has been done for him each time — but he says it each time. The default is
+still: push `develop`, open the PR, and stop. **Do not read a past round's
+"sube esto a main" as a standing permission**; it was given for that work.
 
 Pushing: Git Credential Manager caches an under-scoped credential and 403s
 without re-prompting. Push with the helper reset inline:
@@ -243,11 +246,23 @@ kinds of text have different owners.
 - **EVERY prose field in `levels.json` takes both shapes, the todos included.**
   `title`, `summary`, `contents`, and a todo's `objective`, `starting_point`,
   `steps[]`, `steps_note` and `deliverable` all render through `localized()`.
-  The step-by-step guides are the longest text in the course and are still
-  Spanish-only — that is the outstanding work, and it is Marc's to write, so
-  translating one is a DATA edit with no code change behind it. `validate`
-  counts the steps as ONE line per todo rather than one per step; ninety
-  entries saying the same thing is a list nobody reads.
+  `validate` counts the steps as ONE line per todo rather than one per step;
+  ninety entries saying the same thing is a list nobody reads.
+  **World 1 is complete in all three languages** — the four exercises with real
+  content (1-1, 1-2, 1-3 and the Mono/Stereo activity), fifty steps between
+  them, done 23 September 2026. **Blocks 2 and 3 are not, deliberately**: that
+  content is months away and still a draft, and Marc supplies his own deck per
+  session before an exercise is written, so translating it three ways now is
+  work that gets thrown out.
+- **A DECK IS COURSE TEXT TOO, AND `validate` CHECKS IT.** This is the one that
+  bit: a missing `w1-arf-01.es.md` looks exactly like a deck that needs no
+  translation, because `deckIdFor` falls back to the base file **in silence**.
+  Four decks shipped single-language that way and came back as "las
+  instrucciones están solo en inglés". There is a **decks still to translate**
+  section on every run now — its OWN section, because the prose list truncates
+  at 25 and the decks sorted to the bottom of it, which is exactly where this
+  was hiding. Like the prose list it is a REPORT, never an error: a block
+  half-written in one language still has to be committable.
 - **Switching language reloads the page, and that is not laziness.** The
   villagers' name plates, the VR level card and the gaze pad hint are painted
   into GPU textures once; the Marp decks are fetched as compiled HTML.
@@ -519,6 +534,28 @@ Changing any of these is a design decision, not a refactor.
   recipe, and their walk is a stroll that keeps drifting to a near-standstill
   rather than the avatar's bouncing march. They are decoration — never clickable,
   never on the disc, never carrying course meaning.
+  **EVERY VILLAGER IS DRESSED AT RANDOM, AND THE RANDOM IS ITS ROSTER ID.**
+  Shirt, trousers, skin, hair, shoes and a hat, each picked by hashing
+  `npcs.json`'s id — so a student looks the same on every load and on everybody
+  else's screen, and the roster still holds nothing but a name and a session.
+  **Never mix the roster INDEX into that seed** to spread looks out: adding one
+  student would restyle everyone after them.
+  - **The hats are there because COLOUR WAS NOT ENOUGH.** 640 colour
+    combinations and they still read as copies, because at the distance the
+    follow camera sits at you see a silhouette, not a palette. Six one-box
+    shapes plus a bare head (`HATS` in `villagers.js`, colours in `theme.js`
+    like every colour here), `HAT_CHANCE` 0.55 — measured over 4000 generated
+    ids at 55.1% hatted, every shape within 8.6% of an even sixth.
+  - **NO HAT MAY BE VISOR- OR HEADSET-SHAPED**, ever. That is half of what
+    tells the avatar apart from them.
+  - Every villager carries the SAME number of boxes — a bare head is a
+    zero-sized one — because the instance index is
+    `ci * BOXES_PER_VILLAGER + bi` and a shorter list on one villager would
+    shift every villager after it onto somebody else's matrices.
+  - **The name plate hangs from each figure's OWN top, derived not written.**
+    A stovepipe reaches 2.95 against a bare head's 2.31, so one number for
+    everybody either floats every plate half a metre too high or lets a hat
+    poke through one.
 - **The plate over the avatar dismisses itself, and never covers a panel.**
   Touch anything that is not the plate — the map, the course list, the legend,
   the VR button — and it goes. On a desktop, hovering the node the avatar is
@@ -638,11 +675,12 @@ Changing any of these is a design decision, not a refactor.
     `marp: true` at the top is invisible. That is the trap now.
   - The i18n key is still `portal.activities`; only the words changed. It was
     "Actividades"/"Activities" until this round.
-  - **The course is taught in ENGLISH, and day 2 is the first content written
-    that way.** "La plataforma está en inglés y yo estoy leyendo aquí cosas en
-    español." `DEFAULT_LANG` has always been `en`; the level prose had not
-    caught up. `w1-arf-01`'s todo is English now, the rest of the course is
-    still Spanish, and `validate` lists all of it under "still to translate".
+  - **The course is taught in ENGLISH and `DEFAULT_LANG` has always been `en`**,
+    so English is the BASE of every file: `w1-arf-02.md` and `w1-arf-03.md`
+    were Spanish and are now English, with the Spanish Marc wrote preserved
+    verbatim in their `.es.md`. "La plataforma está en inglés y yo estoy
+    leyendo aquí cosas en español" was said once about the chrome/content
+    mismatch and once about the decks; both are fixed for world 1.
 - **The level portal is ONE scrolling page.** Header, tags, tabs and content all
   scroll away together; only the back button stays (it is `position: fixed`, and
   without it a phone user has no way out — there is no Escape key). Three

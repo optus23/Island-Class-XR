@@ -423,11 +423,21 @@ try {
   warn('no public/decks/index.json — run `npm run decks` (build does it for you)')
 }
 for (const [id, deck] of Object.entries(decks)) {
-  const level = levels.find((l) => l.id === id)
+  // A TRANSLATED deck is `<level>.es` / `<level>.ca`, not a level id of its own
+  // (`deckIdFor` in ui/deck.js looks the language up first and falls back to
+  // the base). Checking the raw id against the level list warned about all
+  // eight of them the moment world 1 was translated — a warning that is always
+  // wrong is how people learn to ignore the warnings.
+  const base = id.replace(/\.(es|ca)$/, '')
+  const level = levels.find((l) => l.id === base)
   if (!level) {
     warn(`deck "${id}" has no level with that id — the file will never be opened`)
     continue
   }
+  // Everything below is about the LEVEL's configuration, so a translation has
+  // nothing new to say: it would repeat its base deck's warning once per
+  // language.
+  if (base !== id) continue
   // The generated deck wins in the viewer, so a slides block underneath it is
   // config that can never take effect.
   // Both is legal and normal: the calendar's Classes column carries the lecture
