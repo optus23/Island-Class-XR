@@ -437,90 +437,55 @@
           "id": "w1-arf-02-t1",
           "type": "objective-task",
           "objective": {
-            "en": "Blue Goblin's green cousins have scattered themselves across objects you have to hand. You pick the physical images that act as markers — a playing card, a book cover, a sticker — and set up the tracking so each marker summons its own goblin. At least two different markers.",
-            "es": "Los primos verdes de Blue Goblin se han repartido por objetos que tienes a mano. Elige tú las imágenes físicas que hacen de marcador —una carta, una portada, una pegatina— y monta el seguimiento para que cada marcador invoque a su goblin. Mínimo dos marcadores distintos.",
-            "ca": "Els cosins verds del Blue Goblin s'han repartit per objectes que tens a mà. Tria tu les imatges físiques que fan de marcador —una carta, una portada, un adhesiu— i munta el seguiment perquè cada marcador invoqui el seu goblin. Mínim dos marcadors diferents."
+            "en": "Create an image tracking app with Unity AR Foundation that spawns a 3D object of your own choosing on top of a detected marker — your solution for dealing with the green goblins. You build the scene yourself this time, starting from the AR Mobile template, and you still write no code: everything happens in the Inspector.",
+            "es": "Crea una app de image tracking con Unity AR Foundation que instancie sobre un marcador detectado un objeto 3D que elijas tú — tu solución para lidiar con los green goblins. Esta vez la escena la montas tú, partiendo de la plantilla AR Mobile, y sigues sin escribir código: todo pasa en el Inspector.",
+            "ca": "Crea una app d'image tracking amb Unity AR Foundation que instanciï sobre un marcador detectat un objecte 3D que triïs tu — la teva solució per encarar els green goblins. Aquesta vegada l'escena la muntes tu, partint de la plantilla AR Mobile, i continues sense escriure codi: tot passa a l'Inspector."
           },
           "starting_point": {
-            "en": "Your project from exercise 1, carried on. You need the two physical images on the table before you start.",
-            "es": "Tu proyecto del ejercicio 1, continuado. Necesitas las dos imágenes físicas encima de la mesa antes de empezar.",
-            "ca": "El teu projecte de l'exercici 1, continuat. Necessites les dues imatges físiques sobre la taula abans de començar."
+            "en": "A Unity **2022 LTS** install with the **Android Build Support** module, the **AR Mobile** template from Unity Hub, an image to use as a marker, and a 3D model you like. You will test inside the **XR Simulator**, so you do not need to print the marker to get the exercise working.",
+            "es": "Una instalación de Unity **2022 LTS** con el módulo **Android Build Support**, la plantilla **AR Mobile** de Unity Hub, una imagen que sirva de marcador y un modelo 3D que te guste. Probarás dentro del **XR Simulator**, así que no hace falta imprimir el marcador para sacar el ejercicio adelante.",
+            "ca": "Una instal·lació d'Unity **2022 LTS** amb el mòdul **Android Build Support**, la plantilla **AR Mobile** d'Unity Hub, una imatge que serveixi de marcador i un model 3D que t'agradi. Provaràs dins de l'**XR Simulator**, així que no cal imprimir el marcador per tirar l'exercici endavant."
           },
           "steps": [
             {
-              "en": "Capture or prepare 2 high-resolution images (JPG/PNG), straight on and free of glare, and import them into `Assets`.",
-              "es": "Captura o prepara 2 imágenes en alta resolución (JPG/PNG), rectas, sin reflejos, e impórtalas a `Assets`.",
-              "ca": "Captura o prepara 2 imatges en alta resolució (JPG/PNG), rectes, sense reflexos, i importa-les a `Assets`."
+              "en": "**Unity Hub → New project → the `AR Mobile` template** (under *Core*). Before that, check your Editor has the **Android** module installed — Unity Hub → *Installs* → **Add modules** → *Android Build Support*, with **OpenJDK** and **Android SDK & NDK Tools** inside it. Without it, Android will not even appear in Build Settings in the next step.",
+              "es": "**Unity Hub → New project → plantilla `AR Mobile`** (dentro de *Core*). Antes, comprueba que tu Editor tiene el módulo de **Android** instalado — Unity Hub → *Installs* → **Add modules** → *Android Build Support*, con **OpenJDK** y **Android SDK & NDK Tools** dentro. Sin él, en el paso siguiente Android ni siquiera aparecerá en Build Settings.",
+              "ca": "**Unity Hub → New project → plantilla `AR Mobile`** (dins de *Core*). Abans, comprova que el teu Editor té el mòdul d'**Android** instal·lat — Unity Hub → *Installs* → **Add modules** → *Android Build Support*, amb **OpenJDK** i **Android SDK & NDK Tools** a dins. Sense ell, al pas següent Android ni tan sols apareixerà a Build Settings."
             },
             {
-              "en": "Right-click in the Project window → `Create > XR > Reference Image Library`.",
-              "es": "Clic derecho en el Project window → `Create > XR > Reference Image Library`.",
-              "ca": "Clic dret a la Project window → `Create > XR > Reference Image Library`."
+              "en": "**Platform and provider**, which are two different things. `File > Build Settings` → select **Android** → **Switch Platform**. Then `Project Settings > XR Plug-in Management` → **Android** tab → confirm the **ARCore** checkbox is ticked. Switch the platform now, while the project is still empty: it reimports every asset.",
+              "es": "**Plataforma y proveedor**, que son dos cosas distintas. `File > Build Settings` → selecciona **Android** → **Switch Platform**. Luego `Project Settings > XR Plug-in Management` → pestaña **Android** → confirma que el checkbox de **ARCore** está marcado. Cambia de plataforma ahora, que el proyecto aún está vacío: reimporta todos los assets.",
+              "ca": "**Plataforma i proveïdor**, que són dues coses diferents. `File > Build Settings` → selecciona **Android** → **Switch Platform**. Després `Project Settings > XR Plug-in Management` → pestanya **Android** → confirma que el checkbox d'**ARCore** està marcat. Canvia de plataforma ara, que el projecte encara és buit: reimporta tots els assets."
             },
             {
-              "en": "Select the library you just created, press **+** in the Inspector for each image, and drag each one into its field.",
-              "es": "Selecciona la librería creada, en el Inspector pulsa **+** por cada imagen, y arrastra cada una al campo correspondiente.",
-              "ca": "Selecciona la biblioteca creada, a l'Inspector prem **+** per cada imatge, i arrossega cadascuna al camp corresponent."
+              "en": "**A new scene.** Create one, **delete the `Main Camera`** object (the AR rig brings its own), and add **`AR Session`** and **`XR Origin (AR)`**. Then select the **XR Origin** and **Add Component → `AR Tracked Image Manager`**. Leave its fields empty for now — step 4 makes what goes in them.",
+              "es": "**Una escena nueva.** Créala, **borra el objeto `Main Camera`** (el rig de AR trae la suya) y añade **`AR Session`** y **`XR Origin (AR)`**. Luego selecciona el **XR Origin** y **Add Component → `AR Tracked Image Manager`**. Deja sus campos vacíos de momento — el paso 4 fabrica lo que va dentro.",
+              "ca": "**Una escena nova.** Crea-la, **esborra l'objecte `Main Camera`** (el rig d'AR porta la seva) i afegeix **`AR Session`** i **`XR Origin (AR)`**. Després selecciona l'**XR Origin** i **Add Component → `AR Tracked Image Manager`**. Deixa els seus camps buits de moment — el pas 4 fabrica el que hi va a dins."
             },
             {
-              "en": "For each entry, fill in the real physical size (width/height in metres) — without it the goblin comes out at an arbitrary scale.",
-              "es": "Para cada entrada, rellena el tamaño físico real (ancho/alto en metros) — sin ese dato el goblin sale a escala arbitraria.",
-              "ca": "Per a cada entrada, omple la mida física real (amplada/alçada en metres) — sense aquesta dada el goblin surt a escala arbitrària."
+              "en": "**The reference image library.** In the Project window, right-click in `Assets` → **`Create > XR > Reference Image Library`**. Select the asset, press **Add Image** and drop in an ordinary texture (PNG, JPG…). **Pick one with contrast and irregular detail**: the editor scores each image as it processes it, and a low score is a marker that only tracks in perfect light.",
+              "es": "**La reference image library.** En la ventana Project, clic derecho en `Assets` → **`Create > XR > Reference Image Library`**. Selecciona el asset, pulsa **Add Image** y suelta dentro una textura normal (PNG, JPG…). **Elige una con contraste y detalle irregular**: el editor puntúa cada imagen mientras la procesa, y una puntuación baja es un marcador que solo funciona con luz perfecta.",
+              "ca": "**La reference image library.** A la finestra Project, clic dret a `Assets` → **`Create > XR > Reference Image Library`**. Selecciona l'asset, prem **Add Image** i deixa-hi anar una textura normal (PNG, JPG…). **Tria'n una amb contrast i detall irregular**: l'editor puntua cada imatge mentre la processa, i una puntuació baixa és un marcador que només funciona amb llum perfecta."
             },
             {
-              "en": "Check the quality score the editor shows as it processes each image; if it comes out low, swap it for one with more contrast and more irregular detail.",
-              "es": "Revisa la puntuación de calidad que el editor muestra al procesar cada imagen; si sale baja, sustitúyela por otra con más contraste y detalle irregular.",
-              "ca": "Revisa la puntuació de qualitat que l'editor mostra en processar cada imatge; si surt baixa, substitueix-la per una altra amb més contrast i detall irregular."
+              "en": "**The XR Simulator.** `Window > XR > AR Foundation > XR Environment` opens a simulated room you can play the scene inside — image tracking included — so you can test without building and without printing a marker. Go to the **XR Environment** tab and **Edit Environment**; if it will not let you edit the one that is there, **duplicate the default** and edit your copy.",
+              "es": "**El XR Simulator.** `Window > XR > AR Foundation > XR Environment` abre una habitación simulada dentro de la que puedes darle al Play — image tracking incluido — así que puedes probar sin hacer build y sin imprimir ningún marcador. Ve a la pestaña **XR Environment** y a **Edit Environment**; si no te deja editar el que hay, **duplica el de por defecto** y edita tu copia.",
+              "ca": "**L'XR Simulator.** `Window > XR > AR Foundation > XR Environment` obre una habitació simulada dins de la qual pots donar-li al Play — image tracking inclòs — així que pots provar sense fer build i sense imprimir cap marcador. Ves a la pestanya **XR Environment** i a **Edit Environment**; si no et deixa editar el que hi ha, **duplica el per defecte** i edita la teva còpia."
             },
             {
-              "en": "Select the XR Origin → `Add Component` → **AR Tracked Image Manager**.",
-              "es": "Selecciona el XR Origin → `Add Component` → **AR Tracked Image Manager**.",
-              "ca": "Selecciona el XR Origin → `Add Component` → **AR Tracked Image Manager**."
+              "en": "**Your marker in the simulated room.** The environment already has an image hanging in it. Select the **`Logo Quad`** object and change its **material** to the same image you put in your library. Then set that same image on the **Simulated Tracked Image** component too — this is the one everybody forgets. The quad is what you see; the component is what the simulator actually tracks.",
+              "es": "**Tu marcador en la habitación simulada.** El entorno ya trae una imagen colgada. Selecciona el objeto **`Logo Quad`** y cámbiale el **material** por la misma imagen que pusiste en tu librería. Y pon esa misma imagen también en el componente **Simulated Tracked Image** — esto es lo que se olvida todo el mundo. El quad es lo que ves; el componente es lo que el simulador trackea de verdad.",
+              "ca": "**El teu marcador a l'habitació simulada.** L'entorn ja porta una imatge penjada. Selecciona l'objecte **`Logo Quad`** i canvia-li el **material** per la mateixa imatge que vas posar a la teva llibreria. I posa aquesta mateixa imatge també al component **Simulated Tracked Image** — això és el que oblida tothom. El quad és el que veus; el component és el que el simulador traqueja de debò."
             },
             {
-              "en": "Drag the Reference Image Library into the **Serialized Library** field.",
-              "es": "Arrastra la Reference Image Library al campo **Serialized Library**.",
-              "ca": "Arrossega la Reference Image Library al camp **Serialized Library**."
+              "en": "**What spawns.** Back to the **XR Origin** and the **AR Tracked Image Manager** you added in step 3: drag your **reference image library** into its library field, and set the **prefab** to spawn when the image is tracked — that prefab is your answer to the green goblins, any 3D object you like. **If the marker will be moving**, raise **Max Number Of Moving Images** to at least 1; at 0 it is detected once and then stops following.",
+              "es": "**Qué se instancia.** Vuelve al **XR Origin** y al **AR Tracked Image Manager** que añadiste en el paso 3: arrastra tu **reference image library** a su campo de librería y asigna el **prefab** que debe instanciarse cuando se trackee la imagen — ese prefab es tu respuesta a los green goblins, el objeto 3D que quieras. **Si el marcador va a estar en movimiento**, sube **Max Number Of Moving Images** a 1 como mínimo; a 0 se detecta una vez y deja de seguirte.",
+              "ca": "**Què s'instancia.** Torna a l'**XR Origin** i a l'**AR Tracked Image Manager** que vas afegir al pas 3: arrossega la teva **reference image library** al seu camp de llibreria i assigna el **prefab** que s'ha d'instanciar quan es traquegi la imatge — aquest prefab és la teva resposta als green goblins, l'objecte 3D que vulguis. **Si el marcador estarà en moviment**, puja **Max Number Of Moving Images** a 1 com a mínim; a 0 es detecta un cop i deixa de seguir-te."
             },
             {
-              "en": "Set **Max Number Of Moving Images** to 2.",
-              "es": "Ajusta **Max Number Of Moving Images** a 2.",
-              "ca": "Ajusta **Max Number Of Moving Images** a 2."
-            },
-            {
-              "en": "Make a different prefab per marker (or one generic prefab that decides internally what to show).",
-              "es": "Crea un prefab distinto por marcador (o uno genérico que decida internamente qué mostrar).",
-              "ca": "Crea un prefab diferent per marcador (o un de genèric que decideixi internament què mostrar)."
-            },
-            {
-              "en": "In a script, subscribe to the manager's `trackedImagesChanged` event (`manager.trackedImagesChanged += OnChanged`).",
-              "es": "En un script, suscríbete al evento `trackedImagesChanged` del manager (`manager.trackedImagesChanged += OnChanged`).",
-              "ca": "En un script, subscriu-te a l'esdeveniment `trackedImagesChanged` del manager (`manager.trackedImagesChanged += OnChanged`)."
-            },
-            {
-              "en": "In the callback, walk `args.added` and `args.updated`: for each `ARTrackedImage`, use `trackedImage.referenceImage.name` to identify the marker, and spawn/position the matching prefab on `trackedImage.transform`.",
-              "es": "En el callback, recorre `args.added` y `args.updated`: por cada `ARTrackedImage`, usa `trackedImage.referenceImage.name` para identificar el marcador, e instancia/posiciona el prefab correspondiente en `trackedImage.transform`.",
-              "ca": "Al callback, recorre `args.added` i `args.updated`: per cada `ARTrackedImage`, fes servir `trackedImage.referenceImage.name` per identificar el marcador, i instancia/posiciona el prefab corresponent a `trackedImage.transform`."
-            },
-            {
-              "en": "In `args.removed` (or by checking `trackedImage.trackingState != TrackingState.Tracking`), decide whether you hide, destroy or leave the object where it is — stop it flickering every frame.",
-              "es": "En `args.removed` (o comprobando `trackedImage.trackingState != TrackingState.Tracking`), decide si ocultas, destruyes o dejas quieto el objeto — evita que parpadee cada frame.",
-              "ca": "A `args.removed` (o comprovant `trackedImage.trackingState != TrackingState.Tracking`), decideix si amagues, destrueixes o deixes quiet l'objecte — evita que parpellegi cada frame."
-            },
-            {
-              "en": "Try both markers in front of the phone camera at once: two different goblins should appear, each on its own.",
-              "es": "Prueba con los dos marcadores a la vez delante de la cámara del móvil: deben salir dos goblins distintos, cada uno sobre el suyo.",
-              "ca": "Prova els dos marcadors alhora davant de la càmera del mòbil: han de sortir dos goblins diferents, cadascun sobre el seu."
-            },
-            {
-              "en": "Export the two markers as PDF/PNG for printing, checking that the printed size matches the one set in the library.",
-              "es": "Genera el PDF/PNG de los dos marcadores para imprimir, comprobando que el tamaño impreso coincide con el configurado en la librería.",
-              "ca": "Genera el PDF/PNG dels dos marcadors per imprimir, comprovant que la mida impresa coincideix amb la configurada a la biblioteca."
-            },
-            {
-              "en": "Build the APK and test with the printed markers (or on another screen) under normal classroom light.",
-              "es": "Build APK y prueba con los marcadores impresos (o en otra pantalla) con luz normal de aula.",
-              "ca": "Fes la build de l'APK i prova amb els marcadors impresos (o en una altra pantalla) amb llum normal d'aula."
+              "en": "**Test, then build.** Try it first in **Play Mode with the XR Simulator** — seconds, against the minutes a build costs. Then `File > Build Settings`: check your scene is in the **Scenes In Build** list (*Add Open Scenes* if it is not, and this is the step people skip), press **Build** and pick a destination folder. Install the APK on your phone and point it at the marker, on paper or on another screen.",
+              "es": "**Prueba y luego build.** Pruébalo primero en **Play Mode con el XR Simulator** — segundos, frente a los minutos que cuesta una build. Después `File > Build Settings`: comprueba que tu escena está en la lista **Scenes In Build** (*Add Open Scenes* si no está, y este es el paso que la gente se salta), pulsa **Build** y elige la carpeta de destino. Instala la APK en el móvil y apunta al marcador, en papel o en otra pantalla.",
+              "ca": "**Prova i després build.** Prova-ho primer en **Play Mode amb l'XR Simulator** — segons, contra els minuts que costa una build. Després `File > Build Settings`: comprova que la teva escena és a la llista **Scenes In Build** (*Add Open Scenes* si no hi és, i aquest és el pas que la gent es salta), prem **Build** i tria la carpeta de destinació. Instal·la l'APK al mòbil i apunta al marcador, en paper o en una altra pantalla."
             }
           ]
         }
