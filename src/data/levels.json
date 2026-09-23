@@ -525,7 +525,8 @@
           ]
         }
       ],
-      "slidesHidden": true
+      "slidesHidden": true,
+      "bibliography": "content/bibliography/w1-arf-02.md"
     },
     {
       "id": "w1-05",
@@ -578,7 +579,8 @@
       "slides": {
         "type": "canva",
         "source": "https://www.canva.com/design/DAHHUujQkGI/KgmNI3Ld0U4NKiXJMaLPXA/view?embed"
-      }
+      },
+      "bibliography": "content/bibliography/w1-05.md"
     },
     {
       "id": "w1-arf-03",
@@ -708,7 +710,8 @@
             "ca": "APK amb el bloc sencer integrat. Al README: features afegides, dispositiu de prova i, en un paràgraf, com acaba el vostre Blue Goblin."
           }
         }
-      ]
+      ],
+      "bibliography": "content/bibliography/w1-arf-03.md"
     },
     {
       "id": "w1-07",
