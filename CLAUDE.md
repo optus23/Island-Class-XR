@@ -132,6 +132,14 @@ These come from the brief and are not negotiable without the user saying so.
   (`validate.mjs`, `portal.js`, and the README documents it) because a fork may
   want it. **An absent `starterRepo` is the right shape here, not a `url` of
   `null`**: null renders a branch name the student cannot clone.
+  **1-3 IS NOW ALLOWED TO NAME A FALLBACK PROJECT, AND IT IS STILL NOT A
+  `starterRepo`.** From 30 September 2026 exercise 1-3 points at
+  `pomedas/ArMobile` for anyone who did not finish 1-1 or 1-2 (see the
+  no-answers rule below for why). It lives in the DECK and in the todo's
+  `starting_point` — Marc asked for it "en instructions" — and deliberately
+  NOT in the `starterRepo` field, which renders on the first panel and would
+  read as "this is where the exercise starts" to the whole class. 1-1 and 1-2
+  still promise nothing and still build from scratch in class.
 - **No live in-browser AI calls, no API keys on the client.** The slide decks
   are a Markdown→HTML pipeline run at build time, not generation.
 - **The course publishes no answers.** The todos are the instructions and that
@@ -139,8 +147,19 @@ These come from the brief and are not negotiable without the user saying so.
   the assembled furniture" (Marc, round 9). An earlier round built a global
   answer lock; it was removed rather than hardened, because the repo is public
   and `git log` keeps whatever was ever committed to it. Do not reintroduce an
-  answers surface. A solved Unity project may be shared one day; that would be
-  a separate repo, discussed first.
+  answers surface.
+  **THE "SEPARATE REPO, DISCUSSED FIRST" HAS NOW HAPPENED, AND IT IS A LINK,
+  NOT A SURFACE.** On 30 September 2026 Marc asked for
+  `github.com/pomedas/ArMobile` — his own solved project for exercises 1-1 and
+  1-2 — to be named in 1-3's Instructions, both as the solutions to those two
+  and as a starting point for anyone who could not finish them, so that nobody
+  is blocked on the BLOCK's single hand-in by an exercise that did not come
+  out. That is his call and it does not weaken the rule: the solutions live in
+  **another repository**, nothing is vendored here, and there is still no
+  answers surface in this one. **Do not "restore" the rule by deleting that
+  link.** Anything beyond a link — copying the project in, adding a per-level
+  `solution` field, building a solutions tab — is still the thing the rule
+  forbids, and would need asking again.
 - **Do not authenticate against or embed Atenea Virtual.**
 - **Two licences, and they do not cover the same files.** The SOFTWARE is MIT
   (`LICENSE`); the COURSE MATERIAL — `public/content/**` and the sessions in
