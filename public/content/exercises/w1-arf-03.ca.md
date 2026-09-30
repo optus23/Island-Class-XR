@@ -57,8 +57,10 @@ malament: el repositori manté una branca per versió d'AR Foundation, i una bra
 que no coincideix amb el teu Editor et dóna un projecte ple d'errors de
 compilació abans d'haver fet res.
 
-La nostra és la **`6.2`**:
-`github.com/Unity-Technologies/arfoundation-samples/tree/6.2`
+**Mira quina versió d'AR Foundation fa servir el teu projecte i agafa la branca
+que porta aquest nom.** Les branques es diuen com la versió a la qual apunten, i
+la llista canvia amb cada release: la correcta avui no és la correcta d'aquí a
+un any.
 
 ---
 
