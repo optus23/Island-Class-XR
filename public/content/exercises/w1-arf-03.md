@@ -55,8 +55,10 @@ one that goes wrong: the repository keeps one branch per AR Foundation version,
 and a branch that does not match your Editor gives you a project full of
 compile errors before you have done anything.
 
-Ours is **`6.2`**:
-`github.com/Unity-Technologies/arfoundation-samples/tree/6.2`
+**Check which AR Foundation version your project uses, and take the branch
+named after it.** The branches are named for the version they target, and the
+list moves with every release — the right one today is not the right one next
+year.
 
 ---
 
