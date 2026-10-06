@@ -57,8 +57,9 @@ mal: el repositorio mantiene una rama por versión de AR Foundation, y una rama
 que no coincide con tu Editor te da un proyecto lleno de errores de compilación
 antes de haber hecho nada.
 
-La nuestra es la **`6.2`**:
-`github.com/Unity-Technologies/arfoundation-samples/tree/6.2`
+**Mira qué versión de AR Foundation usa tu proyecto y coge la rama que lleva
+ese nombre.** Las ramas se llaman como la versión a la que apuntan, y la lista
+cambia con cada release: la correcta hoy no es la correcta dentro de un año.
 
 ---
 
