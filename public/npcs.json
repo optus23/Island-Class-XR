@@ -24,6 +24,11 @@
       "id": "azzvqc",
       "name": "Arnau",
       "levelId": "w1-arf-03"
+    },
+    {
+      "id": "45k8rh",
+      "name": "Arthur",
+      "levelId": "w1-07"
     }
   ],
   "note": "Alumnos destacados. Escrito solo desde /admin; los estudiantes lo leen y nunca lo escriben. Sin fechas, sin notas, sin correos: un nombre visible y la sesión junto a la que pasea."
