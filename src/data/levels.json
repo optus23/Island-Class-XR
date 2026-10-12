@@ -780,6 +780,50 @@
       ]
     },
     {
+      "id": "w2-02",
+      "title": {
+        "en": "VR/MR interaction and simulator sickness",
+        "es": "Interacción VR/MR y simulator sickness",
+        "ca": "Interacció VR/MR i simulator sickness"
+      },
+      "world": 2,
+      "stage": "meta-pre-exam",
+      "category": "theory",
+      "optional": false,
+      "summary": {
+        "en": "Kahoot! Last week's recap · VR/MR interaction · Simulator sickness · Class activity: midterm brainstorm",
+        "es": "Kahoot! Repaso de la semana pasada · Interacción VR/MR · Simulator sickness · Dinámica de clase: lluvia de ideas del parcial",
+        "ca": "Kahoot! Repàs setmana passada · Interacció VR/MR · Simulator Sickness · Dinàmica de classe: Pluja d'idees Parcial"
+      },
+      "contents": [
+        {
+          "en": "Kahoot! Last week's recap",
+          "es": "Kahoot! Repaso de la semana pasada",
+          "ca": "Kahoot! Repàs setmana passada"
+        },
+        {
+          "en": "VR/MR interaction",
+          "es": "Interacción VR/MR",
+          "ca": "Interacció VR/MR"
+        },
+        {
+          "en": "Simulator sickness",
+          "es": "Simulator sickness",
+          "ca": "Simulator Sickness"
+        },
+        {
+          "en": "Class activity: midterm brainstorm",
+          "es": "Dinámica de clase: lluvia de ideas del parcial",
+          "ca": "Dinàmica de classe: Pluja d'idees Parcial"
+        }
+      ],
+      "slides": {
+        "type": "canva",
+        "source": "https://www.canva.com/design/DAHHUoOtuSY/6Tu2uB2S-1txMuzlgcqWyA/view?embed"
+      },
+      "todos": []
+    },
+    {
       "id": "w2-pre-03",
       "title": {
         "en": "Building Blocks: hand tracking",
@@ -846,46 +890,41 @@
       ]
     },
     {
-      "id": "w2-02",
+      "id": "w2-04",
       "title": {
-        "en": "VR/MR interaction and simulator sickness",
-        "es": "Interacción VR/MR y simulator sickness",
-        "ca": "Interacció VR/MR i simulator sickness"
+        "en": "VR/MR navigation and the midterm recap",
+        "es": "Navegación VR/MR y repaso del parcial",
+        "ca": "Navegació VR/MR i repàs del parcial"
       },
       "world": 2,
       "stage": "meta-pre-exam",
       "category": "theory",
       "optional": false,
       "summary": {
-        "en": "Kahoot! Last week's recap · VR/MR interaction · Simulator sickness · Class activity: midterm brainstorm",
-        "es": "Kahoot! Repaso de la semana pasada · Interacción VR/MR · Simulator sickness · Dinámica de clase: lluvia de ideas del parcial",
-        "ca": "Kahoot! Repàs setmana passada · Interacció VR/MR · Simulator Sickness · Dinàmica de classe: Pluja d'idees Parcial"
+        "en": "Kahoot Final Boss! Midterm recap · VR/MR navigation · Gorilla arm syndrome",
+        "es": "Kahoot Final Boss! Repaso de la evaluación parcial · Navegación VR/MR · Síndrome del brazo de gorila",
+        "ca": "Kahoot Final Boss! Repàs Avaluació Parcial · Navegació VR/MR · Gorilla Arm syndrome"
       },
       "contents": [
         {
-          "en": "Kahoot! Last week's recap",
-          "es": "Kahoot! Repaso de la semana pasada",
-          "ca": "Kahoot! Repàs setmana passada"
+          "en": "Kahoot Final Boss! Midterm recap",
+          "es": "Kahoot Final Boss! Repaso de la evaluación parcial",
+          "ca": "Kahoot Final Boss! Repàs Avaluació Parcial"
         },
         {
-          "en": "VR/MR interaction",
-          "es": "Interacción VR/MR",
-          "ca": "Interacció VR/MR"
+          "en": "VR/MR navigation",
+          "es": "Navegación VR/MR",
+          "ca": "Navegació VR/MR"
         },
         {
-          "en": "Simulator sickness",
-          "es": "Simulator sickness",
-          "ca": "Simulator Sickness"
-        },
-        {
-          "en": "Class activity: midterm brainstorm",
-          "es": "Dinámica de clase: lluvia de ideas del parcial",
-          "ca": "Dinàmica de classe: Pluja d'idees Parcial"
+          "en": "Gorilla arm syndrome",
+          "es": "Síndrome del brazo de gorila",
+          "ca": "Gorilla Arm syndrome"
         }
       ],
       "slides": {
         "type": "canva",
-        "source": "https://www.canva.com/design/DAHHUoOtuSY/6Tu2uB2S-1txMuzlgcqWyA/view?embed"
+        "source": "https://www.canva.com/design/DAHHUkRCaoo/wagpGpX5fl4aQWPZ-38zmQ/view?embed"
       },
       "todos": []
     },
@@ -948,45 +987,6 @@
           "deliverable": "APK por grupo más medio folio con la narrativa y la lista de building blocks usados."
         }
       ]
-    },
-    {
-      "id": "w2-04",
-      "title": {
-        "en": "VR/MR navigation and the midterm recap",
-        "es": "Navegación VR/MR y repaso del parcial",
-        "ca": "Navegació VR/MR i repàs del parcial"
-      },
-      "world": 2,
-      "stage": "meta-pre-exam",
-      "category": "theory",
-      "optional": false,
-      "summary": {
-        "en": "Kahoot Final Boss! Midterm recap · VR/MR navigation · Gorilla arm syndrome",
-        "es": "Kahoot Final Boss! Repaso de la evaluación parcial · Navegación VR/MR · Síndrome del brazo de gorila",
-        "ca": "Kahoot Final Boss! Repàs Avaluació Parcial · Navegació VR/MR · Gorilla Arm syndrome"
-      },
-      "contents": [
-        {
-          "en": "Kahoot Final Boss! Midterm recap",
-          "es": "Kahoot Final Boss! Repaso de la evaluación parcial",
-          "ca": "Kahoot Final Boss! Repàs Avaluació Parcial"
-        },
-        {
-          "en": "VR/MR navigation",
-          "es": "Navegación VR/MR",
-          "ca": "Navegació VR/MR"
-        },
-        {
-          "en": "Gorilla arm syndrome",
-          "es": "Síndrome del brazo de gorila",
-          "ca": "Gorilla Arm syndrome"
-        }
-      ],
-      "slides": {
-        "type": "canva",
-        "source": "https://www.canva.com/design/DAHHUkRCaoo/wagpGpX5fl4aQWPZ-38zmQ/view?embed"
-      },
-      "todos": []
     },
     {
       "id": "w2-boss",
