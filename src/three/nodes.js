@@ -1,6 +1,7 @@
 import * as THREE from 'three'
 import { worlds } from '../config/worlds.js'
 import { biomes, palette, world as themeWorld, resolveNodeColor } from '../config/theme.js'
+import { seasonFlags } from '../config/seasons.js'
 import { buildWorldCurves, buildConnectors, distributeNodes } from './paths.js'
 import { biomeKeyAt, groundHeightAt, landInset, isLand } from './terrain.js'
 import {
@@ -1138,12 +1139,35 @@ function createBossCastle(placement) {
     return mesh
   }
 
+  /**
+   * HAUNTED IS A DRESSING, NOT A DIFFERENT BUILDING. Marc: "los castillos, el
+   * del parcial y el del examen final, los puedes hacer mucho más rollo
+   * Halloween."
+   *
+   * Same keep, same towers, same silhouette — a student has to recognise the
+   * midterm from across the island in either season, and the shape is what
+   * they recognise. What changes is the palette and what is lit: the red roofs
+   * go near-black, the warm gold windows turn a sickly green, and the gate
+   * grows a pair of jack-o'-lanterns.
+   *
+   * The STONE itself comes from the theme (`palette.boss` / `bossStone`), so
+   * it is already colder before this runs. These are the parts that are not
+   * the stone.
+   */
+  const haunted = seasonFlags.castles === 'haunted'
+
   const STONE = palette.bossStone
-  const STONE_LIGHT = 0x878d96
-  const ROOF = palette.bossAccent
-  const ROOF_DARK = 0x7d1f1f
-  const WOOD = 0x3a2a1a
-  const WINDOW = 0xffd98a
+  const STONE_LIGHT = haunted ? 0x5e6670 : 0x878d96
+  // Not red at Halloween: a deep bruised purple-black, which against a dark
+  // sky reads as a roof in shadow rather than as a roof of a different colour.
+  const ROOF = haunted ? 0x2b1f33 : palette.bossAccent
+  const ROOF_DARK = haunted ? 0x1b1322 : 0x7d1f1f
+  const WOOD = haunted ? 0x241a14 : 0x3a2a1a
+  // The one thing that gets BRIGHTER. Every window in the place is lit from
+  // inside, and in a sick green rather than the ordinary warm gold — it is
+  // the single cue that does most of the work at map distance, because it is
+  // the only light on a building that is otherwise darker than it was.
+  const WINDOW = haunted ? 0x8cff6b : 0xffd98a
 
   // --- plinth, steps and keep ---------------------------------------------
   addBox(7.0, 0.5, 7.0, 0, 0.25, 0, { color: STONE_LIGHT, keepColor: true })
@@ -1186,6 +1210,23 @@ function createBossCastle(placement) {
   addBox(2.1, 0.3, 0.45, 0, 3.25, 2.3, { color: STONE_LIGHT, keepColor: true }) // lintel
   addBox(0.5, 0.65, 0.3, -1.3, 3.0, 2.2, { color: WINDOW, keepColor: true })
   addBox(0.5, 0.65, 0.3, 1.3, 3.0, 2.2, { color: WINDOW, keepColor: true })
+
+  if (haunted) {
+    // A jack-o'-lantern either side of the gate, the same orange and the same
+    // near-white glow the scattered ones use. `keepColor`, like every other
+    // detail here, or `resolveNodeColor()` would repaint them as stone the
+    // moment the marker reaches the castle.
+    for (const px of [-1.05, 1.05]) {
+      addBox(0.62, 0.46, 0.62, px, 1.07, 3.15, { color: 0xe07020, keepColor: true })
+      addBox(0.14, 0.16, 0.14, px, 1.37, 3.15, { color: 0x4f6b32, keepColor: true }) // stalk
+      addBox(0.4, 0.14, 0.1, px, 1.05, 3.48, { color: 0xffe9a3, keepColor: true }) // grin
+    }
+    // Two eyes high in the keep, above the lintel: the face of the building
+    // itself. Small and wide apart — this is the detail that makes people
+    // say the castle is looking at them.
+    addBox(0.3, 0.22, 0.2, -0.75, 3.62, 2.2, { color: WINDOW, keepColor: true })
+    addBox(0.3, 0.22, 0.2, 0.75, 3.62, 2.2, { color: WINDOW, keepColor: true })
+  }
 
   if (isFinal) {
     // The final boss gets a central spire above the roof, and a flag.
