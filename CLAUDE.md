@@ -340,17 +340,17 @@ Mono/Stereoscopic hand-in one row earlier than Fall does.
 board gave 31 rows = 28 sessions, two holidays and the re-evaluation, and that
 was right when the term was planned. It has since moved twice in a single week
 — the midterm forward to session 12, and then two post-exam sessions merged
-into one, which took the course to **27**. Both were Marc's call and both are
+into one and a third was dissolved, which took the course to **26**. Both were Marc's call and both are
 normal (see the board-versus-island note below). So **`levels.json` is the
 answer to every count question**, never this paragraph and never the board:
 `mainSequence.length` is what the nav prints, so "Sesión N / 27" followed the
 data with nothing to edit. Read this section for the SHAPE — three worlds, two
 castles, a re-evaluation hanging off the last one — and measure the rest.
 
-**What `levels.json` holds today**: 29 levels = **27 on the main path**
-(**7 / 10 / 10** per world, including the two castles) plus **2 optional** — the
+**What `levels.json` holds today**: 28 levels = **26 on the main path**
+(**7 / 9 / 10** per world, including the two castles) plus **2 optional** — the
 Mono/Stereoscopic "Actitud" activity (`w1-att-01`) and the re-evaluation. Of the
-27, **25 are classes** and 2 are exams; the nav reads "Sesión N / 27". A second
+26, **24 are classes** and 2 are exams; the nav reads "Sesión N / 26". A second
 "Actitud" node (`w2-att-01`, "Activitat: Presentació") existed until
 13 September 2026, when Marc dropped it from the syllabus — removed rather than
 kept-but-unlisted, so it does not linger as dead, unreferenced data.
@@ -397,6 +397,23 @@ freed a slot, world 2 went 11 → 10 and the course 28 → 27.
 kept-but-unlisted, the same way `w2-att-01` was. **Remember the two audiences
 before writing anything into a session**: content only one of the two degrees
 can do has to be reframed so both can, or it does not belong on the map.
+
+**AND THE FINAL PROJECT STARTS A CLASS DAY EARLIER.** Still 13 October: the
+project is **50% of the mark** and Marc judged it had too few days, so `w2-09`
+("XRITK Socket XR y el concept del proyecto") was **dissolved** rather than
+moved. Both its halves had somewhere better to go — Socket XR folded into 2-8's
+contents, and the project concept was always world 3's own first session — so
+world 2 ends at 2-9 and **world 3 moved up into the freed class day**, opening
+on 18 November instead of 23. Every world-3 date shifts one class day earlier
+and 21 December falls off the end. The course is **26**.
+
+**WHEN A HAND-IN FLAG MOVES, ITS LINE OF COPY MOVES WITH IT.** The Meta
+Building Blocks flag went from the dissolved level to 2-9, and `w3-xrit-02`
+carried an "Entrega Meta Building Blocks" bullet in its own `contents` — so the
+bullet moved too. The flag is what says "this is the session to hand it in on";
+a bullet left behind on the session before it says something different, and the
+student believes whichever they read first. Grep `contents` for the label
+before deciding a flag move is done.
 
 **THE CASTLE DID NOT MOVE, AND NOTHING HAD TO BE DONE TO KEEP IT STILL.** Marc
 asked for it to stay put and for the remaining nodes to respace evenly, and both

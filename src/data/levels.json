@@ -1080,9 +1080,9 @@
       "category": "practical",
       "optional": false,
       "summary": {
-        "en": "Brief walkthrough (3-1) · In-class activity: 1. XR Interaction Toolkit — locomotion and interaction · Unity VR Template demonstration · Introduction to OpenXR / Unity · Introduction to Unity / C# · Meta Building Blocks hand-in",
-        "es": "Presentación del enunciado (3-1) · Actividad en clase: 1. XR Interaction Toolkit — locomoción e interacción · Demostración de la Unity VR Template · Introducción a OpenXR / Unity · Introducción a Unity / C# · Entrega Meta Building Blocks",
-        "ca": "Presentació Enunciat (3-1) · Activitat a classe: 1. XR Interaction Toolkit — Locomoció i Interacció · Unity VR Template demonstration · Introduction to OpenXR / Unity · Introducció a Unity / C# · Entrega Meta Building Blocks"
+        "en": "Brief walkthrough (3-1) · In-class activity: 1. XR Interaction Toolkit — locomotion and interaction · XRITK GitHub examples: Socket XR · Unity VR Template demonstration · Introduction to OpenXR / Unity · Introduction to Unity / C#",
+        "es": "Presentación del enunciado (3-1) · Actividad en clase: 1. XR Interaction Toolkit — locomoción e interacción · XRITK GitHub examples: Socket XR · Demostración de la Unity VR Template · Introducción a OpenXR / Unity · Introducción a Unity / C#",
+        "ca": "Presentació Enunciat (3-1) · Activitat a classe: 1. XR Interaction Toolkit — Locomoció i Interacció · XRITK GitHub Examples: Socket XR · Unity VR Template demonstration · Introduction to OpenXR / Unity · Introducció a Unity / C#"
       },
       "contents": [
         {
@@ -1094,6 +1094,11 @@
           "en": "In-class activity: 1. XR Interaction Toolkit — locomotion and interaction",
           "es": "Actividad en clase: 1. XR Interaction Toolkit — locomoción e interacción",
           "ca": "Activitat a classe: 1. XR Interaction Toolkit — Locomoció i Interacció"
+        },
+        {
+          "en": "XRITK GitHub examples: Socket XR",
+          "es": "XRITK GitHub examples: Socket XR",
+          "ca": "XRITK GitHub Examples: Socket XR"
         },
         {
           "en": "Unity VR Template demonstration",
@@ -1109,11 +1114,6 @@
           "en": "Introduction to Unity / C#",
           "es": "Introducción a Unity / C#",
           "ca": "Introducció a Unity / C#"
-        },
-        {
-          "en": "Meta Building Blocks hand-in",
-          "es": "Entrega Meta Building Blocks",
-          "ca": "Entrega Meta Building Blocks"
         }
       ],
       "slides": {
@@ -1173,9 +1173,9 @@
       "category": "practical",
       "optional": false,
       "summary": {
-        "en": "Brief walkthrough (3-2) · In-class activity: 2. XR Interaction Toolkit — hand tracking and gestures · Unity VR Template demonstration",
-        "es": "Presentación del enunciado (3-2) · Actividad en clase: 2. XR Interaction Toolkit — hand tracking y gestos · Demostración de la Unity VR Template",
-        "ca": "Presentació Enunciat (3-2) · Activitat a classe: 2. XR Interaction Toolkit — Hand Tracking and Gestures · Unity VR Template demonstration"
+        "en": "Brief walkthrough (3-2) · In-class activity: 2. XR Interaction Toolkit — hand tracking and gestures · Unity VR Template demonstration · Meta Building Blocks hand-in",
+        "es": "Presentación del enunciado (3-2) · Actividad en clase: 2. XR Interaction Toolkit — hand tracking y gestos · Demostración de la Unity VR Template · Entrega Meta Building Blocks",
+        "ca": "Presentació Enunciat (3-2) · Activitat a classe: 2. XR Interaction Toolkit — Hand Tracking and Gestures · Unity VR Template demonstration · Entrega Meta Building Blocks"
       },
       "contents": [
         {
@@ -1192,6 +1192,11 @@
           "en": "Unity VR Template demonstration",
           "es": "Demostración de la Unity VR Template",
           "ca": "Unity VR Template demonstration"
+        },
+        {
+          "en": "Meta Building Blocks hand-in",
+          "es": "Entrega Meta Building Blocks",
+          "ca": "Entrega Meta Building Blocks"
         }
       ],
       "slides": {
@@ -1234,41 +1239,7 @@
           ],
           "deliverable": "Pendiente de definir. Repositorio del ejercicio 1, con el desenlace y el gesto documentados en el README."
         }
-      ]
-    },
-    {
-      "id": "w2-09",
-      "title": {
-        "en": "XRITK Socket XR and the project concept",
-        "es": "XRITK Socket XR y el concept del proyecto",
-        "ca": "XRITK Socket XR i concept del projecte"
-      },
-      "world": 2,
-      "stage": "xr-toolkit",
-      "category": "practical",
-      "optional": false,
-      "summary": {
-        "en": "XRITK GitHub examples: Socket XR · Final project: concept",
-        "es": "XRITK GitHub examples: Socket XR · Trabajo final: concept",
-        "ca": "XRITK GitHub Examples: Socket XR · Projecte Final d'Assignatura: Concept"
-      },
-      "contents": [
-        {
-          "en": "XRITK GitHub examples: Socket XR",
-          "es": "XRITK GitHub examples: Socket XR",
-          "ca": "XRITK GitHub Examples: Socket XR"
-        },
-        {
-          "en": "Final project: concept",
-          "es": "Trabajo final: concept",
-          "ca": "Projecte Final d'Assignatura: Concept"
-        }
       ],
-      "slides": {
-        "type": "canva",
-        "source": "https://www.canva.com/design/DAHI0RO9Tmg/KR1Mz0x1tNIVIyfD73jIwQ/view?embed"
-      },
-      "todos": [],
       "deliverable": {
         "label": "Meta Building Blocks",
         "kind": "graded"
