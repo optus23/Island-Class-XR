@@ -35,6 +35,7 @@ import { irisClose, screenPositionOf } from './ui/transition.js'
 import { buildGrandPath, nearestIndexOn, nodeClearings, nodeFootprints } from './three/paths.js'
 import { clearGroundAround } from './three/terrain.js'
 import { createEnemies } from './three/enemies.js'
+import { createBats } from './three/bats.js'
 import { createVillagers } from './three/villagers.js'
 import { loadRoster } from './lib/roster.js'
 import { readLevelFromUrl, setLevelInUrl, onRouteChange } from './lib/router.js'
@@ -103,6 +104,7 @@ const BACKDROP_PARALLAX = 0.28
 app.onUpdate((dt) => {
   island.update(dt)
   enemies.update(dt)
+  bats.update(dt)
   villagers?.update(dt, app.rig.camera)
   island.backdrop.position.x = app.rig.focusX * BACKDROP_PARALLAX
   map.update(dt)
@@ -129,6 +131,12 @@ for (const p of map.placed) {
 // they are given the node positions so they stay off the level discs.
 const enemies = createEnemies(grandPath, 4, [...nodeIndexOnPath.values()])
 app.worldGroup.add(enemies.group)
+
+// Bats over the island. Seasonal: `createBats` returns an empty group and a
+// no-op update outside Halloween, so the ordinary map pays nothing for this
+// beyond one import — there is no branch here to forget to remove in November.
+const bats = createBats()
+app.worldGroup.add(bats.group)
 
 /**
  * The honoured students, built in boot() once `npcs.json` has arrived — so this

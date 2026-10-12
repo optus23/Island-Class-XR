@@ -4,6 +4,7 @@ import { distributeNodes, flatness } from './paths.js'
 import { worlds } from '../config/worlds.js'
 import { levelsForWorld } from '../lib/levels.js'
 import { biomes } from '../config/theme.js'
+import { seasonFlags } from '../config/seasons.js'
 
 /**
  * Voxel set dressing.
@@ -27,6 +28,31 @@ const part = (x, y, z, w, h, d, c) => ({ x, y, z, w, h, d, c })
 const BARK = 0x6f4a2a
 const BARK_DARK = 0x573719
 const SNOW = 0xf2f7fb
+
+/**
+ * Halloween dressing. These live here beside the other prop constants rather
+ * than in `theme.js` because they belong to a RECIPE, the way `BARK` does —
+ * `theme.js` owns the colours the map MEANS something with, and a pumpkin
+ * means nothing. The season that plants them is decided in `config/seasons.js`.
+ */
+/**
+ * Dead bark, and it is LIGHTER than the first attempt rather than darker.
+ *
+ * A bare tree has no canopy to catch the moon, so against dark ground a dark
+ * trunk is simply not there — the first pass came out as black specks that
+ * read as litter scattered over the island rather than as a wood. The branches
+ * are a shade lighter again than the trunk, which is what gives a leafless
+ * silhouette any shape at all at map distance.
+ */
+const DEAD_BARK = 0x6b5748
+const DEAD_BARK_LIGHT = 0x8a7462
+const PUMPKIN = 0xe07020
+const PUMPKIN_RIB = 0xb8541a
+const PUMPKIN_STALK = 0x4f6b32
+/** Near-white yellow: the carved face, and the only thing that reads as lit. */
+const PUMPKIN_GLOW = 0xffe9a3
+/** The dim spill on the ground beneath a lit one. */
+const PUMPKIN_POOL = 0x8a6a35
 
 /** Four spots on a mushroom cap, and similar rings elsewhere. */
 function ring(y, radius, size, colour, count = 4, phase = 0) {
@@ -59,6 +85,83 @@ const RECIPES = {
     part(0, 4.6, 0, 0.9, 0.8, 0.9, b.foliageAlt),
     part(0, 5.15, 0, 0.5, 0.5, 0.5, SNOW),
     part(0, 3.05, 0, 2.2, 0.18, 2.2, SNOW), // snow shelf
+  ],
+
+  /**
+   * The Halloween tree: a winter skeleton, no canopy at all.
+   *
+   * "Árboles tenebrosos, estilo árboles de invierno." The scare comes from the
+   * SILHOUETTE, so the whole recipe is trunk and bare branches and there is no
+   * foliage block anywhere in it — one leafy cube at the top and it stops
+   * reading as dead and starts reading as a tree that lost an argument.
+   *
+   * The branches are deliberately asymmetric and at odd heights. A voxel tree
+   * built symmetrically reads as a lamppost; the island's one rule about
+   * grid alignment (see the boulders) applies here too, and `planProps`
+   * already gives every prop a yaw of its own.
+   */
+  deadTree: () => [
+    part(0, 2.0, 0, 0.8, 4.0, 0.8, DEAD_BARK), // trunk
+    part(0, 4.5, 0, 0.62, 1.4, 0.62, DEAD_BARK), // upper trunk, thinner
+    // Lower limbs: out, then up. Thick enough to survive being a few pixels.
+    part(-1.0, 3.1, 0.12, 1.5, 0.36, 0.36, DEAD_BARK),
+    part(-1.68, 3.85, 0.12, 0.34, 1.6, 0.34, DEAD_BARK),
+    part(-2.15, 4.6, 0.12, 1.0, 0.3, 0.3, DEAD_BARK_LIGHT),
+    part(0.95, 3.8, -0.18, 1.4, 0.34, 0.34, DEAD_BARK),
+    part(1.55, 4.65, -0.18, 0.32, 1.7, 0.32, DEAD_BARK),
+    part(2.0, 5.5, -0.18, 0.9, 0.28, 0.28, DEAD_BARK_LIGHT),
+    // A second, shorter pair the other way, so the crown has width from any
+    // angle — one pair alone reads as a signpost when the yaw happens to put
+    // it edge-on to the camera.
+    part(0.2, 2.6, 0.95, 0.3, 0.3, 1.3, DEAD_BARK),
+    part(0.2, 3.3, 1.5, 0.28, 1.2, 0.28, DEAD_BARK_LIGHT),
+    part(-0.25, 3.0, -0.9, 0.3, 0.3, 1.2, DEAD_BARK),
+    part(-0.25, 3.7, -1.4, 0.26, 1.1, 0.26, DEAD_BARK_LIGHT),
+    // A crooked top fork, so the crown is never flat.
+    part(-0.4, 5.6, 0, 0.3, 1.3, 0.3, DEAD_BARK_LIGHT),
+    part(0.42, 5.4, 0.25, 0.28, 1.1, 0.28, DEAD_BARK_LIGHT),
+    part(-0.75, 6.4, 0, 0.7, 0.24, 0.24, DEAD_BARK_LIGHT),
+  ],
+
+  /**
+   * A jack-o'-lantern, unlit: the one that is just a pumpkin in the grass.
+   *
+   * Low and wide, with the ribs a shade darker — at the distance the follow
+   * camera sits at, a plain orange cube is a crate, and the ribs are what say
+   * pumpkin. The stalk is what says it from directly above.
+   */
+  pumpkin: () => [
+    part(0, 0.42, 0, 1.25, 0.85, 1.25, PUMPKIN),
+    part(-0.62, 0.42, 0, 0.22, 0.72, 1.0, PUMPKIN_RIB),
+    part(0.62, 0.42, 0, 0.22, 0.72, 1.0, PUMPKIN_RIB),
+    part(0, 0.42, 0.62, 1.0, 0.72, 0.22, PUMPKIN_RIB),
+    part(0, 0.95, 0, 0.26, 0.3, 0.26, PUMPKIN_STALK),
+  ],
+
+  /**
+   * And the lit one. "Unas sí, otras no" — `planProps` decides which by hash,
+   * so the mix is stable across reloads like everything else on this island.
+   *
+   * THE GLOW IS A COLOUR, NOT A LIGHT. A real PointLight per pumpkin would be
+   * a per-fragment cost across the whole terrain mesh for a prop that exists
+   * by the dozen, and the scene budget is the first rule in CLAUDE.md. A
+   * near-white yellow on an unshaded face reads as lit against a night this
+   * dark, and costs exactly what the unlit one costs.
+   */
+  pumpkinLit: () => [
+    part(0, 0.42, 0, 1.25, 0.85, 1.25, PUMPKIN),
+    part(-0.62, 0.42, 0, 0.22, 0.72, 1.0, PUMPKIN_RIB),
+    part(0.62, 0.42, 0, 0.22, 0.72, 1.0, PUMPKIN_RIB),
+    part(0, 0.95, 0, 0.26, 0.3, 0.26, PUMPKIN_STALK),
+    // The carved face, proud of the front so it catches no shadow from the body.
+    part(-0.3, 0.52, 0.66, 0.26, 0.26, 0.14, PUMPKIN_GLOW), // left eye
+    part(0.3, 0.52, 0.66, 0.26, 0.26, 0.14, PUMPKIN_GLOW), // right eye
+    part(0, 0.26, 0.66, 0.62, 0.2, 0.14, PUMPKIN_GLOW), // grin
+    part(-0.34, 0.38, 0.66, 0.16, 0.14, 0.14, PUMPKIN_GLOW), // its corners, turned up
+    part(0.34, 0.38, 0.66, 0.16, 0.14, 0.14, PUMPKIN_GLOW),
+    // A pool of light on the ground under it. Flat, wide and dim: this is the
+    // cheap stand-in for the lamp that is not there.
+    part(0, 0.02, 0.1, 2.0, 0.04, 2.0, PUMPKIN_POOL),
   ],
 
   cactus: (b) => [
@@ -417,8 +520,18 @@ export function planProps(cells) {
     const base = { x: c.x, z: c.z, y: c.height, biome: c.biome, yaw, scale }
 
     if (big(c)) {
+      // A season may plant a different tree, and Halloween plants the same
+      // dead one in all three biomes — a bare winter skeleton has no biome,
+      // which is the point of it. Everything else about placement (density,
+      // the grove around each castle, the keep-outs) is untouched.
       const tree =
-        c.biome.props === 'cactus' ? 'cactus' : c.biome.props === 'pine' ? 'pine' : 'treeLeafy'
+        seasonFlags.trees === 'bare'
+          ? 'deadTree'
+          : c.biome.props === 'cactus'
+            ? 'cactus'
+            : c.biome.props === 'pine'
+              ? 'pine'
+              : 'treeLeafy'
       // Thicker planting close to a castle, ordinary density elsewhere.
       const threshold = 0.945 - grove(c) * 0.16
       if (r > threshold) out.push({ ...base, kind: tree })
@@ -426,7 +539,19 @@ export function planProps(cells) {
 
     if (near(c)) {
       const t = hash2(c.x * 5.1, c.z * 2.7)
-      if (t > rare(0.968)) out.push({ ...base, kind: 'flower' })
+      // Jack-o'-lanterns ride in the ground-cover band, beside the road where
+      // they can actually be seen, and they take the flowers' slot rather than
+      // adding to it — the band is already as busy as it should be, and a
+      // pumpkin standing in a flowerbed reads as clutter.
+      //
+      // "Unas sí, otras no": a SECOND hash decides lit or not, independent of
+      // the one that chose to put a pumpkin here at all. Reusing `t` would
+      // correlate the two, and every pumpkin in the rarer tail would come out
+      // lit — a tidy gradient across the island instead of a mix.
+      if (seasonFlags.pumpkins && t > rare(0.955)) {
+        const lit = hash2(c.z * 4.3, c.x * 8.9) > 0.45
+        out.push({ ...base, kind: lit ? 'pumpkinLit' : 'pumpkin' })
+      } else if (t > rare(0.968)) out.push({ ...base, kind: 'flower' })
       else if (t > rare(0.93)) out.push({ ...base, kind: 'grassTuft' })
     }
 

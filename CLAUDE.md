@@ -713,6 +713,88 @@ Changing any of these is a design decision, not a refactor.
 
 ---
 
+## Seasonal skins
+
+Added 12 October 2026, for Halloween. `src/config/seasons.js` owns it.
+
+- **THE ORDINARY MAP IS A SEASON, AND IT IS `default`.** Nothing in `theme.js`
+  was edited to add Halloween: the values there still describe the island
+  exactly as it looked that morning, and a season is a PATCH laid over them in
+  place. So going back is **one word**, `SEASON = 'default'` — not a
+  restoration, not a revert, nothing to remember. Marc asked for a copy of the
+  current map precisely because he expects to switch back ("cuando acabe
+  Halloween lo voy a cambiar otra vez al actual"), and this is that copy. There
+  is also a git tag, `pre-halloween-2026`, on the commit that was live before;
+  it is belt and braces, not the mechanism.
+- **A SEASON MAY ONLY CHANGE HOW THE ISLAND LOOKS, NEVER WHAT IT MEANS.**
+  `palette.completed` stays green, the category colours stay put, the lock grey
+  stays grey, and the road's own three colours are untouched because the
+  separation between them was SEARCHED (see `world.pathDone`). The only
+  `palette` entries Halloween moves are `boss` and `bossStone`, and only
+  because `theme.js` says at the field itself that the castle's stone is a
+  material rather than a status. **`bossAccent` is deliberately left alone**:
+  it is doing double duty as the roofs AND as the whole stone of the
+  re-evaluation castle plus its dashed line, and that second job is semantic —
+  the re-evaluation is red because it is an exam. The haunted roofs are
+  recoloured inside `createBossCastle` instead, where only the roof is
+  listening.
+- **`?season=halloween` / `?season=default` previews without a deploy.** Read
+  once on load, written nowhere. It is how you show someone the other island,
+  and how the two were compared when this was built.
+- **It must stay Node-safe.** `applySeason` runs while `theme.js` is still
+  evaluating — which is what guarantees no module can observe the unpatched
+  values — and the URL read is guarded, because the deck build and anything
+  else that touches the config under Node has no `window`.
+- **CHRISTMAS IS COMING AND IS NOT BUILT.** Marc, same conversation: "no hace
+  falta hacerlo de Navidad hoy, pero apunta que te lo voy a pedir seguramente
+  en diciembre." There is a `christmas` entry with an EMPTY patch, so selecting
+  it today gives the ordinary island — the honest answer for a season nobody
+  has designed. Do not fill it in on spec.
+
+**What Halloween actually changes**, and the two things that had to be measured
+rather than guessed:
+
+- **Night is carried by the LIGHT, not by repainting every surface** — sky,
+  fog, ambient, sun. Dimming the lamps keeps every colour relationship the map
+  depends on intact, which is why the road never had to move.
+- **It is violet, never black.** Black flattens a voxel scene into silhouettes
+  and the terracing stops reading, which is the one thing this island cannot
+  afford to lose.
+- **THE SNOW WAS THE PROBLEM, AND IT WAS NOT OBVIOUS.** World 3's cap went to
+  0x9aa8c4 on the first pass and was by a wide margin the brightest thing on a
+  night island: the eye went straight to the far right and the whole map read
+  as lit from the wrong end. Snow is only ever as bright as what is lighting
+  it. All three biome stacks move down TOGETHER so the cap/band/cliff spacing
+  survives — that spacing is what makes a plateau read as a plateau.
+- **A BARE TREE NEEDS TO BE LIGHTER THAN THE GROUND, NOT DARKER.** The first
+  `deadTree` was dark bark and roughly the leafy tree's size, and from the
+  overview camera the island looked like it had litter scattered over it: a
+  leafless silhouette has no canopy to catch the moon, so a dark trunk simply
+  is not there. It is taller now, the branches are a shade lighter again than
+  the trunk, and it carries a second pair of limbs on the other axis — one pair
+  reads as a signpost whenever the prop's own yaw turns it edge-on.
+- **The lit pumpkins are a COLOUR, not a light.** A `PointLight` per pumpkin
+  would be a per-fragment cost across the whole terrain for a prop that exists
+  by the dozen. A near-white yellow on a face that sticks out of the body reads
+  as lit against this sky and costs what the unlit one costs. Which pumpkins
+  are lit is a SECOND hash, independent of the one that placed them — reusing
+  the placement hash correlates the two and every pumpkin in the rare tail
+  comes out lit, which is a gradient across the island instead of a mix.
+- **Every walker reserves `BOXES_PER_WALKER` instances** (`three/enemies.js`),
+  for exactly the reason every villager carries the same number of boxes: the
+  index is `ci * BOXES_PER_WALKER + pi`, so a shorter recipe would shift every
+  walker after it onto somebody else's matrices. The spare slots are parked at
+  zero scale once at build time and `update` never touches them.
+- **The bats are the only thing in the air**, and `createBats` returns an empty
+  group plus a no-op update outside Halloween — so the ordinary map pays one
+  import and nothing else, and there is no branch in `main.js` to forget to
+  remove in November.
+- **Counted, at the same camera**: 86 draw calls against the ordinary map's 81,
+  and 59,633 instances against 55,322 — +7.8%, nearly all of it the dead tree's
+  16 boxes against the leafy tree's 7. Re-measure if a season adds more.
+
+---
+
 ## Traps that cost real time
 
 Every one of these was diagnosed the hard way. Do not re-derive them.

@@ -1,6 +1,7 @@
 import * as THREE from 'three'
 import { hash2 } from './terrain.js'
 import { prefersReducedMotion } from '../lib/motion.js'
+import { seasonFlags } from '../config/seasons.js'
 
 /**
  * Little creatures that patrol stretches of the road, the way Goombas wander a
@@ -26,6 +27,85 @@ const PARTS = [
   [-0.32, 1.0, 0.72, 0.36, 0.12, 0.1, 0x3a2a1a], // brows
   [0.32, 1.0, 0.72, 0.36, 0.12, 0.1, 0x3a2a1a],
 ]
+
+/**
+ * The Halloween walkers: "vampiros o hombres lobo o zombies caminando en vez
+ * de gumpas".
+ *
+ * Same local frame as the creature above — origin between the feet, +y up, +z
+ * the way it is walking — so the patrol code does not know or care which one
+ * it is moving. All three are a head taller than the creature and much
+ * narrower, because the thing that has to read from the follow camera is the
+ * SILHOUETTE, and "upright and thin" is what separates a monster from the
+ * squat mushroom it replaces.
+ *
+ * The eyes are the one part every monster paints bright: at this distance a
+ * dark figure on dark grass is a smudge, and two lit pixels are what make it
+ * a face looking at you.
+ */
+const MONSTERS = {
+  /** Black cloak, high collar, pale face, red eyes. */
+  vampire: [
+    [0, 0.55, 0, 0.72, 1.1, 0.52, 0x15121d], // legs / lower cloak
+    [0, 1.35, 0, 0.95, 0.72, 0.6, 0x1d1826], // torso
+    [0, 1.3, -0.4, 1.35, 1.15, 0.16, 0x3d0f18], // cape, blood-red lining
+    [0, 1.78, 0, 1.15, 0.22, 0.52, 0x2b1020], // collar, standing up
+    [0, 2.12, 0, 0.72, 0.6, 0.62, 0xd9cdbd], // head, pale
+    [0, 2.42, 0, 0.78, 0.22, 0.66, 0x14110f], // slicked hair
+    [-0.33, 2.44, 0.1, 0.14, 0.26, 0.2, 0x14110f], // widow's peak, both sides
+    [0.33, 2.44, 0.1, 0.14, 0.26, 0.2, 0x14110f],
+    [-0.17, 2.14, 0.33, 0.16, 0.1, 0.08, 0xff2d3a], // eyes
+    [0.17, 2.14, 0.33, 0.16, 0.1, 0.08, 0xff2d3a],
+    [-0.1, 1.95, 0.3, 0.07, 0.12, 0.07, 0xf2efe6], // fangs
+    [0.1, 1.95, 0.3, 0.07, 0.12, 0.07, 0xf2efe6],
+  ],
+
+  /** Hunched, broad shoulders, snout out front, yellow eyes. */
+  werewolf: [
+    [-0.26, 0.4, 0, 0.42, 0.8, 0.46, 0x4a3b30], // legs
+    [0.26, 0.4, 0, 0.42, 0.8, 0.46, 0x4a3b30],
+    [0, 1.25, -0.08, 1.15, 0.95, 0.72, 0x5c4a3b], // barrel chest, leaning forward
+    [-0.68, 1.35, 0.06, 0.34, 0.85, 0.38, 0x4a3b30], // arms, hanging long
+    [0.68, 1.35, 0.06, 0.34, 0.85, 0.38, 0x4a3b30],
+    [-0.68, 0.92, 0.18, 0.4, 0.2, 0.46, 0x2e251e], // paws
+    [0.68, 0.92, 0.18, 0.4, 0.2, 0.46, 0x2e251e],
+    [0, 1.92, 0.12, 0.72, 0.6, 0.66, 0x5c4a3b], // head
+    [0, 1.78, 0.52, 0.42, 0.3, 0.36, 0x3d3128], // snout
+    [-0.26, 2.3, 0.08, 0.2, 0.3, 0.16, 0x3d3128], // ears
+    [0.26, 2.3, 0.08, 0.2, 0.3, 0.16, 0x3d3128],
+    [-0.17, 1.98, 0.42, 0.15, 0.1, 0.08, 0xffd60a], // eyes
+    [0.17, 1.98, 0.42, 0.15, 0.1, 0.08, 0xffd60a],
+    [0, -0.02, -0.5, 0.22, 0.22, 0.6, 0x4a3b30], // tail
+  ],
+
+  /** Green, tattered, arms straight out in front. */
+  zombie: [
+    [-0.22, 0.42, 0, 0.38, 0.84, 0.4, 0x2f3b44], // legs, torn trousers
+    [0.22, 0.42, 0, 0.38, 0.84, 0.4, 0x3a4650],
+    [0, 1.28, 0, 0.9, 0.88, 0.56, 0x55683f], // torso, ragged shirt
+    [0, 1.1, 0, 0.94, 0.22, 0.58, 0x3f4f2f], // a darker tear across it
+    [-0.6, 1.5, 0.42, 0.28, 0.26, 0.9, 0x7d9456], // arms, straight ahead
+    [0.6, 1.5, 0.42, 0.28, 0.26, 0.9, 0x7d9456],
+    [0, 1.95, 0.04, 0.68, 0.62, 0.6, 0x7d9456], // head, tilted off true
+    [0, 2.26, 0.02, 0.7, 0.16, 0.6, 0x3c4a2a], // lank hair
+    [-0.16, 1.98, 0.32, 0.14, 0.14, 0.08, 0xf2efe6], // one blank eye
+    [0.17, 1.98, 0.32, 0.1, 0.08, 0.08, 0x14110f], // one dark socket
+    [0, 1.76, 0.3, 0.3, 0.08, 0.08, 0x3c2b2b], // mouth
+  ],
+}
+
+const MONSTER_KINDS = Object.keys(MONSTERS)
+
+/**
+ * EVERY WALKER RESERVES THE SAME NUMBER OF BOXES, and that is not tidiness.
+ *
+ * The instance index is `ci * BOXES_PER_WALKER + pi`, so a recipe with fewer
+ * parts than its neighbour would shift every walker after it onto somebody
+ * else's matrices — the same trap the villagers' hats documented. The spare
+ * instances are parked at zero scale once, at build time, and `update` never
+ * touches them again, so they cost a slot in the buffer and nothing per frame.
+ */
+const BOXES_PER_WALKER = Math.max(PARTS.length, ...MONSTER_KINDS.map((k) => MONSTERS[k].length))
 
 const SPEED = 2.6 // world units per second
 
@@ -144,7 +224,16 @@ export function createEnemies(path, count = 4, nodeIndices = []) {
     const span = hi - lo
     const half = Math.min(12 + Math.floor(hash2(i * 3.7, i * 1.9) * 10), Math.floor(span / 2))
     const centre = lo + span / 2
+    // Which walker this is. The season decides whether they are monsters at
+    // all; WHICH monster is a hash of the index, so the mix is the same on
+    // every load and on everybody's screen — the same rule the villagers
+    // follow. Nothing else in here knows the difference.
+    const parts =
+      seasonFlags.walkers === 'monsters'
+        ? MONSTERS[MONSTER_KINDS[Math.floor(hash2(i * 7.3, i * 3.1) * MONSTER_KINDS.length) % MONSTER_KINDS.length]]
+        : PARTS
     creatures.push({
+      parts,
       from: Math.max(lo, centre - half),
       to: Math.min(hi, centre + half),
       at: centre,
@@ -161,14 +250,21 @@ export function createEnemies(path, count = 4, nodeIndices = []) {
   const mesh = new THREE.InstancedMesh(
     new THREE.BoxGeometry(1, 1, 1),
     new THREE.MeshLambertMaterial(),
-    creatures.length * PARTS.length
+    creatures.length * BOXES_PER_WALKER
   )
   mesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage)
   mesh.frustumCulled = false
 
   const col = new THREE.Color()
-  creatures.forEach((_, ci) => {
-    PARTS.forEach((p, pi) => mesh.setColorAt(ci * PARTS.length + pi, col.setHex(p[6])))
+  const parked = new THREE.Matrix4().makeScale(0, 0, 0)
+  creatures.forEach((c, ci) => {
+    c.parts.forEach((p, pi) => mesh.setColorAt(ci * BOXES_PER_WALKER + pi, col.setHex(p[6])))
+    // Park this walker's unused slots once. `update` only ever writes indices
+    // below its own recipe length, so a zero-scale matrix set here stays zero
+    // for the life of the mesh and draws nothing.
+    for (let pi = c.parts.length; pi < BOXES_PER_WALKER; pi++) {
+      mesh.setMatrixAt(ci * BOXES_PER_WALKER + pi, parked)
+    }
   })
   if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true
   group.add(mesh)
@@ -235,7 +331,7 @@ export function createEnemies(path, count = 4, nodeIndices = []) {
       const cos = Math.cos(yaw)
       const sin = Math.sin(yaw)
 
-      PARTS.forEach((p, pi) => {
+      c.parts.forEach((p, pi) => {
         offset.set(p[0] * c.scale, p[1] * c.scale, p[2] * c.scale)
         pos.set(
           bx + offset.x * cos - offset.z * sin,
@@ -244,7 +340,7 @@ export function createEnemies(path, count = 4, nodeIndices = []) {
         )
         sv.set(p[3] * c.scale, p[4] * c.scale, p[5] * c.scale)
         m.compose(pos, q, sv)
-        mesh.setMatrixAt(ci * PARTS.length + pi, m)
+        mesh.setMatrixAt(ci * BOXES_PER_WALKER + pi, m)
       })
     })
     mesh.instanceMatrix.needsUpdate = true
