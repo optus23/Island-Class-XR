@@ -350,6 +350,25 @@ Mono/Stereoscopic "Actitud" activity (`w1-att-01`) and the re-evaluation. Of the
 13 September 2026, when Marc dropped it from the syllabus — removed rather than
 kept-but-unlisted, so it does not linger as dead, unreferenced data.
 
+**WORLD 2 NO LONGER MATCHES THE BOARD'S ORDER, AND THAT IS DELIBERATE.** On
+12 October 2026 Marc moved the two theory days to slots **2-2 and 2-4**, by
+swapping each with the practical in front of it: `w2-02` changed places with
+`w2-pre-03`, and `w2-04` with `w2-post-03`. The term had slipped — a class
+cancelled, a recap repeated, and the 12th itself a public holiday — and the
+alternation he wanted was practice, theory, practice, theory, practice, exam.
+**Do not reconcile this back from the Whimsical board**; the board still lists
+the old order, and that is the stale copy now.
+
+**THE DATES BELONG TO THE SLOT, NOT TO THE SESSION**, which is the part that is
+easy to get wrong. Marc's words: "las fechas en las que se desbloquea para el
+alumno siguen estando igual, lo único que cambia es el contenido". So the two
+pairs' `schedule` entries in `progress.json` were swapped along with them. This
+is not cosmetic — `effectiveMarker` takes the FURTHEST session whose time has
+come, so a timetable left behind would have fired the session at 2-3 on 2-2's
+date and skipped 2-2 entirely, opening a session two days early and never
+marking the one before it. **The invariant is that the timetable runs forward
+along the main path**; check it after any reorder.
+
 **The board's own text is not all safe to copy.** Its Content column carries
 scheduling notes — "Teacher absent – class to be rescheduled September 31",
 "Holiday – no class" — and a holiday row is not a session. The no-dates rule
