@@ -337,10 +337,16 @@ Presentació (Actitud 10%)" that Fall does not have at all, and puts the
 Mono/Stereoscopic hand-in one row earlier than Fall does.
 
 **Counted off the Fall table, 12 September 2026**: 31 rows = 28 sessions, two
-holidays and the re-evaluation. **12 sessions → the midterm castle (session 13)
-→ 15 more**, the last of which is the final castle. An earlier note here said
-"11 → midterm at 12 → 15", and a second one said 27 sessions at 7 / 9 / 11 per
-world. **Both were wrong; the board settles it and this is the settled number.**
+holidays and the re-evaluation. An earlier note here said 27 sessions at
+7 / 9 / 11 per world; that was wrong, and **28 is the settled TOTAL.**
+
+**WHERE THE MIDTERM SITS IS NOT settled, and is not the board's to settle.** It
+was session 13 (12 sessions, then the castle); on 12 October 2026 Marc brought
+it forward to **session 12**, world slot **2-5** — see the world-2 note below.
+The TOTAL did not change, because nothing was removed, only reordered. So treat
+"28 sessions, 7 / 11 / 10 per world" as the fact and the castle's index as
+whatever the data currently says: `levels.json` is the answer, not this
+paragraph and not the board.
 
 **What `levels.json` holds today**: 30 levels = **28 on the main path**
 (**7 / 11 / 10** per world, including the two castles) plus **2 optional** — the
@@ -350,14 +356,45 @@ Mono/Stereoscopic "Actitud" activity (`w1-att-01`) and the re-evaluation. Of the
 13 September 2026, when Marc dropped it from the syllabus — removed rather than
 kept-but-unlisted, so it does not linger as dead, unreferenced data.
 
+**THE BOARD IS A PLAN; THE ISLAND IS THE COURSE. WHEN THEY DISAGREE, THE
+ISLAND IS RIGHT.** Marc's own framing, 12 October 2026: Whimsical was used to
+lay the term out before it started and is **not a living document** — nobody
+goes back and edits it — whereas XR Island "está al pie del cañón" and has to
+be live, because it is the frontier between the students and the course. So
+the two drifting apart is NORMAL whenever the term hits a setback: a cancelled
+class, a recap repeated, a public holiday, an exam brought forward. **Do not
+treat a mismatch as a bug, and never "reconcile" the island back from the
+board.** Read the board for what it is good for — the session COUNT and the
+Deliverables column's shape — and take the running order from the island and
+from Marc. The counts below still come from the board; the order no longer
+does.
+
 **WORLD 2 NO LONGER MATCHES THE BOARD'S ORDER, AND THAT IS DELIBERATE.** On
 12 October 2026 Marc moved the two theory days to slots **2-2 and 2-4**, by
 swapping each with the practical in front of it: `w2-02` changed places with
 `w2-pre-03`, and `w2-04` with `w2-post-03`. The term had slipped — a class
 cancelled, a recap repeated, and the 12th itself a public holiday — and the
 alternation he wanted was practice, theory, practice, theory, practice, exam.
-**Do not reconcile this back from the Whimsical board**; the board still lists
-the old order, and that is the stale copy now.
+The board still lists the old order, and that is the stale copy now.
+
+**AND THEN THE MIDTERM MOVED FORWARD A SESSION, the same day.** The exam was
+four classes away, which put it on **2-5**, so the castle took that slot and the
+stretch before it dropped from five dots to four. **Nothing was deleted**:
+`w2-post-03` moved to 2-8, the world still holds 11 sessions and the term still
+holds 28. World 2 now reads 2-1 practice · 2-2 THEORY · 2-3 practice ·
+2-4 THEORY · **2-5 exam** · 2-6 the XR challenge · 2-7 use cases · 2-8 Building
+Blocks features, and the Meta Building Blocks hand-in moved a week later, onto
+2-11. **The midterm is therefore global session 12, not 13.**
+
+**THE CASTLE DID NOT MOVE, AND NOTHING HAD TO BE DONE TO KEEP IT STILL.** Marc
+asked for it to stay put and for the remaining nodes to respace evenly, and both
+are free: `worlds.js` pins world 2's boss to `path.bossSlotIndex` — a reserved
+control point — and `paths.js` splits the route there into `pre` and `post`,
+distributing each half by arc length. Take a node out of the `pre` half and the
+other four spread themselves along the same curve while the castle stays on its
+own point. Measured before and after: the castle sits at `x = 0, z = -18` in
+both. **If the castle ever does need to move, change `bossSlotIndex` — never the
+level order.**
 
 **THE DATES BELONG TO THE SLOT, NOT TO THE SESSION**, which is the part that is
 easy to get wrong. Marc's words: "las fechas en las que se desbloquea para el
