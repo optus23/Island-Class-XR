@@ -336,22 +336,21 @@ then believe it. They differ in ways that matter: Spring lists an "Entrega
 Presentació (Actitud 10%)" that Fall does not have at all, and puts the
 Mono/Stereoscopic hand-in one row earlier than Fall does.
 
-**Counted off the Fall table, 12 September 2026**: 31 rows = 28 sessions, two
-holidays and the re-evaluation. An earlier note here said 27 sessions at
-7 / 9 / 11 per world; that was wrong, and **28 is the settled TOTAL.**
+**NO NUMBER IN THIS SECTION IS SETTLED ANY MORE, INCLUDING THE TOTAL.** The
+board gave 31 rows = 28 sessions, two holidays and the re-evaluation, and that
+was right when the term was planned. It has since moved twice in a single week
+— the midterm forward to session 12, and then two post-exam sessions merged
+into one, which took the course to **27**. Both were Marc's call and both are
+normal (see the board-versus-island note below). So **`levels.json` is the
+answer to every count question**, never this paragraph and never the board:
+`mainSequence.length` is what the nav prints, so "Sesión N / 27" followed the
+data with nothing to edit. Read this section for the SHAPE — three worlds, two
+castles, a re-evaluation hanging off the last one — and measure the rest.
 
-**WHERE THE MIDTERM SITS IS NOT settled, and is not the board's to settle.** It
-was session 13 (12 sessions, then the castle); on 12 October 2026 Marc brought
-it forward to **session 12**, world slot **2-5** — see the world-2 note below.
-The TOTAL did not change, because nothing was removed, only reordered. So treat
-"28 sessions, 7 / 11 / 10 per world" as the fact and the castle's index as
-whatever the data currently says: `levels.json` is the answer, not this
-paragraph and not the board.
-
-**What `levels.json` holds today**: 30 levels = **28 on the main path**
-(**7 / 11 / 10** per world, including the two castles) plus **2 optional** — the
+**What `levels.json` holds today**: 29 levels = **27 on the main path**
+(**7 / 10 / 10** per world, including the two castles) plus **2 optional** — the
 Mono/Stereoscopic "Actitud" activity (`w1-att-01`) and the re-evaluation. Of the
-28, **26 are classes** and 2 are exams; the nav reads "Sesión N / 28". A second
+27, **25 are classes** and 2 are exams; the nav reads "Sesión N / 27". A second
 "Actitud" node (`w2-att-01`, "Activitat: Presentació") existed until
 13 September 2026, when Marc dropped it from the syllabus — removed rather than
 kept-but-unlisted, so it does not linger as dead, unreferenced data.
@@ -385,6 +384,19 @@ holds 28. World 2 now reads 2-1 practice · 2-2 THEORY · 2-3 practice ·
 2-4 THEORY · **2-5 exam** · 2-6 the XR challenge · 2-7 use cases · 2-8 Building
 Blocks features, and the Meta Building Blocks hand-in moved a week later, onto
 2-11. **The midterm is therefore global session 12, not 13.**
+
+**THE MAP SERVES TWO DEGREES, AND THAT IS WHY WORLD 2 LOST A SESSION.** Marc,
+13 October 2026: the island is used by **two** classes — videogames and digital
+art — and the digital-art group has no "Reto XR y taller de empresa". So that
+session and "Casos de uso, concept design" were **merged** into one theory day,
+**`Casos de uso XR`** at 2-6: the companies still come, but they come to
+lecture, so it counts as theory and both groups sit the same day. "Quiero que
+las dos clases vayan a la vez y no haya problemas de malentendidos." The merge
+freed a slot, world 2 went 11 → 10 and the course 28 → 27.
+**`w2-05` is the surviving level and `w2-07` is gone**, deleted rather than
+kept-but-unlisted, the same way `w2-att-01` was. **Remember the two audiences
+before writing anything into a session**: content only one of the two degrees
+can do has to be reframed so both can, or it does not belong on the map.
 
 **THE CASTLE DID NOT MOVE, AND NOTHING HAD TO BE DONE TO KEEP IT STILL.** Marc
 asked for it to stay put and for the remaining nodes to respace evenly, and both

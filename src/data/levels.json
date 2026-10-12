@@ -955,59 +955,20 @@
       "todos": []
     },
     {
-      "id": "w2-07",
-      "title": {
-        "en": "The XR challenge and the industry workshop",
-        "es": "Reto XR y taller de empresa",
-        "ca": "Repte XR i taller d'empresa"
-      },
-      "world": 2,
-      "stage": "meta-post-exam",
-      "category": "practical",
-      "optional": false,
-      "summary": {
-        "en": "Final project explained: the XR challenge · Industry workshop (?) · Project: concept Q&A",
-        "es": "Explicación del trabajo final: reto XR · Taller de empresa (?) · Proyecto: resolución de dudas del concept",
-        "ca": "Explicació Treball Final d'Assignatura: Repte XR · Taller Empresa (?) · Projecte: Resolució de dubtes Concept"
-      },
-      "contents": [
-        {
-          "en": "Final project explained: the XR challenge",
-          "es": "Explicación del trabajo final: reto XR",
-          "ca": "Explicació Treball Final d'Assignatura: Repte XR"
-        },
-        {
-          "en": "Industry workshop (?)",
-          "es": "Taller de empresa (?)",
-          "ca": "Taller Empresa (?)"
-        },
-        {
-          "en": "Project: concept Q&A",
-          "es": "Proyecto: resolución de dudas del concept",
-          "ca": "Projecte: Resolució de dubtes Concept"
-        }
-      ],
-      "slides": {
-        "type": "canva",
-        "source": "https://www.canva.com/design/DAHHUmQSDh0/lcUF8boPiNOBDV0jEc3rqA/view?embed"
-      },
-      "todos": []
-    },
-    {
       "id": "w2-05",
       "title": {
-        "en": "Use cases, concept design and the presentation",
-        "es": "Casos de uso, concept design y presentación",
-        "ca": "Casos d'ús, concept design i presentació"
+        "en": "XR use cases",
+        "es": "Casos de uso XR",
+        "ca": "Casos d'ús XR"
       },
       "world": 2,
       "stage": "meta-post-exam",
       "category": "theory",
       "optional": false,
       "summary": {
-        "en": "AR/VR use cases · Concept design · Showcase of past projects · In-class activity: VR design slides",
-        "es": "Casos de uso AR/VR · Concept design · Muestra de proyectos anteriores · Actividad en clase: VR design slides",
-        "ca": "Casos d'ús AR/VR · Concept Design · Mostra d'antics projectes · Activitat a classe: VR Design Slides"
+        "en": "AR/VR use cases · Concept design · Showcase of past projects · Industry workshop · Project: concept Q&A · In-class activity: VR design slides",
+        "es": "Casos de uso AR/VR · Concept design · Muestra de proyectos anteriores · Taller de empresa · Proyecto: resolución de dudas del concept · Actividad en clase: VR design slides",
+        "ca": "Casos d'ús AR/VR · Concept Design · Mostra d'antics projectes · Taller d'empresa · Projecte: resolució de dubtes del concept · Activitat a classe: VR Design Slides"
       },
       "contents": [
         {
@@ -1024,6 +985,16 @@
           "en": "Showcase of past projects",
           "es": "Muestra de proyectos anteriores",
           "ca": "Mostra d'antics projectes"
+        },
+        {
+          "en": "Industry workshop",
+          "es": "Taller de empresa",
+          "ca": "Taller d'empresa"
+        },
+        {
+          "en": "Project: concept Q&A",
+          "es": "Proyecto: resolución de dudas del concept",
+          "ca": "Projecte: resolució de dubtes del concept"
         },
         {
           "en": "In-class activity: VR design slides",
@@ -1331,10 +1302,6 @@
           "ca": "Entrega Treball Final d'Assignatura: Concept"
         }
       ],
-      "deliverable": {
-        "label": "Treball Final d'Assignatura — Concept",
-        "kind": "graded"
-      },
       "todos": []
     },
     {
@@ -1415,11 +1382,11 @@
           "ca": "Entrega Treball Final d'Assignatura: Set Up"
         }
       ],
+      "todos": [],
       "deliverable": {
-        "label": "Treball Final d'Assignatura — Set Up",
+        "label": "Treball Final d'Assignatura — Concept",
         "kind": "graded"
-      },
-      "todos": []
+      }
     },
     {
       "id": "w3-05",
@@ -1469,7 +1436,11 @@
           "ca": "Projecte: Desenvolupament"
         }
       ],
-      "todos": []
+      "todos": [],
+      "deliverable": {
+        "label": "Treball Final d'Assignatura — Set Up",
+        "kind": "graded"
+      }
     },
     {
       "id": "w3-07",
