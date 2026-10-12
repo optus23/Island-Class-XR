@@ -10,6 +10,8 @@
  * Category colours are placeholders — change them here and nowhere else.
  */
 
+import { applySeason } from './seasons.js'
+
 export const palette = {
   // Status
   completed: 0x38b000, // green — reserved, never reuse for anything else
@@ -237,6 +239,20 @@ export const world = {
   sunIntensity: 2.1,
   sunPosition: [40, 70, 30],
 }
+
+/**
+ * THE SEASONAL SKIN GOES ON HERE, AND NOWHERE ELSE.
+ *
+ * Everything above this line is the island as it always looks, and stays that
+ * way: a season is a patch laid over those objects in place (see
+ * `config/seasons.js`), so going back to the ordinary map is one word in that
+ * file rather than an edit to this one. Keep new colours above this call.
+ *
+ * It has to run BEFORE `cssPalette` is derived, or the 2D layer would mirror
+ * the unpatched values and the HTML chrome would drift from the island — the
+ * exact thing `cssPalette` exists to prevent.
+ */
+applySeason({ palette, biomes, backdrop, world, clouds, villagers, flowers })
 
 /** Mirror of `palette` for the HTML/Tailwind layer. */
 export const cssPalette = Object.fromEntries(
