@@ -694,18 +694,18 @@
     {
       "id": "w2-pre-02",
       "title": {
-        "en": "Meta Building Blocks: passthrough and grabbable",
-        "es": "Meta Building Blocks: passthrough y grabbable",
-        "ca": "Meta Building Blocks: Passthrough i Grabbable"
+        "en": "Meta Building Blocks: interaction",
+        "es": "Meta Building Blocks: interacción",
+        "ca": "Meta Building Blocks: interacció"
       },
       "world": 2,
       "stage": "meta-pre-exam",
       "category": "practical",
       "optional": false,
       "summary": {
-        "en": "News! VR/MR news · Brief walkthrough (2-1) · Meta All-in-One SDK pillars · In-class activity: 1. Building Blocks — passthrough and grabbable item · AR Foundation hand-in",
-        "es": "News! Noticias VR/MR · Presentación del enunciado (2-1) · Pilares del Meta All in One SDK · Actividad en clase: 1. Building Blocks — passthrough y grabbable item · Entrega AR Foundation",
-        "ca": "News! Notícies VR/MR · Presentació Enunciat (2-1) · Pilars Meta All in One SDK · Activitat a classe: 1. Building Blocks — Passthrough and Grabbable Item · Entrega AR Foundation"
+        "en": "News! VR/MR news · Brief walkthrough (2-1) · Meta All-in-One SDK pillars · In-class activity: 1. Building Blocks — grab and locomotion · AR Foundation hand-in",
+        "es": "News! Noticias VR/MR · Presentación del enunciado (2-1) · Pilares del Meta All in One SDK · Actividad en clase: 1. Building Blocks — grab y locomotion · Entrega AR Foundation",
+        "ca": "News! Notícies VR/MR · Presentació Enunciat (2-1) · Pilars Meta All in One SDK · Activitat a classe: 1. Building Blocks — grab i locomotion · Entrega AR Foundation"
       },
       "contents": [
         {
@@ -724,9 +724,9 @@
           "ca": "Pilars Meta All in One SDK"
         },
         {
-          "en": "In-class activity: 1. Building Blocks — passthrough and grabbable item",
-          "es": "Actividad en clase: 1. Building Blocks — passthrough y grabbable item",
-          "ca": "Activitat a classe: 1. Building Blocks — Passthrough and Grabbable Item"
+          "en": "In-class activity: 1. Building Blocks — grab and locomotion",
+          "es": "Actividad en clase: 1. Building Blocks — grab y locomotion",
+          "ca": "Activitat a classe: 1. Building Blocks — grab i locomotion"
         },
         {
           "en": "AR Foundation hand-in",
@@ -738,7 +738,6 @@
         "label": "AR Foundation",
         "kind": "graded"
       },
-      "slidesPending": true,
       "block": {
         "number": 2,
         "name": "Meta Building Blocks",
@@ -777,7 +776,12 @@
           ],
           "deliverable": "APK por grupo, con el nombre del grupo en el archivo. Tiene que arrancar solo y sin Space Setup previo por parte de quien corrige."
         }
-      ]
+      ],
+      "slides": {
+        "type": "canva",
+        "source": "https://www.canva.com/design/DAHX015DD9s/w30c_zFEgNoDBhzrlx2fag/view?embed"
+      },
+      "bibliography": "content/bibliography/w2-pre-02.md"
     },
     {
       "id": "w2-02",
