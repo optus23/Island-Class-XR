@@ -703,9 +703,9 @@
       "category": "practical",
       "optional": false,
       "summary": {
-        "en": "News! VR/MR news · Brief walkthrough (2-1) · Meta All-in-One SDK pillars · In-class activity: 1. Building Blocks — grab and locomotion · AR Foundation hand-in",
-        "es": "News! Noticias VR/MR · Presentación del enunciado (2-1) · Pilares del Meta All in One SDK · Actividad en clase: 1. Building Blocks — grab y locomotion · Entrega AR Foundation",
-        "ca": "News! Notícies VR/MR · Presentació Enunciat (2-1) · Pilars Meta All in One SDK · Activitat a classe: 1. Building Blocks — grab i locomotion · Entrega AR Foundation"
+        "en": "News! VR/MR news · Brief walkthrough (2-1) · Meta All-in-One SDK pillars · In-class activity: 1. Building Blocks — camera rig and grabbable, with controllers and hand tracking · AR Foundation hand-in",
+        "es": "News! Noticias VR/MR · Presentación del enunciado (2-1) · Pilares del Meta All in One SDK · Actividad en clase: 1. Building Blocks — camera rig y grabbable, con mandos y hand tracking · Entrega AR Foundation",
+        "ca": "News! Notícies VR/MR · Presentació Enunciat (2-1) · Pilars Meta All in One SDK · Activitat a classe: 1. Building Blocks — camera rig i grabbable, amb comandaments i hand tracking · Entrega AR Foundation"
       },
       "contents": [
         {
@@ -724,9 +724,9 @@
           "ca": "Pilars Meta All in One SDK"
         },
         {
-          "en": "In-class activity: 1. Building Blocks — grab and locomotion",
-          "es": "Actividad en clase: 1. Building Blocks — grab y locomotion",
-          "ca": "Activitat a classe: 1. Building Blocks — grab i locomotion"
+          "en": "In-class activity: 1. Building Blocks — camera rig and grabbable, with controllers and hand tracking",
+          "es": "Actividad en clase: 1. Building Blocks — camera rig y grabbable, con mandos y hand tracking",
+          "ca": "Activitat a classe: 1. Building Blocks — camera rig i grabbable, amb comandaments i hand tracking"
         },
         {
           "en": "AR Foundation hand-in",
@@ -830,18 +830,18 @@
     {
       "id": "w2-pre-03",
       "title": {
-        "en": "Building Blocks: hand tracking",
-        "es": "Building Blocks: hand tracking",
-        "ca": "Building Blocks: Hand Tracking"
+        "en": "Building Blocks: locomotion and passthrough",
+        "es": "Building Blocks: locomoción y passthrough",
+        "ca": "Building Blocks: locomoció i passthrough"
       },
       "world": 2,
       "stage": "meta-pre-exam",
       "category": "practical",
       "optional": false,
       "summary": {
-        "en": "News! VR/MR news · Brief walkthrough (2-2) · In-class activity: 2. Building Blocks — hand tracking",
-        "es": "News! Noticias VR/MR · Presentación del enunciado (2-2) · Actividad en clase: 2. Building Blocks — hand tracking",
-        "ca": "News! Notícies VR/MR · Presentació Enunciat (2-2) · Activitat a classe: 2. Building Blocks — Hand Tracking"
+        "en": "News! VR/MR news · Brief walkthrough (2-2) · In-class activity: 2. Building Blocks — locomotion and switching to passthrough",
+        "es": "News! Noticias VR/MR · Presentación del enunciado (2-2) · Actividad en clase: 2. Building Blocks — locomoción y cambio a passthrough",
+        "ca": "News! Notícies VR/MR · Presentació Enunciat (2-2) · Activitat a classe: 2. Building Blocks — locomoció i canvi a passthrough"
       },
       "contents": [
         {
@@ -855,9 +855,9 @@
           "ca": "Presentació Enunciat (2-2)"
         },
         {
-          "en": "In-class activity: 2. Building Blocks — hand tracking",
-          "es": "Actividad en clase: 2. Building Blocks — hand tracking",
-          "ca": "Activitat a classe: 2. Building Blocks — Hand Tracking"
+          "en": "In-class activity: 2. Building Blocks — locomotion and switching to passthrough",
+          "es": "Actividad en clase: 2. Building Blocks — locomoción y cambio a passthrough",
+          "ca": "Activitat a classe: 2. Building Blocks — locomoció i canvi a passthrough"
         }
       ],
       "slidesPending": true,
