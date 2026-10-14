@@ -745,36 +745,69 @@
         "of": 3
       },
       "groupMode": "per-group-per-block",
-      "submissionMethod": "build",
+      "submissionMethod": "none",
       "exercises": "content/exercises/w2-pre-02.md",
       "todos": [
         {
           "id": "w2-pre-02-t1",
           "type": "objective-task",
-          "objective": "Blue Goblin se sube a un mecha y sale de la pantalla del móvil al espacio real. Móntalo con building blocks: passthrough para ver la sala, detección de superficies para saber dónde está el suelo o la mesa, el mecha instanciado encima y, a diferencia del Ejercicio 1 de AR Foundation, que se pueda coger con la mano. Deliberadamente corto: la mitad de la sesión se va en conectar el visor.",
-          "starting_point": "Proyecto Unity nuevo con el Meta XR All-in-One SDK. Una Quest 3 o Quest 2 cargada por grupo.",
+          "objective": {
+            "en": "Build a virtual reality app with Meta Building Blocks and interact with a 3D object of your own choosing — your solution for dealing with the giant robot. A giant robot turned up and the blue goblin has changed sides, so you are teaming up with it. You write no code: everything happens in the Inspector and in the Building Blocks window.",
+            "es": "Construid una app de realidad virtual con Meta Building Blocks e interactuad con un objeto 3D que elijáis vosotros — vuestra solución para lidiar con el robot gigante. Ha aparecido un robot gigante y el blue goblin ha cambiado de bando, así que vais en equipo con él. No se escribe código: todo pasa en el Inspector y en la ventana de Building Blocks.",
+            "ca": "Construïu una app de realitat virtual amb Meta Building Blocks i interactueu amb un objecte 3D que trieu vosaltres — la vostra solució per encarar el robot gegant. Ha aparegut un robot gegant i el blue goblin ha canviat de bàndol, així que hi aneu en equip. No s'escriu codi: tot passa a l'Inspector i a la finestra de Building Blocks."
+          },
+          "starting_point": {
+            "en": "A Unity install with the **Android Build Support** module, a Unity account you are signed in to, a **Meta Quest 3** with developer mode on and a **USB-C** data cable, and a 3D model you like. Nothing is handed out: the object is yours to choose. **At CITM, do not try to install Meta Horizon Link** — run `oculus-reg.bat` from the desktop instead.",
+            "es": "Una instalación de Unity con el módulo **Android Build Support**, una cuenta de Unity con la sesión iniciada, una **Meta Quest 3** con el modo desarrollador activado y un cable de datos **USB-C**, y un modelo 3D que os guste. No se reparte nada: el objeto lo elegís vosotros. **En el CITM no intentéis instalar Meta Horizon Link** — ejecutad `oculus-reg.bat` desde el escritorio.",
+            "ca": "Una instal·lació d'Unity amb el mòdul **Android Build Support**, un compte d'Unity amb la sessió iniciada, una **Meta Quest 3** amb el mode desenvolupador activat i un cable de dades **USB-C**, i un model 3D que us agradi. No es reparteix res: l'objecte el trieu vosaltres. **Al CITM no intenteu instal·lar el Meta Horizon Link** — executeu `oculus-reg.bat` des de l'escriptori."
+          },
           "steps": [
-            "Cuenta de desarrollador: entra en `developer.oculus.com` y crea/únete a una organización (gratis) si el grupo no la tiene ya.",
-            "En el móvil, con la app **Meta Horizon** emparejada al visor: icono del visor → Configuración del casco → **Modo desarrollador** → actívalo. Reinicia el visor cuando lo pida.",
-            "Conecta el visor al ordenador con cable USB-C **de datos** (no solo de carga). Ponte el visor y acepta \"Permitir depuración USB\" (marca \"permitir siempre desde este ordenador\").",
-            "En Unity: `File > Build Profiles` → en Platforms selecciona **Meta Quest** → Enable/Switch Platform (si tu versión de Unity no lo tiene, usa **Android**).",
-            "Instala el **Meta XR All-in-One SDK** desde el Package Manager.",
-            "Ejecuta el **Project Setup Tool** (Meta → Tools → Project Setup Tool) y aplica \"Fix All\" hasta que no queden avisos.",
-            "Abre `Meta > Tools > Building Blocks`.",
-            "Busca **Camera Rig** y pulsa \"Add block to current scene\".",
-            "Busca **Passthrough** y añádelo igual; comprueba en Play Mode/Build que ves la sala real a través del visor.",
-            "Concede el permiso de datos espaciales cuando el visor lo pida.",
-            "Busca **Instant Content Placement** y añádelo — coloca contenido sobre una superficie detectada sin necesidad de escanear antes la sala.",
-            "Arrastra el prefab del mecha de Blue Goblin al campo que pida el bloque para el contenido a colocar.",
-            "Prueba en el visor que el mecha aparece apoyado en una superficie real.",
-            "Selecciona el mecha en la Hierarchy → clic derecho → **Interaction SDK → Add Grab Interaction**.",
-            "Comprueba que se han añadido los componentes de interacción de agarre; no los borres.",
-            "Prueba en el visor: acércate con la mano, ciérrala para agarrar el mecha, muévelo y suéltalo — no debe quedar flotando ni desincronizado.",
-            "Anda alrededor: el mecha debe quedarse anclado a la sala, no seguir tu mirada (si lo hace, revisa que no sea hijo de la cámara por error).",
-            "`Build And Run` con el visor como Run Device.",
-            "Desconecta el cable y abre la app desde la biblioteca del visor para confirmar que arranca sola."
+            {
+              "en": "**A new project.** Unity Hub → **New project** → the **Universal 3D** template. **Check the Android module is installed** first: without it, Android never appears in Build Settings and you find out at the very end.",
+              "es": "**Un proyecto nuevo.** Unity Hub → **New project** → plantilla **Universal 3D**. **Comprueba antes que el módulo de Android está instalado**: sin él, Android no aparece nunca en Build Settings y te enteras al final del todo.",
+              "ca": "**Un projecte nou.** Unity Hub → **New project** → plantilla **Universal 3D**. **Comprova abans que el mòdul d'Android està instal·lat**: sense ell, Android no apareix mai a Build Settings i te n'adones al final de tot."
+            },
+            {
+              "en": "**The SDK from the Asset Store.** Open the **Asset Store**, search for **Meta XR SDK** and press **Add to My Assets**. You must be **signed in to your Unity account** for that button to do anything — if nothing seems to happen, that is why.",
+              "es": "**El SDK desde el Asset Store.** Abre el **Asset Store**, busca **Meta XR SDK** y pulsa **Add to My Assets**. Tienes que estar **logueado en tu cuenta de Unity** para que ese botón haga algo — si parece que no pasa nada, es por eso.",
+              "ca": "**El SDK des de l'Asset Store.** Obre l'**Asset Store**, busca **Meta XR SDK** i prem **Add to My Assets**. Has d'estar **connectat al teu compte d'Unity** perquè aquest botó faci res — si sembla que no passa res, és per això."
+            },
+            {
+              "en": "**Packages, provider, validation.** `Window > Package Manager` → find the **Meta** packages (**you do not need all of them**). `Project Settings > XR Plug-in Management` → provider **OpenXR**. Then **Project Validation → Fix All** and **Meta XR → Apply All**. **CHECK THE OCULUS XR PLUGIN IS NOT INSTALLED**: alongside OpenXR it builds, runs, shows your scene and tracks nothing, with no error anywhere.",
+              "es": "**Paquetes, proveedor, validación.** `Window > Package Manager` → busca los paquetes de **Meta** (**no hacen falta todos**). `Project Settings > XR Plug-in Management` → proveedor **OpenXR**. Después **Project Validation → Fix All** y **Meta XR → Apply All**. **COMPRUEBA QUE EL OCULUS XR PLUGIN NO ESTÁ INSTALADO**: junto a OpenXR compila, arranca, muestra tu escena y no trackea nada, sin ningún error por ninguna parte.",
+              "ca": "**Paquets, proveïdor, validació.** `Window > Package Manager` → busca els paquets de **Meta** (**no calen tots**). `Project Settings > XR Plug-in Management` → proveïdor **OpenXR**. Després **Project Validation → Fix All** i **Meta XR → Apply All**. **COMPROVA QUE L’OCULUS XR PLUGIN NO ESTÀ INSTAL·LAT**: al costat d’OpenXR compila, arrenca, mostra la teva escena i no traqueja res, sense cap error enlloc."
+            },
+            {
+              "en": "**A new scene and three blocks.** Create the scene and **delete the `Main Camera`** — the Camera Rig brings its own. Then `Meta XR Tools > Building Blocks` and drag in **Camera Rig**, **Interaction Rig** (this is what brings hand tracking *and* the controllers) and **Grab Interaction** (it drops in a cube you can pick up).",
+              "es": "**Una escena nueva y tres bloques.** Crea la escena y **borra la `Main Camera`** — el Camera Rig trae la suya. Después `Meta XR Tools > Building Blocks` y arrastra **Camera Rig**, **Interaction Rig** (es lo que trae el hand tracking *y* los mandos) y **Grab Interaction** (mete un cubo que se puede coger).",
+              "ca": "**Una escena nova i tres blocs.** Crea l'escena i **esborra la `Main Camera`** — el Camera Rig porta la seva. Després `Meta XR Tools > Building Blocks` i arrossega **Camera Rig**, **Interaction Rig** (és el que porta el hand tracking *i* els comandaments) i **Grab Interaction** (hi posa un cub que es pot agafar)."
+            },
+            {
+              "en": "**Wire the grab.** Open the **`[BuildingBlock] Cube`**, select **`[BuildingBlock] HandGrab Installation Routine AND`** and drag it into **Grab Source**, inside the **Grab Interactable** component. **Put the pivot on the grabbable part of the model** — it is the point the hand closes on.",
+              "es": "**Conecta el grab.** Abre el **`[BuildingBlock] Cube`**, selecciona **`[BuildingBlock] HandGrab Installation Routine AND`** y arrástralo a **Grab Source**, dentro del componente **Grab Interactable**. **Pon el pivote en la parte agarrable del modelo** — es el punto donde se cierra la mano.",
+              "ca": "**Connecta el grab.** Obre el **`[BuildingBlock] Cube`**, selecciona **`[BuildingBlock] HandGrab Installation Routine AND`** i arrossega'l a **Grab Source**, dins del component **Grab Interactable**. **Posa el pivot a la part agafable del model** — és el punt on es tanca la mà."
+            },
+            {
+              "en": "**Try the XR Simulator first.** `Meta XR Tools` → enable the **Meta XR Simulator**. It may ask to **install** itself — accept and open it; it is **not** part of the SDK from step 2. **If it will not install, skip to step 7**: it is a convenience, not a dependency. To run on the headset instead: USB-C cable, **Meta Horizon Link** on the PC (at CITM, `oculus-reg.bat`), **Link (PC)** in the Quest’s quick settings — and **disable the simulator before pressing Play**, or Unity talks to it and the headset shows nothing.",
+              "es": "**Prueba antes el XR Simulator.** `Meta XR Tools` → activa el **Meta XR Simulator**. Puede pedirte **instalarlo** — acepta y ábrelo; **no** viene en el SDK del paso 2. **Si no hay manera de instalarlo, salta al paso 7**: es una comodidad, no un requisito. Para ejecutar en el visor: cable USB-C, **Meta Horizon Link** en el PC (en el CITM, `oculus-reg.bat`), **Link (PC)** en los ajustes rápidos de la Quest — y **desactiva el simulador antes de dar a Play**, o Unity habla con él y el visor no muestra nada.",
+              "ca": "**Prova abans l'XR Simulator.** `Meta XR Tools` → activa el **Meta XR Simulator**. Pot demanar-te **instal·lar-lo** — accepta i obre'l; **no** ve al SDK del pas 2. **Si no hi ha manera d'instal·lar-lo, salta al pas 7**: és una comoditat, no un requisit. Per executar-ho al visor: cable USB-C, **Meta Horizon Link** al PC (al CITM, `oculus-reg.bat`), **Link (PC)** als ajustos ràpids de la Quest — i **desactiva el simulador abans de donar-li a Play**, o Unity hi parla i el visor no mostra res."
+            },
+            {
+              "en": "**Make it your object.** Swap the cube: **import your model** and assign it to the cube’s **Mesh Filter**, **create its material** if the model does not bring one and change the material too, then press **Edit Collider** on the **Box Collider** and **adjust it to the new model** — the collider is what your hand actually grabs, so a box still shaped like the old cube grabs thin air.",
+              "es": "**Que sea tu objeto.** Cambia el cubo: **importa tu modelo** y asígnalo al **Mesh Filter** del cubo, **crea su material** si el modelo no trae uno y cambia también el material, y después pulsa **Edit Collider** en el **Box Collider** y **ajústalo al modelo nuevo** — el collider es lo que tu mano agarra de verdad, así que una caja con la forma del cubo viejo agarra aire.",
+              "ca": "**Que sigui el teu objecte.** Canvia el cub: **importa el teu model** i assigna'l al **Mesh Filter** del cub, **crea el seu material** si el model no en porta i canvia també el material, i després prem **Edit Collider** al **Box Collider** i **ajusta'l al model nou** — el collider és el que la teva mà agafa de debò, així que una caixa amb la forma del cub vell agafa aire."
+            },
+            {
+              "en": "**Build and install.** `File > Build Settings` → your scene in the **Scenes In Build** list. Headset connected by **USB-C**, **developer mode on**, **Always allow USB debugging** accepted in the headset. **Option A:** `File > Build Profiles` → **Android** (or Meta Quest) → **Run Device** → **Refresh** → your Quest 3 → **Build And Run**. **Option B, if the headset never appears:** **Meta Quest Developer Hub** → **Add Build** → your `.apk`, and launch it from **Library > Unknown Sources**.",
+              "es": "**Build e instalación.** `File > Build Settings` → tu escena en la lista **Scenes In Build**. Visor conectado por **USB-C**, **modo desarrollador activado** y **Always allow USB debugging** aceptado en el visor. **Opción A:** `File > Build Profiles` → **Android** (o Meta Quest) → **Run Device** → **Refresh** → tu Quest 3 → **Build And Run**. **Opción B, si el visor no aparece nunca:** **Meta Quest Developer Hub** → **Add Build** → tu `.apk`, y lánzalo desde **Library > Unknown Sources**.",
+              "ca": "**Build i instal·lació.** `File > Build Settings` → la teva escena a la llista **Scenes In Build**. Visor connectat per **USB-C**, **mode desenvolupador activat** i **Always allow USB debugging** acceptat al visor. **Opció A:** `File > Build Profiles` → **Android** (o Meta Quest) → **Run Device** → **Refresh** → la teva Quest 3 → **Build And Run**. **Opció B, si el visor no apareix mai:** **Meta Quest Developer Hub** → **Add Build** → el teu `.apk`, i llança’l des de **Library > Unknown Sources**."
+            }
           ],
-          "deliverable": "APK por grupo, con el nombre del grupo en el archivo. Tiene que arrancar solo y sin Space Setup previo por parte de quien corrige."
+          "steps_note": {
+            "en": "Marc's eight TODOs. The projected deck shows 7 before 6; the numbers are what count.",
+            "es": "Los ocho TODO de Marc. El deck proyectado enseña el 7 antes del 6; lo que manda son los números.",
+            "ca": "Els vuit TODO d'en Marc. El deck projectat ensenya el 7 abans del 6; el que mana són els números."
+          }
         }
       ],
       "slides": {
