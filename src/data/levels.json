@@ -858,7 +858,8 @@
         "type": "canva",
         "source": "https://www.canva.com/design/DAHHUoOtuSY/6Tu2uB2S-1txMuzlgcqWyA/view?embed"
       },
-      "todos": []
+      "todos": [],
+      "bibliography": "content/bibliography/w2-02.md"
     },
     {
       "id": "w2-pre-03",
@@ -893,7 +894,6 @@
           "ca": "Activitat a classe: 2. Building Blocks — locomoció i canvi a passthrough"
         }
       ],
-      "slidesPending": true,
       "block": {
         "number": 2,
         "name": "Meta Building Blocks",
@@ -901,7 +901,7 @@
         "of": 3
       },
       "groupMode": "per-group-per-block",
-      "submissionMethod": "build",
+      "submissionMethod": "none",
       "_fixme": [
         "TODO(decisión abierta c): la identidad concreta de la \"nueva amenaza\" contra la que Blue Goblin cambia de bando está sin definir. El enunciado la deja abierta a propósito; si se concreta, hay que fijarla aquí y en el ejercicio 3 del bloque, que la hereda."
       ],
@@ -910,21 +910,70 @@
         {
           "id": "w2-pre-03-t1",
           "type": "objective-task",
-          "objective": "El giro de la historia: Blue Goblin, ya evolucionado, se pasa a vuestro lado frente a la nueva amenaza. Sin mandos: un gesto de la mano dispara el cambio de bando.",
-          "starting_point": "El proyecto del ejercicio 1, continuado.",
+          "objective": {
+            "en": "Build a mixed reality app with Meta Building Blocks and go looking for the giant robot — it has left the virtual world and is somewhere in the physical one. You move around in VR with teleport, turn and slide, and then switch to passthrough with a button on the controller to see the room you are actually standing in. No code: the mode switch is Building Blocks and Inspector events.",
+            "es": "Construid una app de realidad mixta con Meta Building Blocks y salid a buscar al robot gigante — ha dejado el mundo virtual y anda por el físico. Os movéis por la escena en VR con teleport, turn y slide, y después cambiáis a passthrough con un botón del mando para ver el aula en la que estáis de verdad. Sin código: el cambio de modo son Building Blocks y eventos del Inspector.",
+            "ca": "Construïu una app de realitat mixta amb Meta Building Blocks i sortiu a buscar el robot gegant — ha deixat el món virtual i és al físic. Us moveu per l'escena en VR amb teleport, turn i slide, i després canvieu a passthrough amb un botó del comandament per veure l'aula on sou de debò. Sense codi: el canvi de mode són Building Blocks i esdeveniments de l'Inspector."
+          },
+          "starting_point": {
+            "en": "Your project from exercise 1, if it still works — otherwise steps 1 to 4 rebuild it. A **Meta Quest 3** with a **USB-C** data cable, developer mode on, and **Meta Horizon Link** on the PC (**at CITM, run `oculus-reg.bat` from the desktop instead of installing it**). Everything is built from Unity primitives; no model is handed out. **The Meta XR Simulator cannot show passthrough**, so step 7 has to be tested on the headset.",
+            "es": "Vuestro proyecto del ejercicio 1, si sigue funcionando — si no, los pasos 1 a 4 lo rehacen. Una **Meta Quest 3** con cable de datos **USB-C**, modo desarrollador activado, y **Meta Horizon Link** en el PC (**en el CITM, ejecutad `oculus-reg.bat` del escritorio en vez de instalarlo**). Todo se monta con primitivas de Unity; no se reparte ningún modelo. **El Meta XR Simulator no puede enseñar passthrough**, así que el paso 7 hay que probarlo en el visor.",
+            "ca": "El vostre projecte de l'exercici 1, si encara funciona — si no, els passos 1 a 4 el refan. Una **Meta Quest 3** amb cable de dades **USB-C**, mode desenvolupador activat, i **Meta Horizon Link** al PC (**al CITM, executeu `oculus-reg.bat` de l'escriptori en comptes d'instal·lar-lo**). Tot es munta amb primitives d'Unity; no es reparteix cap model. **El Meta XR Simulator no pot ensenyar passthrough**, així que el pas 7 s'ha de provar al visor."
+          },
           "steps": [
-            "En `Meta > Tools > Building Blocks`, busca **Hand Tracking** (categoría Core) y añádelo.",
-            "En el Camera Rig ya presente, revisa en su componente OVR Manager (Quest Features) que el soporte de manos está activo.",
-            "`Build and Run` y, en el visor, deja los mandos sobre la mesa: deberías ver tus manos representadas moviéndose en tiempo real.",
-            "Vuelve a Building Blocks y añade el bloque de interacción que elija tu grupo: **Poke Interaction** (toque directo), **Distance Grab** (a distancia, apuntando) o **Touch Hand Grab** (agarre por contacto).",
-            "Sobre el objeto de Blue Goblin evolucionado: clic derecho → **Interaction SDK** → añade la interacción elegida (mismo patrón que en el Ejercicio 1).",
-            "Decide qué gesto dispara la evolución (un toque, un agarre, una pose sostenida) y prográmalo enganchando el evento que expone el building block de interacción (p. ej. su \"Select Entered\") a un método propio que cambie el aspecto de Blue Goblin.",
-            "Prueba con las manos fuera del campo de visión del visor: decide y programa explícitamente qué pasa (por ejemplo, que el objeto se quede en su último estado) en vez de dejar que la interacción se rompa sola.",
-            "`Build and Run` sin mandos sobre la mesa desde el arranque, y recorre el ejercicio completo solo con las manos."
+            {
+              "en": "*(Repaso)* **A new project.** Unity Hub → **New project** → **Universal 3D**, with the **Android module** installed. Skip steps 1 to 4 if your project from exercise 1 still opens and runs.",
+              "es": "*(Repaso)* **Un proyecto nuevo.** Unity Hub → **New project** → **Universal 3D**, con el **módulo de Android** instalado. Saltaos los pasos 1 a 4 si vuestro proyecto del ejercicio 1 todavía abre y funciona.",
+              "ca": "*(Repàs)* **Un projecte nou.** Unity Hub → **New project** → **Universal 3D**, amb el **mòdul d'Android** instal·lat. Salteu-vos els passos 1 a 4 si el vostre projecte de l'exercici 1 encara obre i funciona."
+            },
+            {
+              "en": "*(Repaso)* **The SDK from the Asset Store.** **Asset Store** → **Meta XR SDK** → **Add to My Assets**. You must be signed in to your Unity account.",
+              "es": "*(Repaso)* **El SDK desde el Asset Store.** **Asset Store** → **Meta XR SDK** → **Add to My Assets**. Tenéis que estar logueados en vuestra cuenta de Unity.",
+              "ca": "*(Repàs)* **El SDK des de l'Asset Store.** **Asset Store** → **Meta XR SDK** → **Add to My Assets**. Heu d'estar connectats al vostre compte d'Unity."
+            },
+            {
+              "en": "*(Repaso)* **Packages, provider, validation.** `Window > Package Manager` → the **Meta** packages (not all of them are needed). `Project Settings > XR Plug-in Management` → **OpenXR**. **Project Validation → Fix All**, then **Meta XR → Apply All**. **CHECK THE OCULUS XR PLUGIN IS NOT INSTALLED** — alongside OpenXR you get no tracking and no error.",
+              "es": "*(Repaso)* **Paquetes, proveedor, validación.** `Window > Package Manager` → los paquetes de **Meta** (no hacen falta todos). `Project Settings > XR Plug-in Management` → **OpenXR**. **Project Validation → Fix All**, y después **Meta XR → Apply All**. **COMPROBAD QUE EL OCULUS XR PLUGIN NO ESTÁ INSTALADO** — junto a OpenXR no hay tracking y no hay error.",
+              "ca": "*(Repàs)* **Paquets, proveïdor, validació.** `Window > Package Manager` → els paquets de **Meta** (no calen tots). `Project Settings > XR Plug-in Management` → **OpenXR**. **Project Validation → Fix All**, i després **Meta XR → Apply All**. **COMPROVEU QUE L’OCULUS XR PLUGIN NO ESTÀ INSTAL·LAT** — al costat d’OpenXR no hi ha tracking i no hi ha error."
+            },
+            {
+              "en": "**A new scene, and three blocks — one of them new.** Create the scene and **delete the `Main Camera`**. Then `Meta XR Tools > Building Blocks` and drag in **Camera Rig**, **Interaction Rig** and, new today, **Passthrough**. Then build somewhere to move: **add a cube and create a floor** (`GameObject > 3D Object > Plane`). Without a floor there is nowhere to teleport and step 5 has nothing to work on.",
+              "es": "**Escena nueva y tres bloques, uno de ellos nuevo.** Cread la escena y **borrad la `Main Camera`**. Después `Meta XR Tools > Building Blocks` y arrastrad **Camera Rig**, **Interaction Rig** y, nuevo hoy, **Passthrough**. Y construid un sitio por donde moverse: **añadid un cubo y cread un suelo** (`GameObject > 3D Object > Plane`). Sin suelo no hay a dónde teletransportarse y el paso 5 se queda sin nada.",
+              "ca": "**Escena nova i tres blocs, un d'ells nou.** Creeu l'escena i **esborreu la `Main Camera`**. Després `Meta XR Tools > Building Blocks` i arrossegueu **Camera Rig**, **Interaction Rig** i, nou avui, **Passthrough**. I construïu un lloc per on moure's: **afegiu un cub i creeu un terra** (`GameObject > 3D Object > Plane`). Sense terra no hi ha on teletransportar-se i el pas 5 es queda sense res."
+            },
+            {
+              "en": "**Teleport on a plane.** Go to **`OVRInteractionComprehensive`**, **right-click** → **Interaction SDK**, change the interaction type to **Plane** and press **Create**. If a warning appears first, press **Fix All** and then Create. The plane is what you teleport ONTO, so if pointing at the ground does nothing, come back here — and check the floor has a collider.",
+              "es": "**Teleport sobre un plano.** Id a **`OVRInteractionComprehensive`**, **clic derecho** → **Interaction SDK**, cambiad el tipo de interacción a **Plane** y pulsad **Create**. Si sale un aviso antes, pulsad **Fix All** y después Create. El plano es aquello a lo que te teletransportas, así que si apuntar al suelo no hace nada, volved aquí — y comprobad que el suelo tiene collider.",
+              "ca": "**Teleport sobre un pla.** Aneu a **`OVRInteractionComprehensive`**, **clic dret** → **Interaction SDK**, canvieu el tipus d’interacció a **Plane** i premeu **Create**. Si surt un avís abans, premeu **Fix All** i després Create. El pla és allò on et teletransportes, així que si apuntar al terra no fa res, torneu aquí — i comproveu que el terra té collider."
+            },
+            {
+              "en": "**Swap the controller mode, on BOTH sides.** In the left *and* the right interactors: **disable** `ControllerSliderInteraction` and **enable** `TeleportControllerInteraction`. Doing only one side is the commonest mistake here, and it gives you one hand that teleports and one that slides — which reads as an SDK bug rather than a checkbox you missed.",
+              "es": "**Cambiad el modo del mando, en LOS DOS lados.** En el interactor izquierdo *y* en el derecho: **desactivad** `ControllerSliderInteraction` y **activad** `TeleportControllerInteraction`. Hacerlo en un solo lado es el error más común aquí, y deja una mano que se teletransporta y otra que se desliza — que se lee como un fallo del SDK en vez de como una casilla que se os pasó.",
+              "ca": "**Canvieu el mode del comandament, als DOS costats.** A l'interactor esquerre *i* al dret: **desactiveu** `ControllerSliderInteraction` i **activeu** `TeleportControllerInteraction`. Fer-ho en un sol costat és l'error més comú aquí, i deixa una mà que es teletransporta i una altra que llisca — que es llegeix com una fallada del SDK i no com una casella que se us va passar."
+            },
+            {
+              "en": "**The button that switches mode.** Passthrough is already in the scene from step 4. Add the Building Block **Controller Buttons Mapper** → **Add a Button Click action** → in the **input manager** pick a button → add a **callback** and drag the **passthrough GameObject** in → `enabled` → **false**. **Repeat with a second button** with `enabled` → **true**, so you can come back. *Optional, and it is what makes it feel finished:* on the passthrough button also set the locomotion GameObjects to `SetActive > false`, and back to **true** on the VR one — standing in your real room, sliding makes no sense.",
+              "es": "**El botón que cambia de modo.** El passthrough ya está en la escena desde el paso 4. Añadid el Building Block **Controller Buttons Mapper** → **Add a Button Click action** → en el **input manager** elegid un botón → añadid un **callback** y arrastrad el **GameObject del passthrough** → `enabled` → **false**. **Repetid con un segundo botón** con `enabled` → **true**, para poder volver. *Opcional, y es lo que lo deja acabado:* en el botón de passthrough poned también los GameObjects de locomoción a `SetActive > false`, y de vuelta a **true** en el de VR — de pie en vuestra aula real, deslizarse no tiene sentido.",
+              "ca": "**El botó que canvia de mode.** El passthrough ja és a l'escena des del pas 4. Afegiu el Building Block **Controller Buttons Mapper** → **Add a Button Click action** → a l'**input manager** trieu un botó → afegiu un **callback** i arrossegueu el **GameObject del passthrough** → `enabled` → **false**. **Repetiu amb un segon botó** amb `enabled` → **true**, per poder tornar. *Opcional, i és el que ho deixa acabat:* al botó de passthrough poseu també els GameObjects de locomoció a `SetActive > false`, i de nou a **true** al de VR — drets a la vostra aula real, lliscar no té sentit."
+            },
+            {
+              "en": "**Build and install.** `File > Build Settings` → your scene in **Scenes In Build**. Headset on **USB-C**, developer mode on, **Always allow USB debugging** accepted. **Option A:** `File > Build Profiles` → **Android** (or Meta Quest) → **Run Device** → **Refresh** → your Quest 3 → **Build And Run**. **Option B, if it never appears:** **Meta Quest Developer Hub** → **Add Build** → your `.apk` → **Library > Unknown Sources**. Test everything in the build: teleport, turn, slide and both buttons.",
+              "es": "**Build e instalación.** `File > Build Settings` → vuestra escena en **Scenes In Build**. Visor por **USB-C**, modo desarrollador activado, **Always allow USB debugging** aceptado. **Opción A:** `File > Build Profiles` → **Android** (o Meta Quest) → **Run Device** → **Refresh** → vuestra Quest 3 → **Build And Run**. **Opción B, si no aparece nunca:** **Meta Quest Developer Hub** → **Add Build** → vuestro `.apk` → **Library > Unknown Sources**. Probadlo todo en la build: teleport, turn, slide y los dos botones.",
+              "ca": "**Build i instal·lació.** `File > Build Settings` → la vostra escena a **Scenes In Build**. Visor per **USB-C**, mode desenvolupador activat, **Always allow USB debugging** acceptat. **Opció A:** `File > Build Profiles` → **Android** (o Meta Quest) → **Run Device** → **Refresh** → la vostra Quest 3 → **Build And Run**. **Opció B, si no apareix mai:** **Meta Quest Developer Hub** → **Add Build** → el vostre `.apk` → **Library > Unknown Sources**. Proveu-ho tot a la build: teleport, turn, slide i els dos botons."
+            }
           ],
-          "deliverable": "APK por grupo. Tiene que funcionar solo con manos desde el arranque, sin mandos."
+          "steps_note": {
+            "en": "Marc's numbering. 1-4 are the recap from exercise 1; the new work starts at 5.",
+            "es": "La numeración de Marc. Del 1 al 4 es el repaso del ejercicio 1; lo nuevo empieza en el 5.",
+            "ca": "La numeració d'en Marc. De l'1 al 4 és el repàs de l'exercici 1; el que és nou comença al 5."
+          }
         }
-      ]
+      ],
+      "slides": {
+        "type": "canva",
+        "source": "https://www.canva.com/design/DAHYkzerEYs/SWALBITafkXa49sDADIJ-g/view?embed"
+      },
+      "bibliography": "content/bibliography/w2-pre-03.md"
     },
     {
       "id": "w2-04",
