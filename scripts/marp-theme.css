@@ -121,15 +121,44 @@ section blockquote {
   color: #fff;
 }
 
+/**
+ * Tables.
+ *
+ * THE ROW BACKGROUND HAS TO BE OVERRIDDEN, AND THAT IS THE WHOLE BUG. The
+ * imported default theme zebra-stripes every table for a WHITE deck:
+ *
+ *   section table tr            { background-color: var(--bgColor-default) }
+ *   section table tr:nth-child(2n) { background-color: var(--bgColor-muted) }
+ *
+ * Both of those resolve to near-white, so on this dark ground the pale
+ * `--xri-ink` text landed on a pale band and vanished — reported as "no se
+ * lee" off the locomotion table, the first table any deck had used. Styling
+ * `th`/`td` is not enough: the colour that was winning lives on the ROW.
+ *
+ * These selectors match the default's exactly, so they win on order alone —
+ * this file is appended after the import. If a future Marp bumps that theme,
+ * check the `tr` rule first.
+ */
 section table {
   font-size: 0.8em;
   border-collapse: collapse;
+}
+
+section table tr {
+  background: transparent;
+  border-top: 0;
+}
+
+/* A stripe dark enough to read over, instead of the default's near-white. */
+section table tr:nth-child(2n) {
+  background: rgb(255 255 255 / 0.05);
 }
 
 section th,
 section td {
   border: 2px solid rgb(255 255 255 / 0.14);
   padding: 0.32em 0.6em;
+  color: var(--xri-ink);
 }
 
 section th {
