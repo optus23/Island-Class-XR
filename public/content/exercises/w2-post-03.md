@@ -8,7 +8,7 @@ paginate: true
 
 # Ejercicio 3 · Mixed reality libre
 
-**Bloque 2 — Meta Building Blocks** · entrega evaluable
+**Bloque 2: Meta Building Blocks** · entrega evaluable
 (este ejercicio es el de **más peso** del bloque)
 **Por grupo** · **Entrega: build (APK)** · **Se empieza en clase y se termina en casa**
 
@@ -28,8 +28,8 @@ habitación**, con sus paredes, su sofá y su mesa.
 Elegid un building block de impacto visual y usadlo para que la historia ocurra
 dentro del espacio real:
 
-- **Scene Mesh** — la malla de la habitación, con colisiones reales
-- **Effect Mesh** — la misma malla, como superficie para efectos
+- **Scene Mesh**: la malla de la habitación, con colisiones reales
+- **Effect Mesh**: la misma malla, como superficie para efectos
 - también valen *Room Guardian*, detección de objetos y lo que encontréis en el
   catálogo
 
@@ -62,6 +62,6 @@ blocks usados.
 
 ## Cómo se evalúa
 
-El uso real de la malla —no basta con dibujarla—, que aguante en una sala que no
+El uso real de la malla (no basta con dibujarla), que aguante en una sala que no
 es la vuestra, y la narrativa. Es el ejercicio de mayor peso del bloque.
 

@@ -11,7 +11,7 @@ paginate: true
 Crea una app d'AR amb Unity AR Foundation
 que instanciï **una solució 3D per encarar el blue goblin**
 
-**Bloc 1 — AR Foundation** · **Individual** · vuit passos, sense codi
+**Bloc 1: AR Foundation** · **Individual** · vuit passos, sense codi
 
 ---
 
@@ -50,7 +50,7 @@ Settings, i estaràs depurant el que no toca. Afegeix-lo des d'Unity Hub →
 ## Pas 2 · Paquets, i després plataforma
 
 `Window > Package Manager`, canvia el desplegable a **Packages: In Project**, i
-comprova que tot està actualitzat — en particular **AR Foundation** i el
+comprova que tot està actualitzat: en particular **AR Foundation** i el
 **Google ARCore XR Plugin** (o **Apple ARKit XR Plugin**).
 
 Després `File > Build Settings` → selecciona **Android** (o **iOS**) →
@@ -71,7 +71,7 @@ quan ja hi siguin el teu model i les seves textures.
 - **Minimum API Level → 24** (Android 7.0) · a iOS, versió mínima **11**
 
 **ARCore no funciona amb Vulkan.** Deixa'l a la llista de Graphics APIs i l'app
-compila, s'instal·la, obre — i mostra una **pantalla negra**, sense cap error
+compila, s'instal·la, obre, i mostra una **pantalla negra**, sense cap error
 enlloc. És l'errada més difícil de diagnosticar del dia, i és una casella.
 
 ---
@@ -97,7 +97,7 @@ res**.
 Dos motius, i el segon és l'important:
 
 1. Si el mòbil, el cable, la depuració USB o els mòduls no encaixen, te
-   n'assabentes ara — sense res teu al projecte a qui culpar.
+   n'assabentes ara: sense res teu al projecte a qui culpar.
 2. La demo de la plantilla **és** allò que modificaràs. Toca-hi, instancia els
    cubs, obre el menú d'objectes. Hi afegiràs un element, i ajuda haver-lo fet
    servir abans.
@@ -109,22 +109,22 @@ Dos motius, i el segon és l'important:
 Cinc coses que val la pena reconèixer a la Hierarchy, perquè les obriràs d'aquí
 a un moment:
 
-- **AR Session** — el cicle de vida de l'app d'AR: plane detection, image
+- **AR Session**, el cicle de vida de l'app d'AR: plane detection, image
   tracking, raycasts, meshing, point clouds.
-- **XR Origin** *(AR Session Origin)* — converteix les coordenades de la sessió
+- **XR Origin** *(AR Session Origin)*: converteix les coordenades de la sessió
   AR en coordenades de món d'Unity.
-- **AR Camera Manager** — auto focus, light estimation, i **Facing Direction**:
+- **AR Camera Manager**, auto focus, light estimation, i **Facing Direction**:
   cap al món, o cap a l'usuari.
-- **Tracked Pose Driver** — converteix el moviment real de la càmera en
+- **Tracked Pose Driver**: converteix el moviment real de la càmera en
   moviment de la càmera de l'escena.
-- **AR Input Manager** — segueix l'entrada de l'usuari.
+- **AR Input Manager**: segueix l'entrada de l'usuari.
 
 ---
 
 ## Pas 5 · El teu prefab
 
 A `Assets > MobileARTemplateAssets > Prefabs`, **duplica `CubeVariant`** i
-reanomena'l amb el nom del teu objecte. (També en pots fer un de zero — només
+reanomena'l amb el nom del teu objecte. (També en pots fer un de zero, només
 cal que tingui la mateixa estructura.)
 
 Obre'l, i dins del seu fill **`Visuals`**:
@@ -140,7 +140,7 @@ Obre'l, i dins del seu fill **`Visuals`**:
 **Posa el pivot del pare al terra del model.**
 
 Aquest pivot és el punt que el spawner col·loca sobre el pla detectat. Si és al
-mig del mesh —que és on sol ser en un model importat— mig objecte acaba enterrat
+mig del mesh (que és on sol ser en un model importat), mig objecte acaba enterrat
 a la taula i l'altra meitat surant.
 
 L'arreglo és el mateix que arregla gairebé tots els problemes de model: fica el
@@ -152,7 +152,7 @@ del pare, i fes servir el pare com a prefab.
 ## Pas 6 · Object Spawner
 
 Desplega el prefab **XR Origin** a la Hierarchy. A dins hi ha un GameObject
-anomenat **`Object Spawner`** — selecciona'l i mira l'Inspector.
+anomenat **`Object Spawner`**: selecciona'l i mira l'Inspector.
 
 El seu script **Object Spawner** guarda tots els prefabs que la demo pot
 instanciar, a la llista **Object Prefabs**. Prem **+** per afegir un element
@@ -195,13 +195,13 @@ torna aquí i compta la llista un altre cop.
 
 `File > Build Settings`:
 
-- comprova que la teva escena és a la llista **Scenes In Build** — *Add Open
+- comprova que la teva escena és a la llista **Scenes In Build**, *Add Open
   Scenes* si no hi és;
 - prem **Build** i tria una carpeta de destinació.
 
 Aquest és el teu APK. Instal·la'l al mòbil.
 
-Prova'l sobre una **superfície real amb una mica de textura** — una taula amb
+Prova'l sobre una **superfície real amb una mica de textura**, una taula amb
 coses a sobre, no un escriptori blanc i llis. ARCore troba plans seguint feature
 points, i una superfície llisa i uniforme no li dóna res on agafar-se.
 

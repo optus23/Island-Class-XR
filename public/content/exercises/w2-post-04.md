@@ -1,4 +1,4 @@
-# PLACEHOLDER — sesión 4 (Building Blocks, después del parcial)
+# PLACEHOLDER: sesión 4 (Building Blocks, después del parcial)
 
 > **PLACEHOLDER.** Escribe aquí el enunciado de los ejercicios.
 > Este archivo es Markdown normal: se renderiza tal cual en el portal del nivel.

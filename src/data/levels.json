@@ -17,7 +17,7 @@
     {
       "id": "w1-01",
       "title": {
-        "en": "Course introduction and the reality–virtuality continuum",
+        "en": "Course introduction and the reality-virtuality continuum",
         "es": "Introducción a la asignatura y continuo realidad-virtualidad",
         "ca": "Introducció a l'assignatura i continu realitat-virtualitat"
       },
@@ -26,7 +26,7 @@
       "category": "theory",
       "optional": false,
       "summary": {
-        "en": "Group activity: introductions · Course introduction · History of the Reality–Virtuality Continuum · Immersive virtual environments · Group activity: VR play session",
+        "en": "Group activity: introductions · Course introduction · History of the Reality-Virtuality Continuum · Immersive virtual environments · Group activity: VR play session",
         "es": "Dinámica de grupo: presentaciones · Introducción a la asignatura · Historia del Reality-Virtuality Continuum · Entornos virtuales inmersivos · Dinámica de grupo: VR play session",
         "ca": "Dinàmica de grup: Presentacions · Introducció Assignatura · Història del Reality-Virtuality Continuum · Immersive virtual environments · Dinàmica de grup: VR Play Session"
       },
@@ -42,7 +42,7 @@
           "ca": "Introducció Assignatura"
         },
         {
-          "en": "History of the Reality–Virtuality Continuum",
+          "en": "History of the Reality-Virtuality Continuum",
           "es": "Historia del Reality-Virtuality Continuum",
           "ca": "Història del Reality-Virtuality Continuum"
         },
@@ -76,9 +76,9 @@
       "category": "practical",
       "optional": false,
       "summary": {
-        "en": "News! VR/MR news · Brief walkthrough (1-1) · AR Foundation pillars · In-class activity: 1. AR Foundation — Plane Detection",
-        "es": "News! Noticias VR/MR · Presentación del enunciado (1-1) · Pilares de AR Foundation · Actividad en clase: 1. AR Foundation — Plane Detection",
-        "ca": "News! Notícies VR/MR · Presentació Enunciat (1-1) · Pilars AR Foundation · Activitat a classe: 1. AR Foundation — Plane Detection"
+        "en": "News! VR/MR news · Brief walkthrough (1-1) · AR Foundation pillars · In-class activity: 1. AR Foundation, Plane Detection",
+        "es": "News! Noticias VR/MR · Presentación del enunciado (1-1) · Pilares de AR Foundation · Actividad en clase: 1. AR Foundation, Plane Detection",
+        "ca": "News! Notícies VR/MR · Presentació Enunciat (1-1) · Pilars AR Foundation · Activitat a classe: 1. AR Foundation, Plane Detection"
       },
       "contents": [
         {
@@ -97,9 +97,9 @@
           "ca": "Pilars AR Foundation"
         },
         {
-          "en": "In-class activity: 1. AR Foundation — Plane Detection",
-          "es": "Actividad en clase: 1. AR Foundation — Plane Detection",
-          "ca": "Activitat a classe: 1. AR Foundation — Plane Detection"
+          "en": "In-class activity: 1. AR Foundation, Plane Detection",
+          "es": "Actividad en clase: 1. AR Foundation, Plane Detection",
+          "ca": "Activitat a classe: 1. AR Foundation, Plane Detection"
         }
       ],
       "block": {
@@ -116,20 +116,20 @@
           "id": "w1-arf-01-t1",
           "type": "objective-task",
           "objective": {
-            "en": "Create an augmented reality app with Unity AR Foundation that spawns a 3D object of your own choosing onto a detected plane — your solution for dealing with the blue goblin. You start from Unity's **AR Mobile** template, so there is no code to write today: prefabs, the Inspector, and one button.",
+            "en": "Create an augmented reality app with Unity AR Foundation that spawns a 3D object of your own choosing onto a detected plane, your solution for dealing with the blue goblin. You start from Unity's **AR Mobile** template, so there is no code to write today: prefabs, the Inspector, and one button.",
             "es": "Crea una app de realidad aumentada con Unity AR Foundation que instancie sobre un plano detectado un objeto 3D elegido por ti: tu solución para lidiar con el blue goblin. Partes de la plantilla **AR Mobile** de Unity, así que hoy no hay que escribir código: prefabs, el Inspector y un botón.",
             "ca": "Crea una app de realitat augmentada amb Unity AR Foundation que instanciï sobre un pla detectat un objecte 3D triat per tu: la teva solució per encarar el blue goblin. Parteixes de la plantilla **AR Mobile** d'Unity, així que avui no cal escriure codi: prefabs, l'Inspector i un botó."
           },
           "starting_point": {
-            "en": "A Unity **2022 LTS** install with the **Android Build Support** module (or **iOS Build Support**), your own phone with a data cable, and a 3D model you like. The template already carries the spawning logic — you will not be writing scripts.",
+            "en": "A Unity **2022 LTS** install with the **Android Build Support** module (or **iOS Build Support**), your own phone with a data cable, and a 3D model you like. The template already carries the spawning logic, you will not be writing scripts.",
             "es": "Una instalación de Unity **2022 LTS** con el módulo **Android Build Support** (o **iOS Build Support**), tu propio móvil con cable de datos, y un modelo 3D que te guste. La plantilla ya trae la lógica de instanciado: no vas a escribir scripts.",
             "ca": "Una instal·lació d'Unity **2022 LTS** amb el mòdul **Android Build Support** (o **iOS Build Support**), el teu mòbil amb cable de dades, i un model 3D que t'agradi. La plantilla ja porta la lògica d'instanciació: no escriuràs scripts."
           },
           "steps": [
             {
-              "en": "**Unity Hub → New project → the `AR Mobile` template** (under *Core*). Check your Editor first: **2022 LTS**, with the **Android** module installed — OpenJDK and Android SDK & NDK Tools — or **iOS Build Support**. Without the module the platform does not even appear later on.",
-              "es": "**Unity Hub → New project → la plantilla `AR Mobile`** (en *Core*). Comprueba antes tu Editor: **2022 LTS**, con el módulo **Android** instalado —OpenJDK y Android SDK & NDK Tools— o **iOS Build Support**. Sin el módulo, la plataforma ni aparece más adelante.",
-              "ca": "**Unity Hub → New project → la plantilla `AR Mobile`** (a *Core*). Comprova abans el teu Editor: **2022 LTS**, amb el mòdul **Android** instal·lat —OpenJDK i Android SDK & NDK Tools— o **iOS Build Support**. Sense el mòdul, la plataforma ni apareix més endavant."
+              "en": "**Unity Hub → New project → the `AR Mobile` template** (under *Core*). Check your Editor first: **2022 LTS**, with the **Android** module installed (OpenJDK and Android SDK & NDK Tools), or **iOS Build Support**. Without the module the platform does not even appear later on.",
+              "es": "**Unity Hub → New project → la plantilla `AR Mobile`** (en *Core*). Comprueba antes tu Editor: **2022 LTS**, con el módulo **Android** instalado (OpenJDK y Android SDK & NDK Tools), o **iOS Build Support**. Sin el módulo, la plataforma ni aparece más adelante.",
+              "ca": "**Unity Hub → New project → la plantilla `AR Mobile`** (a *Core*). Comprova abans el teu Editor: **2022 LTS**, amb el mòdul **Android** instal·lat (OpenJDK i Android SDK & NDK Tools), o **iOS Build Support**. Sense el mòdul, la plataforma ni apareix més endavant."
             },
             {
               "en": "**`Window > Package Manager` → Packages: In Project** → make sure everything is up to date, in particular **AR Foundation** and the **Google ARCore XR Plugin** (or **Apple ARKit XR Plugin**). Then `File > Build Settings` → **Android** (or **iOS**) → **Switch Platform**. Do it now: switching later reimports every asset you have added by then.",
@@ -137,7 +137,7 @@
               "ca": "**`Window > Package Manager` → Packages: In Project** → comprova que tot està actualitzat, en particular **AR Foundation** i el **Google ARCore XR Plugin** (o **Apple ARKit XR Plugin**). Després `File > Build Settings` → **Android** (o **iOS**) → **Switch Platform**. Fes-ho ara: canviar més tard reimporta tots els assets que hi hagis afegit."
             },
             {
-              "en": "**`Project Settings > Player > Other Settings`**: set the **Scripting Backend** to **IL2CPP**; untick **Auto Graphics API** and leave **OpenGLES3** as the only entry in Graphics APIs; set the **Minimum API Level** to **24** (Android 7.0) — ARCore does not run below that. On iOS, minimum version **11**. ARCore does not run on Vulkan: leave it in that list and the app installs, opens **black**, and reports nothing.",
+              "en": "**`Project Settings > Player > Other Settings`**: set the **Scripting Backend** to **IL2CPP**; untick **Auto Graphics API** and leave **OpenGLES3** as the only entry in Graphics APIs; set the **Minimum API Level** to **24** (Android 7.0), ARCore does not run below that. On iOS, minimum version **11**. ARCore does not run on Vulkan: leave it in that list and the app installs, opens **black**, and reports nothing.",
               "es": "**`Project Settings > Player > Other Settings`**: pon el **Scripting Backend** en **IL2CPP**; desmarca **Auto Graphics API** y deja **OpenGLES3** como única entrada en Graphics APIs; pon el **Minimum API Level** en **24** (Android 7.0), que es el suelo de ARCore. En iOS, versión mínima **11**. ARCore no funciona con Vulkan: si lo dejas en esa lista la app se instala, abre **en negro** y no informa de nada.",
               "ca": "**`Project Settings > Player > Other Settings`**: posa el **Scripting Backend** a **IL2CPP**; desmarca **Auto Graphics API** i deixa **OpenGLES3** com a única entrada a Graphics APIs; posa el **Minimum API Level** a **24** (Android 7.0), que és el mínim d'ARCore. A iOS, versió mínima **11**. ARCore no funciona amb Vulkan: si el deixes en aquesta llista l'app s'instal·la, obre **en negre** i no informa de res."
             },
@@ -147,22 +147,22 @@
               "ca": "**`Project Settings > XR Plug-in Management`** → pestanya Android → confirma que **Google ARCore** està marcat (**Apple ARKit** a iOS). Ser al projecte i estar activat són dues coses diferents, i aquest és el despist número u del dia."
             },
             {
-              "en": "**Your prefab.** In `Assets > MobileARTemplateAssets > Prefabs`, **duplicate `CubeVariant`** and rename it after your object. Inside its **`Visuals`** child, swap the **Mesh Filter** mesh and the **Material**, then redo the **Mesh Collider** with **Convex** ticked. **Put the parent pivot at the floor of the model** — that point is what lands on the plane, so a pivot in the middle buries half your object in the table.",
+              "en": "**Your prefab.** In `Assets > MobileARTemplateAssets > Prefabs`, **duplicate `CubeVariant`** and rename it after your object. Inside its **`Visuals`** child, swap the **Mesh Filter** mesh and the **Material**, then redo the **Mesh Collider** with **Convex** ticked. **Put the parent pivot at the floor of the model**, that point is what lands on the plane, so a pivot in the middle buries half your object in the table.",
               "es": "**Tu prefab.** En `Assets > MobileARTemplateAssets > Prefabs`, **duplica `CubeVariant`** y renómbralo con el nombre de tu objeto. Dentro de su hijo **`Visuals`**, cambia el mesh del **Mesh Filter** y el **Material**, y rehaz el **Mesh Collider** con **Convex** marcado. **Pon el pivote del padre en el suelo del modelo**: ese punto es el que aterriza en el plano, así que un pivote en el centro entierra medio objeto en la mesa.",
               "ca": "**El teu prefab.** A `Assets > MobileARTemplateAssets > Prefabs`, **duplica `CubeVariant`** i reanomena'l amb el nom del teu objecte. Dins del seu fill **`Visuals`**, canvia el mesh del **Mesh Filter** i el **Material**, i refés el **Mesh Collider** amb **Convex** marcat. **Posa el pivot del pare al terra del model**: aquest punt és el que aterra al pla, així que un pivot al centre enterra mig objecte a la taula."
             },
             {
-              "en": "**Object Spawner.** Expand the **XR Origin** prefab in the Hierarchy and select the GameObject called **`Object Spawner`**. In the Inspector its **Object Spawner** script holds the demo prefabs in the **Object Prefabs** list: press **+** to add one more element and **drag your prefab** into it. Write down the index it lands on — the next step needs it.",
+              "en": "**Object Spawner.** Expand the **XR Origin** prefab in the Hierarchy and select the GameObject called **`Object Spawner`**. In the Inspector its **Object Spawner** script holds the demo prefabs in the **Object Prefabs** list: press **+** to add one more element and **drag your prefab** into it. Write down the index it lands on, the next step needs it.",
               "es": "**Object Spawner.** Despliega el prefab **XR Origin** en la Hierarchy y selecciona el GameObject **`Object Spawner`**. En el Inspector, su script **Object Spawner** guarda los prefabs de la demo en la lista **Object Prefabs**: pulsa **+** para añadir un elemento más y **arrastra tu prefab** dentro. Apunta el índice en el que cae: el paso siguiente lo necesita.",
               "ca": "**Object Spawner.** Desplega el prefab **XR Origin** a la Hierarchy i selecciona el GameObject **`Object Spawner`**. A l'Inspector, el seu script **Object Spawner** guarda els prefabs de la demo a la llista **Object Prefabs**: prem **+** per afegir un element més i **arrossega-hi el teu prefab**. Apunta l'índex on cau: el pas següent el necessita."
             },
             {
-              "en": "**Your button.** Under `UI > Object Menu Animator > Object Menu > Scroll View > Viewport > Content`, **duplicate `Button (Cube)`** and rename it. In its **Button** component, under **On Click**, set the parameter of `ARTemplateMenuManager.SetObjectToSpawn` to **your prefab index** in the Object Prefabs list — **7** in the example, the eighth element, because the list counts from zero. Then **add a second event**: drag in the **`SelectionBox`** object, choose **GameObject.SetActive**, and tick the checkbox.",
+              "en": "**Your button.** Under `UI > Object Menu Animator > Object Menu > Scroll View > Viewport > Content`, **duplicate `Button (Cube)`** and rename it. In its **Button** component, under **On Click**, set the parameter of `ARTemplateMenuManager.SetObjectToSpawn` to **your prefab index** in the Object Prefabs list, **7** in the example, the eighth element, because the list counts from zero. Then **add a second event**: drag in the **`SelectionBox`** object, choose **GameObject.SetActive**, and tick the checkbox.",
               "es": "**Tu botón.** En `UI > Object Menu Animator > Object Menu > Scroll View > Viewport > Content`, **duplica `Button (Cube)`** y renómbralo. En su componente **Button**, dentro de **On Click**, pon el parámetro de `ARTemplateMenuManager.SetObjectToSpawn` con **el índice de tu prefab** en la lista Object Prefabs: **7** en el ejemplo, el octavo elemento, porque la lista cuenta desde cero. Después **añade un segundo evento**: arrastra el objeto **`SelectionBox`**, elige **GameObject.SetActive** y marca la casilla.",
               "ca": "**El teu botó.** A `UI > Object Menu Animator > Object Menu > Scroll View > Viewport > Content`, **duplica `Button (Cube)`** i reanomena'l. Al seu component **Button**, dins d'**On Click**, posa el paràmetre de `ARTemplateMenuManager.SetObjectToSpawn` amb **l'índex del teu prefab** a la llista Object Prefabs: **7** a l'exemple, el vuitè element, perquè la llista compta des de zero. Després **afegeix un segon esdeveniment**: arrossega l'objecte **`SelectionBox`**, tria **GameObject.SetActive** i marca la casella."
             },
             {
-              "en": "**Build the APK.** `File > Build Settings` → check your scene is in the **Scenes In Build** list (*Add Open Scenes* if it is not) → **Build**, and pick a destination folder. Install the APK on your phone and try it on a real surface with some texture to it — a bare, uniform table gives ARCore nothing to hold on to.",
+              "en": "**Build the APK.** `File > Build Settings` → check your scene is in the **Scenes In Build** list (*Add Open Scenes* if it is not) → **Build**, and pick a destination folder. Install the APK on your phone and try it on a real surface with some texture to it, a bare, uniform table gives ARCore nothing to hold on to.",
               "es": "**Haz el APK.** `File > Build Settings` → comprueba que tu escena está en la lista **Scenes In Build** (*Add Open Scenes* si no lo está) → **Build**, y elige una carpeta de destino. Instala el APK en tu móvil y pruébalo sobre una superficie real con algo de textura: una mesa lisa y uniforme no le da a ARCore nada a lo que agarrarse.",
               "ca": "**Fes l'APK.** `File > Build Settings` → comprova que la teva escena és a la llista **Scenes In Build** (*Add Open Scenes* si no hi és) → **Build**, i tria una carpeta de destinació. Instal·la l'APK al mòbil i prova'l sobre una superfície real amb una mica de textura: una taula llisa i uniforme no li dóna a ARCore res on agafar-se."
             }
@@ -187,7 +187,7 @@
       "category": "theory",
       "optional": false,
       "summary": {
-        "en": "Kahoot! Last week's recap · Devices for virtual environments · Vergence–accommodation conflict · Tracking systems · Spatial computing & AR cloud · In-class activity: Mono/Stereoscopic explained",
+        "en": "Kahoot! Last week's recap · Devices for virtual environments · Vergence-accommodation conflict · Tracking systems · Spatial computing & AR cloud · In-class activity: Mono/Stereoscopic explained",
         "es": "Kahoot! Repaso de la semana pasada · Dispositivos para entornos virtuales · Conflicto de vergencia-acomodación · Sistemas de tracking · Spatial computing y AR cloud · Actividad en clase: explicación Mono/Stereoscopic",
         "ca": "Kahoot! Repàs setmana passada · Dispositius per a Entorns Virtuals · Conflicte Vergència Acomodació · Tracking Systems · Spatial Computing & AR Cloud · Activitat a classe: Explicació Mono/Stereoscopic"
       },
@@ -203,7 +203,7 @@
           "ca": "Dispositius per a Entorns Virtuals"
         },
         {
-          "en": "Vergence–accommodation conflict",
+          "en": "Vergence-accommodation conflict",
           "es": "Conflicto de vergencia-acomodación",
           "ca": "Conflicte Vergència Acomodació"
         },
@@ -265,14 +265,14 @@
           "id": "w1-att-01-t1",
           "type": "objective-task",
           "objective": {
-            "en": "Record the same 360° shot twice from Unity — once monoscopic, once stereoscopic — and watch both in a Meta Quest 3 to see what stereoscopy actually adds.",
-            "es": "Graba dos veces la misma toma 360° desde Unity —una monoscópica y otra estereoscópica— y míralas las dos en unas Meta Quest 3 para ver qué añade de verdad la estereoscopía.",
-            "ca": "Grava dues vegades la mateixa presa 360° des d'Unity —una de monoscòpica i una d'estereoscòpica— i mira-les totes dues amb unes Meta Quest 3 per veure què hi afegeix de debò l'estereoscòpia."
+            "en": "Record the same 360° shot twice from Unity (once monoscopic, once stereoscopic), and watch both in a Meta Quest 3 to see what stereoscopy actually adds.",
+            "es": "Graba dos veces la misma toma 360° desde Unity (una monoscópica y otra estereoscópica), y míralas las dos en unas Meta Quest 3 para ver qué añade de verdad la estereoscopía.",
+            "ca": "Grava dues vegades la mateixa presa 360° des d'Unity (una de monoscòpica i una d'estereoscòpica), i mira-les totes dues amb unes Meta Quest 3 per veure què hi afegeix de debò l'estereoscòpia."
           },
           "starting_point": {
-            "en": "Unity with the **3D (Built-In Render Pipeline)** template — stereo 360 does not work on URP or HDRP. A Meta Quest 3, and a YouTube account if you take the YouTube route.",
-            "es": "Unity con la plantilla **3D (Built-In Render Pipeline)** — el 360 en estéreo no funciona con URP ni HDRP. Unas Meta Quest 3, y una cuenta de YouTube si eliges esa vía.",
-            "ca": "Unity amb la plantilla **3D (Built-In Render Pipeline)** — el 360 en estèreo no funciona amb URP ni HDRP. Unes Meta Quest 3, i un compte de YouTube si tries aquesta via."
+            "en": "Unity with the **3D (Built-In Render Pipeline)** template, stereo 360 does not work on URP or HDRP. A Meta Quest 3, and a YouTube account if you take the YouTube route.",
+            "es": "Unity con la plantilla **3D (Built-In Render Pipeline)**, el 360 en estéreo no funciona con URP ni HDRP. Unas Meta Quest 3, y una cuenta de YouTube si eliges esa vía.",
+            "ca": "Unity amb la plantilla **3D (Built-In Render Pipeline)**, el 360 en estèreo no funciona amb URP ni HDRP. Unes Meta Quest 3, i un compte de YouTube si tries aquesta via."
           },
           "steps": [
             {
@@ -311,7 +311,7 @@
               "ca": "Posa **Output Dimensions** a **4096 × 2048** i deixa **Cube Map Size** a **2048**."
             },
             {
-              "en": "Leave **Record in Stereo** unchecked — this first take is the monoscopic one.",
+              "en": "Leave **Record in Stereo** unchecked, this first take is the monoscopic one.",
               "es": "Deja **Record in Stereo** sin marcar: esta primera toma es la monoscópica.",
               "ca": "Deixa **Record in Stereo** sense marcar: aquesta primera presa és la monoscòpica."
             },
@@ -336,7 +336,7 @@
               "ca": "Assegura't que l'escena té objectes **a prop i lluny** de la càmera."
             },
             {
-              "en": "Press **START RECORDING** and move the camera through the scene — slowly, and **without ever rotating it**.",
+              "en": "Press **START RECORDING** and move the camera through the scene, slowly, and **without ever rotating it**.",
               "es": "Pulsa **START RECORDING** y mueve la cámara por la escena: despacio, y **sin rotarla en ningún momento**.",
               "ca": "Prem **START RECORDING** i mou la càmera per l'escena: a poc a poc, i **sense girar-la en cap moment**."
             },
@@ -351,9 +351,9 @@
               "ca": "Descarrega el **Spatial Media Metadata Injector** i injecta les metadades: *spherical* als dos fitxers, i a més *stereoscopic 3D (top/bottom)* a l'estèreo."
             },
             {
-              "en": "Upload both to YouTube — or copy them onto the headset — and **compare them on the Quest 3**.",
-              "es": "Sube los dos a YouTube —o cópialos a las gafas— y **compáralos en las Quest 3**.",
-              "ca": "Puja'ls tots dos a YouTube —o copia'ls a les ulleres— i **compara'ls a les Quest 3**."
+              "en": "Upload both to YouTube (or copy them onto the headset), and **compare them on the Quest 3**.",
+              "es": "Sube los dos a YouTube (o cópialos a las gafas), y **compáralos en las Quest 3**.",
+              "ca": "Puja'ls tots dos a YouTube (o copia'ls a les ulleres), i **compara'ls a les Quest 3**."
             }
           ],
           "deliverable": {
@@ -367,20 +367,20 @@
       "slidesLabelKey": "portal.activity",
       "handIn": {
         "note": {
-          "en": "The exercise invites you to use Unity Engine and its Recorder package, but you may use any other software to render the two 360 videos — monoscopic and stereoscopic — with their spatial metadata. This activity forms part of the attitude and participation assessment.\n\nPlease share the YouTube links in the hand-in folder.",
-          "es": "El ejercicio propone usar Unity Engine y su paquete Recorder, pero puedes usar cualquier otro software para renderizar los dos vídeos 360 — monoscópico y estereoscópico — con sus metadatos espaciales. Esta actividad forma parte de la evaluación de actitud y participación.\n\nPor favor, comparte los enlaces de YouTube en la carpeta de entrega.",
+          "en": "The exercise invites you to use Unity Engine and its Recorder package, but you may use any other software to render the two 360 videos (monoscopic and stereoscopic), with their spatial metadata. This activity forms part of the attitude and participation assessment.\n\nPlease share the YouTube links in the hand-in folder.",
+          "es": "El ejercicio propone usar Unity Engine y su paquete Recorder, pero puedes usar cualquier otro software para renderizar los dos vídeos 360 (monoscópico y estereoscópico), con sus metadatos espaciales. Esta actividad forma parte de la evaluación de actitud y participación.\n\nPor favor, comparte los enlaces de YouTube en la carpeta de entrega.",
           "ca": "L'exercici convida a utilitzar Unity Engine per fer ús del «Recorder package», però es pot fer servir un altre software per renderitzar els dos vídeos monoscòpic i estereoscòpic 360 amb metadades espacials. Aquesta activitat forma part de l'avaluació d'actitud i participació.\n\nSi us plau, comparteix els enllaços dels vídeos de YouTube a la carpeta de lliurament."
         },
         "items": [
           {
-            "en": "YouTube URL — stereo video, with the metadata injected",
-            "es": "URL de YouTube — vídeo estéreo, con los metadatos inyectados",
-            "ca": "URL de YouTube — vídeo estèreo, amb les metadades injectades"
+            "en": "YouTube URL, stereo video, with the metadata injected",
+            "es": "URL de YouTube, vídeo estéreo, con los metadatos inyectados",
+            "ca": "URL de YouTube, vídeo estèreo, amb les metadades injectades"
           },
           {
-            "en": "YouTube URL — mono video, with the metadata injected",
-            "es": "URL de YouTube — vídeo mono, con los metadatos inyectados",
-            "ca": "URL de YouTube — vídeo mono, amb les metadades injectades"
+            "en": "YouTube URL, mono video, with the metadata injected",
+            "es": "URL de YouTube, vídeo mono, con los metadatos inyectados",
+            "ca": "URL de YouTube, vídeo mono, amb les metadades injectades"
           }
         ]
       }
@@ -397,9 +397,9 @@
       "category": "practical",
       "optional": false,
       "summary": {
-        "en": "News! VR/MR news · Brief walkthrough (1-2) · Introduction to GitHub · In-class activity: 2. AR Foundation — Image Tracking",
-        "es": "News! Noticias VR/MR · Presentación del enunciado (1-2) · Introducción a GitHub · Actividad en clase: 2. AR Foundation — Image Tracking",
-        "ca": "News! Notícies VR/MR · Presentació Enunciat (1-2) · Introducció a GitHub · Activitat a classe: 2. AR Foundation — Image Tracking"
+        "en": "News! VR/MR news · Brief walkthrough (1-2) · Introduction to GitHub · In-class activity: 2. AR Foundation, Image Tracking",
+        "es": "News! Noticias VR/MR · Presentación del enunciado (1-2) · Introducción a GitHub · Actividad en clase: 2. AR Foundation, Image Tracking",
+        "ca": "News! Notícies VR/MR · Presentació Enunciat (1-2) · Introducció a GitHub · Activitat a classe: 2. AR Foundation, Image Tracking"
       },
       "contents": [
         {
@@ -418,9 +418,9 @@
           "ca": "Introducció a GitHub"
         },
         {
-          "en": "In-class activity: 2. AR Foundation — Image Tracking",
-          "es": "Actividad en clase: 2. AR Foundation — Image Tracking",
-          "ca": "Activitat a classe: 2. AR Foundation — Image Tracking"
+          "en": "In-class activity: 2. AR Foundation, Image Tracking",
+          "es": "Actividad en clase: 2. AR Foundation, Image Tracking",
+          "ca": "Activitat a classe: 2. AR Foundation, Image Tracking"
         }
       ],
       "block": {
@@ -437,9 +437,9 @@
           "id": "w1-arf-02-t1",
           "type": "objective-task",
           "objective": {
-            "en": "Create an image tracking app with Unity AR Foundation that spawns a 3D object of your own choosing on top of a detected marker — your solution for dealing with the green goblins. You build the scene yourself this time, starting from the AR Mobile template, and you still write no code: everything happens in the Inspector.",
-            "es": "Crea una app de image tracking con Unity AR Foundation que instancie sobre un marcador detectado un objeto 3D que elijas tú — tu solución para lidiar con los green goblins. Esta vez la escena la montas tú, partiendo de la plantilla AR Mobile, y sigues sin escribir código: todo pasa en el Inspector.",
-            "ca": "Crea una app d'image tracking amb Unity AR Foundation que instanciï sobre un marcador detectat un objecte 3D que triïs tu — la teva solució per encarar els green goblins. Aquesta vegada l'escena la muntes tu, partint de la plantilla AR Mobile, i continues sense escriure codi: tot passa a l'Inspector."
+            "en": "Create an image tracking app with Unity AR Foundation that spawns a 3D object of your own choosing on top of a detected marker, your solution for dealing with the green goblins. You build the scene yourself this time, starting from the AR Mobile template, and you still write no code: everything happens in the Inspector.",
+            "es": "Crea una app de image tracking con Unity AR Foundation que instancie sobre un marcador detectado un objeto 3D que elijas tú, tu solución para lidiar con los green goblins. Esta vez la escena la montas tú, partiendo de la plantilla AR Mobile, y sigues sin escribir código: todo pasa en el Inspector.",
+            "ca": "Crea una app d'image tracking amb Unity AR Foundation que instanciï sobre un marcador detectat un objecte 3D que triïs tu, la teva solució per encarar els green goblins. Aquesta vegada l'escena la muntes tu, partint de la plantilla AR Mobile, i continues sense escriure codi: tot passa a l'Inspector."
           },
           "starting_point": {
             "en": "A Unity **2022 LTS** install with the **Android Build Support** module, the **AR Mobile** template from Unity Hub, an image to use as a marker, and a 3D model you like. You will test inside the **XR Simulator**, so you do not need to print the marker to get the exercise working.",
@@ -448,9 +448,9 @@
           },
           "steps": [
             {
-              "en": "**Unity Hub → New project → the `AR Mobile` template** (under *Core*). Before that, check your Editor has the **Android** module installed — Unity Hub → *Installs* → **Add modules** → *Android Build Support*, with **OpenJDK** and **Android SDK & NDK Tools** inside it. Without it, Android will not even appear in Build Settings in the next step.",
-              "es": "**Unity Hub → New project → plantilla `AR Mobile`** (dentro de *Core*). Antes, comprueba que tu Editor tiene el módulo de **Android** instalado — Unity Hub → *Installs* → **Add modules** → *Android Build Support*, con **OpenJDK** y **Android SDK & NDK Tools** dentro. Sin él, en el paso siguiente Android ni siquiera aparecerá en Build Settings.",
-              "ca": "**Unity Hub → New project → plantilla `AR Mobile`** (dins de *Core*). Abans, comprova que el teu Editor té el mòdul d'**Android** instal·lat — Unity Hub → *Installs* → **Add modules** → *Android Build Support*, amb **OpenJDK** i **Android SDK & NDK Tools** a dins. Sense ell, al pas següent Android ni tan sols apareixerà a Build Settings."
+              "en": "**Unity Hub → New project → the `AR Mobile` template** (under *Core*). Before that, check your Editor has the **Android** module installed, Unity Hub → *Installs* → **Add modules** → *Android Build Support*, with **OpenJDK** and **Android SDK & NDK Tools** inside it. Without it, Android will not even appear in Build Settings in the next step.",
+              "es": "**Unity Hub → New project → plantilla `AR Mobile`** (dentro de *Core*). Antes, comprueba que tu Editor tiene el módulo de **Android** instalado, Unity Hub → *Installs* → **Add modules** → *Android Build Support*, con **OpenJDK** y **Android SDK & NDK Tools** dentro. Sin él, en el paso siguiente Android ni siquiera aparecerá en Build Settings.",
+              "ca": "**Unity Hub → New project → plantilla `AR Mobile`** (dins de *Core*). Abans, comprova que el teu Editor té el mòdul d'**Android** instal·lat, Unity Hub → *Installs* → **Add modules** → *Android Build Support*, amb **OpenJDK** i **Android SDK & NDK Tools** a dins. Sense ell, al pas següent Android ni tan sols apareixerà a Build Settings."
             },
             {
               "en": "**Platform and provider**, which are two different things. `File > Build Settings` → select **Android** → **Switch Platform**. Then `Project Settings > XR Plug-in Management` → **Android** tab → confirm the **ARCore** checkbox is ticked. Switch the platform now, while the project is still empty: it reimports every asset.",
@@ -458,9 +458,9 @@
               "ca": "**Plataforma i proveïdor**, que són dues coses diferents. `File > Build Settings` → selecciona **Android** → **Switch Platform**. Després `Project Settings > XR Plug-in Management` → pestanya **Android** → confirma que el checkbox d'**ARCore** està marcat. Canvia de plataforma ara, que el projecte encara és buit: reimporta tots els assets."
             },
             {
-              "en": "**A new scene.** Create one, **delete the `Main Camera`** object (the AR rig brings its own), and add **`AR Session`** and **`XR Origin (AR)`**. Then select the **XR Origin** and **Add Component → `AR Tracked Image Manager`**. Leave its fields empty for now — step 4 makes what goes in them.",
-              "es": "**Una escena nueva.** Créala, **borra el objeto `Main Camera`** (el rig de AR trae la suya) y añade **`AR Session`** y **`XR Origin (AR)`**. Luego selecciona el **XR Origin** y **Add Component → `AR Tracked Image Manager`**. Deja sus campos vacíos de momento — el paso 4 fabrica lo que va dentro.",
-              "ca": "**Una escena nova.** Crea-la, **esborra l'objecte `Main Camera`** (el rig d'AR porta la seva) i afegeix **`AR Session`** i **`XR Origin (AR)`**. Després selecciona l'**XR Origin** i **Add Component → `AR Tracked Image Manager`**. Deixa els seus camps buits de moment — el pas 4 fabrica el que hi va a dins."
+              "en": "**A new scene.** Create one, **delete the `Main Camera`** object (the AR rig brings its own), and add **`AR Session`** and **`XR Origin (AR)`**. Then select the **XR Origin** and **Add Component → `AR Tracked Image Manager`**. Leave its fields empty for now, step 4 makes what goes in them.",
+              "es": "**Una escena nueva.** Créala, **borra el objeto `Main Camera`** (el rig de AR trae la suya) y añade **`AR Session`** y **`XR Origin (AR)`**. Luego selecciona el **XR Origin** y **Add Component → `AR Tracked Image Manager`**. Deja sus campos vacíos de momento, el paso 4 fabrica lo que va dentro.",
+              "ca": "**Una escena nova.** Crea-la, **esborra l'objecte `Main Camera`** (el rig d'AR porta la seva) i afegeix **`AR Session`** i **`XR Origin (AR)`**. Després selecciona l'**XR Origin** i **Add Component → `AR Tracked Image Manager`**. Deixa els seus camps buits de moment, el pas 4 fabrica el que hi va a dins."
             },
             {
               "en": "**The reference image library.** In the Project window, right-click in `Assets` → **`Create > XR > Reference Image Library`**. Select the asset, press **Add Image** and drop in an ordinary texture (PNG, JPG…). **Pick one with contrast and irregular detail**: the editor scores each image as it processes it, and a low score is a marker that only tracks in perfect light.",
@@ -468,24 +468,24 @@
               "ca": "**La reference image library.** A la finestra Project, clic dret a `Assets` → **`Create > XR > Reference Image Library`**. Selecciona l'asset, prem **Add Image** i deixa-hi anar una textura normal (PNG, JPG…). **Tria'n una amb contrast i detall irregular**: l'editor puntua cada imatge mentre la processa, i una puntuació baixa és un marcador que només funciona amb llum perfecta."
             },
             {
-              "en": "**The XR Simulator.** `Window > XR > AR Foundation > XR Environment` opens a simulated room you can play the scene inside — image tracking included — so you can test without building and without printing a marker. Go to the **XR Environment** tab and **Edit Environment**; if it will not let you edit the one that is there, **duplicate the default** and edit your copy.",
-              "es": "**El XR Simulator.** `Window > XR > AR Foundation > XR Environment` abre una habitación simulada dentro de la que puedes darle al Play — image tracking incluido — así que puedes probar sin hacer build y sin imprimir ningún marcador. Ve a la pestaña **XR Environment** y a **Edit Environment**; si no te deja editar el que hay, **duplica el de por defecto** y edita tu copia.",
-              "ca": "**L'XR Simulator.** `Window > XR > AR Foundation > XR Environment` obre una habitació simulada dins de la qual pots donar-li al Play — image tracking inclòs — així que pots provar sense fer build i sense imprimir cap marcador. Ves a la pestanya **XR Environment** i a **Edit Environment**; si no et deixa editar el que hi ha, **duplica el per defecte** i edita la teva còpia."
+              "en": "**The XR Simulator.** `Window > XR > AR Foundation > XR Environment` opens a simulated room you can play the scene inside (image tracking included), so you can test without building and without printing a marker. Go to the **XR Environment** tab and **Edit Environment**; if it will not let you edit the one that is there, **duplicate the default** and edit your copy.",
+              "es": "**El XR Simulator.** `Window > XR > AR Foundation > XR Environment` abre una habitación simulada dentro de la que puedes darle al Play (image tracking incluido), así que puedes probar sin hacer build y sin imprimir ningún marcador. Ve a la pestaña **XR Environment** y a **Edit Environment**; si no te deja editar el que hay, **duplica el de por defecto** y edita tu copia.",
+              "ca": "**L'XR Simulator.** `Window > XR > AR Foundation > XR Environment` obre una habitació simulada dins de la qual pots donar-li al Play (image tracking inclòs), així que pots provar sense fer build i sense imprimir cap marcador. Ves a la pestanya **XR Environment** i a **Edit Environment**; si no et deixa editar el que hi ha, **duplica el per defecte** i edita la teva còpia."
             },
             {
-              "en": "**Your marker in the simulated room.** The environment already has an image hanging in it. Select the **`Logo Quad`** object and change its **material** to the same image you put in your library. Then set that same image on the **Simulated Tracked Image** component too — this is the one everybody forgets. The quad is what you see; the component is what the simulator actually tracks.",
-              "es": "**Tu marcador en la habitación simulada.** El entorno ya trae una imagen colgada. Selecciona el objeto **`Logo Quad`** y cámbiale el **material** por la misma imagen que pusiste en tu librería. Y pon esa misma imagen también en el componente **Simulated Tracked Image** — esto es lo que se olvida todo el mundo. El quad es lo que ves; el componente es lo que el simulador trackea de verdad.",
-              "ca": "**El teu marcador a l'habitació simulada.** L'entorn ja porta una imatge penjada. Selecciona l'objecte **`Logo Quad`** i canvia-li el **material** per la mateixa imatge que vas posar a la teva llibreria. I posa aquesta mateixa imatge també al component **Simulated Tracked Image** — això és el que oblida tothom. El quad és el que veus; el component és el que el simulador traqueja de debò."
+              "en": "**Your marker in the simulated room.** The environment already has an image hanging in it. Select the **`Logo Quad`** object and change its **material** to the same image you put in your library. Then set that same image on the **Simulated Tracked Image** component too, this is the one everybody forgets. The quad is what you see; the component is what the simulator actually tracks.",
+              "es": "**Tu marcador en la habitación simulada.** El entorno ya trae una imagen colgada. Selecciona el objeto **`Logo Quad`** y cámbiale el **material** por la misma imagen que pusiste en tu librería. Y pon esa misma imagen también en el componente **Simulated Tracked Image**, esto es lo que se olvida todo el mundo. El quad es lo que ves; el componente es lo que el simulador trackea de verdad.",
+              "ca": "**El teu marcador a l'habitació simulada.** L'entorn ja porta una imatge penjada. Selecciona l'objecte **`Logo Quad`** i canvia-li el **material** per la mateixa imatge que vas posar a la teva llibreria. I posa aquesta mateixa imatge també al component **Simulated Tracked Image**, això és el que oblida tothom. El quad és el que veus; el component és el que el simulador traqueja de debò."
             },
             {
-              "en": "**What spawns.** Back to the **XR Origin** and the **AR Tracked Image Manager** you added in step 3: drag your **reference image library** into its library field, and set the **prefab** to spawn when the image is tracked — that prefab is your answer to the green goblins, any 3D object you like. **If the marker will be moving**, raise **Max Number Of Moving Images** to at least 1; at 0 it is detected once and then stops following.",
-              "es": "**Qué se instancia.** Vuelve al **XR Origin** y al **AR Tracked Image Manager** que añadiste en el paso 3: arrastra tu **reference image library** a su campo de librería y asigna el **prefab** que debe instanciarse cuando se trackee la imagen — ese prefab es tu respuesta a los green goblins, el objeto 3D que quieras. **Si el marcador va a estar en movimiento**, sube **Max Number Of Moving Images** a 1 como mínimo; a 0 se detecta una vez y deja de seguirte.",
-              "ca": "**Què s'instancia.** Torna a l'**XR Origin** i a l'**AR Tracked Image Manager** que vas afegir al pas 3: arrossega la teva **reference image library** al seu camp de llibreria i assigna el **prefab** que s'ha d'instanciar quan es traquegi la imatge — aquest prefab és la teva resposta als green goblins, l'objecte 3D que vulguis. **Si el marcador estarà en moviment**, puja **Max Number Of Moving Images** a 1 com a mínim; a 0 es detecta un cop i deixa de seguir-te."
+              "en": "**What spawns.** Back to the **XR Origin** and the **AR Tracked Image Manager** you added in step 3: drag your **reference image library** into its library field, and set the **prefab** to spawn when the image is tracked, that prefab is your answer to the green goblins, any 3D object you like. **If the marker will be moving**, raise **Max Number Of Moving Images** to at least 1; at 0 it is detected once and then stops following.",
+              "es": "**Qué se instancia.** Vuelve al **XR Origin** y al **AR Tracked Image Manager** que añadiste en el paso 3: arrastra tu **reference image library** a su campo de librería y asigna el **prefab** que debe instanciarse cuando se trackee la imagen, ese prefab es tu respuesta a los green goblins, el objeto 3D que quieras. **Si el marcador va a estar en movimiento**, sube **Max Number Of Moving Images** a 1 como mínimo; a 0 se detecta una vez y deja de seguirte.",
+              "ca": "**Què s'instancia.** Torna a l'**XR Origin** i a l'**AR Tracked Image Manager** que vas afegir al pas 3: arrossega la teva **reference image library** al seu camp de llibreria i assigna el **prefab** que s'ha d'instanciar quan es traquegi la imatge, aquest prefab és la teva resposta als green goblins, l'objecte 3D que vulguis. **Si el marcador estarà en moviment**, puja **Max Number Of Moving Images** a 1 com a mínim; a 0 es detecta un cop i deixa de seguir-te."
             },
             {
-              "en": "**Test, then build.** Try it first in **Play Mode with the XR Simulator** — seconds, against the minutes a build costs. Then `File > Build Settings`: check your scene is in the **Scenes In Build** list (*Add Open Scenes* if it is not, and this is the step people skip), press **Build** and pick a destination folder. Install the APK on your phone and point it at the marker, on paper or on another screen.",
-              "es": "**Prueba y luego build.** Pruébalo primero en **Play Mode con el XR Simulator** — segundos, frente a los minutos que cuesta una build. Después `File > Build Settings`: comprueba que tu escena está en la lista **Scenes In Build** (*Add Open Scenes* si no está, y este es el paso que la gente se salta), pulsa **Build** y elige la carpeta de destino. Instala la APK en el móvil y apunta al marcador, en papel o en otra pantalla.",
-              "ca": "**Prova i després build.** Prova-ho primer en **Play Mode amb l'XR Simulator** — segons, contra els minuts que costa una build. Després `File > Build Settings`: comprova que la teva escena és a la llista **Scenes In Build** (*Add Open Scenes* si no hi és, i aquest és el pas que la gent es salta), prem **Build** i tria la carpeta de destinació. Instal·la l'APK al mòbil i apunta al marcador, en paper o en una altra pantalla."
+              "en": "**Test, then build.** Try it first in **Play Mode with the XR Simulator**, seconds, against the minutes a build costs. Then `File > Build Settings`: check your scene is in the **Scenes In Build** list (*Add Open Scenes* if it is not, and this is the step people skip), press **Build** and pick a destination folder. Install the APK on your phone and point it at the marker, on paper or on another screen.",
+              "es": "**Prueba y luego build.** Pruébalo primero en **Play Mode con el XR Simulator**, segundos, frente a los minutos que cuesta una build. Después `File > Build Settings`: comprueba que tu escena está en la lista **Scenes In Build** (*Add Open Scenes* si no está, y este es el paso que la gente se salta), pulsa **Build** y elige la carpeta de destino. Instala la APK en el móvil y apunta al marcador, en papel o en otra pantalla.",
+              "ca": "**Prova i després build.** Prova-ho primer en **Play Mode amb l'XR Simulator**, segons, contra els minuts que costa una build. Després `File > Build Settings`: comprova que la teva escena és a la llista **Scenes In Build** (*Add Open Scenes* si no hi és, i aquest és el pas que la gent es salta), prem **Build** i tria la carpeta de destinació. Instal·la l'APK al mòbil i apunta al marcador, en paper o en una altra pantalla."
             }
           ]
         }
@@ -562,9 +562,9 @@
       "category": "practical",
       "optional": false,
       "summary": {
-        "en": "News! VR/MR news · Brief walkthrough (1-3) · In-class activity: 3. AR Foundation — face detection, occlusion, point clouds…",
-        "es": "News! Noticias VR/MR · Presentación del enunciado (1-3) · Actividad en clase: 3. AR Foundation — face detection, occlusion, point clouds…",
-        "ca": "News! Notícies VR/MR · Presentació Enunciat (1-3) · Activitat a classe: 3. AR Foundation — Face Detection, Occlusion, Point Clouds…"
+        "en": "News! VR/MR news · Brief walkthrough (1-3) · In-class activity: 3. AR Foundation, face detection, occlusion, point clouds…",
+        "es": "News! Noticias VR/MR · Presentación del enunciado (1-3) · Actividad en clase: 3. AR Foundation, face detection, occlusion, point clouds…",
+        "ca": "News! Notícies VR/MR · Presentació Enunciat (1-3) · Activitat a classe: 3. AR Foundation, Face Detection, Occlusion, Point Clouds…"
       },
       "contents": [
         {
@@ -578,9 +578,9 @@
           "ca": "Presentació Enunciat (1-3)"
         },
         {
-          "en": "In-class activity: 3. AR Foundation — face detection, occlusion, point clouds…",
-          "es": "Actividad en clase: 3. AR Foundation — face detection, occlusion, point clouds…",
-          "ca": "Activitat a classe: 3. AR Foundation — Face Detection, Occlusion, Point Clouds…"
+          "en": "In-class activity: 3. AR Foundation, face detection, occlusion, point clouds…",
+          "es": "Actividad en clase: 3. AR Foundation, face detection, occlusion, point clouds…",
+          "ca": "Activitat a classe: 3. AR Foundation, Face Detection, Occlusion, Point Clouds…"
         }
       ],
       "slides": {
@@ -601,35 +601,35 @@
           "id": "w1-arf-03-t1",
           "type": "objective-task",
           "objective": {
-            "en": "Open Unity's official **AR Foundation Samples** project and test every feature in it — face tracking, occlusion, point clouds, anchors, plane detection and the rest. The goblin problem is solved, so the samples are yours to use. You are not integrating anything into your own project today: you are finding out what the platform can actually do, which is what block 2 starts from.",
-            "es": "Abrid el proyecto oficial de **AR Foundation Samples** de Unity y probad todas sus features — face tracking, occlusion, point clouds, anchors, plane detection y las demás. El problema del goblin está resuelto, así que los samples son vuestros. Hoy no integráis nada en vuestro proyecto: estáis descubriendo qué sabe hacer la plataforma de verdad, que es de donde arranca el bloque 2.",
-            "ca": "Obriu el projecte oficial d'**AR Foundation Samples** d'Unity i proveu-ne totes les features — face tracking, occlusion, point clouds, anchors, plane detection i la resta. El problema del goblin està resolt, així que els samples són vostres. Avui no integreu res al vostre projecte: esteu descobrint què sap fer la plataforma de debò, que és d'on arrenca el bloc 2."
+            "en": "Open Unity's official **AR Foundation Samples** project and test every feature in it, face tracking, occlusion, point clouds, anchors, plane detection and the rest. The goblin problem is solved, so the samples are yours to use. You are not integrating anything into your own project today: you are finding out what the platform can actually do, which is what block 2 starts from.",
+            "es": "Abrid el proyecto oficial de **AR Foundation Samples** de Unity y probad todas sus features, face tracking, occlusion, point clouds, anchors, plane detection y las demás. El problema del goblin está resuelto, así que los samples son vuestros. Hoy no integráis nada en vuestro proyecto: estáis descubriendo qué sabe hacer la plataforma de verdad, que es de donde arranca el bloque 2.",
+            "ca": "Obriu el projecte oficial d'**AR Foundation Samples** d'Unity i proveu-ne totes les features, face tracking, occlusion, point clouds, anchors, plane detection i la resta. El problema del goblin està resolt, així que els samples són vostres. Avui no integreu res al vostre projecte: esteu descobrint què sap fer la plataforma de debò, que és d'on arrenca el bloc 2."
           },
           "starting_point": {
-            "en": "A Unity install with the **Android Build Support** module, and the `Unity-Technologies/arfoundation-samples` repository, on the branch that matches your AR Foundation version. This activity is done as a group and closes the block, so it also takes in exercises 1 and 2. **If you did not manage to finish those**, [`github.com/pomedas/ArMobile`](https://github.com/pomedas/ArMobile) holds them solved — use it to compare against what you built, or as the starting point for the block's hand-in. Nobody should be blocked on the hand-in because exercise 1 or 2 did not come out.",
-            "es": "Una instalación de Unity con el módulo **Android Build Support**, y el repositorio `Unity-Technologies/arfoundation-samples`, en la rama que corresponda a vuestra versión de AR Foundation. Esta actividad se hace en grupo y cierra el bloque, así que engloba también los ejercicios 1 y 2. **Si no conseguisteis terminarlos**, en [`github.com/pomedas/ArMobile`](https://github.com/pomedas/ArMobile) están resueltos — usadlo para compararlo con lo que construisteis, o como punto de partida para la entrega del bloque. Nadie debería quedarse bloqueado en la entrega porque el ejercicio 1 o el 2 no salieran.",
-            "ca": "Una instal·lació d'Unity amb el mòdul **Android Build Support**, i el repositori `Unity-Technologies/arfoundation-samples`, a la branca que correspongui a la vostra versió d'AR Foundation. Aquesta activitat es fa en grup i tanca el bloc, així que engloba també els exercicis 1 i 2. **Si no els vau poder acabar**, a [`github.com/pomedas/ArMobile`](https://github.com/pomedas/ArMobile) estan resolts — feu-lo servir per comparar-lo amb el que vau construir, o com a punt de partida per a l'entrega del bloc. Ningú s'hauria de quedar encallat a l'entrega perquè l'exercici 1 o el 2 no van sortir."
+            "en": "A Unity install with the **Android Build Support** module, and the `Unity-Technologies/arfoundation-samples` repository, on the branch that matches your AR Foundation version. This activity is done as a group and closes the block, so it also takes in exercises 1 and 2. **If you did not manage to finish those**, [`github.com/pomedas/ArMobile`](https://github.com/pomedas/ArMobile) holds them solved, use it to compare against what you built, or as the starting point for the block's hand-in. Nobody should be blocked on the hand-in because exercise 1 or 2 did not come out.",
+            "es": "Una instalación de Unity con el módulo **Android Build Support**, y el repositorio `Unity-Technologies/arfoundation-samples`, en la rama que corresponda a vuestra versión de AR Foundation. Esta actividad se hace en grupo y cierra el bloque, así que engloba también los ejercicios 1 y 2. **Si no conseguisteis terminarlos**, en [`github.com/pomedas/ArMobile`](https://github.com/pomedas/ArMobile) están resueltos, usadlo para compararlo con lo que construisteis, o como punto de partida para la entrega del bloque. Nadie debería quedarse bloqueado en la entrega porque el ejercicio 1 o el 2 no salieran.",
+            "ca": "Una instal·lació d'Unity amb el mòdul **Android Build Support**, i el repositori `Unity-Technologies/arfoundation-samples`, a la branca que correspongui a la vostra versió d'AR Foundation. Aquesta activitat es fa en grup i tanca el bloc, així que engloba també els exercicis 1 i 2. **Si no els vau poder acabar**, a [`github.com/pomedas/ArMobile`](https://github.com/pomedas/ArMobile) estan resolts, feu-lo servir per comparar-lo amb el que vau construir, o com a punt de partida per a l'entrega del bloc. Ningú s'hauria de quedar encallat a l'entrega perquè l'exercici 1 o el 2 no van sortir."
           },
           "steps_note": {
-            "en": "Marc's three TODOs — the feature tour between 2 and 3 is on the deck",
-            "es": "los tres TODO de Marc — el repaso de features entre el 2 y el 3 está en el deck",
-            "ca": "els tres TODO d'en Marc — el repàs de features entre el 2 i el 3 és al deck"
+            "en": "Marc's three TODOs, the feature tour between 2 and 3 is on the deck",
+            "es": "los tres TODO de Marc, el repaso de features entre el 2 y el 3 está en el deck",
+            "ca": "els tres TODO d'en Marc, el repàs de features entre el 2 i el 3 és al deck"
           },
           "steps": [
             {
-              "en": "**Download the samples.** Get the open source project from Unity's GitHub — `arfoundation-samples`. **Be sure to pick the right branch**: the repository keeps one per AR Foundation version, and a branch that does not match your Editor opens as a project full of compile errors before you have touched anything. Take the branch named after the AR Foundation version your project uses.",
-              "es": "**Descarga los samples.** Coge el proyecto open source del GitHub de Unity — `arfoundation-samples`. **Asegúrate de elegir la rama correcta**: el repositorio mantiene una por versión de AR Foundation, y una rama que no coincide con tu Editor abre un proyecto lleno de errores de compilación antes de haber tocado nada. Coge la rama que lleve el nombre de la versión de AR Foundation de tu proyecto.",
-              "ca": "**Descarrega els samples.** Agafa el projecte open source del GitHub d'Unity — `arfoundation-samples`. **Assegura't de triar la branca correcta**: el repositori en manté una per versió d'AR Foundation, i una branca que no coincideix amb el teu Editor obre un projecte ple d'errors de compilació abans d'haver tocat res. Agafa la branca que porti el nom de la versió d'AR Foundation del teu projecte."
+              "en": "**Download the samples.** Get the open source project from Unity's GitHub, `arfoundation-samples`. **Be sure to pick the right branch**: the repository keeps one per AR Foundation version, and a branch that does not match your Editor opens as a project full of compile errors before you have touched anything. Take the branch named after the AR Foundation version your project uses.",
+              "es": "**Descarga los samples.** Coge el proyecto open source del GitHub de Unity, `arfoundation-samples`. **Asegúrate de elegir la rama correcta**: el repositorio mantiene una por versión de AR Foundation, y una rama que no coincide con tu Editor abre un proyecto lleno de errores de compilación antes de haber tocado nada. Coge la rama que lleve el nombre de la versión de AR Foundation de tu proyecto.",
+              "ca": "**Descarrega els samples.** Agafa el projecte open source del GitHub d'Unity, `arfoundation-samples`. **Assegura't de triar la branca correcta**: el repositori en manté una per versió d'AR Foundation, i una branca que no coincideix amb el teu Editor obre un projecte ple d'errors de compilació abans d'haver tocat res. Agafa la branca que porti el nom de la versió d'AR Foundation del teu projecte."
             },
             {
-              "en": "**Add the project from disk.** Unity Hub → **Add** → *Add project from disk*, pointing at the folder you downloaded. **Check the Android modules are installed first** — Unity Hub → *Installs* → **Add modules** → *Android Build Support*, with **OpenJDK** and **Android SDK & NDK Tools** inside. Same check as exercises 1 and 2, and it fails the same way.",
-              "es": "**Añade el proyecto desde disco.** Unity Hub → **Add** → *Add project from disk*, apuntando a la carpeta que descargaste. **Comprueba antes que tienes los módulos de Android instalados** — Unity Hub → *Installs* → **Add modules** → *Android Build Support*, con **OpenJDK** y **Android SDK & NDK Tools** dentro. La misma comprobación que en los ejercicios 1 y 2, y falla igual.",
-              "ca": "**Afegeix el projecte des del disc.** Unity Hub → **Add** → *Add project from disk*, apuntant a la carpeta que vas descarregar. **Comprova abans que tens els mòduls d'Android instal·lats** — Unity Hub → *Installs* → **Add modules** → *Android Build Support*, amb **OpenJDK** i **Android SDK & NDK Tools** a dins. La mateixa comprovació que als exercicis 1 i 2, i falla igual."
+              "en": "**Add the project from disk.** Unity Hub → **Add** → *Add project from disk*, pointing at the folder you downloaded. **Check the Android modules are installed first**, Unity Hub → *Installs* → **Add modules** → *Android Build Support*, with **OpenJDK** and **Android SDK & NDK Tools** inside. Same check as exercises 1 and 2, and it fails the same way.",
+              "es": "**Añade el proyecto desde disco.** Unity Hub → **Add** → *Add project from disk*, apuntando a la carpeta que descargaste. **Comprueba antes que tienes los módulos de Android instalados**, Unity Hub → *Installs* → **Add modules** → *Android Build Support*, con **OpenJDK** y **Android SDK & NDK Tools** dentro. La misma comprobación que en los ejercicios 1 y 2, y falla igual.",
+              "ca": "**Afegeix el projecte des del disc.** Unity Hub → **Add** → *Add project from disk*, apuntant a la carpeta que vas descarregar. **Comprova abans que tens els mòduls d'Android instal·lats**, Unity Hub → *Installs* → **Add modules** → *Android Build Support*, amb **OpenJDK** i **Android SDK & NDK Tools** a dins. La mateixa comprovació que als exercicis 1 i 2, i falla igual."
             },
             {
-              "en": "**Test, then build.** Try the features first — face tracking, body tracking (*iPhone only*), simple occlusion, ambient intensity, point cloud, configuration, anchors, plane detection. In the Editor, search for **`menuloader`** in the project search bar and open **that** scene: it is the one that links all the others together. Then `File > Build Settings` → check your scene is in **Scenes In Build** → **Build**, pick a folder, and install the APK on your phone.",
-              "es": "**Prueba y luego build.** Prueba primero las features — face tracking, body tracking (*solo iPhone*), simple occlusion, ambient intensity, point cloud, configuration, anchors, plane detection. En el Editor, busca **`menuloader`** en la barra de búsqueda del proyecto y abre **esa** escena: es la que enlaza todas las demás. Después `File > Build Settings` → comprueba que tu escena está en **Scenes In Build** → **Build**, elige carpeta, e instala la APK en el móvil.",
-              "ca": "**Prova i després build.** Prova primer les features — face tracking, body tracking (*només iPhone*), simple occlusion, ambient intensity, point cloud, configuration, anchors, plane detection. A l'Editor, busca **`menuloader`** a la barra de cerca del projecte i obre **aquesta** escena: és la que enllaça totes les altres. Després `File > Build Settings` → comprova que la teva escena és a **Scenes In Build** → **Build**, tria carpeta, i instal·la l'APK al mòbil."
+              "en": "**Test, then build.** Try the features first, face tracking, body tracking (*iPhone only*), simple occlusion, ambient intensity, point cloud, configuration, anchors, plane detection. In the Editor, search for **`menuloader`** in the project search bar and open **that** scene: it is the one that links all the others together. Then `File > Build Settings` → check your scene is in **Scenes In Build** → **Build**, pick a folder, and install the APK on your phone.",
+              "es": "**Prueba y luego build.** Prueba primero las features, face tracking, body tracking (*solo iPhone*), simple occlusion, ambient intensity, point cloud, configuration, anchors, plane detection. En el Editor, busca **`menuloader`** en la barra de búsqueda del proyecto y abre **esa** escena: es la que enlaza todas las demás. Después `File > Build Settings` → comprueba que tu escena está en **Scenes In Build** → **Build**, elige carpeta, e instala la APK en el móvil.",
+              "ca": "**Prova i després build.** Prova primer les features, face tracking, body tracking (*només iPhone*), simple occlusion, ambient intensity, point cloud, configuration, anchors, plane detection. A l'Editor, busca **`menuloader`** a la barra de cerca del projecte i obre **aquesta** escena: és la que enllaça totes les altres. Després `File > Build Settings` → comprova que la teva escena és a **Scenes In Build** → **Build**, tria carpeta, i instal·la l'APK al mòbil."
             }
           ],
           "deliverable": {
@@ -703,9 +703,9 @@
       "category": "practical",
       "optional": false,
       "summary": {
-        "en": "News! VR/MR news · Brief walkthrough (2-1) · Meta All-in-One SDK pillars · In-class activity: 1. Building Blocks — camera rig and grabbable, with controllers and hand tracking · AR Foundation hand-in",
-        "es": "News! Noticias VR/MR · Presentación del enunciado (2-1) · Pilares del Meta All in One SDK · Actividad en clase: 1. Building Blocks — camera rig y grabbable, con mandos y hand tracking · Entrega AR Foundation",
-        "ca": "News! Notícies VR/MR · Presentació Enunciat (2-1) · Pilars Meta All in One SDK · Activitat a classe: 1. Building Blocks — camera rig i grabbable, amb comandaments i hand tracking · Entrega AR Foundation"
+        "en": "News! VR/MR news · Brief walkthrough (2-1) · Meta All-in-One SDK pillars · In-class activity: 1. Building Blocks, camera rig and grabbable, with controllers and hand tracking · AR Foundation hand-in",
+        "es": "News! Noticias VR/MR · Presentación del enunciado (2-1) · Pilares del Meta All in One SDK · Actividad en clase: 1. Building Blocks, camera rig y grabbable, con mandos y hand tracking · Entrega AR Foundation",
+        "ca": "News! Notícies VR/MR · Presentació Enunciat (2-1) · Pilars Meta All in One SDK · Activitat a classe: 1. Building Blocks, camera rig i grabbable, amb comandaments i hand tracking · Entrega AR Foundation"
       },
       "contents": [
         {
@@ -724,9 +724,9 @@
           "ca": "Pilars Meta All in One SDK"
         },
         {
-          "en": "In-class activity: 1. Building Blocks — camera rig and grabbable, with controllers and hand tracking",
-          "es": "Actividad en clase: 1. Building Blocks — camera rig y grabbable, con mandos y hand tracking",
-          "ca": "Activitat a classe: 1. Building Blocks — camera rig i grabbable, amb comandaments i hand tracking"
+          "en": "In-class activity: 1. Building Blocks, camera rig and grabbable, with controllers and hand tracking",
+          "es": "Actividad en clase: 1. Building Blocks, camera rig y grabbable, con mandos y hand tracking",
+          "ca": "Activitat a classe: 1. Building Blocks, camera rig i grabbable, amb comandaments i hand tracking"
         },
         {
           "en": "AR Foundation hand-in",
@@ -752,14 +752,14 @@
           "id": "w2-pre-02-t1",
           "type": "objective-task",
           "objective": {
-            "en": "Build a virtual reality app with Meta Building Blocks and interact with a 3D object of your own choosing — your solution for dealing with the giant robot. A giant robot turned up and the blue goblin has changed sides, so you are teaming up with it. You write no code: everything happens in the Inspector and in the Building Blocks window.",
-            "es": "Construid una app de realidad virtual con Meta Building Blocks e interactuad con un objeto 3D que elijáis vosotros — vuestra solución para lidiar con el robot gigante. Ha aparecido un robot gigante y el blue goblin ha cambiado de bando, así que vais en equipo con él. No se escribe código: todo pasa en el Inspector y en la ventana de Building Blocks.",
-            "ca": "Construïu una app de realitat virtual amb Meta Building Blocks i interactueu amb un objecte 3D que trieu vosaltres — la vostra solució per encarar el robot gegant. Ha aparegut un robot gegant i el blue goblin ha canviat de bàndol, així que hi aneu en equip. No s'escriu codi: tot passa a l'Inspector i a la finestra de Building Blocks."
+            "en": "Build a virtual reality app with Meta Building Blocks and interact with a 3D object of your own choosing, your solution for dealing with the giant robot. A giant robot turned up and the blue goblin has changed sides, so you are teaming up with it. You write no code: everything happens in the Inspector and in the Building Blocks window.",
+            "es": "Construid una app de realidad virtual con Meta Building Blocks e interactuad con un objeto 3D que elijáis vosotros, vuestra solución para lidiar con el robot gigante. Ha aparecido un robot gigante y el blue goblin ha cambiado de bando, así que vais en equipo con él. No se escribe código: todo pasa en el Inspector y en la ventana de Building Blocks.",
+            "ca": "Construïu una app de realitat virtual amb Meta Building Blocks i interactueu amb un objecte 3D que trieu vosaltres, la vostra solució per encarar el robot gegant. Ha aparegut un robot gegant i el blue goblin ha canviat de bàndol, així que hi aneu en equip. No s'escriu codi: tot passa a l'Inspector i a la finestra de Building Blocks."
           },
           "starting_point": {
-            "en": "A Unity install with the **Android Build Support** module, a Unity account you are signed in to, a **Meta Quest 3** with developer mode on and a **USB-C** data cable, and a 3D model you like. Nothing is handed out: the object is yours to choose. **At CITM, do not try to install Meta Horizon Link** — run `oculus-reg.bat` from the desktop instead.",
-            "es": "Una instalación de Unity con el módulo **Android Build Support**, una cuenta de Unity con la sesión iniciada, una **Meta Quest 3** con el modo desarrollador activado y un cable de datos **USB-C**, y un modelo 3D que os guste. No se reparte nada: el objeto lo elegís vosotros. **En el CITM no intentéis instalar Meta Horizon Link** — ejecutad `oculus-reg.bat` desde el escritorio.",
-            "ca": "Una instal·lació d'Unity amb el mòdul **Android Build Support**, un compte d'Unity amb la sessió iniciada, una **Meta Quest 3** amb el mode desenvolupador activat i un cable de dades **USB-C**, i un model 3D que us agradi. No es reparteix res: l'objecte el trieu vosaltres. **Al CITM no intenteu instal·lar el Meta Horizon Link** — executeu `oculus-reg.bat` des de l'escriptori."
+            "en": "A Unity install with the **Android Build Support** module, a Unity account you are signed in to, a **Meta Quest 3** with developer mode on and a **USB-C** data cable, and a 3D model you like. Nothing is handed out: the object is yours to choose. **At CITM, do not try to install Meta Horizon Link**, run `oculus-reg.bat` from the desktop instead.",
+            "es": "Una instalación de Unity con el módulo **Android Build Support**, una cuenta de Unity con la sesión iniciada, una **Meta Quest 3** con el modo desarrollador activado y un cable de datos **USB-C**, y un modelo 3D que os guste. No se reparte nada: el objeto lo elegís vosotros. **En el CITM no intentéis instalar Meta Horizon Link**, ejecutad `oculus-reg.bat` desde el escritorio.",
+            "ca": "Una instal·lació d'Unity amb el mòdul **Android Build Support**, un compte d'Unity amb la sessió iniciada, una **Meta Quest 3** amb el mode desenvolupador activat i un cable de dades **USB-C**, i un model 3D que us agradi. No es reparteix res: l'objecte el trieu vosaltres. **Al CITM no intenteu instal·lar el Meta Horizon Link**, executeu `oculus-reg.bat` des de l'escriptori."
           },
           "steps": [
             {
@@ -768,9 +768,9 @@
               "ca": "**Un projecte nou.** Unity Hub → **New project** → plantilla **Universal 3D**. **Comprova abans que el mòdul d'Android està instal·lat**: sense ell, Android no apareix mai a Build Settings i te n'adones al final de tot."
             },
             {
-              "en": "**The SDK from the Asset Store.** Open the **Asset Store**, search for **Meta XR SDK** and press **Add to My Assets**. You must be **signed in to your Unity account** for that button to do anything — if nothing seems to happen, that is why.",
-              "es": "**El SDK desde el Asset Store.** Abre el **Asset Store**, busca **Meta XR SDK** y pulsa **Add to My Assets**. Tienes que estar **logueado en tu cuenta de Unity** para que ese botón haga algo — si parece que no pasa nada, es por eso.",
-              "ca": "**El SDK des de l'Asset Store.** Obre l'**Asset Store**, busca **Meta XR SDK** i prem **Add to My Assets**. Has d'estar **connectat al teu compte d'Unity** perquè aquest botó faci res — si sembla que no passa res, és per això."
+              "en": "**The SDK from the Asset Store.** Open the **Asset Store**, search for **Meta XR SDK** and press **Add to My Assets**. You must be **signed in to your Unity account** for that button to do anything, if nothing seems to happen, that is why.",
+              "es": "**El SDK desde el Asset Store.** Abre el **Asset Store**, busca **Meta XR SDK** y pulsa **Add to My Assets**. Tienes que estar **logueado en tu cuenta de Unity** para que ese botón haga algo, si parece que no pasa nada, es por eso.",
+              "ca": "**El SDK des de l'Asset Store.** Obre l'**Asset Store**, busca **Meta XR SDK** i prem **Add to My Assets**. Has d'estar **connectat al teu compte d'Unity** perquè aquest botó faci res, si sembla que no passa res, és per això."
             },
             {
               "en": "**Packages, provider, validation.** `Window > Package Manager` → find the **Meta** packages (**you do not need all of them**). `Project Settings > XR Plug-in Management` → provider **OpenXR**. Then **Project Validation → Fix All** and **Meta XR → Apply All**. **CHECK THE OCULUS XR PLUGIN IS NOT INSTALLED**: alongside OpenXR it builds, runs, shows your scene and tracks nothing, with no error anywhere.",
@@ -778,24 +778,24 @@
               "ca": "**Paquets, proveïdor, validació.** `Window > Package Manager` → busca els paquets de **Meta** (**no calen tots**). `Project Settings > XR Plug-in Management` → proveïdor **OpenXR**. Després **Project Validation → Fix All** i **Meta XR → Apply All**. **COMPROVA QUE L’OCULUS XR PLUGIN NO ESTÀ INSTAL·LAT**: al costat d’OpenXR compila, arrenca, mostra la teva escena i no traqueja res, sense cap error enlloc."
             },
             {
-              "en": "**A new scene and three blocks.** Create the scene and **delete the `Main Camera`** — the Camera Rig brings its own. Then `Meta XR Tools > Building Blocks` and drag in **Camera Rig**, **Interaction Rig** (this is what brings hand tracking *and* the controllers) and **Grab Interaction** (it drops in a cube you can pick up).",
-              "es": "**Una escena nueva y tres bloques.** Crea la escena y **borra la `Main Camera`** — el Camera Rig trae la suya. Después `Meta XR Tools > Building Blocks` y arrastra **Camera Rig**, **Interaction Rig** (es lo que trae el hand tracking *y* los mandos) y **Grab Interaction** (mete un cubo que se puede coger).",
-              "ca": "**Una escena nova i tres blocs.** Crea l'escena i **esborra la `Main Camera`** — el Camera Rig porta la seva. Després `Meta XR Tools > Building Blocks` i arrossega **Camera Rig**, **Interaction Rig** (és el que porta el hand tracking *i* els comandaments) i **Grab Interaction** (hi posa un cub que es pot agafar)."
+              "en": "**A new scene and three blocks.** Create the scene and **delete the `Main Camera`**, the Camera Rig brings its own. Then `Meta XR Tools > Building Blocks` and drag in **Camera Rig**, **Interaction Rig** (this is what brings hand tracking *and* the controllers) and **Grab Interaction** (it drops in a cube you can pick up).",
+              "es": "**Una escena nueva y tres bloques.** Crea la escena y **borra la `Main Camera`**, el Camera Rig trae la suya. Después `Meta XR Tools > Building Blocks` y arrastra **Camera Rig**, **Interaction Rig** (es lo que trae el hand tracking *y* los mandos) y **Grab Interaction** (mete un cubo que se puede coger).",
+              "ca": "**Una escena nova i tres blocs.** Crea l'escena i **esborra la `Main Camera`**, el Camera Rig porta la seva. Després `Meta XR Tools > Building Blocks` i arrossega **Camera Rig**, **Interaction Rig** (és el que porta el hand tracking *i* els comandaments) i **Grab Interaction** (hi posa un cub que es pot agafar)."
             },
             {
-              "en": "**Wire the grab.** Open the **`[BuildingBlock] Cube`**, select **`[BuildingBlock] HandGrab Installation Routine AND`** and drag it into **Grab Source**, inside the **Grab Interactable** component. **Put the pivot on the grabbable part of the model** — it is the point the hand closes on.",
-              "es": "**Conecta el grab.** Abre el **`[BuildingBlock] Cube`**, selecciona **`[BuildingBlock] HandGrab Installation Routine AND`** y arrástralo a **Grab Source**, dentro del componente **Grab Interactable**. **Pon el pivote en la parte agarrable del modelo** — es el punto donde se cierra la mano.",
-              "ca": "**Connecta el grab.** Obre el **`[BuildingBlock] Cube`**, selecciona **`[BuildingBlock] HandGrab Installation Routine AND`** i arrossega'l a **Grab Source**, dins del component **Grab Interactable**. **Posa el pivot a la part agafable del model** — és el punt on es tanca la mà."
+              "en": "**Wire the grab.** Open the **`[BuildingBlock] Cube`**, select **`[BuildingBlock] HandGrab Installation Routine AND`** and drag it into **Grab Source**, inside the **Grab Interactable** component. **Put the pivot on the grabbable part of the model**, it is the point the hand closes on.",
+              "es": "**Conecta el grab.** Abre el **`[BuildingBlock] Cube`**, selecciona **`[BuildingBlock] HandGrab Installation Routine AND`** y arrástralo a **Grab Source**, dentro del componente **Grab Interactable**. **Pon el pivote en la parte agarrable del modelo**, es el punto donde se cierra la mano.",
+              "ca": "**Connecta el grab.** Obre el **`[BuildingBlock] Cube`**, selecciona **`[BuildingBlock] HandGrab Installation Routine AND`** i arrossega'l a **Grab Source**, dins del component **Grab Interactable**. **Posa el pivot a la part agafable del model**, és el punt on es tanca la mà."
             },
             {
-              "en": "**Try the XR Simulator first.** `Meta XR Tools` → enable the **Meta XR Simulator**. It may ask to **install** itself — accept and open it; it is **not** part of the SDK from step 2. **If it will not install, skip to step 7**: it is a convenience, not a dependency. To run on the headset instead: USB-C cable, **Meta Horizon Link** on the PC (at CITM, `oculus-reg.bat`), **Link (PC)** in the Quest’s quick settings — and **disable the simulator before pressing Play**, or Unity talks to it and the headset shows nothing.",
-              "es": "**Prueba antes el XR Simulator.** `Meta XR Tools` → activa el **Meta XR Simulator**. Puede pedirte **instalarlo** — acepta y ábrelo; **no** viene en el SDK del paso 2. **Si no hay manera de instalarlo, salta al paso 7**: es una comodidad, no un requisito. Para ejecutar en el visor: cable USB-C, **Meta Horizon Link** en el PC (en el CITM, `oculus-reg.bat`), **Link (PC)** en los ajustes rápidos de la Quest — y **desactiva el simulador antes de dar a Play**, o Unity habla con él y el visor no muestra nada.",
-              "ca": "**Prova abans l'XR Simulator.** `Meta XR Tools` → activa el **Meta XR Simulator**. Pot demanar-te **instal·lar-lo** — accepta i obre'l; **no** ve al SDK del pas 2. **Si no hi ha manera d'instal·lar-lo, salta al pas 7**: és una comoditat, no un requisit. Per executar-ho al visor: cable USB-C, **Meta Horizon Link** al PC (al CITM, `oculus-reg.bat`), **Link (PC)** als ajustos ràpids de la Quest — i **desactiva el simulador abans de donar-li a Play**, o Unity hi parla i el visor no mostra res."
+              "en": "**Try the XR Simulator first.** `Meta XR Tools` → enable the **Meta XR Simulator**. It may ask to **install** itself, accept and open it; it is **not** part of the SDK from step 2. **If it will not install, skip to step 7**: it is a convenience, not a dependency. To run on the headset instead: USB-C cable, **Meta Horizon Link** on the PC (at CITM, `oculus-reg.bat`), **Link (PC)** in the Quest’s quick settings, and **disable the simulator before pressing Play**, or Unity talks to it and the headset shows nothing.",
+              "es": "**Prueba antes el XR Simulator.** `Meta XR Tools` → activa el **Meta XR Simulator**. Puede pedirte **instalarlo**, acepta y ábrelo; **no** viene en el SDK del paso 2. **Si no hay manera de instalarlo, salta al paso 7**: es una comodidad, no un requisito. Para ejecutar en el visor: cable USB-C, **Meta Horizon Link** en el PC (en el CITM, `oculus-reg.bat`), **Link (PC)** en los ajustes rápidos de la Quest, y **desactiva el simulador antes de dar a Play**, o Unity habla con él y el visor no muestra nada.",
+              "ca": "**Prova abans l'XR Simulator.** `Meta XR Tools` → activa el **Meta XR Simulator**. Pot demanar-te **instal·lar-lo**, accepta i obre'l; **no** ve al SDK del pas 2. **Si no hi ha manera d'instal·lar-lo, salta al pas 7**: és una comoditat, no un requisit. Per executar-ho al visor: cable USB-C, **Meta Horizon Link** al PC (al CITM, `oculus-reg.bat`), **Link (PC)** als ajustos ràpids de la Quest, i **desactiva el simulador abans de donar-li a Play**, o Unity hi parla i el visor no mostra res."
             },
             {
-              "en": "**Make it your object.** Swap the cube: **import your model** and assign it to the cube’s **Mesh Filter**, **create its material** if the model does not bring one and change the material too, then press **Edit Collider** on the **Box Collider** and **adjust it to the new model** — the collider is what your hand actually grabs, so a box still shaped like the old cube grabs thin air.",
-              "es": "**Que sea tu objeto.** Cambia el cubo: **importa tu modelo** y asígnalo al **Mesh Filter** del cubo, **crea su material** si el modelo no trae uno y cambia también el material, y después pulsa **Edit Collider** en el **Box Collider** y **ajústalo al modelo nuevo** — el collider es lo que tu mano agarra de verdad, así que una caja con la forma del cubo viejo agarra aire.",
-              "ca": "**Que sigui el teu objecte.** Canvia el cub: **importa el teu model** i assigna'l al **Mesh Filter** del cub, **crea el seu material** si el model no en porta i canvia també el material, i després prem **Edit Collider** al **Box Collider** i **ajusta'l al model nou** — el collider és el que la teva mà agafa de debò, així que una caixa amb la forma del cub vell agafa aire."
+              "en": "**Make it your object.** Swap the cube: **import your model** and assign it to the cube’s **Mesh Filter**, **create its material** if the model does not bring one and change the material too, then press **Edit Collider** on the **Box Collider** and **adjust it to the new model**, the collider is what your hand actually grabs, so a box still shaped like the old cube grabs thin air.",
+              "es": "**Que sea tu objeto.** Cambia el cubo: **importa tu modelo** y asígnalo al **Mesh Filter** del cubo, **crea su material** si el modelo no trae uno y cambia también el material, y después pulsa **Edit Collider** en el **Box Collider** y **ajústalo al modelo nuevo**, el collider es lo que tu mano agarra de verdad, así que una caja con la forma del cubo viejo agarra aire.",
+              "ca": "**Que sigui el teu objecte.** Canvia el cub: **importa el teu model** i assigna'l al **Mesh Filter** del cub, **crea el seu material** si el model no en porta i canvia també el material, i després prem **Edit Collider** al **Box Collider** i **ajusta'l al model nou**, el collider és el que la teva mà agafa de debò, així que una caixa amb la forma del cub vell agafa aire."
             },
             {
               "en": "**Build and install.** `File > Build Settings` → your scene in the **Scenes In Build** list. Headset connected by **USB-C**, **developer mode on**, **Always allow USB debugging** accepted in the headset. **Option A:** `File > Build Profiles` → **Android** (or Meta Quest) → **Run Device** → **Refresh** → your Quest 3 → **Build And Run**. **Option B, if the headset never appears:** **Meta Quest Developer Hub** → **Add Build** → your `.apk`, and launch it from **Library > Unknown Sources**.",
@@ -873,9 +873,9 @@
       "category": "practical",
       "optional": false,
       "summary": {
-        "en": "News! VR/MR news · Brief walkthrough (2-2) · In-class activity: 2. Building Blocks — locomotion and switching to passthrough",
-        "es": "News! Noticias VR/MR · Presentación del enunciado (2-2) · Actividad en clase: 2. Building Blocks — locomoción y cambio a passthrough",
-        "ca": "News! Notícies VR/MR · Presentació Enunciat (2-2) · Activitat a classe: 2. Building Blocks — locomoció i canvi a passthrough"
+        "en": "News! VR/MR news · Brief walkthrough (2-2) · In-class activity: 2. Building Blocks, locomotion and switching to passthrough",
+        "es": "News! Noticias VR/MR · Presentación del enunciado (2-2) · Actividad en clase: 2. Building Blocks, locomoción y cambio a passthrough",
+        "ca": "News! Notícies VR/MR · Presentació Enunciat (2-2) · Activitat a classe: 2. Building Blocks, locomoció i canvi a passthrough"
       },
       "contents": [
         {
@@ -889,9 +889,9 @@
           "ca": "Presentació Enunciat (2-2)"
         },
         {
-          "en": "In-class activity: 2. Building Blocks — locomotion and switching to passthrough",
-          "es": "Actividad en clase: 2. Building Blocks — locomoción y cambio a passthrough",
-          "ca": "Activitat a classe: 2. Building Blocks — locomoció i canvi a passthrough"
+          "en": "In-class activity: 2. Building Blocks, locomotion and switching to passthrough",
+          "es": "Actividad en clase: 2. Building Blocks, locomoción y cambio a passthrough",
+          "ca": "Activitat a classe: 2. Building Blocks, locomoció i canvi a passthrough"
         }
       ],
       "block": {
@@ -911,14 +911,14 @@
           "id": "w2-pre-03-t1",
           "type": "objective-task",
           "objective": {
-            "en": "Build a mixed reality app with Meta Building Blocks and go looking for the giant robot — it has left the virtual world and is somewhere in the physical one. You move around in VR with teleport, turn and slide, and then switch to passthrough with a button on the controller to see the room you are actually standing in. No code: the mode switch is Building Blocks and Inspector events.",
-            "es": "Construid una app de realidad mixta con Meta Building Blocks y salid a buscar al robot gigante — ha dejado el mundo virtual y anda por el físico. Os movéis por la escena en VR con teleport, turn y slide, y después cambiáis a passthrough con un botón del mando para ver el aula en la que estáis de verdad. Sin código: el cambio de modo son Building Blocks y eventos del Inspector.",
-            "ca": "Construïu una app de realitat mixta amb Meta Building Blocks i sortiu a buscar el robot gegant — ha deixat el món virtual i és al físic. Us moveu per l'escena en VR amb teleport, turn i slide, i després canvieu a passthrough amb un botó del comandament per veure l'aula on sou de debò. Sense codi: el canvi de mode són Building Blocks i esdeveniments de l'Inspector."
+            "en": "Build a mixed reality app with Meta Building Blocks and go looking for the giant robot, it has left the virtual world and is somewhere in the physical one. You move around in VR with teleport, turn and slide, and then switch to passthrough with a button on the controller to see the room you are actually standing in. No code: the mode switch is Building Blocks and Inspector events.",
+            "es": "Construid una app de realidad mixta con Meta Building Blocks y salid a buscar al robot gigante, ha dejado el mundo virtual y anda por el físico. Os movéis por la escena en VR con teleport, turn y slide, y después cambiáis a passthrough con un botón del mando para ver el aula en la que estáis de verdad. Sin código: el cambio de modo son Building Blocks y eventos del Inspector.",
+            "ca": "Construïu una app de realitat mixta amb Meta Building Blocks i sortiu a buscar el robot gegant, ha deixat el món virtual i és al físic. Us moveu per l'escena en VR amb teleport, turn i slide, i després canvieu a passthrough amb un botó del comandament per veure l'aula on sou de debò. Sense codi: el canvi de mode són Building Blocks i esdeveniments de l'Inspector."
           },
           "starting_point": {
-            "en": "Your project from exercise 1, if it still works — otherwise steps 1 to 4 rebuild it. A **Meta Quest 3** with a **USB-C** data cable, developer mode on, and **Meta Horizon Link** on the PC (**at CITM, run `oculus-reg.bat` from the desktop instead of installing it**). Everything is built from Unity primitives; no model is handed out. **The Meta XR Simulator cannot show passthrough**, so step 7 has to be tested on the headset.",
-            "es": "Vuestro proyecto del ejercicio 1, si sigue funcionando — si no, los pasos 1 a 4 lo rehacen. Una **Meta Quest 3** con cable de datos **USB-C**, modo desarrollador activado, y **Meta Horizon Link** en el PC (**en el CITM, ejecutad `oculus-reg.bat` del escritorio en vez de instalarlo**). Todo se monta con primitivas de Unity; no se reparte ningún modelo. **El Meta XR Simulator no puede enseñar passthrough**, así que el paso 7 hay que probarlo en el visor.",
-            "ca": "El vostre projecte de l'exercici 1, si encara funciona — si no, els passos 1 a 4 el refan. Una **Meta Quest 3** amb cable de dades **USB-C**, mode desenvolupador activat, i **Meta Horizon Link** al PC (**al CITM, executeu `oculus-reg.bat` de l'escriptori en comptes d'instal·lar-lo**). Tot es munta amb primitives d'Unity; no es reparteix cap model. **El Meta XR Simulator no pot ensenyar passthrough**, així que el pas 7 s'ha de provar al visor."
+            "en": "Your project from exercise 1, if it still works, otherwise steps 1 to 4 rebuild it. A **Meta Quest 3** with a **USB-C** data cable, developer mode on, and **Meta Horizon Link** on the PC (**at CITM, run `oculus-reg.bat` from the desktop instead of installing it**). Everything is built from Unity primitives; no model is handed out. **The Meta XR Simulator cannot show passthrough**, so step 7 has to be tested on the headset.",
+            "es": "Vuestro proyecto del ejercicio 1, si sigue funcionando, si no, los pasos 1 a 4 lo rehacen. Una **Meta Quest 3** con cable de datos **USB-C**, modo desarrollador activado, y **Meta Horizon Link** en el PC (**en el CITM, ejecutad `oculus-reg.bat` del escritorio en vez de instalarlo**). Todo se monta con primitivas de Unity; no se reparte ningún modelo. **El Meta XR Simulator no puede enseñar passthrough**, así que el paso 7 hay que probarlo en el visor.",
+            "ca": "El vostre projecte de l'exercici 1, si encara funciona, si no, els passos 1 a 4 el refan. Una **Meta Quest 3** amb cable de dades **USB-C**, mode desenvolupador activat, i **Meta Horizon Link** al PC (**al CITM, executeu `oculus-reg.bat` de l'escriptori en comptes d'instal·lar-lo**). Tot es munta amb primitives d'Unity; no es reparteix cap model. **El Meta XR Simulator no pot ensenyar passthrough**, així que el pas 7 s'ha de provar al visor."
           },
           "steps": [
             {
@@ -932,29 +932,29 @@
               "ca": "*(Repàs)* **El SDK des de l'Asset Store.** **Asset Store** → **Meta XR SDK** → **Add to My Assets**. Heu d'estar connectats al vostre compte d'Unity."
             },
             {
-              "en": "*(Repaso)* **Packages, provider, validation.** `Window > Package Manager` → the **Meta** packages (not all of them are needed). `Project Settings > XR Plug-in Management` → **OpenXR**. **Project Validation → Fix All**, then **Meta XR → Apply All**. **CHECK THE OCULUS XR PLUGIN IS NOT INSTALLED** — alongside OpenXR you get no tracking and no error.",
-              "es": "*(Repaso)* **Paquetes, proveedor, validación.** `Window > Package Manager` → los paquetes de **Meta** (no hacen falta todos). `Project Settings > XR Plug-in Management` → **OpenXR**. **Project Validation → Fix All**, y después **Meta XR → Apply All**. **COMPROBAD QUE EL OCULUS XR PLUGIN NO ESTÁ INSTALADO** — junto a OpenXR no hay tracking y no hay error.",
-              "ca": "*(Repàs)* **Paquets, proveïdor, validació.** `Window > Package Manager` → els paquets de **Meta** (no calen tots). `Project Settings > XR Plug-in Management` → **OpenXR**. **Project Validation → Fix All**, i després **Meta XR → Apply All**. **COMPROVEU QUE L’OCULUS XR PLUGIN NO ESTÀ INSTAL·LAT** — al costat d’OpenXR no hi ha tracking i no hi ha error."
+              "en": "*(Repaso)* **Packages, provider, validation.** `Window > Package Manager` → the **Meta** packages (not all of them are needed). `Project Settings > XR Plug-in Management` → **OpenXR**. **Project Validation → Fix All**, then **Meta XR → Apply All**. **CHECK THE OCULUS XR PLUGIN IS NOT INSTALLED**, alongside OpenXR you get no tracking and no error.",
+              "es": "*(Repaso)* **Paquetes, proveedor, validación.** `Window > Package Manager` → los paquetes de **Meta** (no hacen falta todos). `Project Settings > XR Plug-in Management` → **OpenXR**. **Project Validation → Fix All**, y después **Meta XR → Apply All**. **COMPROBAD QUE EL OCULUS XR PLUGIN NO ESTÁ INSTALADO**, junto a OpenXR no hay tracking y no hay error.",
+              "ca": "*(Repàs)* **Paquets, proveïdor, validació.** `Window > Package Manager` → els paquets de **Meta** (no calen tots). `Project Settings > XR Plug-in Management` → **OpenXR**. **Project Validation → Fix All**, i després **Meta XR → Apply All**. **COMPROVEU QUE L’OCULUS XR PLUGIN NO ESTÀ INSTAL·LAT**, al costat d’OpenXR no hi ha tracking i no hi ha error."
             },
             {
-              "en": "**A new scene, and three blocks — one of them new.** Create the scene and **delete the `Main Camera`**. Then `Meta XR Tools > Building Blocks` and drag in **Camera Rig**, **Interaction Rig** and, new today, **Passthrough**. Then build somewhere to move: **add a cube and create a floor** (`GameObject > 3D Object > Plane`). Without a floor there is nowhere to teleport and step 5 has nothing to work on.",
+              "en": "**A new scene, and three blocks, one of them new.** Create the scene and **delete the `Main Camera`**. Then `Meta XR Tools > Building Blocks` and drag in **Camera Rig**, **Interaction Rig** and, new today, **Passthrough**. Then build somewhere to move: **add a cube and create a floor** (`GameObject > 3D Object > Plane`). Without a floor there is nowhere to teleport and step 5 has nothing to work on.",
               "es": "**Escena nueva y tres bloques, uno de ellos nuevo.** Cread la escena y **borrad la `Main Camera`**. Después `Meta XR Tools > Building Blocks` y arrastrad **Camera Rig**, **Interaction Rig** y, nuevo hoy, **Passthrough**. Y construid un sitio por donde moverse: **añadid un cubo y cread un suelo** (`GameObject > 3D Object > Plane`). Sin suelo no hay a dónde teletransportarse y el paso 5 se queda sin nada.",
               "ca": "**Escena nova i tres blocs, un d'ells nou.** Creeu l'escena i **esborreu la `Main Camera`**. Després `Meta XR Tools > Building Blocks` i arrossegueu **Camera Rig**, **Interaction Rig** i, nou avui, **Passthrough**. I construïu un lloc per on moure's: **afegiu un cub i creeu un terra** (`GameObject > 3D Object > Plane`). Sense terra no hi ha on teletransportar-se i el pas 5 es queda sense res."
             },
             {
-              "en": "**Teleport on a plane.** Go to **`OVRInteractionComprehensive`**, **right-click** → **Interaction SDK**, change the interaction type to **Plane** and press **Create**. If a warning appears first, press **Fix All** and then Create. The plane is what you teleport ONTO, so if pointing at the ground does nothing, come back here — and check the floor has a collider.",
-              "es": "**Teleport sobre un plano.** Id a **`OVRInteractionComprehensive`**, **clic derecho** → **Interaction SDK**, cambiad el tipo de interacción a **Plane** y pulsad **Create**. Si sale un aviso antes, pulsad **Fix All** y después Create. El plano es aquello a lo que te teletransportas, así que si apuntar al suelo no hace nada, volved aquí — y comprobad que el suelo tiene collider.",
-              "ca": "**Teleport sobre un pla.** Aneu a **`OVRInteractionComprehensive`**, **clic dret** → **Interaction SDK**, canvieu el tipus d’interacció a **Plane** i premeu **Create**. Si surt un avís abans, premeu **Fix All** i després Create. El pla és allò on et teletransportes, així que si apuntar al terra no fa res, torneu aquí — i comproveu que el terra té collider."
+              "en": "**Teleport on a plane.** Go to **`OVRInteractionComprehensive`**, **right-click** → **Interaction SDK**, change the interaction type to **Plane** and press **Create**. If a warning appears first, press **Fix All** and then Create. The plane is what you teleport ONTO, so if pointing at the ground does nothing, come back here, and check the floor has a collider.",
+              "es": "**Teleport sobre un plano.** Id a **`OVRInteractionComprehensive`**, **clic derecho** → **Interaction SDK**, cambiad el tipo de interacción a **Plane** y pulsad **Create**. Si sale un aviso antes, pulsad **Fix All** y después Create. El plano es aquello a lo que te teletransportas, así que si apuntar al suelo no hace nada, volved aquí, y comprobad que el suelo tiene collider.",
+              "ca": "**Teleport sobre un pla.** Aneu a **`OVRInteractionComprehensive`**, **clic dret** → **Interaction SDK**, canvieu el tipus d’interacció a **Plane** i premeu **Create**. Si surt un avís abans, premeu **Fix All** i després Create. El pla és allò on et teletransportes, així que si apuntar al terra no fa res, torneu aquí, i comproveu que el terra té collider."
             },
             {
-              "en": "**Swap the controller mode, on BOTH sides.** In the left *and* the right interactors: **disable** `ControllerSliderInteraction` and **enable** `TeleportControllerInteraction`. Doing only one side is the commonest mistake here, and it gives you one hand that teleports and one that slides — which reads as an SDK bug rather than a checkbox you missed.",
-              "es": "**Cambiad el modo del mando, en LOS DOS lados.** En el interactor izquierdo *y* en el derecho: **desactivad** `ControllerSliderInteraction` y **activad** `TeleportControllerInteraction`. Hacerlo en un solo lado es el error más común aquí, y deja una mano que se teletransporta y otra que se desliza — que se lee como un fallo del SDK en vez de como una casilla que se os pasó.",
-              "ca": "**Canvieu el mode del comandament, als DOS costats.** A l'interactor esquerre *i* al dret: **desactiveu** `ControllerSliderInteraction` i **activeu** `TeleportControllerInteraction`. Fer-ho en un sol costat és l'error més comú aquí, i deixa una mà que es teletransporta i una altra que llisca — que es llegeix com una fallada del SDK i no com una casella que se us va passar."
+              "en": "**Swap the controller mode, on BOTH sides.** In the left *and* the right interactors: **disable** `ControllerSliderInteraction` and **enable** `TeleportControllerInteraction`. Doing only one side is the commonest mistake here, and it gives you one hand that teleports and one that slides, which reads as an SDK bug rather than a checkbox you missed.",
+              "es": "**Cambiad el modo del mando, en LOS DOS lados.** En el interactor izquierdo *y* en el derecho: **desactivad** `ControllerSliderInteraction` y **activad** `TeleportControllerInteraction`. Hacerlo en un solo lado es el error más común aquí, y deja una mano que se teletransporta y otra que se desliza, que se lee como un fallo del SDK en vez de como una casilla que se os pasó.",
+              "ca": "**Canvieu el mode del comandament, als DOS costats.** A l'interactor esquerre *i* al dret: **desactiveu** `ControllerSliderInteraction` i **activeu** `TeleportControllerInteraction`. Fer-ho en un sol costat és l'error més comú aquí, i deixa una mà que es teletransporta i una altra que llisca, que es llegeix com una fallada del SDK i no com una casella que se us va passar."
             },
             {
-              "en": "**The button that switches mode.** Passthrough is already in the scene from step 4. Add the Building Block **Controller Buttons Mapper** → **Add a Button Click action** → in the **input manager** pick a button → add a **callback** and drag the **passthrough GameObject** in → `enabled` → **false**. **Repeat with a second button** with `enabled` → **true**, so you can come back. *Optional, and it is what makes it feel finished:* on the passthrough button also set the locomotion GameObjects to `SetActive > false`, and back to **true** on the VR one — standing in your real room, sliding makes no sense.",
-              "es": "**El botón que cambia de modo.** El passthrough ya está en la escena desde el paso 4. Añadid el Building Block **Controller Buttons Mapper** → **Add a Button Click action** → en el **input manager** elegid un botón → añadid un **callback** y arrastrad el **GameObject del passthrough** → `enabled` → **false**. **Repetid con un segundo botón** con `enabled` → **true**, para poder volver. *Opcional, y es lo que lo deja acabado:* en el botón de passthrough poned también los GameObjects de locomoción a `SetActive > false`, y de vuelta a **true** en el de VR — de pie en vuestra aula real, deslizarse no tiene sentido.",
-              "ca": "**El botó que canvia de mode.** El passthrough ja és a l'escena des del pas 4. Afegiu el Building Block **Controller Buttons Mapper** → **Add a Button Click action** → a l'**input manager** trieu un botó → afegiu un **callback** i arrossegueu el **GameObject del passthrough** → `enabled` → **false**. **Repetiu amb un segon botó** amb `enabled` → **true**, per poder tornar. *Opcional, i és el que ho deixa acabat:* al botó de passthrough poseu també els GameObjects de locomoció a `SetActive > false`, i de nou a **true** al de VR — drets a la vostra aula real, lliscar no té sentit."
+              "en": "**The button that switches mode.** Passthrough is already in the scene from step 4. Add the Building Block **Controller Buttons Mapper** → **Add a Button Click action** → in the **input manager** pick a button → add a **callback** and drag the **passthrough GameObject** in → `enabled` → **false**. **Repeat with a second button** with `enabled` → **true**, so you can come back. *Optional, and it is what makes it feel finished:* on the passthrough button also set the locomotion GameObjects to `SetActive > false`, and back to **true** on the VR one, standing in your real room, sliding makes no sense.",
+              "es": "**El botón que cambia de modo.** El passthrough ya está en la escena desde el paso 4. Añadid el Building Block **Controller Buttons Mapper** → **Add a Button Click action** → en el **input manager** elegid un botón → añadid un **callback** y arrastrad el **GameObject del passthrough** → `enabled` → **false**. **Repetid con un segundo botón** con `enabled` → **true**, para poder volver. *Opcional, y es lo que lo deja acabado:* en el botón de passthrough poned también los GameObjects de locomoción a `SetActive > false`, y de vuelta a **true** en el de VR, de pie en vuestra aula real, deslizarse no tiene sentido.",
+              "ca": "**El botó que canvia de mode.** El passthrough ja és a l'escena des del pas 4. Afegiu el Building Block **Controller Buttons Mapper** → **Add a Button Click action** → a l'**input manager** trieu un botó → afegiu un **callback** i arrossegueu el **GameObject del passthrough** → `enabled` → **false**. **Repetiu amb un segon botó** amb `enabled` → **true**, per poder tornar. *Opcional, i és el que ho deixa acabat:* al botó de passthrough poseu també els GameObjects de locomoció a `SetActive > false`, i de nou a **true** al de VR, drets a la vostra aula real, lliscar no té sentit."
             },
             {
               "en": "**Build and install.** `File > Build Settings` → your scene in **Scenes In Build**. Headset on **USB-C**, developer mode on, **Always allow USB debugging** accepted. **Option A:** `File > Build Profiles` → **Android** (or Meta Quest) → **Run Device** → **Refresh** → your Quest 3 → **Build And Run**. **Option B, if it never appears:** **Meta Quest Developer Hub** → **Add Build** → your `.apk` → **Library > Unknown Sources**. Test everything in the build: teleport, turn, slide and both buttons.",
@@ -1038,7 +1038,9 @@
         }
       ],
       "bossTier": "mini",
-      "todos": []
+      "todos": [],
+      "slidesHidden": true,
+      "bibliography": "content/bibliography/w2-boss.md"
     },
     {
       "id": "w2-05",
@@ -1106,9 +1108,9 @@
       "category": "practical",
       "optional": false,
       "summary": {
-        "en": "Brief walkthrough (2-3) · In-class activity: 3. Building Blocks additional feature — effect mesh, spatial anchor…",
-        "es": "Presentación del enunciado (2-3) · Actividad en clase: 3. Building Blocks additional feature — effect mesh, spatial anchor…",
-        "ca": "Presentació Enunciat (2-3) · Activitat a classe: 3. Building Blocks Additional Feature — Effect Mesh, Spatial Anchor…"
+        "en": "Brief walkthrough (2-3) · In-class activity: 3. Building Blocks additional feature, effect mesh, spatial anchor…",
+        "es": "Presentación del enunciado (2-3) · Actividad en clase: 3. Building Blocks additional feature, effect mesh, spatial anchor…",
+        "ca": "Presentació Enunciat (2-3) · Activitat a classe: 3. Building Blocks Additional Feature, Effect Mesh, Spatial Anchor…"
       },
       "contents": [
         {
@@ -1117,9 +1119,9 @@
           "ca": "Presentació Enunciat (2-3)"
         },
         {
-          "en": "In-class activity: 3. Building Blocks additional feature — effect mesh, spatial anchor…",
-          "es": "Actividad en clase: 3. Building Blocks additional feature — effect mesh, spatial anchor…",
-          "ca": "Activitat a classe: 3. Building Blocks Additional Feature — Effect Mesh, Spatial Anchor…"
+          "en": "In-class activity: 3. Building Blocks additional feature, effect mesh, spatial anchor…",
+          "es": "Actividad en clase: 3. Building Blocks additional feature, effect mesh, spatial anchor…",
+          "ca": "Activitat a classe: 3. Building Blocks Additional Feature, Effect Mesh, Spatial Anchor…"
         }
       ],
       "slidesPending": true,
@@ -1136,18 +1138,18 @@
         {
           "id": "w2-post-03-t1",
           "type": "objective-task",
-          "objective": "Ejercicio libre. Escoged un building block de impacto visual —Scene Mesh o Effect Mesh son los que más rinden, pero Room Guardian o la detección de objetos también valen— y usadlo para que el enfrentamiento de Blue Goblin y la amenaza ocurra dentro de vuestra habitación real.",
+          "objective": "Ejercicio libre. Escoged un building block de impacto visual (Scene Mesh o Effect Mesh son los que más rinden, pero Room Guardian o la detección de objetos también valen), y usadlo para que el enfrentamiento de Blue Goblin y la amenaza ocurra dentro de vuestra habitación real.",
           "starting_point": "El proyecto del bloque, con passthrough, plane detection y hand tracking ya funcionando.",
           "steps": [
-            "En Building Blocks, localiza el bloque elegido — revisa en el Inspector del propio bloque qué **Dependencies** muestra (Effect Mesh, por ejemplo, depende de MRUK y lo añade solo).",
+            "En Building Blocks, localiza el bloque elegido, revisa en el Inspector del propio bloque qué **Dependencies** muestra (Effect Mesh, por ejemplo, depende de MRUK y lo añade solo).",
             "Pruébalo aislado primero: crea una escena nueva y vacía con solo Camera Rig + Passthrough + el bloque elegido, y comprueba que funciona antes de meterlo en el proyecto del grupo.",
-            "Con el visor puesto: Configuración → Space Setup → vuelve a escanear la sala donde vais a entregar — la malla depende de esa captura, y una vieja da resultados raros.",
+            "Con el visor puesto: Configuración → Space Setup → vuelve a escanear la sala donde vais a entregar, la malla depende de esa captura, y una vieja da resultados raros.",
             "En el componente del bloque (p. ej. `EffectMesh`), sustituye el Material por uno semitransparente que deje ver el passthrough por debajo.",
             "Añade colisión a la malla generada (Mesh Collider, o la opción de colisión que exponga el propio bloque) para que otros objetos puedan rebotar, apoyarse o esconderse detrás de mobiliario real.",
             "Prueba que algo del juego choca de verdad contra un mueble real, no lo atraviesa.",
             "Prueba el build en una habitación distinta a la que usasteis para montarlo, y comprobad que sigue teniendo sentido.",
             "Cierra la narrativa: qué pasa con Blue Goblin y la amenaza en vuestra versión, visible dentro de la app.",
-            "Revisa el rendimiento en el visor (no en el editor) mirando la malla completa de la sala — usa `Meta > Tools > Runtime Optimizer` si necesitas identificar caídas de frames.",
+            "Revisa el rendimiento en el visor (no en el editor) mirando la malla completa de la sala, usa `Meta > Tools > Runtime Optimizer` si necesitas identificar caídas de frames.",
             "Build APK final del bloque, instalado en frío y recorrido de principio a fin sin ayuda."
           ],
           "deliverable": "APK por grupo más medio folio con la narrativa y la lista de building blocks usados."
@@ -1166,9 +1168,9 @@
       "category": "practical",
       "optional": false,
       "summary": {
-        "en": "Brief walkthrough (3-1) · In-class activity: 1. XR Interaction Toolkit — locomotion and interaction · XRITK GitHub examples: Socket XR · Unity VR Template demonstration · Introduction to OpenXR / Unity · Introduction to Unity / C#",
-        "es": "Presentación del enunciado (3-1) · Actividad en clase: 1. XR Interaction Toolkit — locomoción e interacción · XRITK GitHub examples: Socket XR · Demostración de la Unity VR Template · Introducción a OpenXR / Unity · Introducción a Unity / C#",
-        "ca": "Presentació Enunciat (3-1) · Activitat a classe: 1. XR Interaction Toolkit — Locomoció i Interacció · XRITK GitHub Examples: Socket XR · Unity VR Template demonstration · Introduction to OpenXR / Unity · Introducció a Unity / C#"
+        "en": "Brief walkthrough (3-1) · In-class activity: 1. XR Interaction Toolkit, locomotion and interaction · XRITK GitHub examples: Socket XR · Unity VR Template demonstration · Introduction to OpenXR / Unity · Introduction to Unity / C#",
+        "es": "Presentación del enunciado (3-1) · Actividad en clase: 1. XR Interaction Toolkit, locomoción e interacción · XRITK GitHub examples: Socket XR · Demostración de la Unity VR Template · Introducción a OpenXR / Unity · Introducción a Unity / C#",
+        "ca": "Presentació Enunciat (3-1) · Activitat a classe: 1. XR Interaction Toolkit, Locomoció i Interacció · XRITK GitHub Examples: Socket XR · Unity VR Template demonstration · Introduction to OpenXR / Unity · Introducció a Unity / C#"
       },
       "contents": [
         {
@@ -1177,9 +1179,9 @@
           "ca": "Presentació Enunciat (3-1)"
         },
         {
-          "en": "In-class activity: 1. XR Interaction Toolkit — locomotion and interaction",
-          "es": "Actividad en clase: 1. XR Interaction Toolkit — locomoción e interacción",
-          "ca": "Activitat a classe: 1. XR Interaction Toolkit — Locomoció i Interacció"
+          "en": "In-class activity: 1. XR Interaction Toolkit, locomotion and interaction",
+          "es": "Actividad en clase: 1. XR Interaction Toolkit, locomoción e interacción",
+          "ca": "Activitat a classe: 1. XR Interaction Toolkit, Locomoció i Interacció"
         },
         {
           "en": "XRITK GitHub examples: Socket XR",
@@ -1259,9 +1261,9 @@
       "category": "practical",
       "optional": false,
       "summary": {
-        "en": "Brief walkthrough (3-2) · In-class activity: 2. XR Interaction Toolkit — hand tracking and gestures · Unity VR Template demonstration · Meta Building Blocks hand-in",
-        "es": "Presentación del enunciado (3-2) · Actividad en clase: 2. XR Interaction Toolkit — hand tracking y gestos · Demostración de la Unity VR Template · Entrega Meta Building Blocks",
-        "ca": "Presentació Enunciat (3-2) · Activitat a classe: 2. XR Interaction Toolkit — Hand Tracking and Gestures · Unity VR Template demonstration · Entrega Meta Building Blocks"
+        "en": "Brief walkthrough (3-2) · In-class activity: 2. XR Interaction Toolkit, hand tracking and gestures · Unity VR Template demonstration · Meta Building Blocks hand-in",
+        "es": "Presentación del enunciado (3-2) · Actividad en clase: 2. XR Interaction Toolkit, hand tracking y gestos · Demostración de la Unity VR Template · Entrega Meta Building Blocks",
+        "ca": "Presentació Enunciat (3-2) · Activitat a classe: 2. XR Interaction Toolkit, Hand Tracking and Gestures · Unity VR Template demonstration · Entrega Meta Building Blocks"
       },
       "contents": [
         {
@@ -1270,9 +1272,9 @@
           "ca": "Presentació Enunciat (3-2)"
         },
         {
-          "en": "In-class activity: 2. XR Interaction Toolkit — hand tracking and gestures",
-          "es": "Actividad en clase: 2. XR Interaction Toolkit — hand tracking y gestos",
-          "ca": "Activitat a classe: 2. XR Interaction Toolkit — Hand Tracking and Gestures"
+          "en": "In-class activity: 2. XR Interaction Toolkit, hand tracking and gestures",
+          "es": "Actividad en clase: 2. XR Interaction Toolkit, hand tracking y gestos",
+          "ca": "Activitat a classe: 2. XR Interaction Toolkit, Hand Tracking and Gestures"
         },
         {
           "en": "Unity VR Template demonstration",
@@ -1343,15 +1345,15 @@
       "category": "project",
       "optional": false,
       "summary": {
-        "en": "Final project: concept — Q&A · Final project hand-in: concept",
-        "es": "Trabajo final: concept — resolución de dudas · Entrega del trabajo final: concept",
-        "ca": "Projecte Final d'Assignatura: Concept — Resolució de dubtes · Entrega Treball Final d'Assignatura: Concept"
+        "en": "Final project: concept, Q&A · Final project hand-in: concept",
+        "es": "Trabajo final: concept, resolución de dudas · Entrega del trabajo final: concept",
+        "ca": "Projecte Final d'Assignatura: Concept, Resolució de dubtes · Entrega Treball Final d'Assignatura: Concept"
       },
       "contents": [
         {
-          "en": "Final project: concept — Q&A",
-          "es": "Trabajo final: concept — resolución de dudas",
-          "ca": "Projecte Final d'Assignatura: Concept — Resolució de dubtes"
+          "en": "Final project: concept, Q&A",
+          "es": "Trabajo final: concept, resolución de dudas",
+          "ca": "Projecte Final d'Assignatura: Concept, Resolució de dubtes"
         },
         {
           "en": "Final project hand-in: concept",
@@ -1441,7 +1443,7 @@
       ],
       "todos": [],
       "deliverable": {
-        "label": "Treball Final d'Assignatura — Concept",
+        "label": "Treball Final d'Assignatura, Concept",
         "kind": "graded"
       }
     },
@@ -1495,7 +1497,7 @@
       ],
       "todos": [],
       "deliverable": {
-        "label": "Treball Final d'Assignatura — Set Up",
+        "label": "Treball Final d'Assignatura, Set Up",
         "kind": "graded"
       }
     },

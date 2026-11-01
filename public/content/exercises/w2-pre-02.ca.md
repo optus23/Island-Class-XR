@@ -11,7 +11,7 @@ paginate: true
 Crea una **app de realitat virtual** amb Meta Building Blocks
 per **interactuar amb una solució 3D per encarar el robot gegant**
 
-**Bloc 2 — Meta Building Blocks** · **En grup** · vuit passos, sense codi
+**Bloc 2: Meta Building Blocks** · **En grup** · vuit passos, sense codi
 
 ---
 
@@ -32,11 +32,11 @@ de Building Blocks: deixes anar un bloc a l'escena i funciona.
 
 L'All-in-One SDK són uns quants paquets, i no els necessiteu tots:
 
-- **Core SDK** — render, tracking i primitives de realitat mixta
-- **Interaction SDK** — interaccions amb mans, comandaments i mirada
+- **Core SDK**: render, tracking i primitives de realitat mixta
+- **Interaction SDK**: interaccions amb mans, comandaments i mirada
 - **Haptics**, **Audio**, **Platform**, **MR Utility Kit**
 
-**El Meta XR Simulator NO és dins del SDK.** S'instal·la a part — d'això va el
+**El Meta XR Simulator NO és dins del SDK.** S'instal·la a part, d'això va el
 pas 6, i per això es pot negar.
 
 ---
@@ -57,7 +57,7 @@ Obre l'**Asset Store** i busca **Meta XR SDK**.
 
 Prem **Add to My Assets**.
 
-Has d'estar **connectat al teu compte d'Unity** perquè aquest botó faci res —
+Has d'estar **connectat al teu compte d'Unity** perquè aquest botó faci res,
 si sembla que no passa res, és per això.
 
 ---
@@ -78,7 +78,7 @@ Tres coses, en aquest ordre:
 **Comprova que l'Oculus XR Plugin NO està instal·lat.**
 
 És l'error més car del dia: amb ell al projecte al costat d'OpenXR, la build
-funciona, el visor mostra la teva escena i **no traqueja res** — ni el cap ni
+funciona, el visor mostra la teva escena i **no traqueja res**, ni el cap ni
 les mans. I no surt cap error enlloc.
 
 Si el teu projecte el té, treu-lo abans de continuar.
@@ -92,9 +92,9 @@ seva, i dues càmeres és una escena confusa.
 
 Després `Meta XR Tools > Building Blocks`, i arrossega'n **tres**:
 
-- **Camera Rig** — segueix el cap i el cos; és el que substitueix la Main Camera
-- **Interaction Rig** — porta el hand tracking *i* els comandaments
-- **Grab Interaction** — hi posa un cub que es pot agafar
+- **Camera Rig**: segueix el cap i el cos; és el que substitueix la Main Camera
+- **Interaction Rig**: porta el hand tracking *i* els comandaments
+- **Grab Interaction**: hi posa un cub que es pot agafar
 
 ---
 
@@ -116,7 +116,7 @@ angle que sembla trencat.
 
 `Meta XR Tools` → activa el **Meta XR Simulator**.
 
-Pot ser que et demani **instal·lar-lo** primer — accepta i obre'l. No ve al SDK
+Pot ser que et demani **instal·lar-lo** primer: accepta i obre'l. No ve al SDK
 que vas afegir al pas 2, així que és una descàrrega a part.
 
 **Si no hi ha manera d'instal·lar-lo, salta directament al pas 7.** El simulador
@@ -129,7 +129,7 @@ ell.
 
 1. Connecta el visor al PC amb un cable **USB-C**.
 2. Obre **Meta Horizon Link** al PC.
-   **Al CITM, NO intentis instal·lar-lo** — executa el fitxer
+   **Al CITM, NO intentis instal·lar-lo**, executa el fitxer
    **`oculus-reg.bat`** que hi ha a l'escriptori.
 3. Als **ajustos ràpids** de la Quest, prem **Link (PC)**.
 4. Espera l'entorn virtual i dóna-li a **Play** a Unity.
@@ -146,7 +146,7 @@ Canvia el cub pel que realment portaràs:
 - **Importa el teu model** i assigna'l al **Mesh Filter** del cub.
 - **Crea el seu material** si el model no en porta, i canvia també el material
   de l'objecte.
-- Prem **Edit Collider** al **Box Collider** i **ajusta'l al model nou** — el
+- Prem **Edit Collider** al **Box Collider** i **ajusta'l al model nou**, el
   collider és el que la teva mà agafa de debò, així que una caixa amb la forma
   del cub vell agafa aire.
 
@@ -160,11 +160,11 @@ In Build**.
 Abans de fer la build: visor connectat per **USB-C**, **mode desenvolupador
 activat** i **Always allow USB debugging** acceptat al visor.
 
-**Opció A — des d'Unity.** `File > Build Profiles` → **Android** (o Meta Quest)
+**Opció A: des d'Unity.** `File > Build Profiles` → **Android** (o Meta Quest)
 → a **Run Device** prem **Refresh** i tria la teva Quest 3 → **Build And Run**.
 S'instal·la i s'obre sola.
 
-**Opció B — si el visor no apareix.** Obre **Meta Quest Developer Hub**, prem
+**Opció B: si el visor no apareix.** Obre **Meta Quest Developer Hub**, prem
 **Add Build**, tria el teu `.apk` i llança'l des del visor:
 **Library > Unknown Sources**.
 

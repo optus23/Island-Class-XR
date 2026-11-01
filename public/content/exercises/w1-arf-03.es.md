@@ -8,12 +8,12 @@ paginate: true
 
 # Ejercicio 3 · AR Foundation Samples
 
-El problema está **resuelto** — así que ya podéis usar los samples
+El problema está **resuelto**: así que ya podéis usar los samples
 
 Crea una app a partir de los **AR Foundation Samples** de Unity
 y **prueba todas sus features**
 
-**Bloque 1 — AR Foundation** · **En grupo** · tres pasos, sin código
+**Bloque 1: AR Foundation** · **En grupo** · tres pasos, sin código
 
 ---
 
@@ -25,7 +25,7 @@ de Unity que ya trae una escena funcionando por cada feature que tiene AR
 Foundation.
 
 Hoy no integráis nada en vuestro proyecto. Abrís el suyo, lo ejecutáis en el
-móvil y descubrís **qué sabe hacer la plataforma de verdad** — que es lo que
+móvil y descubrís **qué sabe hacer la plataforma de verdad**, que es lo que
 necesitáis antes del bloque 2.
 
 ---
@@ -68,7 +68,7 @@ cambia con cada release: la correcta hoy no es la correcta dentro de un año.
 Unity Hub → **Add** → **Add project from disk**, y apunta a la carpeta que
 acabas de descargar.
 
-**Comprueba que tienes los módulos de Android instalados** antes de abrirlo —
+**Comprueba que tienes los módulos de Android instalados** antes de abrirlo,
 Unity Hub → *Installs* → **Add modules** → *Android Build Support*, con
 **OpenJDK** y **Android SDK & NDK Tools** dentro.
 
@@ -82,7 +82,7 @@ módulo, Android no aparece nunca en Build Settings.
 Abre las escenas de ejemplo y pruébalas:
 
 - **Face Tracking**
-- **Body Tracking** — *solo en iPhone*
+- **Body Tracking**: *solo en iPhone*
 - **Simple Occlusion**
 - **Ambient Intensity**
 
@@ -96,7 +96,7 @@ dispositivo suele ser el dispositivo, no tu build.
 - **Point Cloud**
 - **Configuration**
 - **Anchors**
-- **Plane detection** — la que ya montaste a mano en el ejercicio 1
+- **Plane detection**: la que ya montaste a mano en el ejercicio 1
 
 Verla aquí al lado de las demás es justo el objetivo: lo que te costó una sesión
 cablear es una escena dentro de un catálogo, y ese catálogo es de donde arranca
@@ -127,7 +127,7 @@ Después `File > Build Settings`:
 
 Esa es tu APK. Instálala en el móvil.
 
-Enhorabuena — con esto el bloque está terminado.
+Enhorabuena: con esto el bloque está terminado.
 
 ---
 

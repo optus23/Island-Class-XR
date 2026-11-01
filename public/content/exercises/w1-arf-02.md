@@ -11,7 +11,7 @@ paginate: true
 Create an image tracking app with Unity AR Foundation
 that spawns **a 3D solution to deal with the green goblins**
 
-**Block 1 — AR Foundation** · **Individual** · eight steps, no scripting
+**Block 1: AR Foundation** · **Individual** · eight steps, no scripting
 
 ---
 
@@ -19,7 +19,7 @@ that spawns **a 3D solution to deal with the green goblins**
 
 Exercise 1 put a real AR build on your phone. This one changes what triggers
 it: instead of a detected **plane**, your object appears on a detected
-**image** — a marker.
+**image**: a marker.
 
 Everything again happens in the **Inspector**. What is new today is the **XR
 Simulator**, which lets you test image tracking inside the Editor, without
@@ -48,7 +48,7 @@ library must never be null.
 
 Unity Hub → **New project** → **AR Mobile**, under *Core*.
 
-**Make sure the Android module is installed** in your Editor — Unity Hub →
+**Make sure the Android module is installed** in your Editor, Unity Hub →
 *Installs* → **Add modules** → *Android Build Support*, with **OpenJDK** and
 **Android SDK & NDK Tools** inside it.
 
@@ -67,7 +67,7 @@ Two things, and they are not the same thing:
 
 Switching the platform reimports the whole project, so do it now while the
 project is still empty. And the ARCore package being installed is not the same
-as ARCore being **enabled** — the checkbox is what switches AR on.
+as ARCore being **enabled**: the checkbox is what switches AR on.
 
 ---
 
@@ -92,7 +92,7 @@ them.
 In the Project window, right-click in `Assets` →
 **`Create > XR > Reference Image Library`**.
 
-Select the asset, press **Add Image**, and drop in an ordinary texture — PNG,
+Select the asset, press **Add Image**, and drop in an ordinary texture, PNG,
 JPG, whatever you have.
 
 **Pick an image with contrast and irregular detail.** The editor scores each
@@ -105,8 +105,8 @@ light at a perfect angle, and you will end up blaming the code for it.
 
 `Window > XR > AR Foundation > XR Environment`.
 
-This opens a simulated room you can play the scene inside — image tracking
-included — so you can test today's exercise **without building the APK and
+This opens a simulated room you can play the scene inside, image tracking
+included, so you can test today's exercise **without building the APK and
 without printing a marker**.
 
 Go to the **XR Environment** tab and **Edit Environment**. If it will not let
@@ -121,7 +121,7 @@ The environment already contains an image, hanging in the room.
 
 - Select the **`Logo Quad`** object and **change its material** so it shows
   **the same image you added to your library** in step 4.
-- Then — and this is the one everybody forgets — set that same image on the
+- Then (and this is the one everybody forgets), set that same image on the
   **Simulated Tracked Image** component as well.
 
 The quad is what you *see*; the Simulated Tracked Image component is what the
@@ -138,7 +138,7 @@ Manager** you added in step 3.
 - Drag your **reference image library** into its library field.
 - Set the **prefab** it should spawn when the image is tracked.
 
-That prefab is your answer to the green goblins. Any 3D object you like — build
+That prefab is your answer to the green goblins. Any 3D object you like, build
 it, download it, reuse the one from exercise 1.
 
 **If the marker will be moving**, raise **Max Number Of Moving Images** to at
@@ -154,11 +154,11 @@ costs minutes. Do not discover a wrong material by way of an APK.
 
 Then `File > Build Settings`:
 
-- check your scene is in the **Scenes In Build** list — *Add Open Scenes* if it
+- check your scene is in the **Scenes In Build** list, *Add Open Scenes* if it
   is not, and this is the step people skip;
 - press **Build** and pick a destination folder.
 
-That is your APK. Install it on your phone and point it at the marker — on
+That is your APK. Install it on your phone and point it at the marker, on
 paper or on another screen.
 
 ---

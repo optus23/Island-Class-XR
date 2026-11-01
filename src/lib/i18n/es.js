@@ -35,7 +35,7 @@ export default {
   'assess.block': 'Bloque',
   'assess.delivery': 'Entrega',
   'assess.work': 'Trabajo',
-  'assess.blockValue': '{number} · {name} — ejercicio {exercise} de {of}',
+  'assess.blockValue': '{number} · {name} · ejercicio {exercise} de {of}',
 
   'nav.lockedTitle': 'Se abre cuando la clase llegue aquí',
   'nav.locked': 'Bloqueado',
@@ -112,7 +112,7 @@ export default {
   'slides.pdfNoEmbed': 'Tu navegador no puede incrustar PDF.',
   'slides.openPdf': 'Abrir el PDF ↗',
   'slides.openTab': 'Abrir en una pestaña ↗',
-  'slides.title': 'Diapositivas — {title}',
+  'slides.title': 'Diapositivas: {title}',
 
   'deck.prev': 'Diapositiva anterior',
   'deck.next': 'Diapositiva siguiente',
@@ -130,7 +130,7 @@ export default {
   'md.pendingBody':
     'Falta el archivo {path}. Créalo en el repositorio y aparecerá aquí sin tocar código.',
   'md.loadError': 'No se pudo cargar {path} ({detail}).',
-  'md.fallbackNotice': 'Todavía sin traducir — se muestra el original.',
+  'md.fallbackNotice': 'Todavía sin traducir. Se muestra el original.',
 
   'card.world': 'MUNDO {world}-{index}',
   'card.sessionOf': 'Sesión {global} de {total} · quedan {left}',

@@ -11,7 +11,7 @@ paginate: true
 Create an AR app with Unity AR Foundation
 that spawns **a 3D solution to deal with the blue goblin**
 
-**Block 1 — AR Foundation** · **Individual** · eight steps, no scripting
+**Block 1: AR Foundation** · **Individual** · eight steps, no scripting
 
 ---
 
@@ -49,7 +49,7 @@ later, and you will be debugging the wrong thing. Add it from Unity Hub →
 ## Step 2 · Packages, then platform
 
 `Window > Package Manager`, switch the dropdown to **Packages: In Project**,
-and make sure everything is up to date — in particular **AR Foundation** and
+and make sure everything is up to date: in particular **AR Foundation** and
 the **Google ARCore XR Plugin** (or **Apple ARKit XR Plugin**).
 
 Then `File > Build Settings` → select **Android** (or **iOS**) → **Switch
@@ -70,7 +70,7 @@ once your model and its textures are in there.
 - **Minimum API Level → 24** (Android 7.0) · on iOS, minimum version **11**
 
 **ARCore does not run on Vulkan.** Leave it in the Graphics APIs list and the
-app compiles, installs, opens — and shows a **black screen**, with no error
+app compiles, installs, opens, and shows a **black screen**, with no error
 anywhere. It is the hardest failure of the day to diagnose, and it is one
 checkbox.
 
@@ -85,7 +85,7 @@ The package being in the project and the provider being **enabled** are two
 different things. The template puts the packages there; this checkbox is what
 switches AR on.
 
-If the Android tab is not there at all, go back to step 1 — you are missing the
+If the Android tab is not there at all, go back to step 1, you are missing the
 Android module.
 
 ---
@@ -98,7 +98,7 @@ anything**.
 Two reasons, and the second is the important one:
 
 1. If the phone, the cable, USB debugging or the modules are not lined up, you
-   find out now — with nothing of your own in the project to suspect.
+   find out now: with nothing of your own in the project to suspect.
 2. The template's demo **is** the thing you are about to modify. Tap around it,
    spawn the cubes, open the object menu. You are about to add an item to that
    menu, and it helps to have used it first.
@@ -110,22 +110,22 @@ Two reasons, and the second is the important one:
 Five things worth recognising in the Hierarchy, because you will be opening
 them in a moment:
 
-- **AR Session** — the lifecycle of the AR app: plane detection, image
+- **AR Session**, the lifecycle of the AR app: plane detection, image
   tracking, raycasts, meshing, point clouds.
-- **XR Origin** *(AR Session Origin)* — converts AR session coordinates into
+- **XR Origin** *(AR Session Origin)*: converts AR session coordinates into
   Unity world coordinates.
-- **AR Camera Manager** — auto focus, light estimation, and **Facing
+- **AR Camera Manager**: auto focus, light estimation, and **Facing
   Direction**: towards the world, or towards the user.
-- **Tracked Pose Driver** — turns real camera movement into scene camera
+- **Tracked Pose Driver**: turns real camera movement into scene camera
   movement.
-- **AR Input Manager** — tracks user input.
+- **AR Input Manager**: tracks user input.
 
 ---
 
 ## Step 5 · Your prefab
 
 In `Assets > MobileARTemplateAssets > Prefabs`, **duplicate `CubeVariant`** and
-rename it after your object. (You can build one from scratch instead — it just
+rename it after your object. (You can build one from scratch instead, it just
 has to have the same structure.)
 
 Open it, and inside its **`Visuals`** child:
@@ -141,7 +141,7 @@ Open it, and inside its **`Visuals`** child:
 **Put the parent's pivot at the floor of the model.**
 
 That pivot is the point the spawner places on the detected plane. With it in
-the middle of the mesh — which is where an imported model usually has it — half
+the middle of the mesh (which is where an imported model usually has it), half
 your object ends up buried in the table, and the other half hovers.
 
 The fix is the same one that fixes most model problems: nest the model inside
@@ -153,7 +153,7 @@ origin, and use the parent as the prefab.
 ## Step 6 · Object Spawner
 
 Expand the **XR Origin** prefab in the Hierarchy. Inside it there is a
-GameObject called **`Object Spawner`** — select it and look at the Inspector.
+GameObject called **`Object Spawner`**: select it and look at the Inspector.
 
 Its **Object Spawner** script holds every prefab the demo can spawn, in the
 **Object Prefabs** list. Press **+** to add one more element, and **drag your
@@ -196,13 +196,13 @@ count the list again.
 
 `File > Build Settings`:
 
-- check your scene is in the **Scenes In Build** list — *Add Open Scenes* if it
+- check your scene is in the **Scenes In Build** list, *Add Open Scenes* if it
   is not;
 - press **Build** and pick a destination folder.
 
 That is your APK. Install it on your phone.
 
-Test it on a **real surface with some texture** — a table with things on it,
+Test it on a **real surface with some texture**: a table with things on it,
 not a bare white desk. ARCore finds planes by tracking feature points, and a
 smooth uniform surface gives it nothing to hold on to.
 

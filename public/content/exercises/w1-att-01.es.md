@@ -8,7 +8,7 @@ paginate: true
 
 # Actividad · Mono / Estereoscópico
 
-Graba la misma toma 360° dos veces —una plana y otra en estéreo—
+Graba la misma toma 360° dos veces (una plana y otra en estéreo)
 y **mira la diferencia con unas gafas**
 
 **Voluntaria** · dieciséis pasos · Unity Recorder
@@ -30,7 +30,7 @@ Lo importante no es la grabación. Lo importante es la **comparación**: dos
 ficheros de la misma escena que se diferencian en exactamente una cosa.
 
 **Unity es la vía que se recorre aquí, no la única permitida.** Vale cualquier
-software capaz de renderizar esos dos vídeos 360 con sus metadatos espaciales —
+software capaz de renderizar esos dos vídeos 360 con sus metadatos espaciales,
 los dieciséis pasos de abajo simplemente toman el camino que todo el mundo en el
 aula ya tiene instalado.
 
@@ -38,13 +38,13 @@ aula ya tiene instalado.
 
 ## ⚠ Lee esto antes de crear el proyecto
 
-*(Solo para la vía de Unity — si los renderizas en otro sitio, salta al paso 15.)*
+*(Solo para la vía de Unity: si los renderizas en otro sitio, salta al paso 15.)*
 
 **Elige la plantilla `3D (Built-In Render Pipeline)`.** Ni Universal 3D, ni HDRP.
 
 Unity Recorder **no soporta captura 360 estereoscópica en ningún Scriptable
 Render Pipeline**. Con URP o HDRP la casilla *Record in Stereo* se marca igual,
-el fichero sale igual arriba-abajo — y **las dos mitades son idénticas**. Te
+el fichero sale igual arriba-abajo, y **las dos mitades son idénticas**. Te
 queda un fichero con forma de estéreo y sin estéreo dentro.
 
 No te avisa nada. Te enterarías con las gafas puestas, que es el peor momento
@@ -84,7 +84,7 @@ en Play mode**. No es algo que puedas meter dentro de una build.
 
 `Window > General > Recorder > Recorder window`.
 
-Acóplala donde puedas verla mientras corre el juego — al lado del Game view es
+Acóplala donde puedas verla mientras corre el juego, al lado del Game view es
 lo habitual. Vas a estar leyéndola durante la reproducción.
 
 Unity restaura lo que dejaste puesto la última vez que grabaste, lo cual es
@@ -97,8 +97,8 @@ panel en vez de fiarte de tu memoria.
 
 Pulsa **+ Add Recorder** y elige **Movie**.
 
-Un Recorder es una salida. La lista puede tener varios a la vez —podrías grabar
-la versión plana y la estéreo en una sola pasada— pero no lo hagas: dos
+Un Recorder es una salida. La lista puede tener varios a la vez, podrías grabar
+la versión plana y la estéreo en una sola pasada, pero no lo hagas: dos
 Recorders sobre una captura 360 se pelean por la misma cámara.
 
 Un Recorder, dos pasadas. Es más lento y es la versión que funciona.
@@ -114,7 +114,7 @@ En el panel de sesión de grabación de arriba, pon **Playback** en **Constant**
 de frames, frenando el Editor si no da abasto. **Variable** hace lo contrario:
 mantiene el Editor a toda velocidad y descarta frames.
 
-Una captura 360 es pesada — renderiza tu escena seis veces por frame. Constant
+Una captura 360 es pesada: renderiza tu escena seis veces por frame. Constant
 es lo que impide que eso acabe en un vídeo a tirones.
 
 ---
@@ -140,7 +140,7 @@ la imagen plana 2:1 que espera un reproductor 360 (una proyección
 
 Dos consecuencias que te encontrarás luego:
 
-- la **rotación de la cámara la está gobernando el Recorder** mientras captura —
+- la **rotación de la cámara la está gobernando el Recorder** mientras captura,
   ver paso 13;
 - la grabación cuesta seis renders por frame, así que es lenta.
 
@@ -167,7 +167,7 @@ blando de lo que esperas.
 Deja **Cube Map Size** en **2048**.
 
 Es el lado, en píxeles, de cada una de las seis caras del cubo que el Recorder
-renderiza antes de desplegarlas. Es la resolución *real* de la captura — las
+renderiza antes de desplegarlas. Es la resolución *real* de la captura, las
 Output Dimensions de arriba son solo el tamaño al que se aplana ese cubo.
 
 - Demasiado pequeño, y el 360 se ve blando por grande que sea la salida.
@@ -183,7 +183,7 @@ habitual, y de ahí sale el 2048.
 Busca **Record in Stereo** y déjalo **sin marcar**.
 
 Este primer fichero es el **monoscópico**: una sola imagen, enviada a los dos
-ojos. Con las gafas se verá como estar dentro de una fotografía — puedes mirar
+ojos. Con las gafas se verá como estar dentro de una fotografía, puedes mirar
 alrededor, pero todo está a la misma distancia plana.
 
 Ese es el control. Lo necesitas para tener contra qué comparar, así que aguanta
@@ -210,7 +210,7 @@ En **Output File**, pon el **File Name**, abre el menú **+ Wildcards** y añade
 **`<Take>`**.
 
 **No te saltes esto.** El Recorder escribe siempre en la misma ruta, así que sin
-comodín tu segunda toma sobrescribe la primera en silencio — y la primera es el
+comodín tu segunda toma sobrescribe la primera en silencio, y la primera es el
 vídeo monoscópico que necesitas para comparar.
 
 `<Take>` es un contador que el Recorder incrementa después de cada grabación,
@@ -252,7 +252,7 @@ cinco minutos.
 
 ## Paso 13 · Graba la primera toma
 
-Pulsa **START RECORDING** y mueve la cámara por la escena — pasa cerca de algo,
+Pulsa **START RECORDING** y mueve la cámara por la escena, pasa cerca de algo,
 y luego aléjate. Para a los veinte o treinta segundos.
 
 Puedes arrastrar el Transform de la cámara en el Scene view mientras corre el
@@ -269,7 +269,7 @@ con las gafas, donde el movimiento ocupa todo tu campo de visión.
 **Traslación sí. Rotación nunca.** Esta es la regla que importa.
 
 En un vídeo 360 la cabeza del espectador *es* la cámara. Rótala en Unity y la
-imagen gira mientras el cuello de quien mira no — y eso se lee exactamente como
+imagen gira mientras el cuello de quien mira no, y eso se lee exactamente como
 alguien cogiéndote la cabeza con las manos y girándola. Es una de las formas más
 rápidas de marear a una persona en VR.
 
@@ -288,7 +288,7 @@ izquierdo arriba, ojo derecho abajo**. Ese es el *top/bottom layout* por el que
 te preguntará después la herramienta de metadatos, así que quédate con la
 expresión.
 
-**Stereo Separation** es la distancia entre esos dos ojos — la distancia
+**Stereo Separation** es la distancia entre esos dos ojos, la distancia
 interpupilar. El valor por defecto **0.065** son 65 mm, la media humana. Súbelo y
 la profundidad se exagera hasta parecer una maqueta; bájalo y la escena se
 aplana de nuevo hacia el mono.
@@ -310,7 +310,7 @@ mirando.
 
 ## Paso 15 · Spatial Media Metadata Injector
 
-Descárgalo del repositorio **spatial-media** de Google, página de releases — la
+Descárgalo del repositorio **spatial-media** de Google, página de releases, la
 **360 Video Metadata Tool** para Windows o Mac.
 
 Un fichero 360 es un MP4 normal. Nada dentro de los píxeles dice "esto es
@@ -327,7 +327,7 @@ fichero nuevo que escribe al lado del original.
 **Los dos ficheros:** `My video is spherical (360)`.
 
 **Solo el fichero estéreo, y además:**
-`My video is stereoscopic 3D (top/bottom layout)` — que es exactamente como el
+`My video is stereoscopic 3D (top/bottom layout)`, que es exactamente como el
 Recorder apiló los dos ojos en el paso 14.
 
 Deja en paz el **spatial audio (ambiX ACN/SN3D)**. Eso es para sonido
@@ -340,13 +340,13 @@ vídeo 360, es una fotografía muy ancha de uno.
 
 ## Paso 16 · Méteselos a las gafas
 
-**Vía A — YouTube (recomendada).** Sube los dos ficheros inyectados a tu canal,
+**Vía A: YouTube (recomendada).** Sube los dos ficheros inyectados a tu canal,
 como no listados si quieres. Abre YouTube dentro de las Quest 3 y mira cada uno.
 
-**Vía B — sideload.** Copia los dos ficheros directamente al almacenamiento de
+**Vía B: sideload.** Copia los dos ficheros directamente al almacenamiento de
 las gafas por USB, abre **Biblioteca → Vídeos** (o un reproductor como DeoVR) y
 dile al reproductor que son 360, mono o estéreo. **Por esta vía no hace falta el
-injector** — se lo estás diciendo al reproductor en vez de etiquetar el fichero.
+injector**: se lo estás diciendo al reproductor en vez de etiquetar el fichero.
 
 Cada reproductor de VR pone esos controles en un sitio distinto. Cuenta con
 buscarlos.
@@ -357,7 +357,7 @@ buscarlos.
 
 **En un navegador de escritorio**, abre tu vídeo subido y **arrástralo con el
 ratón**. Si la vista gira, YouTube ha leído la etiqueta esférica y la inyección
-funcionó. Si lo que ves es un rectángulo deformado y quieto, no — vuelve al paso
+funcionó. Si lo que ves es un rectángulo deformado y quieto, no, vuelve al paso
 15.
 
 Dale a YouTube unos minutos después de subirlo: el tratamiento 360 solo aparece
@@ -376,7 +376,7 @@ objetos **cercanos**.
 - ¿Cuál te da ganas de alargar la mano?
 - ¿Cuál es más cómodo pasados un par de minutos?
 
-Apunta lo que has notado. Esa observación es el objetivo de la actividad — los
+Apunta lo que has notado. Esa observación es el objetivo de la actividad, los
 dos ficheros son solo el aparato de medida.
 
 ---

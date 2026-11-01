@@ -8,7 +8,7 @@ paginate: true
 
 # Ejercicio 1 · Locomoción e interacción
 
-**Bloque 3 — XR Interaction Toolkit** · entrega evaluable
+**Bloque 3: XR Interaction Toolkit** · entrega evaluable
 **Por grupo** · **Entrega: pendiente de definir** · Se hace **en clase**, rápido
 
 ---
@@ -43,7 +43,7 @@ mirarlo, no para copiar la escena entera.
   qué.
 - Al menos un objeto **agarrable**, con el *attach point* ajustado: se coge por
   donde toca y no se queda flotando al soltarlo.
-- Un interactable **de otro tipo** —botón, palanca o socket— para que no todo sea
+- Un interactable **de otro tipo** (botón, palanca o socket), para que no todo sea
   agarrar.
 - Confort mínimo: viñeta o fundido al moverse, altura del suelo correcta, y
   **ninguna rotación de cámara forzada por código**.
