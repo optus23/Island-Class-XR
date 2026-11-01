@@ -9,7 +9,7 @@
 
 ## El qüestionari voluntari
 
-Totalment voluntari, i un avantatge significatiu al parcial. Escriviu les vostres pròpies preguntes sobre el contingut — i les bones poden acabar a l’examen. Escriure una pregunta obliga a repassar el temari i decidir què importa de debò, que és gairebé tot l’estudi fet.
+Totalment voluntari, i un avantatge significatiu al parcial. Escriviu les vostres pròpies preguntes sobre el contingut, i les bones poden acabar a l’examen.
 
 **[Obrir el qüestionari](https://docs.google.com/forms/d/e/1FAIpQLSdnkE1LF7FvSVUMWYOFWqMQfcsnKMZ3XihKV2Zu0Ik5mbPtXA/viewform)**
 
@@ -28,14 +28,14 @@ Totes les sessions blaves fins aquí. Cadascuna obre les seves diapositives i la
 
 **Quins avantatges tenen els controls físics en RV?**
 
-a) Adaptabilitat a tota mena de necessitats especials.
-b) Possibilitat de «feedback» hàptic.
-c) Redueix al mínim la latència del «hand tracking».
-d) Totes són correctes.
+- a) Adaptabilitat a tota mena de necessitats especials.
+- b) Possibilitat de «feedback» hàptic.
+- c) Redueix al mínim la latència del «hand tracking».
+- **d) Totes són correctes.**
 
 ## Exemple de pregunta oberta
 
-**Explica en detall les causes i els símptomes del «Simulator Sickness» en la realitat virtual.** Descriu les estratègies de disseny i les tècniques d’entrenament que es poden implementar per mitigar aquest problema i millorar l’experiència de l’usuari en entorns VR. Esmenta algun cas pràctic en què el «Simulator Sickness» s’hagi mitigat.
+**Explica en detall les causes i els símptomes del «Simulator Sickness» en la realitat virtual.** Descriu les estratègies de disseny i les tècniques d’entrenament que es poden implementar per mitigar aquest problema i millorar l’experiència de l’usuari en entorns VR. Esmenta algun cas pràctic en què el «Simulator Sickness» s’hagi mitigat. *Màxim 300 paraules.*
 
 **Una resposta de l’extensió esperada:**
 

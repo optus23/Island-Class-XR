@@ -35,7 +35,7 @@ export default {
   'assess.block': 'Bloc',
   'assess.delivery': 'Entrega',
   'assess.work': 'Treball',
-  'assess.blockValue': '{number} · {name} — exercici {exercise} de {of}',
+  'assess.blockValue': '{number} · {name} · exercici {exercise} de {of}',
 
   'nav.lockedTitle': "S'obre quan la classe hi arribi",
   'nav.locked': 'Blocat',
@@ -112,7 +112,7 @@ export default {
   'slides.pdfNoEmbed': 'El teu navegador no pot incrustar PDF.',
   'slides.openPdf': 'Obrir el PDF ↗',
   'slides.openTab': 'Obrir en una pestanya ↗',
-  'slides.title': 'Diapositives — {title}',
+  'slides.title': 'Diapositives: {title}',
 
   'deck.prev': 'Diapositiva anterior',
   'deck.next': 'Diapositiva següent',
@@ -130,7 +130,7 @@ export default {
   'md.pendingBody':
     "Falta el fitxer {path}. Crea'l al repositori i apareixerà aquí sense tocar codi.",
   'md.loadError': 'No s\'ha pogut carregar {path} ({detail}).',
-  'md.fallbackNotice': "Encara sense traduir — es mostra l'original.",
+  'md.fallbackNotice': "Encara sense traduir. Es mostra l'original.",
 
   'card.world': 'MÓN {world}-{index}',
   'card.sessionOf': 'Sessió {global} de {total} · en queden {left}',

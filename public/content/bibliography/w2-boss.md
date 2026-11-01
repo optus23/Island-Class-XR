@@ -9,7 +9,7 @@
 
 ## The voluntary questionnaire
 
-Completely voluntary, and a real advantage in the exam. You write your own questions about the course material — and the good ones can end up on the paper. Writing a question means going back through the content and deciding what actually matters in it, which is most of the revision done already.
+Completely voluntary, and a real advantage in the exam. You write your own questions about the course material, and the good ones can end up on the paper.
 
 **[Open the questionnaire](https://docs.google.com/forms/d/e/1FAIpQLSdnkE1LF7FvSVUMWYOFWqMQfcsnKMZ3XihKV2Zu0Ik5mbPtXA/viewform)**
 
@@ -17,7 +17,7 @@ Completely voluntary, and a real advantage in the exam. You write your own quest
 
 Every blue session up to here. Each one opens its own slides and bibliography.
 
-- [**1-1** · Course introduction and the reality–virtuality continuum](?level=w1-01)
+- [**1-1** · Course introduction and the reality-virtuality continuum](?level=w1-01)
 - [**1-3** · Devices, tracking and spatial computing](?level=w1-03)
 - [**1-5** · Immersive gadgets, software and the parallax barrier](?level=w1-05)
 - [**1-7** · Embodiment, presence and plausibility](?level=w1-07)
@@ -28,14 +28,14 @@ Every blue session up to here. Each one opens its own slides and bibliography.
 
 **What are the advantages of physical controls in VR?**
 
-a) Adaptable to any kind of special need.
-b) Haptic feedback is possible.
-c) It keeps hand-tracking latency to a minimum.
-d) All of the above.
+- a) Adaptable to any kind of special need.
+- b) Haptic feedback is possible.
+- c) It keeps hand-tracking latency to a minimum.
+- **d) All of the above.**
 
 ## Example: an open question
 
-**Explain in detail the causes and symptoms of Simulator Sickness in virtual reality.** Describe the design strategies and training techniques that can be used to mitigate it and improve the user experience in VR, and mention a practical case in which Simulator Sickness was mitigated.
+**Explain in detail the causes and symptoms of Simulator Sickness in virtual reality.** Describe the design strategies and training techniques that can be used to mitigate it and improve the user experience in VR, and mention a practical case in which Simulator Sickness was mitigated. *300 words maximum.*
 
 **An answer of the expected length:**
 

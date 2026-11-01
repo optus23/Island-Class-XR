@@ -9,9 +9,9 @@ paginate: true
 # Ejercicio 2 · Locomoción y passthrough
 
 Crea una **app de realidad mixta** con Meta Building Blocks
-para **encontrar al robot gigante** — muévete en VR y salta a MR con un botón
+para **encontrar al robot gigante**: muévete en VR y salta a MR con un botón
 
-**Bloque 2 — Meta Building Blocks** · **En grupo** · ocho pasos, sin código
+**Bloque 2: Meta Building Blocks** · **En grupo** · ocho pasos, sin código
 
 ---
 
@@ -30,8 +30,8 @@ Blocks y eventos del Inspector, no con un script.
 
 ## Know how · En el simulador no hay passthrough
 
-El Meta XR Simulator va de maravilla para los pasos 5 y 6 — teleport, slide,
-turn — y **no sirve para el paso 7**, porque no puede enseñaros vuestra
+El Meta XR Simulator va de maravilla para los pasos 5 y 6, teleport, slide,
+turn, y **no sirve para el paso 7**, porque no puede enseñaros vuestra
 habitación.
 
 Así que contadlo desde ya: montad la locomoción en el simulador si queréis,
@@ -52,7 +52,7 @@ funcionando, abridlo y saltad al paso 5.
 2. **Asset Store → Meta XR SDK → Add to My Assets** (logueados en Unity).
 3. **Package Manager** → los paquetes de Meta; **XR Plug-in Management →
    OpenXR**; **Project Validation → Fix All**; **Meta XR → Apply All**.
-   **El Oculus XR Plugin NO puede estar instalado** — con él no hay tracking y
+   **El Oculus XR Plugin NO puede estar instalado**: con él no hay tracking y
    no hay error.
 4. **Escena nueva, borrar la `Main Camera`**, y después `Meta XR Tools >
    Building Blocks`.
@@ -64,8 +64,8 @@ funcionando, abridlo y saltad al paso 5.
 Esta vez arrastrad:
 
 - **Camera Rig**
-- **Interaction Rig** — manos y mandos
-- **Passthrough** — el nuevo de hoy
+- **Interaction Rig**: manos y mandos
+- **Passthrough**: el nuevo de hoy
 
 Y construid algo por donde moverse: **añadid un cubo y cread un suelo**
 (`GameObject > 3D Object > Plane`). Sin suelo no hay sitio al que
@@ -94,7 +94,7 @@ En **los dos** interactores, el izquierdo y el derecho:
 - **activad** `TeleportControllerInteraction`
 
 **Hacedlo en los dos lados.** Hacerlo solo en uno es el error más común aquí, y
-deja un visor donde una mano se teletransporta y la otra se desliza — que se
+deja un visor donde una mano se teletransporta y la otra se desliza, que se
 lee como un fallo del SDK en vez de como una casilla que se os pasó.
 
 ---
@@ -151,7 +151,7 @@ false`, y en los del botón de **VR**, devolvedlos a **true**.
 
 1. En el visor: `Ajustes > Sistema > Quest Link` → activar.
 2. En el PC: abrid **Meta Horizon Link**, iniciad sesión y conectad el cable
-   **USB-C**. **En el CITM no lo instaléis** — ejecutad `oculus-reg.bat` del
+   **USB-C**. **En el CITM no lo instaléis**, ejecutad `oculus-reg.bat` del
    escritorio.
 3. En Meta Horizon Link: **ponedlo como runtime de OpenXR activo**, activad
    **Developer Runtime Features** y, dentro, **Passthrough over Meta Quest
@@ -171,10 +171,10 @@ passthrough por Link es un interruptor aparte, y viene apagado.
 Visor por **USB-C**, **modo desarrollador activado** y **Always allow USB
 debugging** aceptado en el visor.
 
-**Opción A — desde Unity.** `File > Build Profiles` → **Android** (o Meta
+**Opción A: desde Unity.** `File > Build Profiles` → **Android** (o Meta
 Quest) → **Run Device** → **Refresh** → vuestra Quest 3 → **Build And Run**.
 
-**Opción B — si el visor no aparece.** **Meta Quest Developer Hub** → **Add
+**Opción B: si el visor no aparece.** **Meta Quest Developer Hub** → **Add
 Build** → vuestro `.apk`, y después **Library > Unknown Sources** en el visor.
 
 Probadlo todo en la build: teleport, turn, slide y los dos botones.

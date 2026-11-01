@@ -9,7 +9,7 @@
 
 ## El cuestionario voluntario
 
-Totalmente voluntario, y una ventaja significativa en el parcial. Escribís vuestras propias preguntas sobre el contenido — y las buenas pueden acabar en el examen. Escribir una pregunta obliga a repasar el temario y decidir qué importa de verdad, que es casi todo el estudio hecho.
+Totalmente voluntario, y una ventaja significativa en el parcial. Escribís vuestras propias preguntas sobre el contenido, y las buenas pueden acabar en el examen.
 
 **[Abrir el cuestionario](https://docs.google.com/forms/d/e/1FAIpQLSdnkE1LF7FvSVUMWYOFWqMQfcsnKMZ3XihKV2Zu0Ik5mbPtXA/viewform)**
 
@@ -28,14 +28,14 @@ Todas las sesiones azules hasta aquí. Cada una abre sus propias diapositivas y 
 
 **¿Qué ventajas tienen los controles físicos en RV?**
 
-a) Adaptabilidad a todo tipo de necesidades especiales.
-b) Posibilidad de «feedback» háptico.
-c) Reduce al mínimo la latencia del «hand tracking».
-d) Todas son correctas.
+- a) Adaptabilidad a todo tipo de necesidades especiales.
+- b) Posibilidad de «feedback» háptico.
+- c) Reduce al mínimo la latencia del «hand tracking».
+- **d) Todas son correctas.**
 
 ## Ejemplo de pregunta abierta
 
-**Explica en detalle las causas y síntomas del «Simulator Sickness» en la realidad virtual.** Describe las estrategias de diseño y técnicas de entrenamiento que se pueden implementar para mitigar este problema y mejorar la experiencia del usuario en entornos VR. Menciona algún caso práctico en el cual el «Simulator Sickness» se haya mitigado.
+**Explica en detalle las causas y síntomas del «Simulator Sickness» en la realidad virtual.** Describe las estrategias de diseño y técnicas de entrenamiento que se pueden implementar para mitigar este problema y mejorar la experiencia del usuario en entornos VR. Menciona algún caso práctico en el cual el «Simulator Sickness» se haya mitigado. *Máximo 300 palabras.*
 
 **Una respuesta de la extensión esperada:**
 

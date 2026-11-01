@@ -11,7 +11,7 @@ paginate: true
 Crea una **app de realidad virtual** con Meta Building Blocks
 para **interactuar con una solución 3D para lidiar con el robot gigante**
 
-**Bloque 2 — Meta Building Blocks** · **En grupo** · ocho pasos, sin código
+**Bloque 2: Meta Building Blocks** · **En grupo** · ocho pasos, sin código
 
 ---
 
@@ -32,11 +32,11 @@ ventana de Building Blocks: sueltas un bloque en la escena y funciona.
 
 El All-in-One SDK son varios paquetes, y no necesitáis todos:
 
-- **Core SDK** — render, tracking y primitivas de realidad mixta
-- **Interaction SDK** — interacciones con manos, mandos y mirada
+- **Core SDK**: render, tracking y primitivas de realidad mixta
+- **Interaction SDK**: interacciones con manos, mandos y mirada
 - **Haptics**, **Audio**, **Platform**, **MR Utility Kit**
 
-**El Meta XR Simulator NO está en el SDK.** Se instala aparte — de eso va el
+**El Meta XR Simulator NO está en el SDK.** Se instala aparte, de eso va el
 paso 6, y por eso puede negarse.
 
 ---
@@ -58,7 +58,7 @@ Abre el **Asset Store** y busca **Meta XR SDK**.
 Pulsa **Add to My Assets**.
 
 Tienes que estar **logueado en tu cuenta de Unity** para que ese botón haga
-algo — si parece que no pasa nada, es por eso.
+algo: si parece que no pasa nada, es por eso.
 
 ---
 
@@ -78,7 +78,7 @@ Tres cosas, en este orden:
 **Comprueba que el Oculus XR Plugin NO está instalado.**
 
 Es el error más caro del día: con él en el proyecto junto a OpenXR, la build
-funciona, el visor muestra tu escena y **no trackea nada** — ni la cabeza ni las
+funciona, el visor muestra tu escena y **no trackea nada**, ni la cabeza ni las
 manos. Y no sale ningún error por ninguna parte.
 
 Si tu proyecto lo tiene, quítalo antes de seguir.
@@ -92,9 +92,9 @@ y dos cámaras es una escena confusa.
 
 Después `Meta XR Tools > Building Blocks`, y arrastra **tres**:
 
-- **Camera Rig** — sigue la cabeza y el cuerpo; es lo que sustituye a Main Camera
-- **Interaction Rig** — trae el hand tracking *y* los mandos
-- **Grab Interaction** — mete un cubo que se puede coger
+- **Camera Rig**: sigue la cabeza y el cuerpo; es lo que sustituye a Main Camera
+- **Interaction Rig**: trae el hand tracking *y* los mandos
+- **Grab Interaction**: mete un cubo que se puede coger
 
 ---
 
@@ -116,7 +116,7 @@ puño en un ángulo que parece roto.
 
 `Meta XR Tools` → activa el **Meta XR Simulator**.
 
-Puede que te pida **instalarlo** primero — acepta y ábrelo. No viene en el SDK
+Puede que te pida **instalarlo** primero: acepta y ábrelo. No viene en el SDK
 que añadiste en el paso 2, así que es una descarga aparte.
 
 **Si no hay manera de instalarlo, salta directamente al paso 7.** El simulador
@@ -129,7 +129,7 @@ visor sin él.
 
 1. Conecta el visor al PC con un cable **USB-C**.
 2. Abre **Meta Horizon Link** en el PC.
-   **En el CITM, NO intentes instalarlo** — ejecuta el fichero
+   **En el CITM, NO intentes instalarlo**, ejecuta el fichero
    **`oculus-reg.bat`** que hay en el escritorio.
 3. En los **ajustes rápidos** de la Quest, pulsa **Link (PC)**.
 4. Espera al entorno virtual y dale a **Play** en Unity.
@@ -147,7 +147,7 @@ Cambia el cubo por lo que de verdad vas a traer:
 - **Crea su material** si el modelo no trae uno, y cambia también el material
   del objeto.
 - Pulsa **Edit Collider** en el **Box Collider** y **ajústalo al modelo nuevo**
-  — el collider es lo que tu mano agarra de verdad, así que una caja con la
+: el collider es lo que tu mano agarra de verdad, así que una caja con la
   forma del cubo viejo agarra aire.
 
 ---
@@ -160,11 +160,11 @@ Build**.
 Antes de buildear: visor conectado por **USB-C**, **modo desarrollador
 activado** y **Always allow USB debugging** aceptado en el visor.
 
-**Opción A — desde Unity.** `File > Build Profiles` → **Android** (o Meta
+**Opción A: desde Unity.** `File > Build Profiles` → **Android** (o Meta
 Quest) → en **Run Device** pulsa **Refresh** y elige tu Quest 3 → **Build And
 Run**. Se instala y se abre sola.
 
-**Opción B — si el visor no aparece.** Abre **Meta Quest Developer Hub**, pulsa
+**Opción B: si el visor no aparece.** Abre **Meta Quest Developer Hub**, pulsa
 **Add Build**, elige tu `.apk` y lánzalo desde el visor:
 **Library > Unknown Sources**.
 

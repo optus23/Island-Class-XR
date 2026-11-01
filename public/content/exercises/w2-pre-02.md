@@ -11,7 +11,7 @@ paginate: true
 Create a **virtual reality app** with Meta Building Blocks
 to **interact with a 3D solution to deal with the giant robot**
 
-**Block 2 — Meta Building Blocks** · **Group** · eight steps, no scripting
+**Block 2: Meta Building Blocks** · **Group** · eight steps, no scripting
 
 ---
 
@@ -20,7 +20,7 @@ to **interact with a 3D solution to deal with the giant robot**
 A giant robot turned up, and the blue goblin has changed sides: you are
 teaming up with it.
 
-What you build is **your** 3D object — the thing you bring into VR and pick up
+What you build is **your** 3D object: the thing you bring into VR and pick up
 with your own hands. Any model you like. The choice is the exercise.
 
 **No code today either.** Everything happens in the Unity Inspector and in the
@@ -32,11 +32,11 @@ Building Blocks window: drop a block into the scene and it works.
 
 The All-in-One SDK is several packages, and you do not need all of them:
 
-- **Core SDK** — rendering, tracking, mixed-reality primitives
-- **Interaction SDK** — hand, controller and gaze interactions
+- **Core SDK**: rendering, tracking, mixed-reality primitives
+- **Interaction SDK**: hand, controller and gaze interactions
 - **Haptics**, **Audio**, **Platform**, **MR Utility Kit**
 
-**The Meta XR Simulator is NOT in the SDK.** It installs separately — which is
+**The Meta XR Simulator is NOT in the SDK.** It installs separately, which is
 what step 6 is about, and why it can refuse.
 
 ---
@@ -58,7 +58,7 @@ Open the **Asset Store** and search for **Meta XR SDK**.
 Press **Add to My Assets**.
 
 You have to be **signed in to your Unity account** for that button to do
-anything — if nothing seems to happen, that is why.
+anything: if nothing seems to happen, that is why.
 
 ---
 
@@ -79,7 +79,7 @@ Three things, in this order:
 
 It is the single most expensive mistake of the day: with it in the project
 alongside OpenXR, the build runs, the headset shows your scene, and **nothing
-tracks** — no head movement, no hands. There is no error message anywhere.
+tracks**: no head movement, no hands. There is no error message anywhere.
 
 If your project has it, remove it before going on.
 
@@ -92,9 +92,9 @@ own, and two cameras is a confusing scene.
 
 Then `Meta XR Tools > Building Blocks`, and drag in **three**:
 
-- **Camera Rig** — follows head and body; this is what replaces Main Camera
-- **Interaction Rig** — brings hand tracking *and* the controllers
-- **Grab Interaction** — drops in a cube you can pick up
+- **Camera Rig**: follows head and body; this is what replaces Main Camera
+- **Interaction Rig**: brings hand tracking *and* the controllers
+- **Grab Interaction**: drops in a cube you can pick up
 
 ---
 
@@ -116,7 +116,7 @@ fist at an angle that looks broken.
 
 `Meta XR Tools` → enable the **Meta XR Simulator**.
 
-It may ask to **install** itself first — accept, and open it. It is not part of
+It may ask to **install** itself first: accept, and open it. It is not part of
 the SDK you added in step 2, so this is a separate download.
 
 **If it will not install, skip straight to step 7.** The simulator is a
@@ -129,7 +129,7 @@ without it.
 
 1. Connect the headset to the PC with a **USB-C** cable.
 2. Open **Meta Horizon Link** on the PC.
-   **At CITM, do NOT try to install it** — run the **`oculus-reg.bat`** file on
+   **At CITM, do NOT try to install it**, run the **`oculus-reg.bat`** file on
    the desktop instead.
 3. In the Quest's **Quick settings**, press **Link (PC)**.
 4. Wait for the virtual environment, then press **Play** in Unity.
@@ -147,7 +147,7 @@ Swap the cube for the thing you are actually bringing:
 - **Create its material** if the model does not come with one, and change the
   material on the object too.
 - Press **Edit Collider** on the **Box Collider** and **adjust it to the new
-  model** — the collider is what your hand actually grabs, so a box still
+  model**: the collider is what your hand actually grabs, so a box still
   shaped like the old cube grabs thin air.
 
 ---
@@ -159,11 +159,11 @@ Swap the cube for the thing you are actually bringing:
 Before building: headset connected by **USB-C**, **developer mode on**, and
 **Always allow USB debugging** accepted in the headset.
 
-**Option A — from Unity.** `File > Build Profiles` → **Android** (or Meta
+**Option A: from Unity.** `File > Build Profiles` → **Android** (or Meta
 Quest) → in **Run Device** press **Refresh** and pick your Quest 3 → **Build
 And Run**. It installs and opens by itself.
 
-**Option B — if the headset does not appear.** Open **Meta Quest Developer
+**Option B: if the headset does not appear.** Open **Meta Quest Developer
 Hub**, press **Add Build**, choose your `.apk`, and launch it from the headset:
 **Library > Unknown Sources**.
 

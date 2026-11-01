@@ -8,7 +8,7 @@ paginate: true
 
 # Ejercicio 2 · Hand tracking y gestos
 
-**Bloque 3 — XR Interaction Toolkit** · entrega evaluable
+**Bloque 3: XR Interaction Toolkit** · entrega evaluable
 **Por grupo** · **Entrega: pendiente de definir** · Se hace **en clase**
 
 ---
@@ -19,7 +19,7 @@ paginate: true
 
 Un goblin azul se coló en el despacho del profesor. Salió del móvil montado en un
 mecha, cambió de bando, se enfrentó con vosotros a algo peor entre los muebles de
-vuestra casa. Aquí se acaba — y se acaba **sin mandos**, con un gesto de tu mano.
+vuestra casa. Aquí se acaba, y se acaba **sin mandos**, con un gesto de tu mano.
 
 
 ---
@@ -62,6 +62,6 @@ desenlace documentados en el `README`.
 ## Cómo se evalúa
 
 Que el gesto se reconozca sin falsos positivos, que haya fallback, y que el final
-de Blue Goblin se entienda haciéndolo — de pie, sin mandos y sin nadie
+de Blue Goblin se entienda haciéndolo: de pie, sin mandos y sin nadie
 explicándolo al lado.
 

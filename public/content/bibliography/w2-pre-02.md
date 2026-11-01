@@ -1,6 +1,6 @@
 # Bibliography and further reading
 
-Meta's and Unity's own documentation for this block. Everything here is a primary source — start at the top.
+Meta's and Unity's own documentation for this block. Everything here is a primary source, start at the top.
 
 - [Overview of Meta's SDKs for Unity](https://developers.meta.com/horizon/documentation/unity/unity-sdks-overview/)
 - [Packages and templates for Quest (Unity 6.3)](https://docs.unity.com/en-us/engine/6000.3/manual/xr/configuring-project-for/meta-quest-develop/packages)

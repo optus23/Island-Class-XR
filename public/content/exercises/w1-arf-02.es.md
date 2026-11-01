@@ -11,7 +11,7 @@ paginate: true
 Crea una app de image tracking con Unity AR Foundation
 que instancie **una solución 3D para lidiar con los green goblins**
 
-**Bloque 1 — AR Foundation** · **Individual** · ocho pasos, sin código
+**Bloque 1: AR Foundation** · **Individual** · ocho pasos, sin código
 
 ---
 
@@ -19,7 +19,7 @@ que instancie **una solución 3D para lidiar con los green goblins**
 
 El ejercicio 1 te puso una build de AR real en el móvil. Este cambia lo que la
 dispara: en vez de un **plano** detectado, tu objeto aparece sobre una **imagen**
-detectada — un marcador.
+detectada: un marcador.
 
 Todo vuelve a pasar en el **Inspector**. Lo nuevo de hoy es el **XR Simulator**,
 que te deja probar el image tracking dentro del Editor, sin hacer build y sin
@@ -48,7 +48,7 @@ esté activo no puede quedarse nunca a null.
 
 Unity Hub → **New project** → **AR Mobile**, dentro de *Core*.
 
-**Asegúrate de tener el módulo de Android instalado** en el Editor — Unity Hub →
+**Asegúrate de tener el módulo de Android instalado** en el Editor, Unity Hub →
 *Installs* → **Add modules** → *Android Build Support*, con **OpenJDK** y
 **Android SDK & NDK Tools** dentro.
 
@@ -67,7 +67,7 @@ Dos cosas, y no son la misma:
 
 Cambiar de plataforma reimporta el proyecto entero: hazlo ahora, que aún está
 vacío. Y que el paquete de ARCore esté instalado no es lo mismo que que ARCore
-esté **activado** — el checkbox es lo que enciende la AR.
+esté **activado**: el checkbox es lo que enciende la AR.
 
 ---
 
@@ -92,7 +92,7 @@ dentro.
 En la ventana Project, clic derecho en `Assets` →
 **`Create > XR > Reference Image Library`**.
 
-Selecciona el asset, pulsa **Add Image** y suelta dentro una textura normal —
+Selecciona el asset, pulsa **Add Image** y suelta dentro una textura normal,
 PNG, JPG, lo que tengas.
 
 **Elige una imagen con contraste y detalle irregular.** El editor le pone una
@@ -106,8 +106,8 @@ culpa al código.
 
 `Window > XR > AR Foundation > XR Environment`.
 
-Esto abre una habitación simulada dentro de la que puedes darle al Play —
-incluido el image tracking — así que puedes probar el ejercicio de hoy **sin
+Esto abre una habitación simulada dentro de la que puedes darle al Play,
+incluido el image tracking: así que puedes probar el ejercicio de hoy **sin
 hacer la APK y sin imprimir ningún marcador**.
 
 Ve a la pestaña **XR Environment** y a **Edit Environment**. Si no te deja editar
@@ -121,7 +121,7 @@ El entorno ya trae una imagen colgada en la habitación.
 
 - Selecciona el objeto **`Logo Quad`** y **cámbiale el material** para que
   muestre **la misma imagen que añadiste a la librería** en el paso 4.
-- Y después — esto es lo que se olvida todo el mundo — pon esa misma imagen
+- Y después (esto es lo que se olvida todo el mundo), pon esa misma imagen
   también en el componente **Simulated Tracked Image**.
 
 El quad es lo que *ves*; el componente Simulated Tracked Image es lo que el
@@ -154,11 +154,11 @@ cuesta minutos. No descubras un material mal puesto por la vía de una APK.
 
 Después `File > Build Settings`:
 
-- comprueba que tu escena está en la lista **Scenes In Build** — *Add Open
+- comprueba que tu escena está en la lista **Scenes In Build**, *Add Open
   Scenes* si no está, y este es el paso que la gente se salta;
 - pulsa **Build** y elige la carpeta de destino.
 
-Esa es tu APK. Instálala en el móvil y apunta al marcador — en papel o en otra
+Esa es tu APK. Instálala en el móvil y apunta al marcador, en papel o en otra
 pantalla.
 
 ---

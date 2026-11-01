@@ -9,9 +9,9 @@ paginate: true
 # Exercise 2 · Locomotion and passthrough
 
 Create a **mixed reality app** with Meta Building Blocks
-to **find the giant robot** — move in VR, then switch to MR with a button
+to **find the giant robot**: move in VR, then switch to MR with a button
 
-**Block 2 — Meta Building Blocks** · **Group** · eight steps, no scripting
+**Block 2: Meta Building Blocks** · **Group** · eight steps, no scripting
 
 ---
 
@@ -30,7 +30,7 @@ events in the Inspector, not with a script.
 
 ## Know how · There is no passthrough in the simulator
 
-The Meta XR Simulator is excellent for steps 5 and 6 — teleport, slide, turn —
+The Meta XR Simulator is excellent for steps 5 and 6 (teleport, slide, turn)
 and **useless for step 7**, because it cannot show you your room.
 
 So plan for it: build the locomotion in the simulator if you like, but **the
@@ -51,7 +51,7 @@ works, open it and skip to step 5.
 2. **Asset Store → Meta XR SDK → Add to My Assets** (signed in to Unity).
 3. **Package Manager** → the Meta packages; **XR Plug-in Management → OpenXR**;
    **Project Validation → Fix All**; **Meta XR → Apply All**.
-   **The Oculus XR Plugin must NOT be installed** — with it you get no tracking
+   **The Oculus XR Plugin must NOT be installed**: with it you get no tracking
    and no error.
 4. **New scene, delete the `Main Camera`**, then `Meta XR Tools > Building
    Blocks`.
@@ -63,8 +63,8 @@ works, open it and skip to step 5.
 This time drag in:
 
 - **Camera Rig**
-- **Interaction Rig** — hands and controllers
-- **Passthrough** — the one that is new today
+- **Interaction Rig**: hands and controllers
+- **Passthrough**: the one that is new today
 
 And build something to move around in: **add a cube and create a floor**
 (`GameObject > 3D Object > Plane`). Without a floor there is nowhere to
@@ -93,7 +93,7 @@ In **both** the left and the right interactors:
 - **enable** `TeleportControllerInteraction`
 
 **Do it on both sides.** Doing one is the commonest mistake here, and it gives
-you a headset where one hand teleports and the other slides — which reads as a
+you a headset where one hand teleports and the other slides, which reads as a
 bug in the SDK rather than as a checkbox you missed.
 
 ---
@@ -149,7 +149,7 @@ button's events set them back to **true**.
 
 1. In the headset: `Settings > System > Quest Link` → on.
 2. On the PC: open **Meta Horizon Link**, sign in, connect the **USB-C** cable.
-   **At CITM, do not install it** — run `oculus-reg.bat` from the desktop.
+   **At CITM, do not install it**, run `oculus-reg.bat` from the desktop.
 3. In Meta Horizon Link: **set it as the active OpenXR runtime**, turn on
    **Developer Runtime Features**, and inside it **Passthrough over Meta Quest
    Link**.
@@ -168,10 +168,10 @@ own switch, and it is off by default.
 Headset on **USB-C**, **developer mode on**, **Always allow USB debugging**
 accepted in the headset.
 
-**Option A — from Unity.** `File > Build Profiles` → **Android** (or Meta
+**Option A: from Unity.** `File > Build Profiles` → **Android** (or Meta
 Quest) → **Run Device** → **Refresh** → your Quest 3 → **Build And Run**.
 
-**Option B — if the headset does not appear.** **Meta Quest Developer Hub** →
+**Option B: if the headset does not appear.** **Meta Quest Developer Hub** →
 **Add Build** → your `.apk`, then **Library > Unknown Sources** in the headset.
 
 Test all of it in the build: teleport, turn, slide, and both buttons.

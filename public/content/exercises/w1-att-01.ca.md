@@ -8,7 +8,7 @@ paginate: true
 
 # Activitat · Mono / Estereoscòpic
 
-Grava la mateixa presa 360° dues vegades —una de plana i una en estèreo—
+Grava la mateixa presa 360° dues vegades (una de plana i una en estèreo)
 i **mira la diferència amb unes ulleres**
 
 **Voluntària** · setze passos · Unity Recorder
@@ -31,20 +31,20 @@ la mateixa escena que es diferencien en exactament una cosa.
 
 **Unity és la via que es recorre aquí, no l'única permesa.** Val qualsevol
 software capaç de renderitzar aquests dos vídeos 360 amb les seves metadades
-espacials — els setze passos de sota simplement prenen el camí que tothom a
+espacials: els setze passos de sota simplement prenen el camí que tothom a
 l'aula ja té instal·lat.
 
 ---
 
 ## ⚠ Llegeix això abans de crear el projecte
 
-*(Només per a la via d'Unity — si els renderitzes en un altre lloc, salta al pas 15.)*
+*(Només per a la via d'Unity: si els renderitzes en un altre lloc, salta al pas 15.)*
 
 **Tria la plantilla `3D (Built-In Render Pipeline)`.** Ni Universal 3D, ni HDRP.
 
 Unity Recorder **no suporta captura 360 estereoscòpica en cap Scriptable Render
 Pipeline**. Amb URP o HDRP la casella *Record in Stereo* es marca igualment, el
-fitxer surt igual a dalt-a baix — i **les dues meitats són idèntiques**. Et queda
+fitxer surt igual a dalt-a baix, i **les dues meitats són idèntiques**. Et queda
 un fitxer amb forma d'estèreo i sense estèreo a dins.
 
 No t'avisa res. Te n'assabentaries amb les ulleres posades, que és el pitjor
@@ -84,7 +84,7 @@ Play mode**. No és res que puguis ficar dins d'una build.
 
 `Window > General > Recorder > Recorder window`.
 
-Acobla-la on la puguis veure mentre corre el joc — al costat del Game view és
+Acobla-la on la puguis veure mentre corre el joc: al costat del Game view és
 l'habitual. L'estaràs llegint durant la reproducció.
 
 Unity restaura el que vas deixar posat l'últim cop que vas gravar, la qual cosa
@@ -97,8 +97,8 @@ panell en comptes de fiar-te de la memòria.
 
 Prem **+ Add Recorder** i tria **Movie**.
 
-Un Recorder és una sortida. La llista en pot tenir uns quants alhora —podries
-gravar la versió plana i l'estèreo en una sola passada— però no ho facis: dos
+Un Recorder és una sortida. La llista en pot tenir uns quants alhora, podries
+gravar la versió plana i l'estèreo en una sola passada, però no ho facis: dos
 Recorders sobre una captura 360 es barallen per la mateixa càmera.
 
 Un Recorder, dues passades. És més lent i és la versió que funciona.
@@ -114,7 +114,7 @@ Al panell de sessió de gravació de dalt, posa **Playback** a **Constant** i
 taxa de frames, frenant l'Editor si no dóna l'abast. **Variable** fa el
 contrari: manté l'Editor a tota velocitat i descarta frames.
 
-Una captura 360 és pesada — renderitza la teva escena sis vegades per frame.
+Una captura 360 és pesada: renderitza la teva escena sis vegades per frame.
 Constant és el que impedeix que això acabi en un vídeo a batzegades.
 
 ---
@@ -140,7 +140,7 @@ en la imatge plana 2:1 que espera un reproductor 360 (una projecció
 
 Dues conseqüències que et trobaràs després:
 
-- la **rotació de la càmera la governa el Recorder** mentre captura — vegeu el
+- la **rotació de la càmera la governa el Recorder** mentre captura, vegeu el
   pas 13;
 - la gravació costa sis renders per frame, així que és lenta.
 
@@ -167,7 +167,7 @@ tou del que esperes.
 Deixa **Cube Map Size** a **2048**.
 
 És el costat, en píxels, de cadascuna de les sis cares del cub que el Recorder
-renderitza abans de desplegar-les. És la resolució *real* de la captura — les
+renderitza abans de desplegar-les. És la resolució *real* de la captura, les
 Output Dimensions de dalt són només la mida a la qual s'aplana aquest cub.
 
 - Massa petit, i el 360 es veu tou per gran que sigui la sortida.
@@ -183,7 +183,7 @@ habitual, i d'aquí surt el 2048.
 Busca **Record in Stereo** i deixa'l **sense marcar**.
 
 Aquest primer fitxer és el **monoscòpic**: una sola imatge, enviada als dos ulls.
-Amb les ulleres es veurà com ser dins d'una fotografia — pots mirar al voltant,
+Amb les ulleres es veurà com ser dins d'una fotografia, pots mirar al voltant,
 però tot és a la mateixa distància plana.
 
 Aquest és el control. El necessites per tenir contra què comparar, així que
@@ -210,7 +210,7 @@ A **Output File**, posa el **File Name**, obre el menú **+ Wildcards** i afegei
 **`<Take>`**.
 
 **No et saltis això.** El Recorder escriu sempre a la mateixa ruta, així que
-sense comodí la teva segona presa sobreescriu la primera en silenci — i la
+sense comodí la teva segona presa sobreescriu la primera en silenci, i la
 primera és el vídeo monoscòpic que necessites per comparar.
 
 `<Take>` és un comptador que el Recorder incrementa després de cada gravació,
@@ -252,7 +252,7 @@ muntis en cinc minuts.
 
 ## Pas 13 · Grava la primera presa
 
-Prem **START RECORDING** i mou la càmera per l'escena — passa a prop d'alguna
+Prem **START RECORDING** i mou la càmera per l'escena, passa a prop d'alguna
 cosa, i després allunya-te'n. Atura't als vint o trenta segons.
 
 Pots arrossegar el Transform de la càmera al Scene view mentre corre el Play
@@ -268,7 +268,7 @@ mareig amb les ulleres, on el moviment ocupa tot el teu camp de visió.
 **Translació sí. Rotació mai.** Aquesta és la regla que importa.
 
 En un vídeo 360 el cap de l'espectador *és* la càmera. Gira-la a Unity i la
-imatge gira mentre el coll de qui mira no — i això es llegeix exactament com algú
+imatge gira mentre el coll de qui mira no, i això es llegeix exactament com algú
 agafant-te el cap amb les mans i girant-lo. És una de les maneres més ràpides de
 marejar una persona en VR.
 
@@ -286,7 +286,7 @@ Ara el Recorder renderitza dues vistes i les apila en un sol frame: **ull esquer
 a dalt, ull dret a baix**. Aquest és el *top/bottom layout* pel qual et preguntarà
 després l'eina de metadades, així que queda't amb l'expressió.
 
-**Stereo Separation** és la distància entre aquests dos ulls — la distància
+**Stereo Separation** és la distància entre aquests dos ulls, la distància
 interpupil·lar. El valor per defecte **0.065** són 65 mm, la mitjana humana.
 Puja'l i la profunditat s'exagera fins a semblar una maqueta; baixa'l i l'escena
 s'aplana de nou cap al mono.
@@ -307,7 +307,7 @@ diferencien també en el recorregut, no pots saber quina diferència estàs mira
 
 ## Pas 15 · Spatial Media Metadata Injector
 
-Descarrega'l del repositori **spatial-media** de Google, pàgina de releases — la
+Descarrega'l del repositori **spatial-media** de Google, pàgina de releases, la
 **360 Video Metadata Tool** per a Windows o Mac.
 
 Un fitxer 360 és un MP4 normal. Res dins dels píxels diu "això és esfèric"; això
@@ -324,7 +324,7 @@ fitxer nou que escriu al costat de l'original.
 **Els dos fitxers:** `My video is spherical (360)`.
 
 **Només el fitxer estèreo, i a més:**
-`My video is stereoscopic 3D (top/bottom layout)` — que és exactament com el
+`My video is stereoscopic 3D (top/bottom layout)`, que és exactament com el
 Recorder va apilar els dos ulls al pas 14.
 
 Deixa en pau el **spatial audio (ambiX ACN/SN3D)**. Això és per a so ambisònic, i
@@ -337,13 +337,13 @@ Injecta també al fitxer monoscòpic. Sense l'etiqueta esfèrica no és un víde
 
 ## Pas 16 · Fica'ls a les ulleres
 
-**Via A — YouTube (recomanada).** Puja els dos fitxers injectats al teu canal,
+**Via A: YouTube (recomanada).** Puja els dos fitxers injectats al teu canal,
 com a no llistats si vols. Obre YouTube dins de les Quest 3 i mira cadascun.
 
-**Via B — sideload.** Copia els dos fitxers directament a l'emmagatzematge de les
+**Via B: sideload.** Copia els dos fitxers directament a l'emmagatzematge de les
 ulleres per USB, obre **Biblioteca → Vídeos** (o un reproductor com DeoVR) i
 digues-li al reproductor que són 360, mono o estèreo. **Per aquesta via no cal
-l'injector** — li ho estàs dient al reproductor en comptes d'etiquetar el fitxer.
+l'injector**: li ho estàs dient al reproductor en comptes d'etiquetar el fitxer.
 
 Cada reproductor de VR posa aquests controls en un lloc diferent. Compta amb
 buscar-los.
@@ -354,7 +354,7 @@ buscar-los.
 
 **En un navegador d'escriptori**, obre el teu vídeo pujat i **arrossega'l amb el
 ratolí**. Si la vista gira, YouTube ha llegit l'etiqueta esfèrica i la injecció
-va funcionar. Si el que veus és un rectangle deformat i quiet, no — torna al pas
+va funcionar. Si el que veus és un rectangle deformat i quiet, no, torna al pas
 15.
 
 Dóna-li a YouTube uns minuts després de pujar-lo: el tractament 360 només apareix
@@ -373,7 +373,7 @@ objectes **propers**.
 - Quin et fa venir ganes d'allargar la mà?
 - Quin és més còmode passats un parell de minuts?
 
-Apunta què has notat. Aquesta observació és l'objectiu de l'activitat — els dos
+Apunta què has notat. Aquesta observació és l'objectiu de l'activitat, els dos
 fitxers són només l'aparell de mesura.
 
 ---
