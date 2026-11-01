@@ -36,6 +36,7 @@ import { buildGrandPath, nearestIndexOn, nodeClearings, nodeFootprints } from '.
 import { clearGroundAround } from './three/terrain.js'
 import { createEnemies } from './three/enemies.js'
 import { createBats } from './three/bats.js'
+import { createSeasonLights } from './three/seasonLights.js'
 import { createVillagers } from './three/villagers.js'
 import { loadRoster } from './lib/roster.js'
 import { readLevelFromUrl, setLevelInUrl, onRouteChange } from './lib/router.js'
@@ -105,6 +106,7 @@ app.onUpdate((dt) => {
   island.update(dt)
   enemies.update(dt)
   bats.update(dt)
+  seasonLights.update(dt, player.group.position)
   villagers?.update(dt, app.rig.camera)
   island.backdrop.position.x = app.rig.focusX * BACKDROP_PARALLAX
   map.update(dt)
@@ -137,6 +139,12 @@ app.worldGroup.add(enemies.group)
 // beyond one import — there is no branch here to forget to remove in November.
 const bats = createBats()
 app.worldGroup.add(bats.group)
+
+// A handful of real lights that follow the avatar. Seasonal in the same way
+// the bats are: outside Halloween this is an empty group and a no-op update,
+// so the ordinary map pays one import and nothing else.
+const seasonLights = createSeasonLights(island.emitters)
+app.worldGroup.add(seasonLights.group)
 
 /**
  * The honoured students, built in boot() once `npcs.json` has arrived — so this

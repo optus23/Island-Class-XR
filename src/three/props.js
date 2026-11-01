@@ -51,6 +51,10 @@ const PUMPKIN_RIB = 0xb8541a
 const PUMPKIN_STALK = 0x4f6b32
 /** Near-white yellow: the carved face, and the only thing that reads as lit. */
 const PUMPKIN_GLOW = 0xffe9a3
+/** The lamppost's ironwork, and the warm pane inside its head. */
+const LAMP_IRON = 0x2a2531
+const LAMP_IRON_DARK = 0x1b1821
+const LAMP_PANE = 0xffd98a
 /** The dim spill on the ground beneath a lit one. */
 const PUMPKIN_POOL = 0x8a6a35
 
@@ -162,6 +166,34 @@ const RECIPES = {
     // A pool of light on the ground under it. Flat, wide and dim: this is the
     // cheap stand-in for the lamp that is not there.
     part(0, 0.02, 0.1, 2.0, 0.04, 2.0, PUMPKIN_POOL),
+  ],
+
+  /**
+   * A roadside lamppost. Halloween only, and the only prop on the island that
+   * exists to BE a light rather than to be looked at.
+   *
+   * Thin on purpose: it stands closer to the road than any other prop, so a
+   * wide one would read as something dumped on the verge. The head is a dark
+   * housing with a warm pane on all four sides, so it reads as lit from every
+   * angle the follow camera can reach — a pane on the front alone goes dark
+   * exactly when you orbit round to look at it.
+   *
+   * `planLamps` puts the matching PointLight at the head's height; see
+   * `three/seasonLights.js` for why only a handful are ever lit at once.
+   */
+  lamppost: () => [
+    part(0, 0.18, 0, 0.78, 0.36, 0.78, LAMP_IRON_DARK), // base
+    part(0, 0.42, 0, 0.5, 0.2, 0.5, LAMP_IRON),
+    part(0, 2.1, 0, 0.26, 3.4, 0.26, LAMP_IRON), // post
+    part(0, 3.84, 0, 0.46, 0.12, 0.46, LAMP_IRON_DARK), // collar under the head
+    // The head: a dark frame with a lit pane on each face.
+    part(0, 4.26, 0, 0.62, 0.72, 0.62, LAMP_IRON_DARK),
+    part(0, 4.26, 0.33, 0.42, 0.5, 0.06, LAMP_PANE),
+    part(0, 4.26, -0.33, 0.42, 0.5, 0.06, LAMP_PANE),
+    part(0.33, 4.26, 0, 0.06, 0.5, 0.42, LAMP_PANE),
+    part(-0.33, 4.26, 0, 0.06, 0.5, 0.42, LAMP_PANE),
+    part(0, 4.72, 0, 0.72, 0.2, 0.72, LAMP_IRON_DARK), // cap
+    part(0, 4.88, 0, 0.18, 0.16, 0.18, LAMP_IRON), // finial
   ],
 
   cactus: (b) => [
@@ -688,5 +720,106 @@ export function planLandmarks() {
     })
   }
 
+  return out
+}
+
+/**
+ * Roadside lampposts, one per session. Halloween only.
+ *
+ * THESE ARE THE ISLAND'S LIGHT SOURCES, so unlike every other prop they are
+ * placed to be NEAR the road rather than clear of it: a lamp four metres into
+ * the field lights the field. `LAMP_ROAD` is therefore much tighter than
+ * `LANDMARK_ROAD_CLEARANCE` — the post is 0.26 wide, so it fits where a house
+ * never could.
+ *
+ * It takes the side the LANDMARK did not, so a session reads as a little place
+ * with something on each verge rather than a pile on one side. The landmark
+ * search runs first and is deterministic, so asking it again here costs one
+ * more pass over the nodes and cannot disagree with what was actually built.
+ *
+ * Bosses get one too: a castle gate with a lamp beside it is the whole point.
+ */
+const LAMP_ROAD = 2.55 // from the path centre line; the road's own foot is 1.6
+const LAMP_NODE = 2.9 // never on a session disc
+const LAMP_ASIDE = [2.9, 3.4, 4.2]
+const LAMP_AHEAD = [2.6, -2.6, 4.4, -4.4, 0]
+
+export function planLamps() {
+  if (seasonFlags.lights <= 0) return []
+
+  // Which side each node's landmark took, so the lamp can take the other.
+  const landmarkSide = new Map()
+  for (const l of planLandmarks()) landmarkSide.set(`${l.x.toFixed(2)},${l.z.toFixed(2)}`, l)
+
+  const out = []
+  for (const n of allNodePlacements()) {
+    if (!n.onPath) continue
+
+    const fwd = n.tangent.clone().setY(0)
+    if (fwd.lengthSq() < 1e-6) continue
+    fwd.normalize()
+    const side = { x: fwd.z, z: -fwd.x }
+
+    // Prefer the verge the landmark is not on; fall back to the other.
+    let taken = 0
+    for (const l of landmarkSide.values()) {
+      if (Math.hypot(l.x - n.position.x, l.z - n.position.z) < 9) {
+        taken = Math.sign((l.x - n.position.x) * side.x + (l.z - n.position.z) * side.z) || 0
+      }
+    }
+    const sides = taken ? [-taken, taken] : [1, -1]
+
+    let spot = null
+    for (const dir of sides) {
+      for (const ahead of LAMP_AHEAD) {
+        for (const aside of LAMP_ASIDE) {
+          const x = n.position.x + fwd.x * ahead + side.x * dir * aside
+          const z = n.position.z + fwd.z * ahead + side.z * dir * aside
+          if (landInset(x, z) < 5) continue
+          if (nearestPath(x, z).dist < LAMP_ROAD) continue
+          if (nodeClearance(x, z) < LAMP_NODE) continue
+          if (flatness(x, z) > 0.01) continue
+          spot = { x, z }
+          break
+        }
+        if (spot) break
+      }
+      if (spot) break
+    }
+    if (!spot) continue
+
+    out.push({
+      kind: 'lamppost',
+      x: spot.x,
+      z: spot.z,
+      y: groundHeightAt(spot.x, spot.z),
+      biome: biomes.meadow, // the recipe uses no biome colour; any entry does
+      yaw: 0, // square to the grid, like everything built rather than grown
+      scale: 1,
+    })
+  }
+  return out
+}
+
+/**
+ * Where a real light could usefully stand, in world space.
+ *
+ * Collected from the placements that were actually BUILT rather than guessed
+ * at, so a lamp the clearance search rejected never gets a light hanging in
+ * the air where it would have been. `three/seasonLights.js` lights only the
+ * nearest handful of these; the rest carry their own bright pane or face,
+ * which at map distance reads the same.
+ *
+ * @param {Array} placements everything handed to `buildPropMesh`
+ */
+export function emittersFrom(placements) {
+  const out = []
+  for (const p of placements) {
+    if (p.kind === 'lamppost') {
+      out.push({ x: p.x, y: p.y + 4.26, z: p.z, kind: 'lamp' })
+    } else if (p.kind === 'pumpkinLit') {
+      out.push({ x: p.x, y: p.y + 0.5, z: p.z, kind: 'pumpkin' })
+    }
+  }
   return out
 }

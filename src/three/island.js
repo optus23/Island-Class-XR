@@ -2,7 +2,7 @@ import * as THREE from 'three'
 import { worlds } from '../config/worlds.js'
 import { world as themeWorld, biomes, backdrop } from '../config/theme.js'
 import { prefersReducedMotion } from '../lib/motion.js'
-import { buildPropMesh, planProps, planLandmarks } from './props.js'
+import { buildPropMesh, planProps, planLandmarks, planLamps, emittersFrom } from './props.js'
 import {
   buildShoreField,
   CELL_AREA_SCALE,
@@ -119,9 +119,11 @@ export function createIsland({ keepOut = [] } = {}) {
   group.add(water.mesh)
   group.add(createVoidPits())
 
-  // Scattered dressing and hand-placed corner landmarks share one mesh, so the
-  // whole island still costs a single draw call for every prop on it.
-  group.add(buildPropMesh([...planProps(cells), ...planLandmarks()]))
+  // Scattered dressing, hand-placed corner landmarks and the seasonal
+  // lampposts share one mesh, so the whole island still costs a single draw
+  // call for every prop on it.
+  const placements = [...planProps(cells), ...planLandmarks(), ...planLamps()]
+  group.add(buildPropMesh(placements))
   group.add(createRelief(cells, keepOut))
 
   const backdropGroup = createBackdrop(minX, maxX, minZ)
@@ -130,6 +132,9 @@ export function createIsland({ keepOut = [] } = {}) {
   return {
     group,
     backdrop: backdropGroup,
+    // Where a real light could usefully stand — taken from what was actually
+    // BUILT, so a lamp the clearance search rejected leaves no light behind.
+    emitters: emittersFrom(placements),
     terrain: caps,
     cells,
     update: water.update,
