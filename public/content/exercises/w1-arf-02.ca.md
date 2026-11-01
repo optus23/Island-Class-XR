@@ -11,7 +11,7 @@ paginate: true
 Crea una app d'image tracking amb Unity AR Foundation
 que instanciï **una solució 3D per encarar els green goblins**
 
-**Bloc 1 — AR Foundation** · **Individual** · vuit passos, sense codi
+**Bloc 1: AR Foundation** · **Individual** · vuit passos, sense codi
 
 ---
 
@@ -19,7 +19,7 @@ que instanciï **una solució 3D per encarar els green goblins**
 
 L'exercici 1 et va posar una build d'AR real al mòbil. Aquest canvia què la
 dispara: en comptes d'un **pla** detectat, el teu objecte apareix sobre una
-**imatge** detectada — un marcador.
+**imatge** detectada: un marcador.
 
 Tot torna a passar a l'**Inspector**. La novetat d'avui és l'**XR Simulator**,
 que et deixa provar l'image tracking dins de l'Editor, sense fer build i sense
@@ -47,7 +47,7 @@ actiu no pot quedar-se mai a null.
 
 Unity Hub → **New project** → **AR Mobile**, dins de *Core*.
 
-**Assegura't de tenir el mòdul d'Android instal·lat** a l'Editor — Unity Hub →
+**Assegura't de tenir el mòdul d'Android instal·lat** a l'Editor, Unity Hub →
 *Installs* → **Add modules** → *Android Build Support*, amb **OpenJDK** i
 **Android SDK & NDK Tools** a dins.
 
@@ -66,7 +66,7 @@ Dues coses, i no són la mateixa:
 
 Canviar de plataforma reimporta el projecte sencer: fes-ho ara, que encara és
 buit. I que el paquet d'ARCore estigui instal·lat no és el mateix que que ARCore
-estigui **activat** — el checkbox és el que encén l'AR.
+estigui **activat**: el checkbox és el que encén l'AR.
 
 ---
 
@@ -91,7 +91,7 @@ dins.
 A la finestra Project, clic dret a `Assets` →
 **`Create > XR > Reference Image Library`**.
 
-Selecciona l'asset, prem **Add Image** i deixa-hi anar una textura normal — PNG,
+Selecciona l'asset, prem **Add Image** i deixa-hi anar una textura normal, PNG,
 JPG, el que tinguis.
 
 **Tria una imatge amb contrast i detall irregular.** L'editor li posa una
@@ -105,8 +105,8 @@ codi.
 
 `Window > XR > AR Foundation > XR Environment`.
 
-Això obre una habitació simulada dins de la qual pots donar-li al Play —
-image tracking inclòs — així que pots provar l'exercici d'avui **sense fer l'APK
+Això obre una habitació simulada dins de la qual pots donar-li al Play,
+image tracking inclòs: així que pots provar l'exercici d'avui **sense fer l'APK
 i sense imprimir cap marcador**.
 
 Ves a la pestanya **XR Environment** i a **Edit Environment**. Si no et deixa
@@ -120,7 +120,7 @@ L'entorn ja porta una imatge penjada a l'habitació.
 
 - Selecciona l'objecte **`Logo Quad`** i **canvia-li el material** perquè mostri
   **la mateixa imatge que vas afegir a la llibreria** al pas 4.
-- I després — això és el que oblida tothom — posa aquesta mateixa imatge també al
+- I després (això és el que oblida tothom), posa aquesta mateixa imatge també al
   component **Simulated Tracked Image**.
 
 El quad és el que *veus*; el component Simulated Tracked Image és el que el
@@ -153,11 +153,11 @@ minuts. No descobreixis un material mal posat per la via d'una APK.
 
 Després `File > Build Settings`:
 
-- comprova que la teva escena és a la llista **Scenes In Build** — *Add Open
+- comprova que la teva escena és a la llista **Scenes In Build**, *Add Open
   Scenes* si no hi és, i aquest és el pas que la gent es salta;
 - prem **Build** i tria la carpeta de destinació.
 
-Aquesta és la teva APK. Instal·la-la al mòbil i apunta al marcador — en paper o
+Aquesta és la teva APK. Instal·la-la al mòbil i apunta al marcador, en paper o
 en una altra pantalla.
 
 ---

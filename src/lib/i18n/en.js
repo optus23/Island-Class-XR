@@ -46,7 +46,7 @@ export default {
   'assess.block': 'Block',
   'assess.delivery': 'Hand-in',
   'assess.work': 'Work',
-  'assess.blockValue': '{number} · {name} — exercise {exercise} of {of}',
+  'assess.blockValue': '{number} · {name} · exercise {exercise} of {of}',
 
   // --- course index (top left) -------------------------------------------
   'nav.lockedTitle': 'Opens when the class gets here',
@@ -131,7 +131,7 @@ export default {
   'slides.pdfNoEmbed': 'Your browser cannot embed PDFs.',
   'slides.openPdf': 'Open the PDF ↗',
   'slides.openTab': 'Open in a new tab ↗',
-  'slides.title': 'Slides — {title}',
+  'slides.title': 'Slides: {title}',
 
   // --- generated Marp deck viewer ----------------------------------------
   'deck.prev': 'Previous slide',
@@ -152,7 +152,7 @@ export default {
   'md.pendingBody':
     'The file {path} is missing. Create it in the repository and it will show up here without touching any code.',
   'md.loadError': '{path} could not be loaded ({detail}).',
-  'md.fallbackNotice': 'Not translated yet — showing the original.',
+  'md.fallbackNotice': 'Not translated yet. Showing the original.',
 
   // --- the card on the way into a level -----------------------------------
   'card.world': 'WORLD {world}-{index}',

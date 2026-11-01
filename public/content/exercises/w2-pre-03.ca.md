@@ -9,9 +9,9 @@ paginate: true
 # Exercici 2 · Locomoció i passthrough
 
 Crea una **app de realitat mixta** amb Meta Building Blocks
-per **trobar el robot gegant** — mou-te en VR i salta a MR amb un botó
+per **trobar el robot gegant**: mou-te en VR i salta a MR amb un botó
 
-**Bloc 2 — Meta Building Blocks** · **En grup** · vuit passos, sense codi
+**Bloc 2: Meta Building Blocks** · **En grup** · vuit passos, sense codi
 
 ---
 
@@ -30,7 +30,7 @@ esdeveniments de l'Inspector, no amb un script.
 
 ## Know how · Al simulador no hi ha passthrough
 
-El Meta XR Simulator va molt bé per als passos 5 i 6 — teleport, slide, turn —
+El Meta XR Simulator va molt bé per als passos 5 i 6 (teleport, slide, turn)
 i **no serveix per al pas 7**, perquè no us pot ensenyar la vostra habitació.
 
 Així que compteu-hi des d'ara: munteu la locomoció al simulador si voleu, però
@@ -51,7 +51,7 @@ funciona, obriu-lo i salteu al pas 5.
 2. **Asset Store → Meta XR SDK → Add to My Assets** (connectats a Unity).
 3. **Package Manager** → els paquets de Meta; **XR Plug-in Management →
    OpenXR**; **Project Validation → Fix All**; **Meta XR → Apply All**.
-   **L'Oculus XR Plugin NO pot estar instal·lat** — amb ell no hi ha tracking i
+   **L'Oculus XR Plugin NO pot estar instal·lat**: amb ell no hi ha tracking i
    no hi ha error.
 4. **Escena nova, esborrar la `Main Camera`**, i després `Meta XR Tools >
    Building Blocks`.
@@ -63,8 +63,8 @@ funciona, obriu-lo i salteu al pas 5.
 Aquesta vegada arrossegueu:
 
 - **Camera Rig**
-- **Interaction Rig** — mans i comandaments
-- **Passthrough** — el nou d'avui
+- **Interaction Rig**: mans i comandaments
+- **Passthrough**: el nou d'avui
 
 I construïu alguna cosa per on moure's: **afegiu un cub i creeu un terra**
 (`GameObject > 3D Object > Plane`). Sense terra no hi ha lloc on
@@ -93,7 +93,7 @@ Als **dos** interactors, l'esquerre i el dret:
 - **activeu** `TeleportControllerInteraction`
 
 **Feu-ho als dos costats.** Fer-ho només en un és l'error més comú aquí, i deixa
-un visor on una mà es teletransporta i l'altra llisca — que es llegeix com una
+un visor on una mà es teletransporta i l'altra llisca, que es llegeix com una
 fallada del SDK i no com una casella que se us va passar.
 
 ---
@@ -149,7 +149,7 @@ als del botó de **VR**, torneu-los a **true**.
 
 1. Al visor: `Configuració > Sistema > Quest Link` → activar.
 2. Al PC: obriu **Meta Horizon Link**, inicieu sessió i connecteu el cable
-   **USB-C**. **Al CITM no l'instal·leu** — executeu `oculus-reg.bat` de
+   **USB-C**. **Al CITM no l'instal·leu**, executeu `oculus-reg.bat` de
    l'escriptori.
 3. A Meta Horizon Link: **poseu-lo com a runtime d'OpenXR actiu**, activeu
    **Developer Runtime Features** i, a dins, **Passthrough over Meta Quest
@@ -169,10 +169,10 @@ passthrough per Link és un interruptor a part, i ve apagat.
 Visor per **USB-C**, **mode desenvolupador activat** i **Always allow USB
 debugging** acceptat al visor.
 
-**Opció A — des d'Unity.** `File > Build Profiles` → **Android** (o Meta Quest)
+**Opció A: des d'Unity.** `File > Build Profiles` → **Android** (o Meta Quest)
 → **Run Device** → **Refresh** → la vostra Quest 3 → **Build And Run**.
 
-**Opció B — si el visor no apareix.** **Meta Quest Developer Hub** → **Add
+**Opció B: si el visor no apareix.** **Meta Quest Developer Hub** → **Add
 Build** → el vostre `.apk`, i després **Library > Unknown Sources** al visor.
 
 Proveu-ho tot a la build: teleport, turn, slide i els dos botons.

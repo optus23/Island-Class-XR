@@ -390,7 +390,7 @@ function rosterCard() {
     .map(
       (l) =>
         `<option value="${esc(l.id)}" ${l.id === state.levelId ? 'selected' : ''}>
-           ${esc(sessionLabel(l))} — ${esc(l.title)}
+           ${esc(sessionLabel(l))} · ${esc(l.title)}
          </option>`
     )
     .join('')
@@ -406,7 +406,7 @@ function rosterCard() {
           <span class="flex-1 min-w-0">
             <span class="font-semibold block truncate">${esc(n.name)}</span>
             <span class="text-xs opacity-60 block truncate">
-              ${esc(level ? sessionLabel(level) : n.levelId)}${level ? ` — ${esc(levelTitle(level))}` : ''}
+              ${esc(level ? sessionLabel(level) : n.levelId)}${level ? ` · ${esc(levelTitle(level))}` : ''}
             </span>
           </span>
           <button class="btn btn-ghost btn-xs text-error shrink-0"
@@ -627,7 +627,7 @@ function scheduleStatus(derived, now) {
       .map(([id]) => id)[0]
     lines.push(
       `<p class="text-xs">La próxima se abre sola: <strong>${esc(title(nextId))}</strong>
-       — ${esc(fmt(at))} (${inWords}).</p>`
+       · ${esc(fmt(at))} (${inWords}).</p>`
     )
   }
 
@@ -688,7 +688,7 @@ function scheduleCard() {
         <h2 class="font-semibold">Calendario de sesiones</h2>
         <p class="text-xs opacity-70 mt-1">
           Opcional. Pon cuándo se abre cada sesión y el mapa avanzará solo a esa
-          hora, en el navegador de cada alumno — sin token, sin sacar el móvil y
+          hora, en el navegador de cada alumno: sin token, sin sacar el móvil y
           sin esperar a que el sitio se reconstruya. Hora peninsular
           (${SCHEDULE_ZONE}).
         </p>

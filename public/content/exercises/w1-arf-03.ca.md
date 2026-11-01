@@ -8,12 +8,12 @@ paginate: true
 
 # Exercici 3 · AR Foundation Samples
 
-El problema està **resolt** — així que ja podeu fer servir els samples
+El problema està **resolt**: així que ja podeu fer servir els samples
 
 Crea una app a partir dels **AR Foundation Samples** d'Unity
 i **prova'n totes les features**
 
-**Bloc 1 — AR Foundation** · **En grup** · tres passos, sense codi
+**Bloc 1: AR Foundation** · **En grup** · tres passos, sense codi
 
 ---
 
@@ -25,7 +25,7 @@ projecte d'Unity que ja porta una escena funcionant per cada feature que té l'A
 Foundation.
 
 Avui no integreu res al vostre projecte. Obriu el seu, l'executeu al mòbil i
-descobriu **què sap fer la plataforma de debò** — que és el que necessiteu abans
+descobriu **què sap fer la plataforma de debò**, que és el que necessiteu abans
 del bloc 2.
 
 ---
@@ -69,7 +69,7 @@ un any.
 Unity Hub → **Add** → **Add project from disk**, i apunta a la carpeta que acabes
 de descarregar.
 
-**Comprova que tens els mòduls d'Android instal·lats** abans d'obrir-lo — Unity
+**Comprova que tens els mòduls d'Android instal·lats** abans d'obrir-lo, Unity
 Hub → *Installs* → **Add modules** → *Android Build Support*, amb **OpenJDK** i
 **Android SDK & NDK Tools** a dins.
 
@@ -83,7 +83,7 @@ Android no apareix mai a Build Settings.
 Obre les escenes d'exemple i prova-les:
 
 - **Face Tracking**
-- **Body Tracking** — *només a iPhone*
+- **Body Tracking**: *només a iPhone*
 - **Simple Occlusion**
 - **Ambient Intensity**
 
@@ -97,7 +97,7 @@ sol ser el dispositiu, no la teva build.
 - **Point Cloud**
 - **Configuration**
 - **Anchors**
-- **Plane detection** — la que ja vas muntar a mà a l'exercici 1
+- **Plane detection**: la que ja vas muntar a mà a l'exercici 1
 
 Veure-la aquí al costat de les altres és justament l'objectiu: el que et va
 costar una sessió cablejar és una escena dins d'un catàleg, i aquest catàleg és
@@ -128,7 +128,7 @@ Després `File > Build Settings`:
 
 Aquesta és la teva APK. Instal·la-la al mòbil.
 
-Enhorabona — amb això el bloc està acabat.
+Enhorabona: amb això el bloc està acabat.
 
 ---
 

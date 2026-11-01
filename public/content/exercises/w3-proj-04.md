@@ -1,4 +1,4 @@
-# PLACEHOLDER — sesión 4 (proyecto final)
+# PLACEHOLDER: sesión 4 (proyecto final)
 
 > **PLACEHOLDER.** Escribe aquí el enunciado de los ejercicios.
 > Este archivo es Markdown normal: se renderiza tal cual en el portal del nivel.
