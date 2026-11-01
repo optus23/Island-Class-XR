@@ -11,8 +11,26 @@
  *   SEASON = 'halloween'  night, monsters, pumpkins, bare trees, haunted keeps
  *   SEASON = 'christmas'  reserved — asked for in December 2026, not built yet
  *
- * There is also a git tag, `pre-halloween-2026`, on the commit that was live
- * before any of this. It is belt and braces; the line below is the switch.
+ * **HALLOWEEN IS FINISHED, AND IT KEEPS WORKING WITH THE SWITCH OFF.** Marc
+ * asked, on 1 November 2026, that the whole thing survive for next year. It
+ * does, because none of it is temporary: the palette patch below, the dead
+ * trees, the jack-o'-lanterns, the lampposts and their lights, the vampires,
+ * werewolves and zombies, the bats and the haunted keeps all live in ordinary
+ * files behind `seasonFlags`, and `SEASON = 'default'` simply stops asking for
+ * them. Turning it back on next October is the same one word in reverse —
+ * there is nothing to restore, re-import or remember.
+ *
+ * Proved rather than asserted: halloween -> default -> halloween returns the
+ * island to 16 instanced meshes, 59,908 instances, 6 point lights, ambient
+ * 0.97 and sky 0x1a1230, which is exactly what it had before the round trip.
+ *
+ * It will also inherit anything that changes in `theme.js` meanwhile, since
+ * the patch is laid over whatever the base says at the time. That is the
+ * intended behaviour: a new biome colour next year should reach Halloween too.
+ *
+ * Two git tags bracket the work, as belt and braces — `pre-halloween-2026` on
+ * the commit that was live before any of it, and `halloween-2026` on the
+ * finished look. Neither is the mechanism; the line below is.
  *
  * **A season may only change how the island LOOKS.** Never what it means: not a
  * node's status colour, not the lock, not a level's data. `palette.completed`
