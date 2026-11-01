@@ -874,6 +874,53 @@ rather than guessed:
   group plus a no-op update outside Halloween — so the ordinary map pays one
   import and nothing else, and there is no branch in `main.js` to forget to
   remove in November.
+- **THE ISLAND HAS REAL LIGHTS NOW, AND THE BUDGET IS THE WHOLE DESIGN.**
+  Night was carried entirely by the ambient at first and came back as "no se
+  aprecia de la oscuridad que hay": a dark island with nothing actually
+  glowing on it reads as under-exposed rather than as night. So Halloween adds
+  **lampposts** (`props.js`, `planLamps` — one per session, at the roadside,
+  on the verge the landmark did not take) and a small pool of real point
+  lights that follows the avatar (`three/seasonLights.js`).
+  **`seasonFlags.lights` is a COUNT, not a switch**, and 0 is the ordinary
+  map, which has a sun and needs none.
+- **three.js does no light culling whatsoever.** The shader loops over EVERY
+  light for EVERY lit fragment, whether that light reaches the pixel, sits
+  behind the camera or is on the far side of the island. The price is
+  therefore `lights x pixels` and nothing else — geometry does not come into
+  it. Measured on an RTX 3060 at 786k pixels: 0 lights 0.52 ms, 4 → 0.58,
+  8 → 0.69, 16 → 0.89, 32 → 1.38, 64 → 2.43. And it scales with pixel count:
+  the same 26 lights cost 0.58 ms at 786k, **2.24 ms at 3.1M and 4.80 ms at
+  7.1M**. A phone has roughly 3M pixels and a GPU the better part of ten times
+  slower, which is what turns "26 lights is 11% of a frame" on a desktop into
+  most of a frame there. **Six is the number; raising it is a phone decision,
+  not a desktop one.** Final cost measured in place: **0.084 ms, 0.5% of a
+  60 fps frame.**
+- **THE POOL IS FIXED AND NOTHING IS EVER ADDED, REMOVED OR HIDDEN.** The
+  light count is compiled into the shader program, so changing it recompiles
+  every material in the scene — invisible in a frame average, very visible as
+  a stutter the moment you walk past a lamppost. **`visible = false` counts as
+  removing it**, because an invisible light is not in the list the renderer
+  builds: the first version flipped `visible` and recompiled on the first
+  pick. A slot with nothing to light is parked at `intensity = 0` instead,
+  still in the list, still paying its loop iteration. That is the price of
+  never recompiling, and it is why an A/B that only zeroes the intensity
+  measures nothing at all.
+- **A `PointLight` IS PHYSICAL SINCE THREE r155 AND INTENSITY IS IN CANDELA.**
+  With `decay: 2` it falls off with the square of the distance. A lamp head
+  sits 4.26 units above the road, so an intensity of 5.5 — which sounds like
+  plenty — arrives at the ground as 5.5 / 4.26² ≈ 0.3. The first build lit
+  nothing: the posts were visible and the road under them was not. The working
+  figure is **45** for a lamp and **9** for a pumpkin, tuned against
+  screenshots rather than computed.
+- **`MeshLambertMaterial` IS PER-FRAGMENT in r185**, not per-vertex as it was
+  for years — the shader uses `lights_fragment_begin` and there is no
+  `vLightFront` left in the build. So point lights land smoothly on voxels
+  with no corner blotching, and the cost lives in pixels rather than vertices.
+  Do not plan around the old behaviour.
+- **`light.distance` is a WORLD-space radius**, so the diorama's ~0.005 scale
+  would make one lamp light the entire tabletop map in VR. `repick` multiplies
+  it by the group's own world scale — the same trap the water shader fell
+  into, and the reason anything measured in world space gets checked in VR.
 - **Counted, at the same camera**: 86 draw calls against the ordinary map's 81,
   and 59,633 instances against 55,322 — +7.8%, nearly all of it the dead tree's
   16 boxes against the leafy tree's 7. Re-measure if a season adds more.
@@ -1459,6 +1506,22 @@ Every one of these was diagnosed the hard way. Do not re-derive them.
 - `scripts/validate.mjs` runs under **Node**, so anything it imports must not pull
   in `levels.json` through a plain import — Node needs `with { type: 'json' }`.
   Keep level data out of `paths.js` and `terrain.js`.
+- **VITE'S HOT RELOAD MAKES A SECOND COPY OF A MODULE, AND THREE'S LIGHT CACHE
+  IS KEYED BY `light.id`.** Object ids come from a counter that lives in the
+  module, so a module reloaded by HMR starts its own numbering and hands out
+  ids that collide with objects the running scene already has.
+  `WebGLLights.setup` then looks a PointLight up and gets the HemisphereLight's
+  uniforms back, which have no `color`, and throws
+  **`Cannot read properties of undefined (reading 'copy')`** from inside
+  `renderer.render`. It looks exactly like a bug in whatever light you just
+  wrote. **It is not reproducible on a clean load**: instrumenting `frame`
+  showed 2422 consecutive frames with no failure while the console still
+  carried the error. Two things cost the time here, and both are the lesson:
+  **a dynamic `import('three')` from the console is also a second copy** — use
+  the dep URL the app itself loaded — and **this tooling's console buffer
+  survives navigation**, so an error from the page before can be read as the
+  page in front of you. Check a stale-looking render error in a FRESH TAB
+  before believing it.
 - **A long-lived `npm run dev` leaks badly.** After hours of hot reloads it was
   at 10.5 GB with 3 GB free on the machine, and the symptom was not an error:
   page loads stalled, Chrome said "la página no responde", the browser
