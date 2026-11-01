@@ -1038,7 +1038,9 @@
         }
       ],
       "bossTier": "mini",
-      "todos": []
+      "todos": [],
+      "slidesHidden": true,
+      "bibliography": "content/bibliography/w2-boss.md"
     },
     {
       "id": "w2-05",
