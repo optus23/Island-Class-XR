@@ -45,6 +45,16 @@ const BASE_FLAGS = {
   trees: 'biome',
   /** 'stone' is the ordinary keep; 'haunted' adds the Halloween dressing. */
   castles: 'stone',
+  /**
+   * How many REAL point lights the map may have alight at once, and 0 is the
+   * ordinary island — which has a sun, and needs none.
+   *
+   * It is a budget rather than a switch because three.js does no light
+   * culling: every light costs on every lit pixel whether or not it reaches
+   * it, so the number is the only lever there is. See `three/seasonLights.js`
+   * for the measurements behind the figure.
+   */
+  lights: 0,
 }
 
 /**
@@ -62,6 +72,7 @@ const SEASONS = {
     flags: {
       walkers: 'monsters',
       bats: 14,
+      lights: 6,
       pumpkins: true,
       trees: 'bare',
       castles: 'haunted',
@@ -109,7 +120,11 @@ const SEASONS = {
         // Moonlight: cool, from one side, and much weaker than the sun. The
         // ambient keeps a violet cast so the shadowed faces are not grey.
         ambient: 0x5b4a8c,
-        ambientIntensity: 0.72,
+        // Lifted from 0.72 once the point lights went in. Measured against
+        // the screenshots rather than reasoned: of everything tried, this is
+        // what did most to stop the island reading as under-exposed, and the
+        // lamps then do the local work. Any higher and it stops being night.
+        ambientIntensity: 0.97,
         sun: 0xc8d4ff,
         sunIntensity: 1.05,
         sunPosition: [-50, 60, 25],
