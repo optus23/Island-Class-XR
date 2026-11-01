@@ -1457,6 +1457,20 @@ Every one of these was diagnosed the hard way. Do not re-derive them.
   on the near-black plate and reads as a blank panel. It shipped that way and
   went unnoticed for four rounds because the deck was only ever verified as
   data: slide counts and class names, never looked at.
+- **THE IMPORTED MARP THEME ZEBRA-STRIPES TABLES FOR A WHITE DECK, AND THE
+  COLOUR THAT WINS IS ON THE ROW.** `@import 'default'` brings
+  `section table tr { background-color: var(--bgColor-default) }` and
+  `tr:nth-child(2n) { var(--bgColor-muted) }`, both near-white. On this dark
+  ground the pale `--xri-ink` text landed on a pale band and vanished —
+  reported as "no se lee" off the first table any deck had ever used. **Styling
+  `th`/`td` is not enough**; `scripts/marp-theme.css` overrides the `tr` rules
+  with the same selectors, which win on order because that file is appended
+  after the import. If a future Marp bumps that theme, check the `tr` rule
+  first.
+  **It shipped because the deck had only ever been verified as DATA** — slide
+  counts, language parity, backtick counts, all green on a table nobody looked
+  at. That is the same hole the missing `.marpit` wrapper sat in for four
+  rounds. **Look at new slides; do not only count them.**
 - **Strip the Marp front-matter before the prose renderer.** The exercise files
   are decks now; `marked` has no idea the YAML block is metadata and drew it as
   a rule plus a paragraph, so every exercise opened with a literal
