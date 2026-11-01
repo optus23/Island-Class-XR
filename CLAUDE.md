@@ -71,6 +71,25 @@ These come from the brief and are not negotiable without the user saying so.
   SESSION to hand it in. A student navigating this map moves through sessions;
   telling them about a date is telling them about something that is not here.
   Applies to every string in `lib/i18n/*.js`, not only to level data.
+- **NO EM DASH IN ANYTHING A READER SEES.** Marc, 1 November 2026: "quita
+  estos símbolos, ya que denotan el uso de inteligencia artificial." That is
+  the whole reason, and it is about how the course material READS to a
+  student, so the rule covers everything they can see: `public/content/**`,
+  the prose in `levels.json`, the interface strings in `lib/i18n/*.js`, what
+  `/admin` renders, and the `<title>` and `<meta description>` of the three
+  HTML entry points. 639 of them came out in one pass.
+  **The replacement is chosen by CONTEXT, never globally**, because a single
+  substitute gets most sites wrong: a plain hyphen in a citation separator
+  (`[Autor - Título](url)`) or an attribution, a colon after a short label or
+  before a subtitle, parentheses around an aside, and a comma everywhere
+  else. Two traps found by running it: a colon is wrong when the sentence
+  already has one or when the next word is a conjunction ("solved: so now"),
+  and an aside closed with `)` still needs the comma the second dash was
+  doing. The middle dot `·` is NOT affected; it is the separator this UI
+  already uses, and it is what the chrome strings became.
+  Code comments and `console` lines keep theirs, deliberately: nobody reads
+  those in the page, and so does this file, which is a working note and not
+  course material.
 - **No backend, no database.** Everything is static files plus the GitHub
   Contents API for the one marker write.
 - **The admin GitHub token never touches source or the build.** It lives only in
