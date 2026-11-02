@@ -454,6 +454,16 @@ date and skipped 2-2 entirely, opening a session two days early and never
 marking the one before it. **The invariant is that the timetable runs forward
 along the main path**; check it after any reorder.
 
+**MARC'S DECK COVERS ARE STALE TOO, AND THEY ARE OFF BY A SESSION NOW.** Every
+`DAY N - ARVR.pdf` used to be global session N, and that held through DAY 10.
+Since the midterm moved forward to 2-5 on 12 October, it does not: **DAY 12 is
+the 2-6 class**, because session 12 is the exam and the exam has no deck. The
+cover still reads "Session 12 / 28" against a course of 26, exactly as DAY 10's
+read "Session 10 / 28". **Decide which session a deck belongs to from what it
+is ABOUT, never from its cover or its filename**, and when the deck covers two
+things check the level's own `contents` before splitting it: DAY 12 is use
+cases AND the final-project kickoff, and `w2-05` already listed both.
+
 **The board's own text is not all safe to copy.** Its Content column carries
 scheduling notes — "Teacher absent – class to be rescheduled September 31",
 "Holiday – no class" — and a holiday row is not a session. The no-dates rule
@@ -1536,6 +1546,14 @@ Every one of these was diagnosed the hard way. Do not re-derive them.
 
 **Tooling**
 
+- **A SLIDE DECK'S BIBLIOGRAPHY MAY BE INVISIBLE TO EVERY TEXT EXTRACTOR.** All
+  six links in DAY 12 are PDF link ANNOTATIONS sitting on images, and not one
+  of them is written out on a slide, so `pdftotext` and `pymupdf`'s
+  `page.get_text()` both return a deck with no sources in it. Read
+  `page.get_links()` as well, and de-duplicate: those six came back as 26
+  annotations, one of them repeated thirteen times across the template. The
+  nearby text box (`get_textbox` around the link rect) is what names the link,
+  since the anchor itself is usually a picture with no caption.
 - `scripts/validate.mjs` runs under **Node**, so anything it imports must not pull
   in `levels.json` through a plain import — Node needs `with { type: 'json' }`.
   Keep level data out of `paths.js` and `terrain.js`.
