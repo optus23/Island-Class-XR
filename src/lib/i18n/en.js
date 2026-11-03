@@ -16,7 +16,7 @@ export default {
   // --- the level model's enum-ish fields ---------------------------------
   'stage.intro-theory': 'Introduction and theory',
   'stage.ar-foundation': 'AR Foundation',
-  'stage.meta-pre-exam': 'Meta Building Blocks (before the midterm)',
+  'stage.meta-pre-exam': 'Meta Building Blocks',
   'stage.mini-boss-midterm': 'Midterm exam',
   'stage.meta-post-exam': 'Meta Building Blocks (after the midterm)',
   'stage.xr-toolkit': 'XR Interaction Toolkit',
@@ -32,7 +32,7 @@ export default {
   'bossTier.final': 'Final boss',
   'bossTier.extra': 'Extra',
 
-  'submission.build': 'Build (APK), not a video',
+  'submission.build': 'Build (APK)',
   'submission.video': 'Video',
   'submission.repo': 'Repository',
 
