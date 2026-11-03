@@ -1125,7 +1125,10 @@
           "ca": "Activitat a classe: 3. Building Blocks Additional Feature, Effect Mesh, Spatial Anchor…"
         }
       ],
-      "slidesPending": true,
+      "slides": {
+        "type": "canva",
+        "source": "https://www.canva.com/design/DAHZ473cQ64/dD2zgVvR7f8APVNnukS1lg/view?embed"
+      },
       "block": {
         "number": 2,
         "name": "Meta Building Blocks",
