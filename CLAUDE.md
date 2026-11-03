@@ -459,10 +459,14 @@ along the main path**; check it after any reorder.
 Since the midterm moved forward to 2-5 on 12 October, it does not: **DAY 12 is
 the 2-6 class**, because session 12 is the exam and the exam has no deck. The
 cover still reads "Session 12 / 28" against a course of 26, exactly as DAY 10's
-read "Session 10 / 28". **Decide which session a deck belongs to from what it
-is ABOUT, never from its cover or its filename**, and when the deck covers two
-things check the level's own `contents` before splitting it: DAY 12 is use
-cases AND the final-project kickoff, and `w2-05` already listed both.
+read "Session 10 / 28". **The TOTAL has since been corrected and the NUMBER has
+not**: DAY 13 is the 2-7 class, global session 14, and its cover reads
+"Session 13 / 26" - right denominator, wrong numerator, which reads more
+plausible than the old one and is just as wrong. **Decide which session a deck
+belongs to from what it is ABOUT, never from its cover or its filename**, and
+when the deck covers two things check the level's own `contents` before
+splitting it: DAY 12 is use cases AND the final-project kickoff, and `w2-05`
+already listed both.
 
 **The board's own text is not all safe to copy.** Its Content column carries
 scheduling notes — "Teacher absent – class to be rescheduled September 31",
