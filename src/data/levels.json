@@ -1100,18 +1100,18 @@
     {
       "id": "w2-post-03",
       "title": {
-        "en": "Building Blocks: additional features",
-        "es": "Building Blocks: funcionalidades adicionales",
-        "ca": "Building Blocks: funcionalitats addicionals"
+        "en": "MRUK: additional features",
+        "es": "MRUK: funcionalidades adicionales",
+        "ca": "MRUK: funcionalitats addicionals"
       },
       "world": 2,
       "stage": "meta-pre-exam",
       "category": "practical",
       "optional": false,
       "summary": {
-        "en": "Brief walkthrough (2-3) · In-class activity: 3. Building Blocks additional feature, effect mesh, spatial anchor…",
-        "es": "Presentación del enunciado (2-3) · Actividad en clase: 3. Building Blocks additional feature, effect mesh, spatial anchor…",
-        "ca": "Presentació Enunciat (2-3) · Activitat a classe: 3. Building Blocks Additional Feature, Effect Mesh, Spatial Anchor…"
+        "en": "Brief walkthrough (2-3) · In-class activity: 3. Mixed Reality Utility Kit, your real room as the scene",
+        "es": "Presentación del enunciado (2-3) · Actividad en clase: 3. Mixed Reality Utility Kit, vuestra sala real como escenario",
+        "ca": "Presentació Enunciat (2-3) · Activitat a classe: 3. Mixed Reality Utility Kit, la vostra sala real com a escenari"
       },
       "contents": [
         {
@@ -1120,9 +1120,9 @@
           "ca": "Presentació Enunciat (2-3)"
         },
         {
-          "en": "In-class activity: 3. Building Blocks additional feature, effect mesh, spatial anchor…",
-          "es": "Actividad en clase: 3. Building Blocks additional feature, effect mesh, spatial anchor…",
-          "ca": "Activitat a classe: 3. Building Blocks Additional Feature, Effect Mesh, Spatial Anchor…"
+          "en": "In-class activity: 3. Mixed Reality Utility Kit, your real room as the scene",
+          "es": "Actividad en clase: 3. Mixed Reality Utility Kit, vuestra sala real como escenario",
+          "ca": "Activitat a classe: 3. Mixed Reality Utility Kit, la vostra sala real com a escenari"
         }
       ],
       "slides": {
@@ -1142,23 +1142,71 @@
         {
           "id": "w2-post-03-t1",
           "type": "objective-task",
-          "objective": "Ejercicio libre. Escoged un building block de impacto visual (Scene Mesh o Effect Mesh son los que más rinden, pero Room Guardian o la detección de objetos también valen), y usadlo para que el enfrentamiento de Blue Goblin y la amenaza ocurra dentro de vuestra habitación real.",
-          "starting_point": "El proyecto del bloque, con passthrough, plane detection y hand tracking ya funcionando.",
+          "objective": {
+            "en": "Build a mixed reality app with the Meta Mixed Reality Utility Kit. Scan your own room with the headset, bring it into Unity as geometry your app can use, run the four MRUK samples, and pick ONE to carry into the group's project with a change of your own. Everything is Inspector work except one word in one script, and that fix is on the session deck.",
+            "es": "Construid una app de realidad mixta con el Meta Mixed Reality Utility Kit. Escanead vuestra propia sala con el visor, metedla en Unity como geometría que vuestra app pueda usar, pasad los cuatro samples de MRUK y escoged UNO para llevarlo al proyecto del grupo con un cambio vuestro. Todo es trabajo de Inspector menos una palabra en un script, y ese arreglo está en el propio deck de la sesión.",
+            "ca": "Construïu una app de realitat mixta amb el Meta Mixed Reality Utility Kit. Escanegeu la vostra pròpia sala amb el visor, poseu-la dins d'Unity com a geometria que la vostra app pugui fer servir, passeu els quatre samples d'MRUK i trieu-ne UN per portar-lo al projecte del grup amb un canvi vostre. Tot és feina d'Inspector menys una paraula en un script, i aquell arranjament és al deck de la mateixa sessió."
+          },
+          "starting_point": {
+            "en": "Your project from exercise 2, if it still works, otherwise steps 1 to 3 rebuild it. A **Meta Quest 3** with a **USB-C** data cable, developer mode on, and **Meta Horizon Link** on the PC (**at CITM, run `oculus-reg.bat` from the desktop instead of installing it**). **The samples are not in the package**: they come from `oculus-samples/Unity-MRUtilityKitSample` on GitHub. The room you are going to show it in **has to be scanned on the headset**, and the Meta XR Simulator cannot stand in for that.",
+            "es": "Vuestro proyecto del ejercicio 2, si sigue funcionando, si no, los pasos 1 a 3 lo rehacen. Una **Meta Quest 3** con cable de datos **USB-C**, modo desarrollador activado, y **Meta Horizon Link** en el PC (**en el CITM, ejecutad `oculus-reg.bat` del escritorio en vez de instalarlo**). **Los samples no están en el paquete**: salen de `oculus-samples/Unity-MRUtilityKitSample` en GitHub. La sala en la que lo vais a enseñar **hay que escanearla en el visor**, y el Meta XR Simulator no sustituye eso.",
+            "ca": "El vostre projecte de l'exercici 2, si encara funciona, si no, els passos 1 a 3 el refan. Una **Meta Quest 3** amb cable de dades **USB-C**, mode desenvolupador activat, i **Meta Horizon Link** al PC (**al CITM, executeu `oculus-reg.bat` de l'escriptori en comptes d'instal·lar-lo**). **Els samples no són al paquet**: surten d'`oculus-samples/Unity-MRUtilityKitSample` a GitHub. La sala on ho ensenyareu **s'ha d'escanejar al visor**, i el Meta XR Simulator no substitueix això."
+          },
           "steps": [
-            "En Building Blocks, localiza el bloque elegido, revisa en el Inspector del propio bloque qué **Dependencies** muestra (Effect Mesh, por ejemplo, depende de MRUK y lo añade solo).",
-            "Pruébalo aislado primero: crea una escena nueva y vacía con solo Camera Rig + Passthrough + el bloque elegido, y comprueba que funciona antes de meterlo en el proyecto del grupo.",
-            "Con el visor puesto: Configuración → Space Setup → vuelve a escanear la sala donde vais a entregar, la malla depende de esa captura, y una vieja da resultados raros.",
-            "En el componente del bloque (p. ej. `EffectMesh`), sustituye el Material por uno semitransparente que deje ver el passthrough por debajo.",
-            "Añade colisión a la malla generada (Mesh Collider, o la opción de colisión que exponga el propio bloque) para que otros objetos puedan rebotar, apoyarse o esconderse detrás de mobiliario real.",
-            "Prueba que algo del juego choca de verdad contra un mueble real, no lo atraviesa.",
-            "Prueba el build en una habitación distinta a la que usasteis para montarlo, y comprobad que sigue teniendo sentido.",
-            "Cierra la narrativa: qué pasa con Blue Goblin y la amenaza en vuestra versión, visible dentro de la app.",
-            "Revisa el rendimiento en el visor (no en el editor) mirando la malla completa de la sala, usa `Meta > Tools > Runtime Optimizer` si necesitas identificar caídas de frames.",
-            "Build APK final del bloque, instalado en frío y recorrido de principio a fin sin ayuda."
+            {
+              "en": "*(Repaso)* **A new project.** Unity Hub → **New project** → **Universal 3D**, with the **Android module** installed. Skip steps 1 to 3 if your project from exercise 2 still opens and runs.",
+              "es": "*(Repaso)* **Un proyecto nuevo.** Unity Hub → **New project** → **Universal 3D**, con el **módulo de Android** instalado. Saltaos los pasos 1 a 3 si vuestro proyecto del ejercicio 2 todavía abre y funciona.",
+              "ca": "*(Repàs)* **Un projecte nou.** Unity Hub → **New project** → **Universal 3D**, amb el **mòdul d'Android** instal·lat. Salteu-vos els passos 1 a 3 si el vostre projecte de l'exercici 2 encara obre i funciona."
+            },
+            {
+              "en": "*(Repaso)* **The SDK from the Asset Store.** **Asset Store** → **Meta XR SDK** → **Add to My Assets**, signed in to your Unity account, then install it from the **Package Manager**.",
+              "es": "*(Repaso)* **El SDK desde el Asset Store.** **Asset Store** → **Meta XR SDK** → **Add to My Assets**, logueados en vuestra cuenta de Unity, y después instaladlo desde el **Package Manager**.",
+              "ca": "*(Repàs)* **El SDK des de l'Asset Store.** **Asset Store** → **Meta XR SDK** → **Add to My Assets**, connectats al vostre compte d'Unity, i després instal·leu-lo des del **Package Manager**."
+            },
+            {
+              "en": "**Packages, provider, validation.** `Window > Package Manager` → the **Meta** packages. In the reference project they read **201.0.0** (All-in-One, Core, Interaction, Interaction Essentials, Haptics, Platform and **MR Utility Kit**), with Audio and Voice at 85.0.0, which is normal. **Not all of them are needed:** today it is the All-in-One (or Core) and the **MR Utility Kit**. `Project Settings > XR Plug-in Management` → **OpenXR**. **Project Validation → Fix All**, then **Meta XR → Apply All**. **CHECK THE OCULUS XR PLUGIN IS NOT INSTALLED**, alongside OpenXR you get no tracking and no error. Write down your version: step 7 has an error whose likeliest cause is a version mismatch.",
+              "es": "**Paquetes, proveedor, validación.** `Window > Package Manager` → los paquetes de **Meta**. En el proyecto de referencia marcan **201.0.0** (All-in-One, Core, Interaction, Interaction Essentials, Haptics, Platform y **MR Utility Kit**), con Audio y Voice en 85.0.0, que es normal. **No hacen falta todos:** hoy son el All-in-One (o el Core) y el **MR Utility Kit**. `Project Settings > XR Plug-in Management` → **OpenXR**. **Project Validation → Fix All**, y después **Meta XR → Apply All**. **COMPROBAD QUE EL OCULUS XR PLUGIN NO ESTÁ INSTALADO**, junto a OpenXR no hay tracking y no hay error. Apuntaos vuestra versión: el paso 7 tiene un error cuya causa más probable es un desfase de versiones.",
+              "ca": "**Paquets, proveïdor, validació.** `Window > Package Manager` → els paquets de **Meta**. Al projecte de referència marquen **201.0.0** (All-in-One, Core, Interaction, Interaction Essentials, Haptics, Platform i **MR Utility Kit**), amb Audio i Voice a 85.0.0, que és normal. **No calen tots:** avui són l'All-in-One (o el Core) i el **MR Utility Kit**. `Project Settings > XR Plug-in Management` → **OpenXR**. **Project Validation → Fix All**, i després **Meta XR → Apply All**. **COMPROVEU QUE L'OCULUS XR PLUGIN NO ESTÀ INSTAL·LAT**, al costat d'OpenXR no hi ha tracking i no hi ha error. Apunteu-vos la vostra versió: el pas 7 té un error la causa més probable del qual és un desfasament de versions."
+            },
+            {
+              "en": "**Every developer toggle in Meta Horizon Link.** On the PC, **Meta Horizon Link → Desarrollador**, and turn on **all seven**: automatic Link software updates, developer runtime features, passthrough over Link, camera API passthrough permissions, eye tracking over Link, natural facial expressions over Link, and **environment data over Link**. **The last one is what today depends on**, it is what lets the editor read the room you scanned. Without it MRUK finds no room, your scene comes up empty, and the console says nothing at all.",
+              "es": "**Todos los toggles de desarrollador de Meta Horizon Link.** En el PC, **Meta Horizon Link → Desarrollador**, y activad **los siete**: actualizaciones automáticas de Link, funciones de entorno de ejecución para desarrolladores, enfoque exterior mediante Link, permisos del enfoque exterior de la API de cámara, seguimiento de ojos mediante Link, expresiones faciales naturales mediante Link y **datos del entorno mediante Link**. **El último es del que depende la clase de hoy**, es el que deja que el editor lea la sala que habéis escaneado. Sin él MRUK no encuentra sala, la escena sale vacía y la consola no dice absolutamente nada.",
+              "ca": "**Tots els toggles de desenvolupador de Meta Horizon Link.** Al PC, **Meta Horizon Link → Desenvolupador**, i activeu **els set**: actualitzacions automàtiques de Link, funcions d'entorn d'execució per a desenvolupadors, enfocament exterior mitjançant Link, permisos de l'enfocament exterior de l'API de càmera, seguiment d'ulls mitjançant Link, expressions facials naturals mitjançant Link i **dades de l'entorn mitjançant Link**. **L'últim és del qual depèn la classe d'avui**, és el que deixa que l'editor llegeixi la sala que heu escanejat. Sense ell MRUK no troba cap sala, l'escena surt buida i la consola no diu absolutament res."
+            },
+            {
+              "en": "**The headset in developer mode.** You did this in class 1, so it is a check rather than work: **developer mode on**, the **USB-C data cable** connected, and **Always allow USB debugging** accepted inside the headset. **At CITM, do not install Meta Horizon Link**, run `oculus-reg.bat` from the desktop. You need the headset on your head for the next step.",
+              "es": "**El visor en modo desarrollador.** Esto lo hicisteis en la clase 1, así que es una comprobación más que trabajo: **modo desarrollador activado**, el **cable de datos USB-C** conectado y **Always allow USB debugging** aceptado dentro del visor. **En el CITM no instaléis Meta Horizon Link**, ejecutad `oculus-reg.bat` del escritorio. El paso siguiente lo hacéis con el visor puesto.",
+              "ca": "**El visor en mode desenvolupador.** Això ho vau fer a la classe 1, així que és una comprovació més que feina: **mode desenvolupador activat**, el **cable de dades USB-C** connectat i **Always allow USB debugging** acceptat dins del visor. **Al CITM no instal·leu Meta Horizon Link**, executeu `oculus-reg.bat` de l'escriptori. El pas següent el feu amb el visor posat."
+            },
+            {
+              "en": "**Scan the room (Space Setup).** **On the headset**, not from the PC: `Settings` → `Environment Setup` → **Space Setup**. Walk the room and mark the walls, the floor, the ceiling and the large furniture. What comes out is the **Scene Model**, and it is the only source of the geometry everything below uses. **Scan the room you are going to demo in**: an old scan of a different room is the commonest reason a sample looks broken, the mesh is there, it just does not match where you are standing.",
+              "es": "**Escanead la sala (Space Setup).** **En el visor**, no desde el PC: `Configuración` → `Environment Setup` → **Space Setup**. Recorred la sala y marcad las paredes, el suelo, el techo y los muebles grandes. De aquí sale el **Scene Model**, y es la única fuente de la geometría que usa todo lo demás. **Escanead la sala en la que vais a enseñarlo**: un escaneo viejo de otra sala es el motivo más común de que un sample parezca roto, la malla está, lo que pasa es que no se corresponde con donde estáis.",
+              "ca": "**Escanegeu la sala (Space Setup).** **Al visor**, no des del PC: `Configuració` → `Environment Setup` → **Space Setup**. Recorreu la sala i marqueu les parets, el terra, el sostre i els mobles grans. D'aquí surt el **Scene Model**, i és l'única font de la geometria que fa servir tota la resta. **Escanegeu la sala on ho ensenyareu**: un escaneig vell d'una altra sala és el motiu més comú que un sample sembli trencat, la malla hi és, el que passa és que no es correspon amb on sou."
+            },
+            {
+              "en": "**The samples: import, fix, point at your room, run the four.** They are not in the package: download or clone **`oculus-samples/Unity-MRUtilityKitSample`** and copy the **`MRUKSamples`** folder into your `Assets`. Unity goes red straight away, `BouncingBallMgr.cs(35,43): error CS0117` → **open it and delete the `Cw`** from `GetLocalControllerAngularVelocityCw`. **A compile error blocks the whole project**, so nothing works until the console is at zero. Then open `Basic/MRUKBase`, select the **`MRUK`** object → **Scene Settings** → **Data Source** → **`Device`** (the default is *Device With Prefab Fallback*, which quietly gives you a canned room instead of yours). Run the four: **MRUK Base**, **Bouncing Ball**, **Virtual Home**, **Destructible Mesh**. **Then pick ONE** and change something in it from the Inspector, the `EffectMesh` material, the prefabs Virtual Home spawns, the ball. The one you pick is what goes into the group's build.",
+              "es": "**Los samples: importad, arreglad, apuntad a vuestra sala, pasad los cuatro.** No están en el paquete: descargad o clonad **`oculus-samples/Unity-MRUtilityKitSample`** y copiad la carpeta **`MRUKSamples`** dentro de vuestro `Assets`. Unity se pone rojo de inmediato, `BouncingBallMgr.cs(35,43): error CS0117` → **abridlo y borrad el `Cw`** de `GetLocalControllerAngularVelocityCw`. **Un error de compilación bloquea el proyecto entero**, así que nada funciona hasta que la consola esté a cero. Después abrid `Basic/MRUKBase`, seleccionad el objeto **`MRUK`** → **Scene Settings** → **Data Source** → **`Device`** (por defecto viene *Device With Prefab Fallback*, que sin decir nada os da una sala enlatada en vez de la vuestra). Pasad los cuatro: **MRUK Base**, **Bouncing Ball**, **Virtual Home**, **Destructible Mesh**. **Y escoged UNO** y cambiadle algo desde el Inspector, el material del `EffectMesh`, los prefabs que suelta Virtual Home, la pelota. El que escojáis es el que va a la build del grupo.",
+              "ca": "**Els samples: importeu, arregleu, apunteu a la vostra sala, passeu els quatre.** No són al paquet: descarregueu o clonar **`oculus-samples/Unity-MRUtilityKitSample`** i copieu la carpeta **`MRUKSamples`** dins del vostre `Assets`. Unity es posa vermell de seguida, `BouncingBallMgr.cs(35,43): error CS0117` → **obriu-lo i esborreu el `Cw`** de `GetLocalControllerAngularVelocityCw`. **Un error de compilació bloqueja el projecte sencer**, així que res no funciona fins que la consola estigui a zero. Després obriu `Basic/MRUKBase`, seleccioneu l'objecte **`MRUK`** → **Scene Settings** → **Data Source** → **`Device`** (per defecte ve *Device With Prefab Fallback*, que sense dir res us dona una sala enllaunada en comptes de la vostra). Passeu els quatre: **MRUK Base**, **Bouncing Ball**, **Virtual Home**, **Destructible Mesh**. **I trieu-ne UN** i canvieu-li alguna cosa des de l'Inspector, el material de l'`EffectMesh`, els prefabs que deixa anar Virtual Home, la pilota. El que trieu és el que va a la build del grup."
+            },
+            {
+              "en": "**Build and install.** `File > Build Settings` → your scene in **Scenes In Build**. Headset on **USB-C**, developer mode on, **Always allow USB debugging** accepted. **Option A:** `File > Build Profiles` → **Android** (or Meta Quest) → **Run Device** → **Refresh** → your Quest 3 → **Build And Run**. **Option B, if it never appears:** **Meta Quest Developer Hub** → **Add Build** → your `.apk` → **Library > Unknown Sources**. **Try it in a room other than the one you built it in.** If it still makes sense there, it is finished.",
+              "es": "**Build e instalación.** `File > Build Settings` → vuestra escena en **Scenes In Build**. Visor por **USB-C**, modo desarrollador activado, **Always allow USB debugging** aceptado. **Opción A:** `File > Build Profiles` → **Android** (o Meta Quest) → **Run Device** → **Refresh** → vuestra Quest 3 → **Build And Run**. **Opción B, si no aparece nunca:** **Meta Quest Developer Hub** → **Add Build** → vuestro `.apk` → **Library > Unknown Sources**. **Probadlo en una sala distinta de aquella en la que lo montasteis.** Si allí sigue teniendo sentido, está acabado.",
+              "ca": "**Build i instal·lació.** `File > Build Settings` → la vostra escena a **Scenes In Build**. Visor per **USB-C**, mode desenvolupador activat, **Always allow USB debugging** acceptat. **Opció A:** `File > Build Profiles` → **Android** (o Meta Quest) → **Run Device** → **Refresh** → la vostra Quest 3 → **Build And Run**. **Opció B, si no apareix mai:** **Meta Quest Developer Hub** → **Add Build** → el vostre `.apk` → **Library > Unknown Sources**. **Proveu-ho en una sala diferent d'aquella on el vau muntar.** Si allà encara té sentit, està acabat."
+            }
           ],
-          "deliverable": "APK por grupo más medio folio con la narrativa y la lista de building blocks usados."
+          "deliverable": {
+            "en": "The block's hand-in, since this is its last exercise: **one APK per group with the three activities in it**, plus the documentation. Say in it which sample you picked, what you changed in it, and which Meta package version you built against. The hand-in itself goes on Atenea, on the session its flag stands on.",
+            "es": "La entrega del bloque, porque este es su último ejercicio: **una APK por grupo con las tres actividades dentro**, más la documentación. Decid en ella qué sample escogisteis, qué le cambiasteis y contra qué versión de los paquetes de Meta compilasteis. La entrega en sí va por Atenea, en la sesión en la que está su banderín.",
+            "ca": "L'entrega del bloc, perquè aquest és el seu últim exercici: **una APK per grup amb les tres activitats a dins**, més la documentació. Digueu-hi quin sample vau triar, què li vau canviar i contra quina versió dels paquets de Meta vau compilar. L'entrega en si va per Atenea, a la sessió on hi ha el seu banderí."
+          },
+          "steps_note": {
+            "en": "The numbering comes from the session deck, which labels only TODO 3, TODO 6 and TODO 8; the rest fill the gaps those leave. Step 5 is the one the deck does not show: the headset in developer mode, which you already did in class 1.",
+            "es": "La numeración sale del deck de la sesión, que solo rotula TODO 3, TODO 6 y TODO 8; los demás ocupan los huecos que quedan. El 5 es el que el deck no enseña: el visor en modo desarrollador, que ya hicisteis en la clase 1.",
+            "ca": "La numeració surt del deck de la sessió, que només retola TODO 3, TODO 6 i TODO 8; la resta ocupen els buits que queden. El 5 és el que el deck no ensenya: el visor en mode desenvolupador, que ja vau fer a la classe 1."
+          }
         }
-      ]
+      ],
+      "bibliography": "content/bibliography/w2-post-03.md"
     },
     {
       "id": "w3-xrit-02",

@@ -5,7 +5,7 @@
 export default {
   'stage.intro-theory': 'Introducción y teoría',
   'stage.ar-foundation': 'AR Foundation',
-  'stage.meta-pre-exam': 'Meta Building Blocks (antes del parcial)',
+  'stage.meta-pre-exam': 'Meta Building Blocks',
   'stage.mini-boss-midterm': 'Examen parcial',
   'stage.meta-post-exam': 'Meta Building Blocks (después del parcial)',
   'stage.xr-toolkit': 'XR Interaction Toolkit',
@@ -21,7 +21,7 @@ export default {
   'bossTier.final': 'Jefe final',
   'bossTier.extra': 'Extra',
 
-  'submission.build': 'Build (APK), no vídeo',
+  'submission.build': 'Build (APK)',
   'submission.video': 'Vídeo',
   'submission.repo': 'Repositorio',
 
