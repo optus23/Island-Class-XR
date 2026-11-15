@@ -7,7 +7,7 @@ export default {
   'stage.ar-foundation': 'AR Foundation',
   'stage.meta-pre-exam': 'Meta Building Blocks',
   'stage.mini-boss-midterm': 'Examen parcial',
-  'stage.meta-post-exam': 'Meta Building Blocks (després del parcial)',
+  'stage.meta-post-exam': 'Meta Building Blocks',
   'stage.xr-toolkit': 'XR Interaction Toolkit',
   'stage.final-project': 'Projecte final',
   'stage.final-boss-presentation': 'Presentació final',
