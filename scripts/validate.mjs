@@ -39,7 +39,7 @@ const CATEGORIES = ['theory', 'practical', 'project', 'boss']
 const BOSS_TIERS = ['mini', 'final', 'extra']
 const SLIDE_TYPES = ['pdf', 'canva']
 
-// The three graded practical blocks. What they are WORTH is not recorded
+// The graded practical blocks. What they are WORTH is not recorded
 // anywhere in this repository — see the no-percentages rule in CLAUDE.md.
 // `null` is a legal value for submissionMethod and groupMode and means
 // "not decided yet". It is NOT the same as the field being absent.
@@ -54,7 +54,7 @@ const GROUP_MODES = [
   'individual',
   'individual-within-group',
   'per-group',
-  // What all three blocks are today: group work whose groups may be re-formed
+  // What the graded blocks are today: group work whose groups may be re-formed
   // at the start of each block. Kept distinct from 'per-group' because the
   // re-forming is the part students ask about.
   'per-group-per-block',
@@ -792,9 +792,14 @@ cover(
   `${Object.keys(decks).length} deck(s), ` +
     `${Object.values(decks).reduce((n, d) => n + d.slides, 0)} slide(s) total`
 )
+// Six, not eight, and not three blocks either. XR Interaction Toolkit hands in
+// NOTHING, so its two sessions are ordinary practical classes: no `block`, no
+// todos, no Instructions tab. Taking `block` off them is what the rule above
+// forces, since a graded block exercise must carry at least one todo, and it is
+// the honest shape anyway. Do not "restore" the 8 from an older note.
 cover(
-  'the 8 graded block exercises',
-  levels.filter((l) => l.block).length === 8,
+  'the 6 graded block exercises',
+  levels.filter((l) => l.block).length === 6,
   [...blocks].sort((a, b) => a[0] - b[0]).map(([n, m]) => `bloque ${n}: ${m.length}`).join(', ')
 )
 
