@@ -45,7 +45,7 @@
  */
 
 /** @type {'default' | 'halloween' | 'christmas'} */
-export const SEASON = 'halloween'
+export const SEASON = 'default'
 
 /**
  * Everything a season is allowed to switch on, with the ordinary island's
