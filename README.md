@@ -352,7 +352,11 @@ Where they sit:
 | --- | --- | --- | --- |
 | 1 · AR Foundation | `w1-arf-01/02/03` | build (APK) | individual, within the group |
 | 2 · Meta Building Blocks | `w2-pre-02`, `w2-pre-03`, `w2-post-03` | build (APK) | per group |
-| 3 · XR Interaction Toolkit | `w3-xrit-02`, `w3-xrit-03` | *undecided* | per group |
+
+The XR Interaction Toolkit sessions (`w3-xrit-02`, `w3-xrit-03`) used to be a
+third block and are not one any more: nothing is handed in for them, so they
+carry no `block`, no todos and no Instructions tab. They are ordinary practical
+classes with a lecture and, where one exists, a reading list.
 
 Block 2 straddles the midterm castle on purpose: exercises 1 and 2 are the short
 in-class ones and sit before it, exercise 3 is the heavy one that finishes at
@@ -384,8 +388,8 @@ A session that carries a hand-in gets a Mario-style flag planted beside it:
 not handed in on its own — the block hands in once, at the end — and the portal
 drops the Delivery row entirely. `null` means "not decided yet". The field being
 *absent* is an error; the field being `null` renders as *«por decidir»* in the
-portal — `submissionMethod` is null on block 3 for exactly that reason. Every
-open decision is also flagged with a `_fixme` on its own node and printed by
+portal, which is how a block whose hand-in is still being decided says so out
+loud. Every open decision is also flagged with a `_fixme` on its own node and printed by
 **every** `npm run validate` run, so it cannot quietly become permanent by
 being forgotten.
 

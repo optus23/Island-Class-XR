@@ -1260,46 +1260,6 @@
         "type": "canva",
         "source": "https://www.canva.com/design/DAHHUmQSDh0/lcUF8boPiNOBDV0jEc3rqA/view?embed"
       },
-      "block": {
-        "number": 3,
-        "name": "XR Interaction Toolkit",
-        "exercise": 1,
-        "of": 2
-      },
-      "groupMode": "per-group-per-block",
-      "submissionMethod": null,
-      "_fixme": [
-        "TODO(decisión abierta d): el brief no especifica método de entrega para el bloque 3. submissionMethod se deja en null en los dos ejercicios en vez de asumir \"build\" como en los bloques 1 y 2."
-      ],
-      "exercises": "content/exercises/w3-xrit-02.md",
-      "todos": [
-        {
-          "id": "w3-xrit-02-t1",
-          "type": "objective-task",
-          "objective": "La historia se muda a realidad virtual completa. Montad desde cero un proyecto con el XR Interaction Toolkit y resolved lo básico de estar en él: moverse y tocar cosas. Sin proyecto de partida a propósito.",
-          "starting_point": "Plantilla VR oficial de Unity, creada por el grupo. Consulta: `Unity-Technologies/XR-Interaction-Toolkit-Examples`.",
-          "steps": [
-            "`File > New Project` → plantilla **VR (Core)** desde Unity Hub.",
-            "`Window > Package Manager` → instala **XR Interaction Toolkit** si no viene ya con la plantilla.",
-            "Con XR Interaction Toolkit seleccionado en el Package Manager, pestaña **Samples** → importa **Starter Assets**.",
-            "`Edit > Project Settings > XR Plug-in Management` → activa **OpenXR** para tu plataforma, y dentro de OpenXR activa el **Interaction Profile** del mando que uses (p. ej. Meta Quest Touch Controller Profile).",
-            "Arrastra a la Hierarchy el prefab **XR Origin (XR Rig)** desde `Assets/Samples/XR Interaction Toolkit/[versión]/Starter Assets/Prefabs`.",
-            "Conecta el visor (o usa el Device Simulator si aún no tienes hardware) y comprueba en Play Mode que cabeza y mandos se mueven.",
-            "En el XR Origin, comprueba/añade **Locomotion System** (suele venir ya en el prefab de Starter Assets).",
-            "`Add Component` → **Continuous Move Provider** (o **Dynamic Move Provider**), enganchado al Locomotion System; revisa que los Input Actions de movimiento (del asset \"XRI Default Input Actions\") están asignados al stick que quieras.",
-            "`Add Component` → **Snap Turn Provider** (o Continuous Turn Provider), enganchado también al Locomotion System, con el otro stick.",
-            "Comprueba que mover y girar no compiten por el mismo botón.",
-            "`Add Component` → **Teleportation Provider** en el XR Origin.",
-            "Crea un `Plane` (`GameObject > 3D Object > Plane`) como suelo teleportable, y añádele **Teleportation Area**.",
-            "Prueba que apuntar con el mando muestra un rayo curvo y que soltar el botón de teleport te desplaza ahí.",
-            "Elige un objeto relacionado con Blue Goblin, añádele Rigidbody + Collider, y luego **XR Grab Interactable**.",
-            "Si queda descentrado al agarrarlo, crea un GameObject vacío hijo en el punto de \"agarre\" y asígnalo a **Attach Transform**.",
-            "Añade un interactable de otro tipo (botón o palanca del propio Starter Assets) para que no todo sea agarrar.",
-            "Revisa confort: viñeta al moverse (si el provider la incluye), altura del suelo correcta (Tracking Origin Mode), y ninguna rotación de cámara forzada por código."
-          ],
-          "deliverable": "Pendiente de definir (ver \"cuatro cosas que siguen sin decidir\"). Mientras tanto: repositorio del grupo con README explicando qué habéis montado y con qué mando se prueba."
-        }
-      ],
       "bibliography": "content/bibliography/w3-xrit-02.md"
     },
     {
@@ -1344,43 +1304,6 @@
         "type": "canva",
         "source": "https://www.canva.com/design/DAHI0RO9Tmg/KR1Mz0x1tNIVIyfD73jIwQ/view?embed"
       },
-      "block": {
-        "number": 3,
-        "name": "XR Interaction Toolkit",
-        "exercise": 2,
-        "of": 2
-      },
-      "groupMode": "per-group-per-block",
-      "submissionMethod": null,
-      "exercises": "content/exercises/w3-xrit-03.md",
-      "todos": [
-        {
-          "id": "w3-xrit-03-t1",
-          "type": "objective-task",
-          "objective": "Último ejercicio antes del proyecto final. Quitad los mandos: con hand tracking y un gesto que decidáis vosotros se resuelve la historia de Blue Goblin.",
-          "starting_point": "El proyecto del ejercicio 1. Samples de manos del XR Interaction Toolkit y del proveedor.",
-          "steps": [
-            "`Window > Package Manager` → instala el paquete **XR Hands**.",
-            "Con XR Hands seleccionado, pestaña Samples → importa **HandVisualizer**.",
-            "Con XR Interaction Toolkit seleccionado, pestaña Samples → importa **Hands Interaction Demo** (pedirá también OpenXR Plugin y XR Hands en versión mínima).",
-            "`Edit > Project Settings > XR Plug-in Management > OpenXR` → activa la característica de hand tracking de tu proveedor para tu plataforma.",
-            "En el visor: activa el seguimiento de manos y aparta los mandos de la mesa antes de probar.",
-            "Usa el prefab de XR Origin con soporte de manos que trae el sample Hands Interaction Demo (o añade **XR Input Modality Manager** a tu XR Origin actual para alternar entre mandos y manos).",
-            "Ejecuta la escena de ejemplo del sample tal cual, en el visor, antes de portar nada, para confirmar que ves tus manos articuladas.",
-            "Añade el prefab **Hand Visual** (del sample HandVisualizer) a tu proyecto, enganchado al mismo `XRHandTrackingEvents` que usa el resto del sistema.",
-            "Prueba primero una interacción básica sin gesto personalizado: poke o pinch sobre un botón/UI del Starter Assets, solo con las manos.",
-            "Con XR Hands seleccionado, pestaña Samples → importa **Gestures**.",
-            "Crea un **Hand Shape**: clic derecho en el Project window → `Create > XR > Hand Interactions > Hand Shape`, y define dedo a dedo el valor de curvatura (Full Curl) de tu gesto.",
-            "Si necesitas una orientación concreta de la mano (p. ej. palma hacia arriba), crea además un **Hand Pose** (`Create > XR > Hand Interactions > Hand Pose`) que referencie tu Hand Shape.",
-            "En la escena, añade el componente **Static Hand Gesture**: asigna en \"Hand Tracking Events\" el `XRHandTrackingEvents` de la mano que quieras, y en \"Hand Shape Or Pose\" tu asset.",
-            "Usa el evento que expone el Static Hand Gesture (\"Gesture Performed\") para disparar el desenlace de Blue Goblin.",
-            "Usa la escena de depuración del sample Gestures (`HandGestures`) para ver en tiempo real los valores de curvatura de tus dedos mientras ajustas las tolerancias del Hand Shape, hasta que el gesto se reconozca de forma fiable.",
-            "Programa el fallback para cuando las manos salen del campo de visión (los joints de `XRHandTrackingEvents` dejan de reportar tracking válido) para que la escena no se quede esperando indefinidamente.",
-            "Prueba el recorrido completo de pie, sin mandos, desde entrar hasta hacer el gesto y ver el final."
-          ],
-          "deliverable": "Pendiente de definir. Repositorio del ejercicio 1, con el desenlace y el gesto documentados en el README."
-        }
-      ],
       "deliverable": {
         "label": "Meta Building Blocks",
         "kind": "graded"
