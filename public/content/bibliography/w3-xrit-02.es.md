@@ -39,8 +39,3 @@ Las mismas dos páginas en la versión que tenían cuando se escribió el deck. 
 
 - [VR Template Quick Start Guide 8.0](https://docs.unity3d.com/Packages/com.unity.template.vr@8.0/manual/index.html), Unity Technologies · 15/11/2026
 - [Unity VR project template (manual de Unity 2022.2)](https://docs.unity3d.com/2022.2/Documentation/Manual/xr-template-vr.html), Unity Technologies · 15/11/2026
-
-## Secundaria, y no es documentación de Unity
-
-- [Make VR more immersive with nothing but air](https://medium.com/vrdojo/make-vr-more-immersive-with-nothing-but-air-910d419c04f2), Michael Eichenseer, VRdojo en Medium · 15/11/2026
-  Un artículo de opinión de 2017 sobre ventiladores montados en el visor y el flujo de aire como forma de aumentar la inmersión. Va de confort del hardware, no del toolkit, así que leedlo como contexto sobre la inmersión y no como fuente de nada de esta sesión.
