@@ -611,9 +611,9 @@
             "ca": "Una instal·lació d'Unity amb el mòdul **Android Build Support**, i el repositori `Unity-Technologies/arfoundation-samples`, a la branca que correspongui a la vostra versió d'AR Foundation. Aquesta activitat es fa en grup i tanca el bloc, així que engloba també els exercicis 1 i 2. **Si no els vau poder acabar**, a [`github.com/pomedas/ArMobile`](https://github.com/pomedas/ArMobile) estan resolts, feu-lo servir per comparar-lo amb el que vau construir, o com a punt de partida per a l'entrega del bloc. Ningú s'hauria de quedar encallat a l'entrega perquè l'exercici 1 o el 2 no van sortir."
           },
           "steps_note": {
-            "en": "Marc's three TODOs, the feature tour between 2 and 3 is on the deck",
-            "es": "los tres TODO de Marc, el repaso de features entre el 2 y el 3 está en el deck",
-            "ca": "els tres TODO d'en Marc, el repàs de features entre el 2 i el 3 és al deck"
+            "en": "The deck's three TODOs; the feature tour between 2 and 3 is on the deck",
+            "es": "los tres TODO del deck, el repaso de features entre el 2 y el 3 está en el deck",
+            "ca": "els tres TODO del deck, el repàs de features entre el 2 i el 3 és al deck"
           },
           "steps": [
             {
@@ -804,9 +804,9 @@
             }
           ],
           "steps_note": {
-            "en": "Marc's eight TODOs. The projected deck shows 7 before 6; the numbers are what count.",
-            "es": "Los ocho TODO de Marc. El deck proyectado enseña el 7 antes del 6; lo que manda son los números.",
-            "ca": "Els vuit TODO d'en Marc. El deck projectat ensenya el 7 abans del 6; el que mana són els números."
+            "en": "The deck's eight TODOs. The projected deck shows 7 before 6; the numbers are what count.",
+            "es": "Los ocho TODO del deck. El deck proyectado enseña el 7 antes del 6; lo que manda son los números.",
+            "ca": "Els vuit TODO del deck. El deck projectat ensenya el 7 abans del 6; el que mana són els números."
           }
         }
       ],
@@ -963,9 +963,9 @@
             }
           ],
           "steps_note": {
-            "en": "Marc's numbering. 1-4 are the recap from exercise 1; the new work starts at 5.",
-            "es": "La numeración de Marc. Del 1 al 4 es el repaso del ejercicio 1; lo nuevo empieza en el 5.",
-            "ca": "La numeració d'en Marc. De l'1 al 4 és el repàs de l'exercici 1; el que és nou comença al 5."
+            "en": "The deck's numbering. 1-4 are the recap from exercise 1; the new work starts at 5.",
+            "es": "La numeración del deck. Del 1 al 4 es el repaso del ejercicio 1; lo nuevo empieza en el 5.",
+            "ca": "La numeració del deck. De l'1 al 4 és el repàs de l'exercici 1; el que és nou comença al 5."
           }
         }
       ],
