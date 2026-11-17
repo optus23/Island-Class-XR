@@ -250,8 +250,8 @@ sigue teniendo sentido, está acabado.
 
 Este es el último ejercicio del bloque, así que lo que entregáis es **el
 bloque**, no esta clase: **una APK por grupo con las tres actividades dentro**,
-más la documentación. La entrega en sí va por Atenea, en la sesión en la que
-está su banderín, no aquí.
+más la documentación. La entrega en sí va por Atenea, y esta es la sesión en la
+que se entrega: lo dice el banderín que tiene al lado en el mapa.
 
 Decid en la documentación **qué sample escogisteis** y **qué le cambiasteis**, y
 apuntad la **versión de los paquetes de Meta** contra la que compilasteis.

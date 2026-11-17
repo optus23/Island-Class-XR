@@ -252,8 +252,8 @@ té sentit, està acabat.
 
 Aquest és l'últim exercici del bloc, així que el que entregueu és **el bloc**,
 no aquesta classe: **una APK per grup amb les tres activitats a dins**, més la
-documentació. L'entrega en si va per Atenea, a la sessió on hi ha el seu
-banderí, no aquí.
+documentació. L'entrega en si va per Atenea, i aquesta és la sessió en
+què s'entrega: ho diu el banderí que té al costat al mapa.
 
 Digueu a la documentació **quin sample vau triar** i **què li vau canviar**, i
 apunteu la **versió dels paquets de Meta** contra la qual vau compilar.
