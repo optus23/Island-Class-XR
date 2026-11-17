@@ -244,8 +244,8 @@ sense there, it is finished.
 
 This is the last exercise of the block, so what you hand in is **the block**,
 not this class: **one APK per group with the three activities in it**, plus the
-documentation. The hand-in itself goes on Atenea, on the session its flag
-stands on, not here.
+documentation. The hand-in itself goes on Atenea, and this is the session
+to hand it in on: the flag beside it on the map says so.
 
 Say in the documentation **which sample you picked** and **what you changed in
 it**, and note the **Meta package version** you built against.

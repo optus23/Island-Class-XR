@@ -1109,9 +1109,9 @@
       "category": "practical",
       "optional": false,
       "summary": {
-        "en": "Brief walkthrough (2-3) · In-class activity: 3. Mixed Reality Utility Kit, your real room as the scene",
-        "es": "Presentación del enunciado (2-3) · Actividad en clase: 3. Mixed Reality Utility Kit, vuestra sala real como escenario",
-        "ca": "Presentació Enunciat (2-3) · Activitat a classe: 3. Mixed Reality Utility Kit, la vostra sala real com a escenari"
+        "en": "Brief walkthrough (2-3) · In-class activity: 3. Mixed Reality Utility Kit, your real room as the scene · Meta Building Blocks hand-in",
+        "es": "Presentación del enunciado (2-3) · Actividad en clase: 3. Mixed Reality Utility Kit, vuestra sala real como escenario · Entrega Meta Building Blocks",
+        "ca": "Presentació Enunciat (2-3) · Activitat a classe: 3. Mixed Reality Utility Kit, la vostra sala real com a escenari · Entrega Meta Building Blocks"
       },
       "contents": [
         {
@@ -1123,6 +1123,11 @@
           "en": "In-class activity: 3. Mixed Reality Utility Kit, your real room as the scene",
           "es": "Actividad en clase: 3. Mixed Reality Utility Kit, vuestra sala real como escenario",
           "ca": "Activitat a classe: 3. Mixed Reality Utility Kit, la vostra sala real com a escenari"
+        },
+        {
+          "en": "Meta Building Blocks hand-in",
+          "es": "Entrega Meta Building Blocks",
+          "ca": "Entrega Meta Building Blocks"
         }
       ],
       "slides": {
@@ -1137,6 +1142,10 @@
       },
       "groupMode": "per-group-per-block",
       "submissionMethod": "build",
+      "deliverable": {
+        "label": "Meta Building Blocks",
+        "kind": "graded"
+      },
       "exercises": "content/exercises/w2-post-03.md",
       "todos": [
         {
@@ -1195,9 +1204,9 @@
             }
           ],
           "deliverable": {
-            "en": "The block's hand-in, since this is its last exercise: **one APK per group with the three activities in it**, plus the documentation. Say in it which sample you picked, what you changed in it, and which Meta package version you built against. The hand-in itself goes on Atenea, on the session its flag stands on.",
-            "es": "La entrega del bloque, porque este es su último ejercicio: **una APK por grupo con las tres actividades dentro**, más la documentación. Decid en ella qué sample escogisteis, qué le cambiasteis y contra qué versión de los paquetes de Meta compilasteis. La entrega en sí va por Atenea, en la sesión en la que está su banderín.",
-            "ca": "L'entrega del bloc, perquè aquest és el seu últim exercici: **una APK per grup amb les tres activitats a dins**, més la documentació. Digueu-hi quin sample vau triar, què li vau canviar i contra quina versió dels paquets de Meta vau compilar. L'entrega en si va per Atenea, a la sessió on hi ha el seu banderí."
+            "en": "The block's hand-in, since this is its last exercise: **one APK per group with the three activities in it**, plus the documentation. Say in it which sample you picked, what you changed in it, and which Meta package version you built against. The hand-in itself goes on Atenea, and this is the session to hand it in on.",
+            "es": "La entrega del bloque, porque este es su último ejercicio: **una APK por grupo con las tres actividades dentro**, más la documentación. Decid en ella qué sample escogisteis, qué le cambiasteis y contra qué versión de los paquetes de Meta compilasteis. La entrega en sí va por Atenea, y esta es la sesión en la que se entrega.",
+            "ca": "L'entrega del bloc, perquè aquest és el seu últim exercici: **una APK per grup amb les tres activitats a dins**, més la documentació. Digueu-hi quin sample vau triar, què li vau canviar i contra quina versió dels paquets de Meta vau compilar. L'entrega en si va per Atenea, i aquesta és la sessió en què s'entrega."
           },
           "steps_note": {
             "en": "The numbering comes from the session deck, which labels only TODO 3, TODO 6 and TODO 8; the rest fill the gaps those leave. Step 5 is the one the deck does not show: the headset in developer mode, which you already did in class 1.",
@@ -1265,18 +1274,18 @@
     {
       "id": "w3-xrit-03",
       "title": {
-        "en": "XR Interaction Toolkit: hand tracking and gestures",
-        "es": "XR Interaction Toolkit: hand tracking y gestos",
-        "ca": "XR Interaction Toolkit: hand tracking i gestos"
+        "en": "XR Interaction Toolkit: hand tracking and mixed reality",
+        "es": "XR Interaction Toolkit: hand tracking y mixed reality",
+        "ca": "XR Interaction Toolkit: hand tracking i mixed reality"
       },
       "world": 2,
       "stage": "xr-toolkit",
       "category": "practical",
       "optional": false,
       "summary": {
-        "en": "Brief walkthrough (3-2) · In-class activity: 2. XR Interaction Toolkit, hand tracking and gestures · Unity VR Template demonstration · Meta Building Blocks hand-in",
-        "es": "Presentación del enunciado (3-2) · Actividad en clase: 2. XR Interaction Toolkit, hand tracking y gestos · Demostración de la Unity VR Template · Entrega Meta Building Blocks",
-        "ca": "Presentació Enunciat (3-2) · Activitat a classe: 2. XR Interaction Toolkit, Hand Tracking and Gestures · Unity VR Template demonstration · Entrega Meta Building Blocks"
+        "en": "Brief walkthrough (3-2) · In-class activity: 2. XR Interaction Toolkit, hand tracking and mixed reality · Unity VR Template demonstration",
+        "es": "Presentación del enunciado (3-2) · Actividad en clase: 2. XR Interaction Toolkit, hand tracking y mixed reality · Demostración de la Unity VR Template",
+        "ca": "Presentació Enunciat (3-2) · Activitat a classe: 2. XR Interaction Toolkit, hand tracking i mixed reality · Unity VR Template demonstration"
       },
       "contents": [
         {
@@ -1285,29 +1294,21 @@
           "ca": "Presentació Enunciat (3-2)"
         },
         {
-          "en": "In-class activity: 2. XR Interaction Toolkit, hand tracking and gestures",
-          "es": "Actividad en clase: 2. XR Interaction Toolkit, hand tracking y gestos",
-          "ca": "Activitat a classe: 2. XR Interaction Toolkit, Hand Tracking and Gestures"
+          "en": "In-class activity: 2. XR Interaction Toolkit, hand tracking and mixed reality",
+          "es": "Actividad en clase: 2. XR Interaction Toolkit, hand tracking y mixed reality",
+          "ca": "Activitat a classe: 2. XR Interaction Toolkit, hand tracking i mixed reality"
         },
         {
           "en": "Unity VR Template demonstration",
           "es": "Demostración de la Unity VR Template",
           "ca": "Unity VR Template demonstration"
-        },
-        {
-          "en": "Meta Building Blocks hand-in",
-          "es": "Entrega Meta Building Blocks",
-          "ca": "Entrega Meta Building Blocks"
         }
       ],
       "slides": {
         "type": "canva",
         "source": "https://www.canva.com/design/DAHI0RO9Tmg/KR1Mz0x1tNIVIyfD73jIwQ/view?embed"
       },
-      "deliverable": {
-        "label": "Meta Building Blocks",
-        "kind": "graded"
-      }
+      "bibliography": "content/bibliography/w3-xrit-03.md"
     },
     {
       "id": "w3-01",

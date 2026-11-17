@@ -434,6 +434,16 @@ a bullet left behind on the session before it says something different, and the
 student believes whichever they read first. Grep `contents` for the label
 before deciding a flag move is done.
 
+**AND THEN IT MOVED BACK TO 2-7, BECAUSE THE FLAG HAD NOT FOLLOWED THE
+DELETIONS.** Marc, 18 November 2026: the Meta Building Blocks hand-in is at
+**2-7**, `w2-post-03`, the block's own last exercise, and the class had
+already handed it in. The flag was still sitting on 2-9 because sessions were
+removed in front of it and nothing moved it back. Its "Entrega Meta Building
+Blocks" bullet went with it, and so did the 2-7 deck and todo, which used to
+say "on the session its flag stands on, not here". **A flag does not follow a
+reorder or a deletion on its own. After any change to the running order,
+check every `deliverable` against Marc, not against the board.**
+
 **THE CASTLE DID NOT MOVE, AND NOTHING HAD TO BE DONE TO KEEP IT STILL.** Marc
 asked for it to stay put and for the remaining nodes to respace evenly, and both
 are free: `worlds.js` pins world 2's boss to `path.bossSlotIndex` — a reserved
