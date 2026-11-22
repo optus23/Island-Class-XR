@@ -32,13 +32,13 @@
   "seasons": [
     {
       "season": "halloween",
-      "from": "10-20",
-      "to": "11-02"
+      "from": "10-12",
+      "to": "11-12"
     },
     {
       "season": "christmas",
-      "from": "12-01",
-      "to": "01-07"
+      "from": "11-23",
+      "to": "01-25"
     }
   ]
 }
