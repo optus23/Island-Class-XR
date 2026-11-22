@@ -1322,23 +1322,23 @@
       "category": "project",
       "optional": false,
       "summary": {
-        "en": "Final project: concept, Q&A · Final project hand-in: concept",
-        "es": "Trabajo final: concept, resolución de dudas · Entrega del trabajo final: concept",
-        "ca": "Projecte Final d'Assignatura: Concept, Resolució de dubtes · Entrega Treball Final d'Assignatura: Concept"
+        "en": "Final project: concept, Q&A",
+        "es": "Trabajo final: concept, resolución de dudas",
+        "ca": "Projecte Final d'Assignatura: Concept, Resolució de dubtes"
       },
       "contents": [
         {
           "en": "Final project: concept, Q&A",
           "es": "Trabajo final: concept, resolución de dudas",
           "ca": "Projecte Final d'Assignatura: Concept, Resolució de dubtes"
-        },
-        {
-          "en": "Final project hand-in: concept",
-          "es": "Entrega del trabajo final: concept",
-          "ca": "Entrega Treball Final d'Assignatura: Concept"
         }
       ],
-      "todos": []
+      "todos": [],
+      "slides": {
+        "type": "canva",
+        "source": "https://www.canva.com/design/DAHHUlTNfRc/ltKXRsNDIRvFWn1I4wixKQ/view?embed"
+      },
+      "bibliography": "content/bibliography/w3-01.md"
     },
     {
       "id": "w3-02",
@@ -1352,18 +1352,27 @@
       "category": "project",
       "optional": false,
       "summary": {
-        "en": "Final project: concept",
-        "es": "Trabajo final: concept",
-        "ca": "Projecte Final d'Assignatura: Concept"
+        "en": "Final project: concept · Final project hand-in: concept",
+        "es": "Trabajo final: concept · Entrega del trabajo final: concept",
+        "ca": "Projecte Final d'Assignatura: Concept · Entrega Treball Final d'Assignatura: Concept"
       },
       "contents": [
         {
           "en": "Final project: concept",
           "es": "Trabajo final: concept",
           "ca": "Projecte Final d'Assignatura: Concept"
+        },
+        {
+          "en": "Final project hand-in: concept",
+          "es": "Entrega del trabajo final: concept",
+          "ca": "Entrega Treball Final d'Assignatura: Concept"
         }
       ],
-      "todos": []
+      "todos": [],
+      "deliverable": {
+        "label": "Treball Final d'Assignatura, Concept",
+        "kind": "graded"
+      }
     },
     {
       "id": "w3-03",
@@ -1418,11 +1427,7 @@
           "ca": "Entrega Treball Final d'Assignatura: Set Up"
         }
       ],
-      "todos": [],
-      "deliverable": {
-        "label": "Treball Final d'Assignatura, Concept",
-        "kind": "graded"
-      }
+      "todos": []
     },
     {
       "id": "w3-05",
