@@ -53,6 +53,9 @@ const TONE = {
   lamp: { color: 0xffc46b, intensity: 45, distance: 20 },
   // Lower to the ground and much smaller, so it needs far less to read.
   pumpkin: { color: 0xff9a3c, intensity: 9, distance: 9 },
+  // The star on a Christmas tree: 6 units up, warm gold, a wide soft pool on
+  // the snow round the tree rather than a hot spot.
+  tree: { color: 0xffd27a, intensity: 26, distance: 15 },
 }
 
 /**
@@ -64,9 +67,16 @@ const TONE = {
  */
 const REPICK_AFTER = 3
 
-export function createSeasonLights(emitters = []) {
+/**
+ * @param {Array} emitters where a light could stand
+ * @param {{reserve?: number}} [opts] lights of the budget something else owns.
+ *   Santa's sleigh carries one of its own (`three/sleigh.js`), and it comes
+ *   OUT of the same six rather than on top of them: the budget is what a phone
+ *   can afford, and a phone does not care who is holding the light.
+ */
+export function createSeasonLights(emitters = [], { reserve = 0 } = {}) {
   const group = new THREE.Group()
-  const budget = seasonFlags.lights | 0
+  const budget = (seasonFlags.lights | 0) - reserve
   if (budget <= 0 || !emitters.length) return { group, update() {} }
 
   /**

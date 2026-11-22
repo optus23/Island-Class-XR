@@ -1,7 +1,7 @@
 import * as THREE from 'three'
 import { world as themeWorld } from '../config/theme.js'
 import { prefersReducedMotion } from '../lib/motion.js'
-import { loadLook, optionFor } from '../lib/avatar.js'
+import { loadLook, optionFor, lookBoxes } from '../lib/avatar.js'
 
 /**
  * The student avatar: a little voxel figure that hops from node to node along
@@ -50,11 +50,14 @@ export function createPlayer() {
   box(0.3, 0.65, 0.3, 0xffd9b3, 0.68, 1.15, 0)
 
   /**
-   * The hat is the only part that can be absent, so it is the only one that
-   * gets built and thrown away rather than recoloured. Kept in a variable so
-   * `applyLook` can replace it without touching anything else.
+   * Everything the wardrobe ADDS to the figure: the hat, and the extra boxes
+   * a seasonal piece carries (a jacket's belt and fur trim, a boot's curled
+   * toe). They are the only parts that can be absent, so they are the only
+   * ones built and thrown away rather than recoloured, all in one group so
+   * `applyLook` can swap them without touching anything else.
    */
-  let hat = null
+  const extras = new THREE.Group()
+  body.add(extras)
 
   /**
    * Restyle in place. Colours are swapped on the existing materials and only
@@ -69,18 +72,20 @@ export function createPlayer() {
     shoeL.material.color.setHex(shoe)
     shoeR.material.color.setHex(shoe)
 
-    if (hat) {
-      body.remove(hat)
-      hat.geometry.dispose()
-      hat.material.dispose()
-      hat = null
+    for (const old of [...extras.children]) {
+      extras.remove(old)
+      old.geometry.dispose()
+      old.material.dispose()
     }
-    const choice = optionFor('hat', look)
-    if (choice?.box) {
-      const [w, h, d, x, y, z] = choice.box
-      // `color: null` means "match the shirt" — that is what the original cap
-      // did, and it is still the default.
-      hat = box(w, h, d, choice.color ?? optionFor('shirt', look).color, x, y, z)
+    // `lookBoxes` resolves "match the shirt" and every seasonal extra into
+    // plain boxes, the same list the wardrobe's preview draws.
+    for (const [w, h, d, x, y, z, color] of lookBoxes(look)) {
+      const mesh = new THREE.Mesh(
+        new THREE.BoxGeometry(w, h, d),
+        new THREE.MeshLambertMaterial({ color })
+      )
+      mesh.position.set(x, y, z)
+      extras.add(mesh)
     }
   }
 
@@ -95,6 +100,11 @@ export function createPlayer() {
   let currentLevelId = null
   let travelled = 0
   let lastSegmentT = 0
+  /** Which footfall we are on, and which foot it was. See `onStep`. */
+  let lastFootfall = 0
+  let foot = 1
+  /** @type {((at: THREE.Vector3, yaw: number, side: number) => void) | null} */
+  let stepHandler = null
 
   const from = new THREE.Vector3()
   const to = new THREE.Vector3()
@@ -134,6 +144,7 @@ export function createPlayer() {
     segmentT = 0
     lastSegmentT = 0
     travelled = 0
+    lastFootfall = 0
     moving = true
     onArrive = done
     currentLevelId = levelId
@@ -197,6 +208,16 @@ export function createPlayer() {
     if (dir.lengthSq() > 1e-6) {
       const yaw = Math.atan2(dir.x, dir.z)
       group.quaternion.slerp(new THREE.Quaternion().setFromAxisAngle(UP, yaw), 0.18)
+
+      // A footfall every half stride, alternating feet: the bounce lands twice
+      // per stride, once on each foot. Counted on DISTANCE, like the bounce
+      // itself, so the prints are evenly spaced at any frame rate.
+      const footfall = Math.floor(travelled / (STRIDE / 2))
+      if (footfall !== lastFootfall) {
+        lastFootfall = footfall
+        foot = -foot
+        stepHandler?.(group.position, yaw, foot)
+      }
     }
   }
 
@@ -216,6 +237,10 @@ export function createPlayer() {
     cancel,
     update,
     applyLook,
+    /** Called on every footfall while walking — the footprints listen here. */
+    onStep(fn) {
+      stepHandler = fn
+    },
     get isMoving() {
       return moving
     },

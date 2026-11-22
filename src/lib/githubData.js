@@ -284,3 +284,25 @@ export async function writeRoster(npcs) {
   )
   return clean
 }
+
+// --- the season calendar ----------------------------------------------------
+
+/**
+ * Publishes when each seasonal skin is on, as recurring month-day ranges.
+ *
+ * Same read-modify-write as the marker and the timetable, so it cannot
+ * clobber either. Unlike the timetable, this one only reaches the map after
+ * the rebuild this commit triggers: the calendar is baked into the bundle at
+ * build time, because a season has to be known before the island is built.
+ * See `config/seasons.js`.
+ *
+ * @param {Array<{season: string, from: string, to: string}>} calendar
+ */
+export async function writeSeasons(calendar) {
+  const list = Array.isArray(calendar) ? calendar : []
+  await patchProgress(
+    { seasons: list },
+    `chore(progress): calendario de temporadas (${list.map((r) => r.season).join(', ') || 'ninguna'})`
+  )
+  return list
+}

@@ -2,6 +2,7 @@ import { defineConfig } from 'vite'
 import tailwindcss from '@tailwindcss/vite'
 import { resolve } from 'node:path'
 import { execSync } from 'node:child_process'
+import { readFileSync } from 'node:fs'
 
 /**
  * GitHub Pages project sites are served from https://<user>.github.io/<repo>/,
@@ -30,6 +31,26 @@ try {
   buildId = new Date().toISOString().slice(0, 16).replace('T', ' ')
 }
 
+/**
+ * The season calendar from `public/progress.json`, baked into the bundle.
+ *
+ * It has to be known while `config/theme.js` is still evaluating, before any
+ * mesh exists, so it cannot be fetched like the marker is. Saving it from
+ * /admin is a commit to `main`, and a commit to `main` rebuilds the site, so
+ * a baked copy is never stale for longer than a deploy. The DATE is still read
+ * in the browser on every load: what is baked is the calendar, not the season.
+ * See `config/seasons.js`.
+ */
+let seasonCalendar = []
+try {
+  const progress = JSON.parse(
+    readFileSync(resolve(import.meta.dirname, 'public/progress.json'), 'utf8')
+  )
+  if (Array.isArray(progress.seasons)) seasonCalendar = progress.seasons
+} catch {
+  seasonCalendar = []
+}
+
 export default defineConfig({
   base,
   plugins: [tailwindcss()],
@@ -38,6 +59,7 @@ export default defineConfig({
     // progress.json to. Never contains a token — only the public repo slug.
     __REPO_SLUG__: JSON.stringify(repoSlug),
     __BUILD_ID__: JSON.stringify(buildId),
+    __SEASON_CALENDAR__: JSON.stringify(seasonCalendar),
   },
   build: {
     target: 'es2022',

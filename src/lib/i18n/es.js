@@ -183,4 +183,13 @@ export default {
   'avatar.colour.black': "Negro",
   'avatar.colour.white': "Blanco",
   'avatar.colour.brown': "Marrón",
+  'avatar.hat.pumpkin': "Calabaza",
+  'avatar.hat.witch': "Sombrero de bruja",
+  'avatar.hat.santa': "Gorro de Papá Noel",
+  'avatar.hat.elf': "Gorro de elfo",
+  'avatar.shirt.skeleton': "Esqueleto",
+  'avatar.shirt.santa': "Chaqueta de Papá Noel",
+  'avatar.shoes.elf': "Botas de elfo",
+  'avatar.season.halloween': "Solo en Halloween",
+  'avatar.season.christmas': "Solo en Navidad",
 }

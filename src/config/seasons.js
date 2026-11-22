@@ -9,7 +9,12 @@
  *
  *   SEASON = 'default'    the island as it always was
  *   SEASON = 'halloween'  night, monsters, pumpkins, bare trees, haunted keeps
- *   SEASON = 'christmas'  reserved — asked for in December 2026, not built yet
+ *   SEASON = 'christmas'  snowed in: elves, presents, candy canes, Santa overhead
+ *
+ * **SINCE 22 NOVEMBER 2026 THAT LINE IS ONLY THE FALLBACK.** The season in
+ * force is worked out from the date, against the calendar the teacher keeps
+ * in `/admin` (see `SEASON_CALENDAR` below). `SEASON` is what the island is on
+ * a day the calendar leaves empty, and it should stay `default`.
  *
  * **HALLOWEEN IS FINISHED, AND IT KEEPS WORKING WITH THE SWITCH OFF.** Marc
  * asked, on 1 November 2026, that the whole thing survive for next year. It
@@ -53,16 +58,44 @@ export const SEASON = 'default'
  * flag never means editing every season.
  */
 const BASE_FLAGS = {
-  /** What patrols the road: the Goomba-ish creature, or Halloween monsters. */
+  /**
+   * What patrols the road: the Goomba-ish creature, Halloween monsters, or
+   * Christmas elves with the odd reindeer among them.
+   */
   walkers: 'creature',
+  /** How many of them. Four is the ordinary island's "the odd Goomba". */
+  walkerCount: 4,
   /** How many bats circle over the island. 0 is none, and costs nothing. */
   bats: 0,
   /** Scatter jack-o'-lanterns through the ground cover beside the road. */
   pumpkins: false,
-  /** 'biome' uses each biome's own tree; 'bare' plants dead ones everywhere. */
+  /** Wrapped presents in the ground cover beside the road. */
+  gifts: false,
+  /** Candy canes planted in the verge. */
+  candyCanes: false,
+  /** The odd snowman out in the fields. */
+  snowmen: false,
+  /**
+   * 'biome' uses each biome's own tree; 'bare' plants dead ones everywhere;
+   * 'xmas' plants snow-laden pines with decorated Christmas trees among them.
+   */
   trees: 'biome',
-  /** 'stone' is the ordinary keep; 'haunted' adds the Halloween dressing. */
+  /** Snow on the roofs of every landmark: houses, wells, cannons, pipes. */
+  snowCaps: false,
+  /** 'stone' is the ordinary keep; 'haunted' / 'snowy' add a season's dressing. */
   castles: 'stone',
+  /** The lamppost recipe: 'iron' is Halloween's, 'xmas' wears ribbon and a wreath. */
+  lampStyle: 'iron',
+  /** How many snowflakes are falling at once. 0 is none, and costs nothing. */
+  snowfall: 0,
+  /** Santa's sleigh crossing the sky every few seconds, with its own light. */
+  sleigh: false,
+  /**
+   * Where the avatar leaves footprints: 'snow' only on snowy ground (world 3's
+   * summit, in EVERY season, the ordinary one included), 'everywhere' when the
+   * whole island is snowed in, 'none' to switch them off.
+   */
+  footprints: 'snow',
   /**
    * How many REAL point lights the map may have alight at once, and 0 is the
    * ordinary island — which has a sun, and needs none.
@@ -233,15 +266,269 @@ const SEASONS = {
   },
 
   /**
-   * ASKED FOR IN DECEMBER, NOT BUILT. Marc: "no hace falta hacerlo de Navidad
-   * hoy, pero apunta que te lo voy a pedir seguramente en diciembre."
+   * CHRISTMAS, built 22 November 2026. Marc: "me lo imagino con nieve, con
+   * bastante nieve", plus elves instead of the walkers, presents, candy canes,
+   * Christmas trees, falling snow, footprints, and Santa crossing the sky with
+   * a light on his reindeer.
    *
-   * Left as an empty patch on purpose rather than as a guess: selecting it
-   * today gives the ordinary island, which is the honest answer for a season
-   * nobody has designed yet. The flags it will most likely want are already
-   * in BASE_FLAGS — snow-laden trees, no monsters, and a `castles` variant.
+   * THE DESIGN IN ONE LINE: the CAPS go white and the CLIFFS stay. Snow is what
+   * lies on top, so every biome's walkable cap turns to snow, and the bands
+   * and rock faces under the lip keep their own colours. That is what keeps
+   * the three worlds apart on an island that is white from end to end: red
+   * cliffs under the meadow's snow, orange under the desert's, grey-blue under
+   * the summit's. Repainting the cliffs white too would leave one flat white
+   * slab, and the terracing is the one thing this island cannot lose.
+   *
+   * EVENING, NOT NIGHT. Halloween is a night; Christmas is the blue hour, the
+   * moment the lights come on. Dark enough that the lampposts, the lit trees
+   * and Santa's light read as light, never so dark that the snow goes grey.
+   * Snow is only as bright as what lights it (the lesson Halloween learned on
+   * the summit), so the ambient carries a lot here and the sun is low and warm.
    */
-  christmas: { flags: {}, theme: {} },
+  christmas: {
+    flags: {
+      walkers: 'elves',
+      walkerCount: 6,
+      gifts: true,
+      candyCanes: true,
+      snowmen: true,
+      trees: 'xmas',
+      snowCaps: true,
+      castles: 'snowy',
+      lampStyle: 'xmas',
+      // The SAME six as Halloween, one of them riding with the sleigh. See
+      // `three/seasonLights.js`: the budget is a phone decision, not a theme.
+      lights: 6,
+      snowfall: 2400,
+      sleigh: true,
+      footprints: 'everywhere',
+    },
+    theme: {
+      world: {
+        sky: 0x3b5288,
+        fog: 0x5b6fa4,
+        // Closer than the ordinary 260/900, further than Halloween's: falling
+        // snow is haze, and a little of it in the distance sells the weather.
+        fogNear: 200,
+        fogFar: 760,
+
+        // Bounced light off snow is cool and strong. The hemisphere's ground
+        // colour is `terrainEdge` (see `three/scene.js`), and at its ordinary
+        // dark green every underside on a white island came out green.
+        ambient: 0xb4c6ee,
+        ambientIntensity: 1.3,
+        // A low, warm sun at the end of the day: the snow faces it catch go
+        // peach and the faces away from it stay blue, which is what reads as
+        // a winter evening rather than as a grey one.
+        sun: 0xffcf9e,
+        sunIntensity: 1.55,
+        sunPosition: [-55, 34, 40],
+
+        water: 0x3e6ea6,
+        waterDeep: 0x264b7c,
+        waterShallow: 0x6d9fcf,
+        waterFoam: 0xf4f9ff,
+
+        terrain: 0xeef3f9,
+        terrainEdge: 0x8d9bb8,
+        cliff: 0x9a8a7c,
+        // The road keeps its three colours, as in every season: the brown
+        // outline is what already carries it over the summit's snow.
+      },
+
+      biomes: {
+        meadow: {
+          // Snow over a meadow: the faintest green-blue in the alternate tone,
+          // so it is not the same white as the summit's.
+          ground: 0xf1f5fa,
+          groundAlt: 0xdbe7ee,
+          foliage: 0x2f6b4f,
+          foliageAlt: 0x3d7d5c,
+        },
+        desert: {
+          // Snow over sand is warmer: a cream-white, with the orange cliffs
+          // under it doing the rest.
+          ground: 0xf4efe7,
+          groundAlt: 0xe6dccd,
+          foliage: 0x4f9455,
+          foliageAlt: 0x3f7d46,
+        },
+        summit: {
+          // Already snow. Brighter and a touch bluer, so it is still the
+          // coldest of the three.
+          ground: 0xf5f9fd,
+          groundAlt: 0xd8e5f2,
+        },
+      },
+
+      backdrop: {
+        meadow: [0xcbd8ec, 0xb6c7e2, 0xdde6f3],
+        desert: [0xe2dbe8, 0xcfc8e2, 0xece4ee],
+        summit: [0xc2d1ea, 0xb1c0df, 0xd6e0f1],
+      },
+
+      clouds: {
+        light: 0xffffff,
+        shade: 0xd8e3f4,
+      },
+    },
+  },
+}
+
+/**
+ * The seasons a teacher can put on the calendar, in the order `/admin` lists
+ * them. `default` is not one: it is what the island is when nothing matches.
+ */
+export const CALENDAR_SEASONS = ['halloween', 'christmas']
+
+/**
+ * THE SEASON CALENDAR: "Halloween runs from this day to that one, every year".
+ *
+ * Marc, 22 November 2026: "que en el menú de administración pudiésemos
+ * determinar cuándo empieza Halloween, cuándo acaba... y que no tuviera que
+ * pedírtelo yo para que cambiara el estado del mapa." So the season is no
+ * longer a word somebody edits before a deploy. It is worked out from the
+ * date, on every load, in every browser.
+ *
+ * WHERE IT LIVES. `public/progress.json`, field `seasons`, next to the class
+ * timetable: teacher state, written from `/admin`, read by everyone. It is
+ * NOT map data, so the no-dates rule on `levels.json` is untouched.
+ *
+ * WHY IT IS BAKED INTO THE BUNDLE rather than fetched. A season is a patch
+ * laid over `theme.js` WHILE THAT MODULE IS EVALUATING (see `applySeason`),
+ * before any mesh exists, so it has to be known synchronously; a fetch would
+ * arrive after the island is built. `vite.config.js` reads the field at build
+ * time into `__SEASON_CALENDAR__`. That costs nothing in practice: every save
+ * from `/admin` is a commit to `main`, and every commit to `main` rebuilds the
+ * site. What is baked is the CALENDAR, not the season, so the switch itself
+ * still happens on the day with no deploy at all.
+ *
+ * RECURRING, MONTH AND DAY ONLY. "Del 20 de octubre al 2 de noviembre" is
+ * true every year, so there is no year to type and nothing to renew. A range
+ * may wrap the new year (Christmas runs into January). Both ends are
+ * inclusive, and days are Madrid days, the same clock the timetable uses.
+ *
+ * @typedef {{season: string, from: string, to: string}} SeasonRange
+ *   `from` / `to` are "MM-DD"
+ */
+
+/** The calendar this build was made with. Absent under Node: no seasons. */
+export const SEASON_CALENDAR =
+  // eslint-disable-next-line no-undef
+  typeof __SEASON_CALENDAR__ !== 'undefined' && Array.isArray(__SEASON_CALENDAR__)
+    ? // eslint-disable-next-line no-undef
+      __SEASON_CALENDAR__
+    : []
+
+const MD = /^(\d{2})-(\d{2})$/
+const DAYS_IN = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+
+/** "MM-DD" -> 101..1231, or NaN. 29 February is allowed; it simply never comes in some years. */
+function mdNumber(md) {
+  const m = MD.exec(String(md ?? ''))
+  if (!m) return NaN
+  const month = +m[1]
+  const day = +m[2]
+  if (month < 1 || month > 12 || day < 1 || day > DAYS_IN[month - 1]) return NaN
+  return month * 100 + day
+}
+
+/** Is month-day `n` inside the inclusive range, wrapping over the new year? */
+function inRange(n, from, to) {
+  return from <= to ? n >= from && n <= to : n >= from || n <= to
+}
+
+/** Today's month-day in Madrid, as 101..1231. */
+export function madridMonthDay(epochMs = Date.now()) {
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'Europe/Madrid',
+    month: '2-digit',
+    day: '2-digit',
+  }).formatToParts(new Date(epochMs))
+  const p = Object.fromEntries(parts.map((x) => [x.type, x.value]))
+  return +p.month * 100 + +p.day
+}
+
+/**
+ * Every reason a calendar would misbehave, in words a teacher can act on.
+ *
+ * Used by `/admin` BEFORE saving and by `validate` on every build, so the two
+ * cannot disagree. An empty list means it is fine. Overlaps are an error,
+ * not a tie-break: two seasons claiming the same day would make one of them
+ * silently never appear, which looks exactly like the feature not working.
+ *
+ * @param {SeasonRange[]} calendar
+ * @returns {string[]}
+ */
+export function checkSeasonCalendar(calendar) {
+  const errors = []
+  if (calendar == null) return errors
+  if (!Array.isArray(calendar)) return ['seasons: debe ser una lista']
+  const ranges = []
+  calendar.forEach((r, i) => {
+    const where = `seasons[${i}]`
+    if (!r || typeof r !== 'object') {
+      errors.push(`${where}: no es una entrada`)
+      return
+    }
+    if (!CALENDAR_SEASONS.includes(r.season)) {
+      errors.push(`${where}: temporada desconocida "${r.season}"`)
+      return
+    }
+    const from = mdNumber(r.from)
+    const to = mdNumber(r.to)
+    if (Number.isNaN(from)) errors.push(`${r.season}: fecha de inicio ilegible "${r.from}"`)
+    if (Number.isNaN(to)) errors.push(`${r.season}: fecha de fin ilegible "${r.to}"`)
+    if (!Number.isNaN(from) && !Number.isNaN(to)) ranges.push({ season: r.season, from, to })
+  })
+  for (let a = 0; a < ranges.length; a++) {
+    for (let b = a + 1; b < ranges.length; b++) {
+      const A = ranges[a]
+      const B = ranges[b]
+      if (
+        inRange(B.from, A.from, A.to) || inRange(B.to, A.from, A.to) ||
+        inRange(A.from, B.from, B.to)
+      ) {
+        errors.push(`${A.season} y ${B.season} se solapan`)
+      }
+    }
+  }
+  return errors
+}
+
+/**
+ * Which season the calendar puts on a given day, or null for none.
+ *
+ * @param {SeasonRange[]} calendar
+ * @param {number} [epochMs]
+ */
+export function seasonForDate(calendar, epochMs = Date.now()) {
+  if (!Array.isArray(calendar)) return null
+  const today = madridMonthDay(epochMs)
+  for (const r of calendar) {
+    if (!r || !CALENDAR_SEASONS.includes(r.season)) continue
+    const from = mdNumber(r.from)
+    const to = mdNumber(r.to)
+    if (Number.isNaN(from) || Number.isNaN(to)) continue
+    if (inRange(today, from, to)) return r.season
+  }
+  return null
+}
+
+/**
+ * The next day a season starts, for `/admin` to say "Navidad empieza en 9
+ * días". Looks a year ahead and no further.
+ *
+ * @returns {{season: string, inDays: number} | null}
+ */
+export function nextSeasonStart(calendar, epochMs = Date.now()) {
+  if (!Array.isArray(calendar) || !calendar.length) return null
+  const DAY = 86400000
+  for (let d = 1; d <= 366; d++) {
+    const s = seasonForDate(calendar, epochMs + d * DAY)
+    if (s && s !== seasonForDate(calendar, epochMs + (d - 1) * DAY)) return { season: s, inDays: d }
+  }
+  return null
 }
 
 /**
@@ -253,14 +540,21 @@ const SEASONS = {
  * `location` rather than simply not having it.
  */
 function resolveSeason() {
+  // 1. A preview link always wins: `?season=christmas` shows it today.
   try {
     if (typeof window !== 'undefined' && window.location) {
       const asked = new URLSearchParams(window.location.search).get('season')
       if (asked && Object.hasOwn(SEASONS, asked)) return asked
     }
   } catch {
-    /* no URL here — fall through to the constant */
+    /* no URL here — fall through to the calendar */
   }
+  // 2. The calendar published from /admin, read against today's date. Only in
+  //    a browser: under Node (validate, the deck build) there is no calendar
+  //    and the island is checked as the ordinary one.
+  const dated = seasonForDate(SEASON_CALENDAR)
+  if (dated && Object.hasOwn(SEASONS, dated)) return dated
+  // 3. The constant, which is now only the fallback for "no season today".
   return Object.hasOwn(SEASONS, SEASON) ? SEASON : 'default'
 }
 

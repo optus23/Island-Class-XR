@@ -1,4 +1,4 @@
-import { optionFor } from '../lib/avatar.js'
+import { optionFor, lookBoxes } from '../lib/avatar.js'
 
 /**
  * The little figure at the top of the wardrobe panel.
@@ -38,11 +38,15 @@ export function avatarPreview(look) {
   const shoes = hex(optionFor('shoes', look).color)
   const lens = hex(optionFor('visor', look).color)
 
-  const hat = optionFor('hat', look)
-  // `color: null` means "match the shirt" — the same rule `applyLook` follows.
-  const hatBox = hat?.box
-    ? box(hat.box[0], hat.box[1], hat.box[3], hat.box[4], hat.color == null ? shirt : hex(hat.color))
-    : ''
+  // Everything the wardrobe adds, from the same list `applyLook` builds:
+  // the hat, and a seasonal piece's belt, trim or curled toe. Drawn back to
+  // front by each box's FRONT face, so a buckle lands on the belt and the
+  // belt on the coat, the way the 3D figure layers them.
+  const extras = lookBoxes(look)
+    .slice()
+    .sort((a, b) => a[5] + a[2] / 2 - (b[5] + b[2] / 2))
+    .map(([w, h, , x, y, , c]) => box(w, h, x, y, hex(c)))
+    .join('')
 
   // Back to front, so the headset lands on the face and the hat on top.
   const parts = [
@@ -56,13 +60,14 @@ export function avatarPreview(look) {
     box(1.02, 0.2, 0, 2.16, STRAP), // headset strap
     box(1.0, 0.52, 0, 1.98, SHELL), // visor shell — never optional
     box(0.78, 0.3, 0, 1.99, lens), // the one part of the headset that is a choice
-    hatBox,
+    extras,
   ].join('')
 
-  // viewBox spans the widest part (the arms, ±0.83) and the tallest hat.
+  // viewBox spans the widest part (the witch's brim, ±0.7, and the arms,
+  // ±0.83) and the tallest hat: the elf's bell tops out at 3.7.
   return (
-    `<svg class="avatar-figure" viewBox="-1.05 0 2.1 3.25" aria-hidden="true">` +
-    `<g transform="translate(0,3.25) scale(1,-1)">${parts}</g>` +
+    `<svg class="avatar-figure" viewBox="-1.05 0 2.1 3.75" aria-hidden="true">` +
+    `<g transform="translate(0,3.75) scale(1,-1)">${parts}</g>` +
     `</svg>`
   )
 }

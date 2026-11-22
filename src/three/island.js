@@ -2,6 +2,7 @@ import * as THREE from 'three'
 import { worlds } from '../config/worlds.js'
 import { world as themeWorld, biomes, backdrop } from '../config/theme.js'
 import { prefersReducedMotion } from '../lib/motion.js'
+import { seasonFlags } from '../config/seasons.js'
 import { buildPropMesh, planProps, planLandmarks, planLamps, emittersFrom } from './props.js'
 import {
   buildShoreField,
@@ -274,6 +275,16 @@ function createRelief(cells, keepOut = []) {
 
   if (!blocks.length) return group
 
+  // Snowed in at Christmas: a white slab on top of every piece big enough to
+  // hold snow, turned with its rock. The pebbles stay bare, the way the
+  // landmarks' posts and handles do (see `snowOn` in props.js).
+  if (seasonFlags.snowCaps) {
+    for (const b of [...blocks]) {
+      if (b.w < 0.9) continue
+      blocks.push({ ...b, y: b.y + b.h / 2 + 0.1, h: 0.2, w: b.w + 0.14, d: b.d + 0.14, snow: true })
+    }
+  }
+
   const mesh = new THREE.InstancedMesh(
     new THREE.BoxGeometry(1, 1, 1),
     new THREE.MeshLambertMaterial(),
@@ -298,9 +309,12 @@ function createRelief(cells, keepOut = []) {
     // A little of the biome's deep rock mixed in keeps a boulder in the desert
     // warm and one in the snow cold, so it still belongs where it stands.
     col.setHex(b.biome.boulder).lerp(tmp.setHex(b.biome.rockDeep), 0.18)
+    if (b.snow) col.setHex(0xf2f7fb)
     // Cheap stylised shading: the pieces that catch the sky are lighter, the
     // ones tucked under the body darker.
-    if (b.shade > 0) col.lerp(tmp.setHex(0xffffff), b.shade)
+    if (b.snow) {
+      /* snow is snow, whichever face of the rock it lies on */
+    } else if (b.shade > 0) col.lerp(tmp.setHex(0xffffff), b.shade)
     else if (b.shade < 0) col.lerp(tmp.setHex(0x000000), -b.shade)
     mesh.setColorAt(i, col)
   })
