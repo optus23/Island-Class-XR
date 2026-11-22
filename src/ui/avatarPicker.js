@@ -46,7 +46,15 @@ export function mountAvatarPicker({ onChange }) {
           <span class="avatar-slot">${t(slot.labelKey)}</span>
           <button class="avatar-arrow" data-slot="${slot.key}" data-step="-1"
                   aria-label="${t('avatar.prev')}">◀</button>
-          <span class="avatar-choice">${swatch}<span>${t(choice.labelKey)}</span></span>
+          <span class="avatar-choice">${swatch}<span class="avatar-label">${t(choice.labelKey)}</span>${
+            // A seasonal piece says so, so nobody wonders in February where
+            // their Santa hat went: it comes back with the season.
+            choice.season
+              ? `<span class="avatar-season" title="${t('avatar.season.' + choice.season)}">${
+                  choice.season === 'halloween' ? '🎃' : '🎄'
+                }</span>`
+              : ''
+          }</span>
           <button class="avatar-arrow" data-slot="${slot.key}" data-step="1"
                   aria-label="${t('avatar.next')}">▶</button>
         </li>`

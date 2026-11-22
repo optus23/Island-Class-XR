@@ -832,6 +832,21 @@ cover(
     const kept = Object.keys(cleanSchedule(raw, validIds)).length
     cover('the published timetable', kept === Object.keys(raw).length, `${kept} session(s) scheduled`)
   }
+
+  // The season calendar sits in the same file and is checked by the SAME
+  // function /admin runs before it saves, so the page cannot publish a
+  // calendar the build then refuses. An overlap is an error rather than a
+  // tie-break: one of the two seasons would silently never show.
+  const { checkSeasonCalendar } = await import('../src/config/seasons.js')
+  const seasonErrors = checkSeasonCalendar(progress?.seasons)
+  for (const e of seasonErrors) err(`progress.json ${e}`)
+  if (Array.isArray(progress?.seasons)) {
+    cover(
+      'the season calendar',
+      !seasonErrors.length,
+      progress.seasons.map((r) => `${r.season} ${r.from}→${r.to}`).join(', ') || 'empty'
+    )
+  }
 }
 
 // --- the three languages, key for key ---------------------------------------

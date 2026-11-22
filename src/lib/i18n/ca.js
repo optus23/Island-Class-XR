@@ -183,4 +183,13 @@ export default {
   'avatar.colour.black': "Negre",
   'avatar.colour.white': "Blanc",
   'avatar.colour.brown': "Marró",
+  'avatar.hat.pumpkin': "Carabassa",
+  'avatar.hat.witch': "Barret de bruixa",
+  'avatar.hat.santa': "Barret de Pare Noel",
+  'avatar.hat.elf': "Barret d'elf",
+  'avatar.shirt.skeleton': "Esquelet",
+  'avatar.shirt.santa': "Jaqueta de Pare Noel",
+  'avatar.shoes.elf': "Botes d'elf",
+  'avatar.season.halloween': "Només per Halloween",
+  'avatar.season.christmas': "Només per Nadal",
 }

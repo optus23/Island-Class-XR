@@ -209,4 +209,13 @@ export default {
   'avatar.colour.black': "Black",
   'avatar.colour.white': "White",
   'avatar.colour.brown': "Brown",
+  'avatar.hat.pumpkin': "Pumpkin",
+  'avatar.hat.witch': "Witch hat",
+  'avatar.hat.santa': "Santa hat",
+  'avatar.hat.elf': "Elf hat",
+  'avatar.shirt.skeleton': "Skeleton",
+  'avatar.shirt.santa': "Santa jacket",
+  'avatar.shoes.elf': "Elf boots",
+  'avatar.season.halloween': "Halloween only",
+  'avatar.season.christmas': "Christmas only",
 }

@@ -695,10 +695,25 @@ figure at the top of the panel showing the result.
   from the villagers pacing the discs; the lens *colour* is a choice, the
   headset is not. It is an XR course.
 - **Adding an option is one line** in `SLOTS` in
-  [`src/lib/avatar.js`](src/lib/avatar.js) — a pumpkin for Halloween, a santa
-  hat in December. It appears in the picker, and in the preview figure, with no
-  other change: the preview is an SVG drawn from the same box the 3D figure
-  uses. Give the label a key in all three `i18n` files or the build will say so.
+  [`src/lib/avatar.js`](src/lib/avatar.js). It appears in the picker, and in
+  the preview figure, with no other change: the preview is an SVG drawn from
+  the same boxes the 3D figure uses. Give the label a key in all three `i18n`
+  files or the build will say so.
+- **Seasonal pieces only appear in their season.** An option with
+  `season: 'halloween'` or `season: 'christmas'` (the pumpkin and the witch
+  hat, the Santa hat, jacket and elf boots) is in the picker only while that
+  season is on the island, and comes back by itself the next year.
+
+### Seasons
+
+The island changes its look by date, every year, with nothing to deploy:
+`/admin` → **Temporadas del mapa** sets the days Halloween and Christmas run
+(month and day only, both inclusive, Madrid time). It is stored in
+`public/progress.json` and only ever changes how the map LOOKS, never the
+course. Add `?season=christmas`, `?season=halloween` or `?season=default` to any
+URL to preview one. A new theme (summer, say) is a patch in
+[`src/config/seasons.js`](src/config/seasons.js) plus its id in
+`CALENDAR_SEASONS`.
 
 ---
 
