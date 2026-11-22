@@ -58,6 +58,65 @@ const LAMP_PANE = 0xffd98a
 /** The dim spill on the ground beneath a lit one. */
 const PUMPKIN_POOL = 0x8a6a35
 
+/**
+ * Christmas dressing. Same reasoning as Halloween's: these belong to a recipe,
+ * not to what the map means, so they live here and not in `theme.js`.
+ *
+ * NO GREEN THAT COULD BE `palette.completed`, and no gift in the lilac the
+ * optional nodes use. A present the colour of a completed session, standing
+ * next to the road, is a second signal saying something it does not mean. The
+ * greens below are pine and holly greens, darker and bluer than 0x38b000.
+ */
+const XMAS_RED = 0xc8102e
+const XMAS_RED_DARK = 0x9b0d24
+const XMAS_GREEN = 0x1f6b45
+const XMAS_GREEN_DARK = 0x16523a
+const XMAS_GOLD = 0xf2c14e
+const XMAS_WHITE = 0xf7f9fc
+const XMAS_BLUE = 0x2f5fb3
+/** The star on a tree and the bulbs: near-white warm, the colour that reads as lit. */
+const XMAS_STAR = 0xffe27a
+const BULBS = [0xff4d4d, 0xffd24a, 0x5ec8ff, 0xff8fd0, 0xfff3c4]
+const SNOWMAN = 0xf4f7fb
+const SNOWMAN_SHADE = 0xdfe7f1
+const COAL = 0x22272e
+const CARROT = 0xf27a1a
+
+/** One wrapped present: box, ribbon round both axes, and a bow on top. */
+function gift(size, box, ribbon, y0 = 0, ox = 0, oz = 0) {
+  const h = size * 0.82
+  const y = y0 + h / 2
+  return [
+    part(ox, y, oz, size, h, size, box),
+    part(ox, y, oz, size + 0.04, h + 0.04, size * 0.2, ribbon),
+    part(ox, y, oz, size * 0.2, h + 0.04, size + 0.04, ribbon),
+    // The bow: two loops either side of a knot, so it reads from above too.
+    part(ox - size * 0.17, y0 + h + 0.09, oz, size * 0.26, 0.18, size * 0.22, ribbon),
+    part(ox + size * 0.17, y0 + h + 0.09, oz, size * 0.26, 0.18, size * 0.22, ribbon),
+    part(ox, y0 + h + 0.06, oz, size * 0.14, 0.14, size * 0.14, ribbon),
+  ]
+}
+
+/**
+ * A tiered pine with snow lying on every tier. The plain pine has one snow
+ * shelf; a snowed-in island wants every ledge white, which is also what keeps
+ * a forest of them from reading as dark blots on white ground.
+ */
+function snowyPine(b, tall = 1) {
+  const t = tall
+  return [
+    part(0, 0.8 * t, 0, 0.6, 1.6 * t, 0.6, BARK_DARK),
+    part(0, 2.0 * t, 0, 2.8, 1.1 * t, 2.8, b.foliage),
+    part(0, 2.6 * t, 0, 2.9, 0.16, 2.9, SNOW),
+    part(0, 3.05 * t, 0, 2.15, 1.0 * t, 2.15, b.foliage),
+    part(0, 3.6 * t, 0, 2.25, 0.16, 2.25, SNOW),
+    part(0, 3.95 * t, 0, 1.5, 0.9 * t, 1.5, b.foliageAlt),
+    part(0, 4.45 * t, 0, 1.6, 0.15, 1.6, SNOW),
+    part(0, 4.7 * t, 0, 0.9, 0.75 * t, 0.9, b.foliageAlt),
+    part(0, 5.2 * t, 0, 0.55, 0.45, 0.55, SNOW),
+  ]
+}
+
 /** Four spots on a mushroom cap, and similar rings elsewhere. */
 function ring(y, radius, size, colour, count = 4, phase = 0) {
   const out = []
@@ -195,6 +254,141 @@ const RECIPES = {
     part(0, 4.72, 0, 0.72, 0.2, 0.72, LAMP_IRON_DARK), // cap
     part(0, 4.88, 0, 0.18, 0.16, 0.18, LAMP_IRON), // finial
   ],
+
+  // --- Christmas ---------------------------------------------------------
+
+  /** The snowed-in pine, the island's ordinary tree in December. */
+  pineSnowy: (b) => snowyPine(b),
+
+  /**
+   * The Christmas tree: a taller snowy pine wearing bulbs and a star.
+   *
+   * The bulbs ride the OUTSIDE of each tier, the lesson the toad house's
+   * spots taught: set inside a box's half-width, a decoration is swallowed by
+   * the box it decorates. Four per tier, a quarter-turn apart and offset per
+   * tier, so from the follow camera there are always two or three in view.
+   *
+   * The star is the brightest thing on it and stands proud of the crown, so
+   * it reads from across the island; `emittersFrom` hangs a real light there.
+   */
+  xmasTree: (b) => [
+    ...snowyPine(b, 1.12),
+    ...ring(2.25, 1.47, 0.34, BULBS[0], 2, 0.2),
+    ...ring(2.25, 1.47, 0.34, BULBS[1], 2, 0.2 + Math.PI / 2),
+    ...ring(3.42, 1.13, 0.3, BULBS[2], 2, 1.1),
+    ...ring(3.42, 1.13, 0.3, BULBS[3], 2, 1.1 + Math.PI / 2),
+    ...ring(4.42, 0.8, 0.28, BULBS[4], 2, 0.5),
+    ...ring(4.42, 0.8, 0.28, BULBS[0], 2, 0.5 + Math.PI / 2),
+    // A garland: a thin gold band round the middle tier.
+    part(0, 3.15, 0, 2.24, 0.12, 2.24, XMAS_GOLD),
+    // The star, in a plus shape so it reads as a star and not as a cube.
+    part(0, 6.15, 0, 0.62, 0.62, 0.26, XMAS_STAR),
+    part(0, 6.15, 0, 0.26, 0.62, 0.62, XMAS_STAR),
+    part(0, 6.15, 0, 0.9, 0.2, 0.2, XMAS_STAR),
+    part(0, 6.15, 0, 0.2, 0.9, 0.2, XMAS_STAR),
+    part(0, 6.15, 0, 0.2, 0.2, 0.9, XMAS_STAR),
+    // Presents under it, because that is where presents go.
+    ...gift(0.8, XMAS_RED, XMAS_GOLD, 0, 1.25, 0.9),
+    ...gift(0.62, XMAS_BLUE, XMAS_WHITE, 0, -1.2, 1.0),
+  ],
+
+  /** A cactus that has had a bad night: the same plant, snow on every top. */
+  snowCactus: (b) => [
+    part(0, 1.7, 0, 1.0, 3.4, 1.0, b.foliage),
+    part(-0.85, 1.9, 0, 0.75, 0.75, 0.75, b.foliage),
+    part(-1.15, 2.6, 0, 0.7, 1.4, 0.7, b.foliage),
+    part(0.85, 2.5, 0, 0.75, 0.75, 0.75, b.foliage),
+    part(1.15, 3.15, 0, 0.7, 1.2, 0.7, b.foliage),
+    part(0, 1.7, 0.5, 0.25, 3.0, 0.25, b.foliageAlt),
+    part(0, 3.5, 0, 1.08, 0.24, 1.08, SNOW),
+    part(-1.15, 3.38, 0, 0.78, 0.2, 0.78, SNOW),
+    part(1.15, 3.83, 0, 0.78, 0.2, 0.78, SNOW),
+    // And somebody has given it a scarf.
+    part(0, 2.9, 0, 1.1, 0.2, 1.1, XMAS_RED),
+  ],
+
+  /** Presents, one at a time or stacked. Low, and brightly wrapped. */
+  giftRed: () => gift(1.0, XMAS_RED, XMAS_GOLD),
+  giftGreen: () => gift(0.9, XMAS_GREEN, XMAS_RED),
+  giftBlue: () => gift(0.95, XMAS_BLUE, XMAS_WHITE),
+  giftStack: () => [
+    ...gift(1.1, XMAS_WHITE, XMAS_RED),
+    ...gift(0.72, XMAS_RED, XMAS_GOLD, 0.98, 0.06, -0.04),
+    ...gift(0.6, XMAS_GREEN, XMAS_GOLD, 0, 0.95, 0.55),
+  ],
+
+  /**
+   * A candy cane planted in the snow. The stripes are stacked boxes rather
+   * than a texture: every colour on this island is a box, and a striped cube
+   * stack is exactly what a voxel candy cane is. The hook turns toward +z,
+   * which `planProps` then spins with the prop's own yaw.
+   */
+  candyCane: () => {
+    const out = []
+    const STRIPE = 0.32
+    for (let i = 0; i < 8; i++) {
+      out.push(part(0, STRIPE / 2 + i * STRIPE, 0, 0.3, STRIPE, 0.3, i % 2 ? XMAS_WHITE : XMAS_RED))
+    }
+    const top = 8 * STRIPE
+    out.push(part(0, top + 0.15, 0.12, 0.3, 0.3, 0.54, XMAS_WHITE)) // the bend
+    out.push(part(0, top + 0.15, 0.5, 0.3, 0.3, 0.3, XMAS_RED))
+    out.push(part(0, top - 0.17, 0.62, 0.3, 0.34, 0.3, XMAS_WHITE)) // the hook, coming down
+    out.push(part(0, top - 0.46, 0.62, 0.3, 0.24, 0.3, XMAS_RED))
+    return out
+  },
+
+  /** A snowman: three balls, coal, a carrot, a scarf, a hat and two sticks. */
+  snowman: () => [
+    part(0, 0.75, 0, 1.6, 1.5, 1.6, SNOWMAN),
+    part(0, 0.75, 0, 1.75, 1.2, 1.3, SNOWMAN_SHADE),
+    part(0, 2.05, 0, 1.15, 1.1, 1.15, SNOWMAN),
+    part(0, 2.95, 0, 0.82, 0.78, 0.82, SNOWMAN),
+    part(0, 2.15, 0.6, 0.14, 0.14, 0.08, COAL), // buttons
+    part(0, 1.85, 0.6, 0.14, 0.14, 0.08, COAL),
+    part(-0.17, 3.05, 0.42, 0.12, 0.12, 0.06, COAL), // eyes
+    part(0.17, 3.05, 0.42, 0.12, 0.12, 0.06, COAL),
+    part(0, 2.9, 0.58, 0.14, 0.14, 0.4, CARROT),
+    part(0, 2.55, 0, 0.98, 0.18, 0.98, XMAS_RED), // scarf
+    part(0.32, 2.3, 0.45, 0.22, 0.48, 0.12, XMAS_RED),
+    part(0, 3.42, 0, 0.92, 0.12, 0.92, COAL), // hat brim
+    part(0, 3.72, 0, 0.6, 0.55, 0.6, COAL),
+    part(0, 3.55, 0, 0.62, 0.12, 0.62, XMAS_RED),
+    part(-0.95, 2.25, 0, 0.9, 0.1, 0.1, BARK_DARK), // stick arms
+    part(0.95, 2.35, 0, 0.9, 0.1, 0.1, BARK_DARK),
+    part(1.35, 2.52, 0, 0.1, 0.34, 0.1, BARK_DARK),
+  ],
+
+  /**
+   * The Christmas lamppost: Halloween's post, wrapped like a candy cane, a
+   * wreath under the head and a red bow on it. Same height, so the light
+   * hangs where `emittersFrom` expects it.
+   */
+  xmasLamp: () => {
+    const out = [
+      part(0, 0.18, 0, 0.78, 0.36, 0.78, LAMP_IRON_DARK),
+      part(0, 0.42, 0, 0.5, 0.2, 0.5, LAMP_IRON),
+      part(0, 2.1, 0, 0.26, 3.4, 0.26, XMAS_WHITE),
+    ]
+    // Red ribbon wound up the post: bands slightly proud of it.
+    for (let i = 0; i < 6; i++) out.push(part(0, 0.75 + i * 0.52, 0, 0.32, 0.17, 0.32, XMAS_RED))
+    out.push(
+      part(0, 3.84, 0, 0.46, 0.12, 0.46, LAMP_IRON_DARK),
+      part(0, 4.26, 0, 0.62, 0.72, 0.62, LAMP_IRON_DARK),
+      part(0, 4.26, 0.33, 0.42, 0.5, 0.06, LAMP_PANE),
+      part(0, 4.26, -0.33, 0.42, 0.5, 0.06, LAMP_PANE),
+      part(0.33, 4.26, 0, 0.06, 0.5, 0.42, LAMP_PANE),
+      part(-0.33, 4.26, 0, 0.06, 0.5, 0.42, LAMP_PANE),
+      part(0, 4.72, 0, 0.72, 0.2, 0.72, LAMP_IRON_DARK),
+      part(0, 4.86, 0, 0.82, 0.16, 0.82, SNOW), // snow on the cap
+      // The wreath, a ring of holly round the collar, with its bow.
+      part(0, 3.62, 0, 0.78, 0.22, 0.78, XMAS_GREEN),
+      part(0, 3.62, 0, 0.62, 0.26, 0.62, XMAS_GREEN_DARK),
+      part(0, 3.5, 0.42, 0.3, 0.2, 0.08, XMAS_RED),
+      part(-0.1, 3.36, 0.42, 0.08, 0.2, 0.06, XMAS_RED_DARK),
+      part(0.1, 3.36, 0.42, 0.08, 0.2, 0.06, XMAS_RED_DARK),
+    )
+    return out
+  },
 
   cactus: (b) => [
     part(0, 1.7, 0, 1.0, 3.4, 1.0, b.foliage),
@@ -427,6 +621,33 @@ const RECIPES = {
 export const PROP_KINDS = Object.keys(RECIPES)
 
 /**
+ * Snow lying on a recipe's roofs, derived from its own boxes.
+ *
+ * Every landmark would otherwise need a second, snowed-in copy of its recipe,
+ * and eleven recipes kept in step by hand is how one of them drifts. So snow
+ * is computed: every box whose top is in the upper part of the prop, and
+ * which is broad enough to hold snow, gets a thin white slab on top, a shade
+ * wider than itself so it reads as overhanging. Narrow parts (posts, a
+ * lantern, a door handle) get none, which is also what a real snowfall does.
+ *
+ * Stacked tiers each get their own slab and the tier above simply stands in
+ * it, so a toad house comes out snowed on every step of its cap.
+ *
+ * @param {Part[]} boxes
+ */
+function snowOn(boxes) {
+  let top = 0
+  for (const b of boxes) top = Math.max(top, b.y + b.h / 2)
+  const out = []
+  for (const b of boxes) {
+    const t = b.y + b.h / 2
+    if (t < top * 0.5 || b.w < 0.6 || b.d < 0.6 || b.c === SNOW) continue
+    out.push(part(b.x, t + 0.09, b.z, b.w + 0.14, 0.18, b.d + 0.14, SNOW))
+  }
+  return out
+}
+
+/**
  * Bakes a list of placements into one InstancedMesh.
  * @param {Array<{kind:string, x:number, z:number, y:number, biome:object, scale?:number, yaw?:number}>} placements
  */
@@ -439,7 +660,9 @@ export function buildPropMesh(placements) {
     const yaw = p.yaw ?? 0
     const cos = Math.cos(yaw)
     const sin = Math.sin(yaw)
-    for (const b of recipe(p.biome)) {
+    const boxes = recipe(p.biome)
+    if (p.snowCap) boxes.push(...snowOn(boxes))
+    for (const b of boxes) {
       // Rotate the part offset around the prop's own axis.
       const ox = b.x * cos - b.z * sin
       const oz = b.x * sin + b.z * cos
@@ -556,14 +779,25 @@ export function planProps(cells) {
       // dead one in all three biomes — a bare winter skeleton has no biome,
       // which is the point of it. Everything else about placement (density,
       // the grove around each castle, the keep-outs) is untouched.
+      //
+      // Christmas plants a snowed-in pine in every biome (a leafy oak under a
+      // metre of snow is a lump), keeps the desert's cacti with snow on their
+      // arms so world 2 still reads as the desert, and makes one tree
+      // in seven a decorated Christmas tree. Which ones is a SECOND hash, so
+      // the decorated trees are scattered rather than gathered into whichever
+      // corner the placement hash happens to favour.
+      const xmas = seasonFlags.trees === 'xmas'
+      const decorated = xmas && hash2(c.z * 6.1, c.x * 3.7) > 0.85
       const tree =
         seasonFlags.trees === 'bare'
           ? 'deadTree'
-          : c.biome.props === 'cactus'
-            ? 'cactus'
-            : c.biome.props === 'pine'
-              ? 'pine'
-              : 'treeLeafy'
+          : decorated
+            ? 'xmasTree'
+            : c.biome.props === 'cactus'
+              ? xmas ? 'snowCactus' : 'cactus'
+              : c.biome.props === 'pine' || xmas
+                ? xmas ? 'pineSnowy' : 'pine'
+                : 'treeLeafy'
       // Thicker planting close to a castle, ordinary density elsewhere.
       const threshold = 0.945 - grove(c) * 0.16
       if (r > threshold) out.push({ ...base, kind: tree })
@@ -580,9 +814,23 @@ export function planProps(cells) {
       // the one that chose to put a pumpkin here at all. Reusing `t` would
       // correlate the two, and every pumpkin in the rarer tail would come out
       // lit — a tidy gradient across the island instead of a mix.
+      //
+      // Christmas does the same with presents and candy canes: they take the
+      // flowers' slot (nothing flowers in the snow), and a second hash picks
+      // which of the two, and which wrapping.
+      const festive = seasonFlags.gifts || seasonFlags.candyCanes
       if (seasonFlags.pumpkins && t > rare(0.955)) {
         const lit = hash2(c.z * 4.3, c.x * 8.9) > 0.45
         out.push({ ...base, kind: lit ? 'pumpkinLit' : 'pumpkin' })
+      } else if (festive && t > rare(0.958)) {
+        const pick = hash2(c.z * 4.3, c.x * 8.9)
+        const cane = seasonFlags.candyCanes && (!seasonFlags.gifts || pick > 0.62)
+        const gifts = ['giftRed', 'giftGreen', 'giftBlue', 'giftStack']
+        const kind = cane ? 'candyCane' : gifts[Math.floor(pick * 6.5) % gifts.length]
+        out.push({ ...base, kind, scale: cane ? 0.9 + base.scale * 0.2 : base.scale })
+      } else if (festive) {
+        // No flowers in the snow; the tufts stay, as sprigs poking through.
+        if (t > rare(0.93) && t <= rare(0.958)) out.push({ ...base, kind: 'grassTuft' })
       } else if (t > rare(0.968)) out.push({ ...base, kind: 'flower' })
       else if (t > rare(0.93)) out.push({ ...base, kind: 'grassTuft' })
     }
@@ -595,6 +843,10 @@ export function planProps(cells) {
       else if (t < common(0.0045)) out.push({ ...base, kind: 'arPhone', scale: 1 })
       else if (t > 0.5 - 0.002 * CELL_AREA_SCALE && t < 0.5 + 0.002 * CELL_AREA_SCALE)
         out.push({ ...base, kind: 'marker', scale: 1 })
+      // The snowmen share the set-piece band: far enough from the road to be
+      // somebody's garden, close enough to be seen. Same rarity as a headset.
+      else if (seasonFlags.snowmen && t > 0.3 - 0.0035 * CELL_AREA_SCALE && t < 0.3 + 0.0035 * CELL_AREA_SCALE)
+        out.push({ ...base, kind: 'snowman', scale: 0.95 })
     }
   }
   return out
@@ -717,6 +969,8 @@ export function planLandmarks() {
       // Face the road: the door and the cannon muzzle should look at it.
       yaw: Math.atan2(-side.x * spot.dir, -side.z * spot.dir),
       scale: 0.78 + hash2(spot.x, spot.z) * 0.14,
+      // Snowed in at Christmas: see `snowOn` for how the snow finds the roof.
+      snowCap: seasonFlags.snowCaps,
     })
   }
 
@@ -789,7 +1043,7 @@ export function planLamps() {
     if (!spot) continue
 
     out.push({
-      kind: 'lamppost',
+      kind: seasonFlags.lampStyle === 'xmas' ? 'xmasLamp' : 'lamppost',
       x: spot.x,
       z: spot.z,
       y: groundHeightAt(spot.x, spot.z),
@@ -815,8 +1069,13 @@ export function planLamps() {
 export function emittersFrom(placements) {
   const out = []
   for (const p of placements) {
-    if (p.kind === 'lamppost') {
+    if (p.kind === 'lamppost' || p.kind === 'xmasLamp') {
       out.push({ x: p.x, y: p.y + 4.26, z: p.z, kind: 'lamp' })
+    } else if (p.kind === 'xmasTree') {
+      // The star, scaled with the tree it crowns: planProps gives every tree a
+      // scale of its own, and a light at the unscaled height floats over a
+      // small tree and sits inside a big one.
+      out.push({ x: p.x, y: p.y + 6.15 * (p.scale ?? 1), z: p.z, kind: 'tree' })
     } else if (p.kind === 'pumpkinLit') {
       out.push({ x: p.x, y: p.y + 0.5, z: p.z, kind: 'pumpkin' })
     }

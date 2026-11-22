@@ -1228,12 +1228,59 @@ function createBossCastle(placement) {
     addBox(0.3, 0.22, 0.2, 0.75, 3.62, 2.2, { color: WINDOW, keepColor: true })
   }
 
+  /**
+   * SNOWED IN AT CHRISTMAS, and like the haunted keep it is a dressing on the
+   * same building: snow lying on every roof tier and tower cap, a holly wreath
+   * on the gate. The red roofs stay red. Under a line of white they are the
+   * most Christmas thing on the island already, and the silhouette a student
+   * knows the midterm by is untouched.
+   */
+  const snowy = seasonFlags.castles === 'snowy'
+  const SNOW = 0xf4f8fc
+  const snowSlab = (w, d, x, top, z) =>
+    addBox(w + 0.16, 0.18, d + 0.16, x, top + 0.09, z, { color: SNOW, keepColor: true })
+  if (snowy) {
+    snowSlab(4.7, 4.7, 0, 4.175, 0) // the cornice
+    snowSlab(4.0, 4.0, 0, 4.85, 0)
+    snowSlab(2.8, 2.8, 0, 5.4, 0)
+    snowSlab(1.6, 1.6, 0, 5.85, 0)
+    for (const [tx, tz] of [
+      [-2.1, -2.1],
+      [2.1, -2.1],
+      [-2.1, 2.1],
+      [2.1, 2.1],
+    ]) {
+      snowSlab(1.7, 1.7, tx, 6.15, tz)
+      snowSlab(0.9, 0.9, tx, 6.55, tz)
+    }
+    // A holly wreath above the gate: a ring of four boxes and a red bow.
+    const WREATH = 0x1f6b45
+    addBox(0.9, 0.16, 0.12, 0, 3.0, 2.5, { color: WREATH, keepColor: true })
+    addBox(0.9, 0.16, 0.12, 0, 2.38, 2.5, { color: WREATH, keepColor: true })
+    addBox(0.16, 0.62, 0.12, -0.37, 2.69, 2.5, { color: WREATH, keepColor: true })
+    addBox(0.16, 0.62, 0.12, 0.37, 2.69, 2.5, { color: WREATH, keepColor: true })
+    addBox(0.3, 0.18, 0.08, 0, 2.36, 2.58, { color: 0xc8102e, keepColor: true })
+    // Two little trees standing guard either side of the stair, on the lower
+    // plinth step (top at 0.5, front edge at z 3.5) and clear of the stair.
+    for (const px of [-1.6, 1.6]) {
+      addBox(0.6, 0.5, 0.6, px, 0.75, 3.2, { color: WREATH, keepColor: true })
+      addBox(0.44, 0.44, 0.44, px, 1.2, 3.2, { color: WREATH, keepColor: true })
+      addBox(0.26, 0.36, 0.26, px, 1.6, 3.2, { color: WREATH, keepColor: true })
+      addBox(0.18, 0.18, 0.18, px, 1.87, 3.2, { color: 0xffe27a, keepColor: true })
+    }
+  }
+
   if (isFinal) {
     // The final boss gets a central spire above the roof, and a flag.
     addBox(2.6, 3.2, 2.6, 0, 7.2, 0)
     addBox(3.0, 0.4, 3.0, 0, 8.95, 0, { color: STONE_LIGHT, keepColor: true })
     addBox(2.4, 1.5, 2.4, 0, 9.85, 0, { color: ROOF, keepColor: true })
     addBox(1.2, 0.8, 1.2, 0, 10.9, 0, { color: ROOF_DARK, keepColor: true })
+    if (snowy) {
+      snowSlab(3.0, 3.0, 0, 9.15, 0)
+      snowSlab(2.4, 2.4, 0, 10.6, 0)
+      snowSlab(1.2, 1.2, 0, 11.3, 0)
+    }
     addBox(0.5, 0.6, 0.3, 0, 7.4, 1.35, { color: WINDOW, keepColor: true })
     addBox(0.2, 2.4, 0.2, 0, 12.4, 0, { color: WOOD, keepColor: true })
     addBox(1.6, 0.95, 0.12, 0.85, 13.2, 0, { color: 0xf2c14e, keepColor: true })

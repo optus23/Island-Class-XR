@@ -97,6 +97,86 @@ const MONSTERS = {
 const MONSTER_KINDS = Object.keys(MONSTERS)
 
 /**
+ * The Christmas walkers: "añade elfos que estén caminando... y algún reno".
+ *
+ * Same local frame as everything above. An elf is SMALL, a head shorter than
+ * the avatar and a head taller than the Goomba, with the two things that make
+ * an elf read at map distance: the pointed hat with its bobble hanging back,
+ * and the ears. The curled toes are for anyone who zooms in.
+ *
+ * NO RED SHIRT AND NO CYAN ANYWHERE, for the reason the villagers have none:
+ * `world.player` red is the avatar's, and a red-tunicked figure on the road
+ * reads as "why are there two of me". The red elf wears his red on the HAT and
+ * the stockings, and his tunic is green like his colleague's; what tells them
+ * apart is the hat and the trim.
+ *
+ * The reindeer is the one long walker, nose to tail along +z, so it patrols
+ * the road lengthways the way an animal on a path does.
+ */
+const ELF_SKIN = 0xffd9b3
+const ELF_INK = 0x22272e
+const elf = (tunic, tunicDark, hat, legs, shoe) => [
+  [-0.19, 0.36, 0, 0.28, 0.56, 0.32, legs], // stockings
+  [0.19, 0.36, 0, 0.28, 0.56, 0.32, legs],
+  [-0.19, 0.08, 0.1, 0.3, 0.16, 0.48, shoe], // shoes, long
+  [0.19, 0.08, 0.1, 0.3, 0.16, 0.48, shoe],
+  [-0.19, 0.2, 0.38, 0.14, 0.14, 0.14, shoe], // and curled up at the toe
+  [0.19, 0.2, 0.38, 0.14, 0.14, 0.14, shoe],
+  [0, 0.98, 0, 0.84, 0.72, 0.54, tunic], // tunic
+  [0, 0.64, 0, 0.98, 0.16, 0.64, tunicDark], // its zigzag hem, as a band
+  [0, 0.9, 0, 0.88, 0.12, 0.58, ELF_INK], // belt
+  [0, 0.9, 0.3, 0.2, 0.14, 0.04, 0xf2c14e], // buckle
+  [-0.54, 1.02, 0, 0.22, 0.58, 0.26, tunic], // arms
+  [0.54, 1.02, 0, 0.22, 0.58, 0.26, tunic],
+  [0, 1.62, 0, 0.62, 0.56, 0.56, ELF_SKIN], // head
+  [-0.38, 1.7, -0.02, 0.14, 0.3, 0.14, ELF_SKIN], // pointed ears
+  [0.38, 1.7, -0.02, 0.14, 0.3, 0.14, ELF_SKIN],
+  [-0.14, 1.66, 0.29, 0.1, 0.1, 0.04, ELF_INK], // eyes
+  [0.14, 1.66, 0.29, 0.1, 0.1, 0.04, ELF_INK],
+  [0, 1.96, 0, 0.68, 0.16, 0.62, 0xf7f9fc], // hat: white brim
+  [0, 2.17, -0.05, 0.5, 0.28, 0.46, hat], // the cone, in three steps
+  [0, 2.38, -0.17, 0.32, 0.22, 0.3, hat],
+  [0, 2.5, -0.33, 0.2, 0.18, 0.2, hat],
+  [0, 2.5, -0.47, 0.18, 0.18, 0.18, 0xf7f9fc], // bobble, hanging back
+]
+
+const CHRISTMAS = {
+  elfGreen: elf(0x2a8a4a, 0x1f6b39, 0xc8102e, 0xf7f9fc, 0x1f6b39),
+  elfHolly: elf(0x237a5a, 0x1a5c44, 0x2a8a4a, 0xc8102e, 0x7d3823),
+  reindeer: [
+    [-0.3, 0.45, 0.55, 0.2, 0.9, 0.2, 0x5a3d26], // legs
+    [0.3, 0.45, 0.55, 0.2, 0.9, 0.2, 0x5a3d26],
+    [-0.3, 0.45, -0.55, 0.2, 0.9, 0.2, 0x5a3d26],
+    [0.3, 0.45, -0.55, 0.2, 0.9, 0.2, 0x5a3d26],
+    [0, 1.15, 0, 0.8, 0.66, 1.6, 0x8b5a2b], // body
+    [0, 0.9, 0.05, 0.66, 0.16, 1.2, 0xc8a27a], // pale belly
+    [0, 1.58, 0.72, 0.42, 0.62, 0.42, 0x8b5a2b], // neck
+    [0, 1.98, 0.95, 0.5, 0.44, 0.7, 0x8b5a2b], // head
+    [0, 1.88, 1.33, 0.34, 0.3, 0.24, 0xa0703f], // muzzle
+    [0, 1.92, 1.46, 0.14, 0.12, 0.06, 0x22272e], // nose
+    [-0.15, 2.08, 1.28, 0.08, 0.08, 0.04, 0x22272e], // eyes
+    [0.15, 2.08, 1.28, 0.08, 0.08, 0.04, 0x22272e],
+    [-0.32, 2.12, 0.78, 0.22, 0.12, 0.1, 0x8b5a2b], // ears
+    [0.32, 2.12, 0.78, 0.22, 0.12, 0.1, 0x8b5a2b],
+    [-0.18, 2.45, 0.85, 0.08, 0.5, 0.08, 0x6b4a2a], // antlers: beams
+    [0.18, 2.45, 0.85, 0.08, 0.5, 0.08, 0x6b4a2a],
+    [-0.36, 2.66, 0.85, 0.36, 0.08, 0.08, 0x6b4a2a], // spread
+    [0.36, 2.66, 0.85, 0.36, 0.08, 0.08, 0x6b4a2a],
+    [-0.5, 2.82, 0.85, 0.08, 0.28, 0.08, 0x6b4a2a], // tines
+    [0.5, 2.82, 0.85, 0.08, 0.28, 0.08, 0x6b4a2a],
+    [0, 1.4, 0.68, 0.5, 0.14, 0.48, 0xc8102e], // collar
+    [0, 1.26, 0.95, 0.16, 0.16, 0.12, 0xf2c14e], // its bell
+    [0, 1.36, -0.84, 0.24, 0.24, 0.14, 0xf2efe6], // tail
+  ],
+}
+
+/**
+ * Two elves to every reindeer, in a fixed cycle rather than a hash, so a road
+ * with six walkers always has both kinds of elf and both reindeer on it.
+ */
+const CHRISTMAS_CYCLE = ['elfGreen', 'elfHolly', 'reindeer', 'elfHolly', 'elfGreen', 'reindeer']
+
+/**
  * EVERY WALKER RESERVES THE SAME NUMBER OF BOXES, and that is not tidiness.
  *
  * The instance index is `ci * BOXES_PER_WALKER + pi`, so a recipe with fewer
@@ -105,7 +185,11 @@ const MONSTER_KINDS = Object.keys(MONSTERS)
  * instances are parked at zero scale once, at build time, and `update` never
  * touches them again, so they cost a slot in the buffer and nothing per frame.
  */
-const BOXES_PER_WALKER = Math.max(PARTS.length, ...MONSTER_KINDS.map((k) => MONSTERS[k].length))
+const BOXES_PER_WALKER = Math.max(
+  PARTS.length,
+  ...MONSTER_KINDS.map((k) => MONSTERS[k].length),
+  ...Object.values(CHRISTMAS).map((r) => r.length)
+)
 
 const SPEED = 2.6 // world units per second
 
@@ -147,7 +231,7 @@ const NODE_MARGIN = 7
  * @param {number[]} [nodeIndices] where the level discs sit on that polyline;
  *   creatures patrol the stretches BETWEEN them
  */
-export function createEnemies(path, count = 4, nodeIndices = []) {
+export function createEnemies(path, count = seasonFlags.walkerCount, nodeIndices = []) {
   const group = new THREE.Group()
   if (path.length < 40) return { group, update() {} }
 
@@ -231,7 +315,9 @@ export function createEnemies(path, count = 4, nodeIndices = []) {
     const parts =
       seasonFlags.walkers === 'monsters'
         ? MONSTERS[MONSTER_KINDS[Math.floor(hash2(i * 7.3, i * 3.1) * MONSTER_KINDS.length) % MONSTER_KINDS.length]]
-        : PARTS
+        : seasonFlags.walkers === 'elves'
+          ? CHRISTMAS[CHRISTMAS_CYCLE[i % CHRISTMAS_CYCLE.length]]
+          : PARTS
     creatures.push({
       parts,
       from: Math.max(lo, centre - half),

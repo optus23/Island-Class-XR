@@ -52,6 +52,10 @@ These come from the brief and are not negotiable without the user saying so.
      - `validate` rejects a schedule key that is not a main-path session: an
        entry that can never fire is worse than no entry, because the marker
        stops halfway through the term and nobody knows why.
+  3. **the season calendar** (`seasons`, added 22 November 2026): which skin
+     the island wears when, as RECURRING month-day ranges with no year
+     (`{season, from: "MM-DD", to: "MM-DD"}`, may wrap the new year). It is
+     about how the map LOOKS, never about the course. See "Seasonal skins".
 - **No grade percentages anywhere in map data, either.** The island is for
   activities, not for grades — Marc publishes the real weighting separately, in
   each block's own guía docente on the university's platform. There used to be
@@ -873,11 +877,63 @@ Added 12 October 2026, for Halloween. `src/config/seasons.js` owns it.
   evaluating — which is what guarantees no module can observe the unpatched
   values — and the URL read is guarded, because the deck build and anything
   else that touches the config under Node has no `window`.
-- **CHRISTMAS IS COMING AND IS NOT BUILT.** Marc, same conversation: "no hace
-  falta hacerlo de Navidad hoy, pero apunta que te lo voy a pedir seguramente
-  en diciembre." There is a `christmas` entry with an EMPTY patch, so selecting
-  it today gives the ordinary island — the honest answer for a season nobody
-  has designed. Do not fill it in on spec.
+- **THE SEASON IS PICKED BY DATE NOW, NOT BY HAND** (22 November 2026, Marc:
+  "que no tuviera que pedírtelo yo para que cambiara el estado del mapa").
+  `/admin` has a "Temporadas del mapa" card that writes `seasons` into
+  `progress.json`; every browser works out today's season from it on load, in
+  Madrid days, both ends inclusive. Order of precedence: `?season=` in the URL,
+  then the calendar, then the `SEASON` constant, which is now only the fallback
+  for a day the calendar leaves empty and should stay `default`.
+  - **THE CALENDAR IS BAKED INTO THE BUNDLE, NOT FETCHED.** A season patches
+    `theme.js` while that module is still evaluating, before any mesh exists,
+    so it cannot wait for a fetch. `vite.config.js` reads the field into
+    `__SEASON_CALENDAR__` at build time. That is free in practice: a save from
+    `/admin` is a commit to `main`, and a commit to `main` rebuilds. What is
+    baked is the CALENDAR, so the switch itself still happens on the day with
+    no deploy. Under Node the define is absent, so `validate` always checks
+    the island as the ordinary one.
+  - **OVERLAPS ARE AN ERROR, NOT A TIE-BREAK**, and `checkSeasonCalendar` is
+    the ONE function both `/admin` (before saving) and `validate` (on build)
+    run. A calendar the page can save and the build refuses would take the
+    site down, which is the castle-in-the-roster trap again.
+  - Adding a summer theme is: a patch and flags in `SEASONS`, its id in
+    `CALENDAR_SEASONS`, a name and icon in `admin.js`. Nothing else asks.
+- **CHRISTMAS IS BUILT** (22 November 2026), and its design in one line is
+  **the caps go white and the cliffs stay**. Every biome's walkable cap is
+  snow, the bands and rock faces keep their own colours, and that is what
+  keeps three worlds apart on an island that is white from end to end. Light
+  is the BLUE HOUR, not night: dark enough for the lamps, the star on each
+  Christmas tree and Santa's light to read as light, never so dark the snow
+  goes grey. What it adds, each behind its own `seasonFlags` entry: snowed-in
+  pines with one decorated Christmas tree in seven, snow-capped cacti in the
+  desert, presents and candy canes in the flowers' slot, snowmen in the
+  set-piece band, snow on every landmark roof and boulder (`snowOn` derives it
+  from the recipe's own boxes rather than a second copy of eleven recipes),
+  candy-striped lampposts, snowy castles with a wreath, elves and reindeer
+  walking the road, falling snow and Santa's sleigh.
+  - **SANTA'S LIGHT COMES OUT OF THE SIX, NOT ON TOP OF THEM.** The sleigh owns
+    one PointLight; `createSeasonLights` is told to `reserve` it. The budget is
+    a phone decision. The other reindeer glow by colour, like the pumpkins.
+  - **THE SLEIGH'S LANE IS MEASURED OFF THE CAMERA.** The first cut flew 17
+    units up and a little behind the avatar and the follow camera put it on
+    the top edge of the frame: in the sky, never seen. It now walks the
+    camera-to-avatar ray down to its altitude and flies through that point,
+    and the crossing is as long as the view is WIDE there plus a margin, so it
+    enters at one edge and leaves at the other at any zoom.
+  - **Falling snow moves entirely in the vertex shader** and wraps round a box
+    that follows the avatar in WORLD space, so flakes never slide sideways as
+    you walk. Point size is multiplied by the group's world scale for VR.
+  - **FOOTPRINTS RUN IN EVERY SEASON**, on whatever ground is snow
+    (`seasonFlags.footprints`): world 3's summit in the ordinary map and at
+    Halloween, the whole island at Christmas. They are blue-grey soles pressed
+    into the cream road (the road keeps its colours), and they shrink away over
+    the last ten of their 32 seconds, the way new snow fills a track.
+- **THE SEASONAL WARDROBE.** An option in `lib/avatar.js` with `season:` is in
+  the picker only while that season is on, marked 🎃 or 🎄, and its `boxes`
+  are extra parts in the avatar's model space (a jacket's belt and trim, an elf
+  boot's curled toe). `lookBoxes` is the one list both the 3D figure and the
+  SVG preview draw. **No seasonal hat may cover the visor**: they all start
+  above the strap, and the pumpkin sits ON the head like a hat.
 
 **What Halloween actually changes**, and the two things that had to be measured
 rather than guessed:

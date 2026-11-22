@@ -37,6 +37,9 @@ import { clearGroundAround } from './three/terrain.js'
 import { createEnemies } from './three/enemies.js'
 import { createBats } from './three/bats.js'
 import { createSeasonLights } from './three/seasonLights.js'
+import { createSleigh } from './three/sleigh.js'
+import { createSnowfall } from './three/snowfall.js'
+import { createFootprints } from './three/footprints.js'
 import { createVillagers } from './three/villagers.js'
 import { loadRoster } from './lib/roster.js'
 import { readLevelFromUrl, setLevelInUrl, onRouteChange } from './lib/router.js'
@@ -106,6 +109,9 @@ app.onUpdate((dt) => {
   island.update(dt)
   enemies.update(dt)
   bats.update(dt)
+  sleigh.update(dt, player.group.position, app.rig.camera)
+  snowfall.update(dt, player.group.position, app.renderer)
+  footprints.update(dt)
   seasonLights.update(dt, player.group.position)
   villagers?.update(dt, app.rig.camera)
   island.backdrop.position.x = app.rig.focusX * BACKDROP_PARALLAX
@@ -131,7 +137,7 @@ for (const p of map.placed) {
 // Decorative creatures patrolling the road. Deliberately few — eight of them
 // along one road read as a crowd rather than as the odd wandering Goomba — and
 // they are given the node positions so they stay off the level discs.
-const enemies = createEnemies(grandPath, 4, [...nodeIndexOnPath.values()])
+const enemies = createEnemies(grandPath, undefined, [...nodeIndexOnPath.values()])
 app.worldGroup.add(enemies.group)
 
 // Bats over the island. Seasonal: `createBats` returns an empty group and a
@@ -143,8 +149,24 @@ app.worldGroup.add(bats.group)
 // A handful of real lights that follow the avatar. Seasonal in the same way
 // the bats are: outside Halloween this is an empty group and a no-op update,
 // so the ordinary map pays one import and nothing else.
-const seasonLights = createSeasonLights(island.emitters)
+//
+// Santa's sleigh carries one light of its own, and it comes OUT of that same
+// budget rather than on top of it — see `three/sleigh.js`.
+const sleigh = createSleigh()
+app.worldGroup.add(sleigh.group)
+const seasonLights = createSeasonLights(island.emitters, { reserve: sleigh.lightCount })
 app.worldGroup.add(seasonLights.group)
+
+// Falling snow, Christmas only; an empty group otherwise, like the bats.
+const snowfall = createSnowfall()
+app.worldGroup.add(snowfall.group)
+
+// Footprints on snowy ground, in EVERY season: world 3's summit is snow in
+// the ordinary map too. The avatar reports each footfall; the trail decides
+// whether the ground under it counts as snow.
+const footprints = createFootprints()
+app.worldGroup.add(footprints.group)
+player.onStep(footprints.step)
 
 /**
  * The honoured students, built in boot() once `npcs.json` has arrived — so this
@@ -1094,6 +1116,8 @@ async function boot() {
     window.__map = map
     window.__player = player
     window.__villagers = villagers
+    window.__sleigh = sleigh
+    window.__footprints = footprints
     window.__selectLevel = selectLevel
     window.__setOverview = setOverview
     // The LOCAL half of "Completar y avanzar" — move the marker and remember

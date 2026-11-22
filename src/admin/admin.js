@@ -14,7 +14,16 @@ import {
   settings,
   writeRoster,
   writeSchedule,
+  writeSeasons,
 } from '../lib/githubData.js'
+import {
+  CALENDAR_SEASONS,
+  SEASON_CALENDAR,
+  activeSeason,
+  checkSeasonCalendar,
+  nextSeasonStart,
+  seasonForDate,
+} from '../config/seasons.js'
 import {
   SCHEDULE_ZONE,
   cleanSchedule,
@@ -101,6 +110,43 @@ let state = {
   scheduleDirty: false,
   scheduleNote: null,
   scheduleTone: 'info',
+  /**
+   * The season calendar as /admin is editing it: season -> {on, from, to},
+   * as "MM-DD". Read from the repository on sign-in; until then it shows what
+   * THIS build was made with.
+   */
+  seasons: seasonsToForm(SEASON_CALENDAR),
+  seasonsDirty: false,
+  seasonsNote: null,
+  seasonsTone: 'info',
+}
+
+/**
+ * Suggested ranges for a season that has never been on the calendar, so
+ * ticking it on gives something sensible to adjust rather than 1 January.
+ */
+const SEASON_DEFAULTS = {
+  halloween: { from: '10-20', to: '11-02' },
+  christmas: { from: '12-01', to: '01-07' },
+}
+const SEASON_NAMES = { halloween: 'Halloween', christmas: 'Navidad', default: 'el mapa normal' }
+const SEASON_ICONS = { halloween: '🎃', christmas: '🎄', default: '🏝️' }
+
+function seasonsToForm(calendar) {
+  const form = {}
+  for (const id of CALENDAR_SEASONS) {
+    const hit = Array.isArray(calendar) ? calendar.find((r) => r?.season === id) : null
+    form[id] = hit ? { on: true, from: hit.from, to: hit.to } : { on: false, ...SEASON_DEFAULTS[id] }
+  }
+  return form
+}
+
+function formToCalendar(form) {
+  return CALENDAR_SEASONS.filter((id) => form[id]?.on).map((id) => ({
+    season: id,
+    from: form[id].from,
+    to: form[id].to,
+  }))
 }
 
 /** Names come from a human and land in `innerHTML` below. */
@@ -152,6 +198,9 @@ async function check() {
     if (!doc) throw new Error(`No existe ${PROGRESS_PATH} en la rama ${settings.branch}.`)
     state.currentLevelId = doc.currentLevelId ?? START_MARKER
     state.schedule = cleanSchedule(doc.schedule, new Set(mainSequence.map((l) => l.id)))
+    state.seasons = seasonsToForm(doc.seasons)
+    state.seasonsDirty = false
+    state.seasonsNote = null
     state.scheduleDirty = false
     state.scheduleNote = null
     // Default the picker to where the class is — the teacher is awarding points
@@ -727,6 +776,164 @@ function scheduleCard() {
     </div>`
 }
 
+// --- the season calendar ----------------------------------------------------
+
+const MONTHS = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic']
+const DAYS_IN = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+
+/** A day select and a month select for one "MM-DD". */
+function monthDayPicker(season, end, md) {
+  const [mm, dd] = String(md).split('-').map(Number)
+  const days = Array.from({ length: DAYS_IN[(mm || 1) - 1] }, (_, i) => i + 1)
+    .map((d) => `<option value="${d}" ${d === dd ? 'selected' : ''}>${d}</option>`)
+    .join('')
+  const months = MONTHS.map(
+    (name, i) => `<option value="${i + 1}" ${i + 1 === mm ? 'selected' : ''}>${name}</option>`
+  ).join('')
+  const off = state.busy ? 'disabled' : ''
+  return `
+    <span class="join">
+      <select class="select select-bordered select-xs join-item" data-season="${season}"
+              data-end="${end}" data-part="day" ${off}>${days}</select>
+      <select class="select select-bordered select-xs join-item" data-season="${season}"
+              data-end="${end}" data-part="month" ${off}>${months}</select>
+    </span>`
+}
+
+function setSeasonPart(season, end, part, value) {
+  const row = state.seasons[season]
+  let [mm, dd] = row[end].split('-').map(Number)
+  if (part === 'day') dd = Number(value)
+  else mm = Number(value)
+  dd = Math.min(dd, DAYS_IN[mm - 1])
+  const pad = (v) => String(v).padStart(2, '0')
+  row[end] = pad(mm) + '-' + pad(dd)
+  state.seasonsDirty = true
+  state.seasonsNote = null
+}
+
+function saySeasons(note, tone = 'info') {
+  state.seasonsNote = note
+  state.seasonsTone = tone
+  render()
+}
+
+async function saveSeasons() {
+  const calendar = formToCalendar(state.seasons)
+  // The same check the build runs. Publishing a calendar `validate` refuses
+  // would fail the deploy, which takes the whole site down with it.
+  const errors = checkSeasonCalendar(calendar)
+  if (errors.length) {
+    saySeasons(errors.join(' · '), 'error')
+    return
+  }
+  state.busy = true
+  render()
+  try {
+    await writeSeasons(calendar)
+    state.seasonsDirty = false
+    saySeasons(
+      'Guardado. El sitio se reconstruye en 1 o 2 minutos, y a partir de ahí la isla cambia sola en esas fechas, todos los años.',
+      'success'
+    )
+  } catch (e) {
+    saySeasons(e.message, 'error')
+  } finally {
+    state.busy = false
+    render()
+  }
+}
+
+/**
+ * The season calendar: when each skin is on, every year.
+ *
+ * Says out loud what the island is wearing TODAY and when the next one starts,
+ * for the same reason the timetable card does: a feature that works silently
+ * on a future date looks exactly like a feature that does nothing.
+ */
+function seasonsCard() {
+  if (!state.roster) return ''
+  const calendar = formToCalendar(state.seasons)
+  const errors = checkSeasonCalendar(calendar)
+  const today = seasonForDate(calendar) ?? 'default'
+  const next = nextSeasonStart(calendar)
+  const base = import.meta.env.BASE_URL
+  const off = state.busy ? 'disabled' : ''
+
+  const rows = CALENDAR_SEASONS.map((id) => {
+    const row = state.seasons[id]
+    return `
+      <li class="rounded-lg bg-base-300/40 p-3 flex flex-col gap-2">
+        <div class="flex items-center gap-2">
+          <label class="flex items-center gap-2 cursor-pointer">
+            <input type="checkbox" class="toggle toggle-sm toggle-success" data-season-on="${id}"
+                   ${row.on ? 'checked' : ''} ${off} />
+            <span class="font-semibold">${SEASON_ICONS[id]} ${SEASON_NAMES[id]}</span>
+          </label>
+          <a class="link text-xs opacity-70 ml-auto" href="${base}?season=${id}"
+             target="_blank" rel="noopener">Ver cómo queda</a>
+        </div>
+        <div class="flex flex-wrap items-center gap-2 text-xs ${row.on ? '' : 'opacity-40'}">
+          <span>del</span>${monthDayPicker(id, 'from', row.from)}
+          <span>al</span>${monthDayPicker(id, 'to', row.to)}
+        </div>
+      </li>`
+  }).join('')
+
+  const tone =
+    state.seasonsTone === 'error'
+      ? 'text-error'
+      : state.seasonsTone === 'success'
+        ? 'text-success'
+        : 'opacity-70'
+
+  return `
+    <div class="card bg-base-200 shadow-md p-4 flex flex-col gap-3">
+      <div>
+        <h2 class="font-semibold">Temporadas del mapa</h2>
+        <p class="text-xs opacity-70 mt-1">
+          La isla cambia de aspecto sola en estas fechas, <strong>todos los años</strong>.
+          Solo cambia cómo se ve (nieve, luces, personajes), nunca el curso.
+          Las dos fechas incluidas, hora peninsular.
+        </p>
+      </div>
+
+      <div class="rounded-md bg-base-300/40 px-3 py-2 flex flex-col gap-1 text-xs">
+        <p>Con este calendario, hoy la isla está en
+          <strong>${SEASON_ICONS[today]} ${SEASON_NAMES[today]}</strong>.</p>
+        ${
+          next
+            ? `<p class="opacity-70">${SEASON_NAMES[next.season]} empieza
+               ${next.inDays === 1 ? 'mañana' : `en ${next.inDays} días`}.</p>`
+            : ''
+        }
+        ${
+          activeSeason !== today && !state.seasonsDirty
+            ? `<p class="opacity-60">Esta página se publicó con ${SEASON_NAMES[activeSeason]}:
+               el mapa se pondrá al día con la próxima reconstrucción.</p>`
+            : ''
+        }
+      </div>
+
+      <ul class="flex flex-col gap-2">${rows}</ul>
+
+      ${errors.length ? `<p class="text-xs text-error">${esc(errors.join(' · '))}</p>` : ''}
+      ${state.seasonsNote ? `<p class="text-xs ${tone}">${esc(state.seasonsNote)}</p>` : ''}
+
+      <p class="text-[11px] opacity-60 -mt-1">
+        Se aplica tras la reconstrucción del sitio (1 o 2 minutos). Un enlace con
+        <code>?season=christmas</code> o <code>?season=default</code> enseña cualquiera
+        de las dos sin tocar nada.
+      </p>
+
+      <button id="seasons-save"
+              class="btn btn-block btn-sm ${state.seasonsDirty ? 'btn-warning' : 'btn-outline'}"
+              ${state.busy || !state.seasonsDirty || errors.length ? 'disabled' : ''}>
+        ${state.busy ? '…' : 'Guardar temporadas'}
+      </button>
+    </div>`
+}
+
 function render() {
   // A column, not `place-items: center`. The page can now be taller than the
   // viewport, and centring an item that overflows falls back to start alignment
@@ -739,6 +946,7 @@ function render() {
         ${signInCard()}
         ${rosterCard()}
         ${scheduleCard()}
+        ${seasonsCard()}
       </div>
     </main>`
 
@@ -804,6 +1012,25 @@ function render() {
   el('sched-fill-3')?.addEventListener('click', () => fillEvery(3))
   el('sched-clear')?.addEventListener('click', clearSchedule)
   el('sched-save')?.addEventListener('click', saveSchedule)
+
+  // The season calendar. Re-rendered on every change, unlike the timetable:
+  // these are selects and toggles, not text fields, so there is no focus to
+  // lose, and the "hoy la isla está en" line has to follow what you pick.
+  root.querySelectorAll('[data-season-on]').forEach((input) =>
+    input.addEventListener('change', () => {
+      state.seasons[input.dataset.seasonOn].on = input.checked
+      state.seasonsDirty = true
+      state.seasonsNote = null
+      render()
+    })
+  )
+  root.querySelectorAll('[data-season][data-part]').forEach((sel) =>
+    sel.addEventListener('change', () => {
+      setSeasonPart(sel.dataset.season, sel.dataset.end, sel.dataset.part, sel.value)
+      render()
+    })
+  )
+  el('seasons-save')?.addEventListener('click', saveSeasons)
 
   if (!state.roster) return
 

@@ -894,10 +894,16 @@ body.map-view {
   font-size: 0.7rem;
   min-width: 0;
 }
-.avatar-choice > span:last-child {
+.avatar-choice > .avatar-label {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+/* The pumpkin or tree beside a seasonal piece: it is only here this season. */
+.avatar-season {
+  flex: none;
+  font-size: 0.7rem;
+  line-height: 1;
 }
 .avatar-swatch {
   width: 0.75rem;
