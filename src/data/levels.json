@@ -1313,20 +1313,25 @@
     {
       "id": "w3-01",
       "title": {
-        "en": "Project: concept and Q&A",
-        "es": "Proyecto: concept y resolución de dudas",
-        "ca": "Projecte: concept i resolució de dubtes"
+        "en": "Introduction to Unity and C#",
+        "es": "Introducción a Unity y C#",
+        "ca": "Introducció a Unity i C#"
       },
       "world": 3,
       "stage": "final-project",
       "category": "project",
       "optional": false,
       "summary": {
-        "en": "Final project: concept, Q&A",
-        "es": "Trabajo final: concept, resolución de dudas",
-        "ca": "Projecte Final d'Assignatura: Concept, Resolució de dubtes"
+        "en": "Introduction to Unity and C# · Final project: concept, Q&A",
+        "es": "Introducción a Unity y C# · Trabajo final: concept, resolución de dudas",
+        "ca": "Introducció a Unity i C# · Projecte Final d'Assignatura: Concept, Resolució de dubtes"
       },
       "contents": [
+        {
+          "en": "Introduction to Unity and C#",
+          "es": "Introducción a Unity y C#",
+          "ca": "Introducció a Unity i C#"
+        },
         {
           "en": "Final project: concept, Q&A",
           "es": "Trabajo final: concept, resolución de dudas",
